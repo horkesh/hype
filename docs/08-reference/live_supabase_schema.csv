@@ -1,0 +1,329 @@
+table_schema,table_name,column_name,data_type,is_nullable,column_default
+public,admin_pending_queue,type,text,YES,null
+public,admin_pending_queue,id,uuid,YES,null
+public,admin_pending_queue,title,text,YES,null
+public,admin_pending_queue,submitted_by,uuid,YES,null
+public,admin_pending_queue,created_at,timestamp with time zone,YES,null
+public,ai_plans,id,uuid,NO,gen_random_uuid()
+public,ai_plans,user_id,uuid,YES,null
+public,ai_plans,mood,text,NO,null
+public,ai_plans,budget_bam,numeric,YES,null
+public,ai_plans,group_size,integer,YES,2
+public,ai_plans,plan_data,jsonb,NO,null
+public,ai_plans,share_token,text,YES,"encode(gen_random_bytes(6), 'hex'::text)"
+public,ai_plans,created_at,timestamp with time zone,YES,now()
+public,audio_guides,id,uuid,NO,gen_random_uuid()
+public,audio_guides,title_bs,text,NO,null
+public,audio_guides,title_en,text,NO,null
+public,audio_guides,description_bs,text,YES,null
+public,audio_guides,description_en,text,YES,null
+public,audio_guides,cover_image_url,text,YES,null
+public,audio_guides,total_duration_min,integer,YES,null
+public,audio_guides,difficulty,text,YES,null
+public,audio_guides,distance_km,numeric,YES,null
+public,audio_guides,stops,jsonb,NO,null
+public,audio_guides,tags,ARRAY,YES,'{}'::text[]
+public,audio_guides,is_active,boolean,YES,true
+public,audio_guides,created_at,timestamp with time zone,YES,now()
+public,badges,id,uuid,NO,gen_random_uuid()
+public,badges,badge_key,text,NO,null
+public,badges,name_bs,text,NO,null
+public,badges,name_en,text,NO,null
+public,badges,description_bs,text,YES,null
+public,badges,description_en,text,YES,null
+public,badges,icon,text,NO,null
+public,badges,criteria,jsonb,NO,null
+public,badges,is_active,boolean,YES,true
+public,checkins,id,uuid,NO,gen_random_uuid()
+public,checkins,user_id,uuid,NO,null
+public,checkins,venue_id,uuid,NO,null
+public,checkins,photo_url,text,YES,null
+public,checkins,vibe_rating,integer,YES,null
+public,checkins,note,text,YES,null
+public,checkins,created_at,timestamp with time zone,YES,now()
+public,daily_digests,id,uuid,NO,gen_random_uuid()
+public,daily_digests,digest_date,date,NO,null
+public,daily_digests,content_bs,text,YES,null
+public,daily_digests,content_en,text,YES,null
+public,daily_digests,featured_event_ids,ARRAY,YES,'{}'::uuid[]
+public,daily_digests,weather_data,jsonb,YES,null
+public,daily_digests,created_at,timestamp with time zone,YES,now()
+public,daily_specials,id,uuid,NO,gen_random_uuid()
+public,daily_specials,venue_id,uuid,NO,null
+public,daily_specials,type,text,NO,null
+public,daily_specials,title_bs,text,YES,null
+public,daily_specials,title_en,text,YES,null
+public,daily_specials,description_bs,text,YES,null
+public,daily_specials,description_en,text,YES,null
+public,daily_specials,price_bam,numeric,YES,null
+public,daily_specials,valid_days,ARRAY,YES,'{}'::text[]
+public,daily_specials,valid_time_start,time without time zone,YES,null
+public,daily_specials,valid_time_end,time without time zone,YES,null
+public,daily_specials,is_active,boolean,YES,true
+public,daily_specials,created_at,timestamp with time zone,YES,now()
+public,event_attendance,user_id,uuid,NO,null
+public,event_attendance,event_id,uuid,NO,null
+public,event_attendance,created_at,timestamp with time zone,YES,now()
+public,event_series,id,uuid,NO,gen_random_uuid()
+public,event_series,name_bs,text,NO,null
+public,event_series,name_en,text,YES,null
+public,event_series,slug,text,NO,null
+public,event_series,description_bs,text,YES,null
+public,event_series,description_en,text,YES,null
+public,event_series,category,USER-DEFINED,NO,'other'::event_category
+public,event_series,cover_image_url,text,YES,null
+public,event_series,logo_url,text,YES,null
+public,event_series,start_date,date,NO,null
+public,event_series,end_date,date,NO,null
+public,event_series,website_url,text,YES,null
+public,event_series,ticket_url,text,YES,null
+public,event_series,is_featured,boolean,YES,false
+public,event_series,is_active,boolean,YES,true
+public,event_series,created_at,timestamp with time zone,YES,now()
+public,event_series,updated_at,timestamp with time zone,YES,now()
+public,event_submissions,id,uuid,NO,gen_random_uuid()
+public,event_submissions,submitted_by,uuid,NO,null
+public,event_submissions,title_bs,text,NO,null
+public,event_submissions,title_en,text,YES,null
+public,event_submissions,description_bs,text,YES,null
+public,event_submissions,description_en,text,YES,null
+public,event_submissions,category,USER-DEFINED,NO,'other'::event_category
+public,event_submissions,venue_id,uuid,YES,null
+public,event_submissions,location_name,text,YES,null
+public,event_submissions,location_address,text,YES,null
+public,event_submissions,latitude,double precision,YES,null
+public,event_submissions,longitude,double precision,YES,null
+public,event_submissions,start_datetime,timestamp with time zone,NO,null
+public,event_submissions,end_datetime,timestamp with time zone,YES,null
+public,event_submissions,is_recurring,boolean,YES,false
+public,event_submissions,cover_image_url,text,YES,null
+public,event_submissions,price_bam,numeric,YES,null
+public,event_submissions,ticket_url,text,YES,null
+public,event_submissions,status,USER-DEFINED,NO,'pending'::submission_status
+public,event_submissions,reviewer_id,uuid,YES,null
+public,event_submissions,reviewer_notes,text,YES,null
+public,event_submissions,reviewed_at,timestamp with time zone,YES,null
+public,event_submissions,approved_event_id,uuid,YES,null
+public,event_submissions,created_at,timestamp with time zone,YES,now()
+public,events,id,uuid,NO,gen_random_uuid()
+public,events,title_bs,text,NO,null
+public,events,title_en,text,YES,null
+public,events,description_bs,text,YES,null
+public,events,description_en,text,YES,null
+public,events,type,USER-DEFINED,NO,'venue_linked'::event_type
+public,events,category,USER-DEFINED,NO,'other'::event_category
+public,events,moods,ARRAY,YES,'{}'::text[]
+public,events,tags,ARRAY,YES,'{}'::text[]
+public,events,series_id,uuid,YES,null
+public,events,venue_id,uuid,YES,null
+public,events,location_name,text,YES,null
+public,events,location_address,text,YES,null
+public,events,latitude,double precision,YES,null
+public,events,longitude,double precision,YES,null
+public,events,start_datetime,timestamp with time zone,NO,null
+public,events,end_datetime,timestamp with time zone,YES,null
+public,events,is_recurring,boolean,YES,false
+public,events,recurrence_rule,text,YES,null
+public,events,cover_image_url,text,YES,null
+public,events,price_bam,numeric,YES,null
+public,events,ticket_url,text,YES,null
+public,events,source,text,YES,null
+public,events,submitted_by,uuid,YES,null
+public,events,status,USER-DEFINED,NO,'approved'::submission_status
+public,events,is_featured,boolean,YES,false
+public,events,attendance_count,integer,YES,0
+public,events,is_active,boolean,YES,true
+public,events,created_at,timestamp with time zone,YES,now()
+public,events,updated_at,timestamp with time zone,YES,now()
+public,favorites,user_id,uuid,NO,null
+public,favorites,venue_id,uuid,NO,null
+public,favorites,created_at,timestamp with time zone,YES,now()
+public,geography_columns,f_table_catalog,name,YES,null
+public,geography_columns,f_table_schema,name,YES,null
+public,geography_columns,f_table_name,name,YES,null
+public,geography_columns,f_geography_column,name,YES,null
+public,geography_columns,coord_dimension,integer,YES,null
+public,geography_columns,srid,integer,YES,null
+public,geography_columns,type,text,YES,null
+public,geometry_columns,f_table_catalog,character varying,YES,null
+public,geometry_columns,f_table_schema,name,YES,null
+public,geometry_columns,f_table_name,name,YES,null
+public,geometry_columns,f_geometry_column,name,YES,null
+public,geometry_columns,coord_dimension,integer,YES,null
+public,geometry_columns,srid,integer,YES,null
+public,geometry_columns,type,character varying,YES,null
+public,profiles,id,uuid,NO,null
+public,profiles,display_name,text,YES,null
+public,profiles,avatar_url,text,YES,null
+public,profiles,role,USER-DEFINED,NO,'user'::user_role
+public,profiles,bio,text,YES,null
+public,profiles,preferred_language,text,YES,'bs'::text
+public,profiles,taste_moods,ARRAY,YES,'{}'::text[]
+public,profiles,total_checkins,integer,YES,0
+public,profiles,total_submissions,integer,YES,0
+public,profiles,total_tips,integer,YES,0
+public,profiles,is_banned,boolean,YES,false
+public,profiles,ban_reason,text,YES,null
+public,profiles,created_at,timestamp with time zone,YES,now()
+public,profiles,updated_at,timestamp with time zone,YES,now()
+public,raw_events,id,uuid,NO,gen_random_uuid()
+public,raw_events,source_name,text,YES,null
+public,raw_events,source_url,text,YES,null
+public,raw_events,title_raw,text,YES,null
+public,raw_events,description_raw,text,YES,null
+public,raw_events,date_raw,text,YES,null
+public,raw_events,image_url,text,YES,null
+public,raw_events,raw_html,text,YES,null
+public,raw_events,parsed,boolean,YES,false
+public,raw_events,created_at,timestamp with time zone,YES,now()
+public,raw_events,venue_raw,text,YES,null
+public,raw_events,raw_json,jsonb,YES,null
+public,raw_events,parse_attempts,integer,YES,0
+public,raw_events,parsed_at,timestamp with time zone,YES,null
+public,raw_events,venue_name_raw,text,YES,null
+public,raw_events,venue_match_status,text,YES,'unmatched'::text
+public,raw_events,matched_venue_id,uuid,YES,null
+public,reports,id,uuid,NO,gen_random_uuid()
+public,reports,reporter_id,uuid,NO,null
+public,reports,venue_id,uuid,YES,null
+public,reports,event_id,uuid,YES,null
+public,reports,tip_id,uuid,YES,null
+public,reports,reason,USER-DEFINED,NO,null
+public,reports,details,text,YES,null
+public,reports,status,USER-DEFINED,NO,'pending'::submission_status
+public,reports,resolved_by,uuid,YES,null
+public,reports,resolution_notes,text,YES,null
+public,reports,resolved_at,timestamp with time zone,YES,null
+public,reports,created_at,timestamp with time zone,YES,now()
+public,scrape_log,id,uuid,NO,gen_random_uuid()
+public,scrape_log,source_id,uuid,YES,null
+public,scrape_log,raw_content,text,YES,null
+public,scrape_log,parsed_data,jsonb,YES,null
+public,scrape_log,events_created,integer,YES,0
+public,scrape_log,tokens_used,integer,YES,0
+public,scrape_log,error,text,YES,null
+public,scrape_log,created_at,timestamp with time zone,YES,now()
+public,scrape_sources,id,uuid,NO,gen_random_uuid()
+public,scrape_sources,name,text,NO,null
+public,scrape_sources,source_url,text,NO,null
+public,scrape_sources,tier,integer,YES,2
+public,scrape_sources,scrape_config,jsonb,YES,'{}'::jsonb
+public,scrape_sources,frequency_hours,integer,YES,24
+public,scrape_sources,is_active,boolean,YES,true
+public,scrape_sources,last_scraped_at,timestamp with time zone,YES,null
+public,scrape_sources,created_at,timestamp with time zone,YES,now()
+public,seasonal_modes,id,uuid,NO,gen_random_uuid()
+public,seasonal_modes,mode_key,text,NO,null
+public,seasonal_modes,name_bs,text,NO,null
+public,seasonal_modes,name_en,text,NO,null
+public,seasonal_modes,start_date,date,NO,null
+public,seasonal_modes,end_date,date,NO,null
+public,seasonal_modes,config,jsonb,NO,null
+public,seasonal_modes,series_id,uuid,YES,null
+public,seasonal_modes,is_active,boolean,YES,true
+public,spatial_ref_sys,srid,integer,NO,null
+public,spatial_ref_sys,auth_name,character varying,YES,null
+public,spatial_ref_sys,auth_srid,integer,YES,null
+public,spatial_ref_sys,srtext,character varying,YES,null
+public,spatial_ref_sys,proj4text,character varying,YES,null
+public,tip_upvotes,user_id,uuid,NO,null
+public,tip_upvotes,tip_id,uuid,NO,null
+public,tip_upvotes,created_at,timestamp with time zone,YES,now()
+public,tips,id,uuid,NO,gen_random_uuid()
+public,tips,user_id,uuid,NO,null
+public,tips,venue_id,uuid,NO,null
+public,tips,text_bs,text,YES,null
+public,tips,text_en,text,YES,null
+public,tips,upvotes,integer,YES,0
+public,tips,is_active,boolean,YES,true
+public,tips,created_at,timestamp with time zone,YES,now()
+public,user_badges,user_id,uuid,NO,null
+public,user_badges,badge_id,uuid,NO,null
+public,user_badges,earned_at,timestamp with time zone,YES,now()
+public,venue_aliases,id,uuid,NO,gen_random_uuid()
+public,venue_aliases,venue_id,uuid,NO,null
+public,venue_aliases,alias,text,NO,null
+public,venue_aliases,normalized_alias,text,NO,null
+public,venue_aliases,source,text,YES,null
+public,venue_aliases,created_at,timestamp with time zone,YES,now()
+public,venue_claims,id,uuid,NO,gen_random_uuid()
+public,venue_claims,user_id,uuid,NO,null
+public,venue_claims,venue_id,uuid,NO,null
+public,venue_claims,business_name,text,YES,null
+public,venue_claims,business_role,text,YES,null
+public,venue_claims,verification_method,text,YES,null
+public,venue_claims,verification_proof_url,text,YES,null
+public,venue_claims,status,USER-DEFINED,NO,'pending'::claim_status
+public,venue_claims,reviewer_id,uuid,YES,null
+public,venue_claims,reviewer_notes,text,YES,null
+public,venue_claims,reviewed_at,timestamp with time zone,YES,null
+public,venue_claims,created_at,timestamp with time zone,YES,now()
+public,venue_stats,id,uuid,YES,null
+public,venue_stats,name,text,YES,null
+public,venue_stats,category,text,YES,null
+public,venue_stats,neighborhood,text,YES,null
+public,venue_stats,google_rating,numeric,YES,null
+public,venue_stats,favorites_count,bigint,YES,null
+public,venue_stats,checkins_count,bigint,YES,null
+public,venue_stats,tips_count,bigint,YES,null
+public,venue_stats,upcoming_events,bigint,YES,null
+public,venue_submissions,id,uuid,NO,gen_random_uuid()
+public,venue_submissions,submitted_by,uuid,NO,null
+public,venue_submissions,name,text,NO,null
+public,venue_submissions,category,text,NO,null
+public,venue_submissions,subcategory,text,YES,null
+public,venue_submissions,address,text,YES,null
+public,venue_submissions,neighborhood,text,YES,null
+public,venue_submissions,latitude,double precision,YES,null
+public,venue_submissions,longitude,double precision,YES,null
+public,venue_submissions,phone,text,YES,null
+public,venue_submissions,website,text,YES,null
+public,venue_submissions,instagram_handle,text,YES,null
+public,venue_submissions,description_bs,text,YES,null
+public,venue_submissions,description_en,text,YES,null
+public,venue_submissions,is_hidden_gem,boolean,YES,false
+public,venue_submissions,tags,ARRAY,YES,'{}'::text[]
+public,venue_submissions,photo_url,text,YES,null
+public,venue_submissions,status,USER-DEFINED,NO,'pending'::submission_status
+public,venue_submissions,reviewer_id,uuid,YES,null
+public,venue_submissions,reviewer_notes,text,YES,null
+public,venue_submissions,reviewed_at,timestamp with time zone,YES,null
+public,venue_submissions,approved_venue_id,uuid,YES,null
+public,venue_submissions,created_at,timestamp with time zone,YES,now()
+public,venues,id,uuid,NO,gen_random_uuid()
+public,venues,name,text,NO,null
+public,venues,slug,text,NO,null
+public,venues,category,text,NO,null
+public,venues,subcategory,text,YES,null
+public,venues,address,text,YES,null
+public,venues,neighborhood,text,YES,null
+public,venues,latitude,double precision,YES,null
+public,venues,longitude,double precision,YES,null
+public,venues,location,USER-DEFINED,YES,null
+public,venues,phone,text,YES,null
+public,venues,website,text,YES,null
+public,venues,instagram_handle,text,YES,null
+public,venues,facebook_url,text,YES,null
+public,venues,description_bs,text,YES,null
+public,venues,description_en,text,YES,null
+public,venues,opening_hours,jsonb,YES,null
+public,venues,price_range,integer,YES,null
+public,venues,moods,ARRAY,YES,'{}'::text[]
+public,venues,is_hidden_gem,boolean,YES,false
+public,venues,insider_tip_bs,text,YES,null
+public,venues,insider_tip_en,text,YES,null
+public,venues,tags,ARRAY,YES,'{}'::text[]
+public,venues,delivery_korpa_url,text,YES,null
+public,venues,delivery_glovo_url,text,YES,null
+public,venues,google_place_id,text,YES,null
+public,venues,google_rating,numeric,YES,null
+public,venues,google_rating_count,integer,YES,null
+public,venues,cover_image_url,text,YES,null
+public,venues,logo_url,text,YES,null
+public,venues,is_verified,boolean,YES,false
+public,venues,is_new,boolean,YES,false
+public,venues,is_active,boolean,YES,true
+public,venues,claimed_by,uuid,YES,null
+public,venues,claimed_at,timestamp with time zone,YES,null
+public,venues,created_at,timestamp with time zone,YES,now()
+public,venues,updated_at,timestamp with time zone,YES,now()

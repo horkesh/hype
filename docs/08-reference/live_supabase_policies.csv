@@ -1,0 +1,50 @@
+schemaname,tablename,policyname,permissive,roles,cmd,qual,with_check
+public,ai_plans,AI plans: public read shared,PERMISSIVE,{public},SELECT,(share_token IS NOT NULL),null
+public,ai_plans,AI plans: user own,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,audio_guides,Audio guides: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,audio_guides,Audio guides: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,badges,Badges: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,badges,Badges: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,checkins,Checkins: public read,PERMISSIVE,{public},SELECT,true,null
+public,checkins,Checkins: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = user_id)
+public,daily_digests,Digests: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,daily_digests,Digests: public read,PERMISSIVE,{public},SELECT,true,null
+public,daily_specials,Daily specials: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,daily_specials,Daily specials: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,daily_specials,Daily specials: venue owner manage,PERMISSIVE,{public},ALL,is_venue_owner(venue_id),null
+public,event_attendance,Attendance: public read count,PERMISSIVE,{public},SELECT,true,null
+public,event_attendance,Attendance: user own,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,event_series,Event series: admin full access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,event_series,Event series: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,event_submissions,Event subs: admin access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,event_submissions,Event subs: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = submitted_by)
+public,event_submissions,Event subs: user read own,PERMISSIVE,{public},SELECT,(auth.uid() = submitted_by),null
+public,events,Events: admin full access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,events,Events: public read,PERMISSIVE,{public},SELECT,((is_active = true) AND (status = 'approved'::submission_status)),null
+public,events,Events: venue owner create,PERMISSIVE,{public},INSERT,null,((auth.uid() = submitted_by) AND (venue_id IS NOT NULL) AND is_venue_owner(venue_id))
+public,favorites,Favorites: user own,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,profiles,Profiles: admin update,PERMISSIVE,{public},UPDATE,is_admin_or_curator(),null
+public,profiles,Profiles: public read,PERMISSIVE,{public},SELECT,true,null
+public,profiles,Profiles: self update,PERMISSIVE,{public},UPDATE,(auth.uid() = id),(auth.uid() = id)
+public,reports,Reports: admin access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,reports,Reports: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = reporter_id)
+public,reports,Reports: user read own,PERMISSIVE,{public},SELECT,(auth.uid() = reporter_id),null
+public,scrape_log,Scrape log: admin only,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,scrape_sources,Scrape sources: admin only,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,seasonal_modes,Seasonal modes: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,seasonal_modes,Seasonal modes: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,tip_upvotes,Tip upvotes: user own,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,tips,Tips: admin manage,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,tips,Tips: public read,PERMISSIVE,{public},SELECT,(is_active = true),null
+public,tips,Tips: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = user_id)
+public,tips,Tips: user update own,PERMISSIVE,{public},UPDATE,(auth.uid() = user_id),null
+public,user_badges,User badges: public read,PERMISSIVE,{public},SELECT,true,null
+public,venue_claims,Claims: admin access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,venue_claims,Claims: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = user_id)
+public,venue_claims,Claims: user read own,PERMISSIVE,{public},SELECT,(auth.uid() = user_id),null
+public,venue_submissions,Venue subs: admin access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,venue_submissions,Venue subs: user create,PERMISSIVE,{public},INSERT,null,(auth.uid() = submitted_by)
+public,venue_submissions,Venue subs: user read own,PERMISSIVE,{public},SELECT,(auth.uid() = submitted_by),null
+public,venues,Venues: admin full access,PERMISSIVE,{public},ALL,is_admin_or_curator(),null
+public,venues,Venues: owner update,PERMISSIVE,{public},UPDATE,(claimed_by = auth.uid()),(claimed_by = auth.uid())
+public,venues,Venues: public read,PERMISSIVE,{public},SELECT,(is_active = true),null

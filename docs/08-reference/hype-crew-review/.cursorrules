@@ -1,0 +1,141 @@
+# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# HYPE CREW \u2014 Global Project Rules
+# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# App: Hype — hype.ba
+# Sarajevo events, nightlife, dining & culture guide
+# Stack: React Native (Expo) \u00b7 Supabase \u00b7 OpenAI \u00b7 Apify
+# Architecture: docs/hype-architecture-v5.md (single source of truth)
+# Schema: docs/hype-supabase-schema.sql (1,236 lines, production-ready)
+# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+
+## What Is This App
+
+A mobile-first city companion for Sarajevo. Aggregates events from 30+ local
+sources via AI-powered scraping, enriches with bilingual content (Bosnian +
+English), presents through mood-driven discovery. Not a dry calendar \u2014 a
+curated, atmospheric experience. Answers: "\u0160ta ima ve\u010deras?" and "Gdje da idemo?"
+
+Target users: Sarajevo locals (primary), tourists & expats (secondary).
+
+## Tech Stack
+
+| Layer            | Choice                                    |
+|------------------|-------------------------------------------|
+| Mobile App       | React Native (Expo) via Natively or Rork          |
+| Backend / DB     | Supabase (PostgreSQL + Auth + RLS + Edge) |
+| Location         | PostGIS (geography type)                  |
+| AI Parsing       | OpenAI GPT-4o-mini                        |
+| Scraping         | Supabase Edge Functions (Deno) + Apify    |
+| Instagram        | Apify Instagram Post Scraper (40 accounts)|
+| Auth             | Supabase Auth (Email, Google, Apple)      |
+| Maps             | react-native-maps                         |
+| Push             | Expo Push Notifications                   |
+| Admin Panel      | Next.js                                   |
+| Public Site      | Astro or Next.js (SSG for SEO)            |
+
+## Critical Conventions
+
+### Bilingual Everything
+- ALL user-facing content: Bosnian (bs) + English (en)
+- Fields: title_bs / title_en, description_bs / description_en
+- Bosnian = Latin script only (never Cyrillic)
+- Diacritics: \u010d, \u0107, \u0161, \u017e, \u0111 \u2014 use `unaccent` extension for search
+- Default UI language: Bosnian. English togglable.
+
+### Database Rules
+- RLS enabled on ALL tables \u2014 zero exceptions
+- UUIDs for primary keys (gen_random_uuid())
+- Timestamps: TIMESTAMPTZ in UTC, display in CET/CEST
+- Soft deletes via `is_active` boolean \u2014 never hard delete user data
+- Denormalized counters where needed (total_checkins, attendance_count)
+- PostGIS geography type for location, auto-computed via trigger
+- Event series (event_series table) for multi-day festivals & recurring markets
+
+### Code Style
+- TypeScript strict mode everywhere
+- Functional components + hooks (no class components)
+- async/await over .then() chains
+- Meaningful error handling \u2014 try/catch with context
+- Named exports preferred
+- File naming: kebab-case files, PascalCase components
+- No `any` types \u2014 define proper interfaces
+
+### Edge Functions (Deno)
+- Supabase Edge Functions run Deno, NOT Node.js
+- Use supabase-js v2
+- Secrets via Deno.env.get('SECRET_NAME')
+- Always return structured JSON from scrapers
+- Rate limit external APIs, respect robots.txt
+
+### Supabase Patterns
+- RPC functions for complex workflows (approve_venue_submission, etc.)
+- Service role key ONLY in Edge Functions, NEVER in client code
+- Anon key for client-side reads
+- Real-time subscriptions for live features (check-ins, stories)
+
+### Git
+- Branch: feature/[agent]/[desc] (e.g. feature/scraper/fix-kupikartu)
+- Commits: [agent] description (e.g. [backend] add event_series migration)
+- PRs reference architecture doc section numbers
+
+## The Hype Crew (Agent Roster)
+
+| Agent      | Nickname    | Domain                                        |
+|------------|-------------|-----------------------------------------------|
+| Architect  | Arhitekta   | System design, orchestration, code review      |
+| Backend    | Baza        | Supabase, SQL, Edge Functions, RLS, auth       |
+| Frontend   | Ekran       | React Native, Expo, UI, navigation, maps       |
+| Scraper    | Skrejper    | Web scraping, Apify, data pipelines, AI parse  |
+| Portal     | Portal      | Admin panel (Next.js), public website (Astro)  |
+| Chronicle  | Hroni\u010dar    | Progress tracking, session logs, napkin         |
+
+Each agent has rules in `.cursor/rules/[name].mdc`.
+Chronicle maintains PROGRESS.md and .claude/napkin.md.
+
+## Project Structure
+
+```
+/
+\u251c\u2500\u2500 .cursorrules                     \u2190 This file (global rules)
+\u251c\u2500\u2500 .cursor/rules/                   \u2190 Agent-specific rule files
+\u2502   \u251c\u2500\u2500 architect.mdc
+\u2502   \u251c\u2500\u2500 backend.mdc
+\u2502   \u251c\u2500\u2500 frontend.mdc
+\u2502   \u251c\u2500\u2500 scraper.mdc
+\u2502   \u251c\u2500\u2500 portal.mdc
+\u2502   \u2514\u2500\u2500 chronicle.mdc
+\u251c\u2500\u2500 .claude/
+\u2502   \u251c\u2500\u2500 napkin.md                    \u2190 Persistent mistake memory
+\u2502   \u2514\u2500\u2500 skills/napkin/SKILL.md       \u2190 Napkin skill definition
+\u251c\u2500\u2500 docs/
+\u2502   \u251c\u2500\u2500 hype-architecture-v5.md           \u2190 THE source of truth
+\u2502   \u251c\u2500\u2500 hype-supabase-schema.sql          \u2190 Full DB schema
+\u2502   \u251c\u2500\u2500 hype-venues-seed.json             \u2190 1,233 venues
+\u2502   \u251c\u2500\u2500 hype-scraping-architecture.md     \u2190 Scraper pipeline + code
+\u2502   \u2514\u2500\u2500 hype-scraper-validation.md        \u2190 Source status report
+\u251c\u2500\u2500 apps/
+\u2502   \u251c\u2500\u2500 mobile/                      \u2190 Expo React Native
+\u2502   \u2514\u2500\u2500 admin/                       \u2190 Next.js admin panel
+\u251c\u2500\u2500 packages/
+\u2502   \u2514\u2500\u2500 shared/                      \u2190 Shared types, constants, utils
+\u251c\u2500\u2500 supabase/
+\u2502   \u251c\u2500\u2500 migrations/                  \u2190 Numbered SQL migrations
+\u2502   \u251c\u2500\u2500 functions/                   \u2190 Edge Functions
+\u2502   \u2502   \u251c\u2500\u2500 scrape/
+\u2502   \u2502   \u251c\u2500\u2500 scrape-instagram/
+\u2502   \u2502   \u251c\u2500\u2500 generate-digest/
+\u2502   \u2502   \u2514\u2500\u2500 ai-planner/
+\u2502   \u2514\u2500\u2500 seed.sql
+\u251c\u2500\u2500 PROGRESS.md                      \u2190 Chronicle's progress log
+\u2514\u2500\u2500 package.json
+```
+
+## Reference Priority
+
+When in doubt, consult in this order:
+1. docs/hype-architecture-v5.md \u2014 All design decisions
+2. docs/hype-supabase-schema.sql \u2014 DB schema (source of truth for data model)
+3. docs/hype-scraping-architecture.md \u2014 Scraper pipeline code
+4. docs/hype-scraper-validation.md \u2014 What works, what's broken
+5. .claude/napkin.md \u2014 Learned mistakes and patterns
+6. PROGRESS.md \u2014 Current status of all work
