@@ -213,3 +213,10 @@ Copy this block when adding a new work entry.
 - Files touched: `docs/00-overview/session_start_protocol.md`, `docs/project_ledger.md`
 - Decisions: Keep the role guide lightweight and practical rather than turning it into ceremony or duplicate documentation.
 - Follow-up: Use the role guide implicitly during future sessions and expand it only if a recurring ambiguity appears.
+
+### 2026-03-09 23:35
+- Goal: Publish the project to GitHub with repo-facing documentation that matches the actual codebase.
+- Changes made: Created the GitHub remote, pushed the initial repository, removed a hardcoded OpenWeather API key from the Home screens, and rewrote the root `README.md` to describe the real app/backend split, current status, and local development flow.
+- Files touched: `README.md`, `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `app.json`, `docs/project_ledger.md`
+- Decisions: Treat GitHub-facing metadata as part of the docs system and avoid committing third-party API secrets; optional integrations should read config and fail gracefully when unset.
+- Follow-up: Add final GitHub topics/description in the web UI, decide on a canonical env strategy for public config, and enable basic branch protection for `main`.
