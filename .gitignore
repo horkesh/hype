@@ -23,7 +23,9 @@ yarn-error.*
 .DS_Store
 *.pem
 
-.env*.local
+.env
+.env.*
+!.env.example
 
 *.tsbuildinfo
 
@@ -34,4 +36,3 @@ ios/
 
 pnpm-lock.yaml
 package-lock.json
-

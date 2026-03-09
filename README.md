@@ -70,6 +70,12 @@ npm install
 npm run dev
 ```
 
+Create a local env file first:
+
+```bash
+cp .env.example .env
+```
+
 Other useful scripts:
 
 ```bash
@@ -101,9 +107,10 @@ npm run db:migrate
 Some configuration is still being cleaned up as part of the stabilization work.
 
 Current notes:
-- Supabase client configuration should move toward environment-driven setup
-- the Home screen weather integration now expects config instead of a hardcoded API key
-- app/backend environment guidance is being documented in `docs/05-dev-ops/env_and_secrets.md`
+- frontend public config is now read from `EXPO_PUBLIC_*` environment variables, with Expo `extra` as a fallback surface
+- the canonical public config module lives in `utils/publicConfig.ts`
+- the canonical frontend Supabase client lives in `integrations/supabase/client.ts`
+- app/backend environment guidance is documented in `docs/05-dev-ops/env_and_secrets.md`
 
 ## Documentation
 

@@ -4,9 +4,9 @@ import { IconSymbol } from '@/components/IconSymbol';
 import { useApp } from '@/contexts/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { LinearGradient } from 'expo-linear-gradient';
-import Constants from 'expo-constants';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
+import { publicConfig } from '@/utils/publicConfig';
 import {
   View,
   Text,
@@ -64,10 +64,7 @@ interface EventSeries {
 }
 
 const OPENWEATHER_API_URL = 'https://api.openweathermap.org/data/2.5/weather';
-const OPENWEATHER_API_KEY =
-  Constants.expoConfig?.extra?.openWeatherApiKey ??
-  process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY ??
-  '';
+const OPENWEATHER_API_KEY = publicConfig.openWeatherApiKey;
 
 const MOODS = [
   { id: 'party', emoji: '🎉', label_bs: 'Party', label_en: 'Party' },

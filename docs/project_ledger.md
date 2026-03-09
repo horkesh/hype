@@ -220,3 +220,10 @@ Copy this block when adding a new work entry.
 - Files touched: `README.md`, `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `app.json`, `docs/project_ledger.md`
 - Decisions: Treat GitHub-facing metadata as part of the docs system and avoid committing third-party API secrets; optional integrations should read config and fail gracefully when unset.
 - Follow-up: Add final GitHub topics/description in the web UI, decide on a canonical env strategy for public config, and enable basic branch protection for `main`.
+
+### 2026-03-09 23:50
+- Goal: Tighten the public configuration strategy and remove remaining hardcoded frontend config drift.
+- Changes made: Added `utils/publicConfig.ts` as the shared public-config loader, moved the canonical frontend Supabase client to env-driven config, turned `app/integrations/supabase/client.ts` into a compatibility re-export, added `.env.example`, broadened `.gitignore` to ignore local env files, and updated repo/env docs.
+- Files touched: `utils/publicConfig.ts`, `integrations/supabase/client.ts`, `app/integrations/supabase/client.ts`, `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `.env.example`, `.gitignore`, `app.json`, `README.md`, `docs/05-dev-ops/env_and_secrets.md`, `docs/project_ledger.md`
+- Decisions: Use one canonical frontend public-config surface and one canonical frontend Supabase client surface; keep Expo `extra` as a fallback, but prefer `EXPO_PUBLIC_*` variables for day-to-day setup.
+- Follow-up: Fill `.env` with the real public values locally, verify Expo startup against the new config, and later decide whether to replace `app.json` with a fully dynamic app config file.

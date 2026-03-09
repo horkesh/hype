@@ -42,7 +42,9 @@
     },
     "extra": {
       "router": {},
-      "backendUrl": "https://wky3jk4wgjxtfkwarukv5qvz6z4dvg4z.app.specular.dev",
+      "supabaseUrl": "",
+      "supabaseAnonKey": "",
+      "backendUrl": "",
       "openWeatherApiKey": ""
     }
   }
