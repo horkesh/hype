@@ -30,9 +30,8 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
-- reproduce the Home web/runtime behavior after the latest render-loop mitigation
-- confirm whether `Maximum update depth exceeded` still happens in a real browser
-- if it still happens, capture the component stack from the browser-side logger before changing more code
+- continue the shared-screen simplification pass on the largest remaining routes, with Explore now partly collapsed and Tonight already moved onto shared helpers
+- keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
 Most relevant changed surfaces:
@@ -85,6 +84,14 @@ Most relevant changed surfaces:
 - `tests/homeWeather.test.ts`
 - `tests/imageSource.test.ts`
 - `tests/appRoutes.test.ts`
+- `app/(tabs)/tonight.tsx`
+- `app/(tabs)/tonight.ios.tsx`
+- `utils/tonightScreen.ts`
+- `app/(tabs)/explore.tsx`
+- `app/(tabs)/explore.ios.tsx`
+- `utils/exploreScreen.ts`
+- `utils/exploreHelpers.ts`
+- `utils/exploreData.ts`
 - `docs/04-product/design_direction_brief.md`
 - `docs/04-product/pencil_prompt_pack.md`
 
@@ -140,6 +147,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
+- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight moved onto shared helpers, and Explore now on one shared implementation with extracted constants/filter/data helpers
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -165,9 +173,9 @@ Important next planned work:
 Immediate resume sequence:
 1. use `npm.cmd` or `npx.cmd` from PowerShell on the home machine
 2. rerun the web app on the fixed working port
-3. verify whether the Home screen still loops after the weather-state refactor and route cleanup
-4. if the loop is gone, update docs and continue route stabilization
-5. if the loop remains, instrument the browser-side logger and capture the stack before another fix
+3. spot-check Home, Explore, Tonight, Saved, and Profile after the latest simplification commits
+4. if the shared routes stay stable, continue reducing oversized route files by moving pure helpers and duplicated constants out of the route bodies
+5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change
 
 ## Important known realities
 
@@ -211,6 +219,12 @@ The latest home-machine rebuild pass added four more important outcomes:
 - made `ImageWithPlaceholder` explicitly web-safe, which removed the remaining Home/web `Maximum update depth exceeded` loop in real browser verification
 - confirmed against live Supabase that Home is stable on web, `profiles.taste_moods` persists, and venue save/unsave updates the Saved screen through `favorites`
 
+The latest route-simplification passes added four more important outcomes:
+- removed Hype's React 19 install blocker by replacing the web map dependency with a lightweight embed path
+- moved Tonight planner types, moods, segments, and share text into `utils/tonightScreen.ts`
+- collapsed Explore to one real shared route implementation, with `app/(tabs)/explore.ios.tsx` now only re-exporting the shared screen
+- extracted Explore's route metadata, pure filter helpers, and Supabase loading helpers into `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -220,7 +234,7 @@ New regression coverage now exists for:
 
 Known cleanup targets include:
 - oversized screen files
-- duplicated `.tsx` and `.ios.tsx` files that were not yet collapsed in the rebuild pass
+- remaining oversized shared route files whose behavior sections still need extraction
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming

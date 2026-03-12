@@ -17,11 +17,10 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { HypeHeader } from '@/components/HypeHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '@/integrations/supabase/client';
 import { IconSymbol } from '@/components/IconSymbol';
-import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/errorLogger';
+import { loadExploreDailySpecials, loadExploreVenues, searchExplore } from '@/utils/exploreData';
 import { DailySpecial, EXPLORE_CATEGORIES, EXPLORE_MOODS, SearchResult, Venue } from '@/utils/exploreScreen';
-import { filterDailySpecialsByPrice, filterVenuesByClientRules, getPriceLevelDisplay, isVenueOpenNow, toggleSelection, toggleSingleSelection } from '@/utils/exploreHelpers';
+import { getPriceLevelDisplay, isVenueOpenNow, toggleSelection, toggleSingleSelection } from '@/utils/exploreHelpers';
 import { resolveImageSource } from '@/utils/imageSource';
 import debounce from 'lodash.debounce';
 import Slider from '@react-native-community/slider';
@@ -70,37 +69,7 @@ export default function ExploreScreen() {
         console.log('Searching for:', q);
 
         try {
-          const results: SearchResult[] = [];
-
-          const { data: venueData, error: venueError } = await supabase
-            .from('venues')
-            .select('id, name')
-            .ilike('name', `%${q}%`)
-            .limit(5);
-
-          if (venueError) {
-            console.error('Error searching venues:', venueError);
-          } else if (venueData) {
-            venueData.forEach((venue) => {
-              results.push({ id: venue.id, name: venue.name, type: 'venue' });
-            });
-          }
-
-          const { data: eventData, error: eventError } = await supabase
-            .from('events')
-            .select('id, title_bs, title_en')
-            .or(`title_bs.ilike.%${q}%,title_en.ilike.%${q}%`)
-            .limit(5);
-
-          if (eventError) {
-            console.error('Error searching events:', eventError);
-          } else if (eventData) {
-            eventData.forEach((event) => {
-              const title = language === 'bs' ? event.title_bs : (event.title_en || event.title_bs);
-              results.push({ id: event.id, name: title, type: 'event' });
-            });
-          }
-
+          const results = await searchExplore(q, language);
           setSearchResults(results);
           setShowSearchResults(true);
         } catch (error) {
@@ -123,29 +92,16 @@ export default function ExploreScreen() {
     console.log('Loading venues with filters:', { selectedMoods, selectedCategory, filterMoods, filterCategories, filterPriceLevel, filterOpenNow });
 
     try {
-      let query = supabase.from('venues').select('*');
-
-      // Apply mood filters
-      const activeMoods = filterMoods.length > 0 ? filterMoods : selectedMoods;
-      if (activeMoods.length > 0) {
-        query = query.contains('moods', activeMoods);
-      }
-
-      // Apply category filters
-      const activeCategories = filterCategories.length > 0 ? filterCategories : (selectedCategory ? [selectedCategory] : []);
-      if (activeCategories.length > 0) {
-        query = query.in('category', activeCategories);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error loading venues:', error);
-      } else {
-        let filteredData = normalizeVenueRows(data, language);
-
-        setVenues(filterVenuesByClientRules(filteredData, filterPriceLevel, filterOpenNow));
-      }
+      const venues = await loadExploreVenues({
+        filterCategories,
+        filterMoods,
+        filterOpenNow,
+        filterPriceLevel,
+        language,
+        selectedCategory,
+        selectedMoods,
+      });
+      setVenues(venues);
     } catch (error) {
       console.error('Error loading venues:', error);
     } finally {
@@ -159,46 +115,8 @@ export default function ExploreScreen() {
     console.log('Loading daily specials with price filter:', menuPriceFilter);
 
     try {
-      let query = supabase
-        .from('daily_specials')
-        .select('*')
-        .eq('is_active', true);
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error loading daily specials:', error);
-      } else {
-        let filteredData = normalizeDailySpecialRows(data, language);
-
-        const missingVenueIds = Array.from(
-          new Set(
-            filteredData
-              .filter((special) => !special.venue_name && special.venue_id)
-              .map((special) => special.venue_id as string)
-          )
-        );
-
-        if (missingVenueIds.length > 0) {
-          const { data: venueData, error: venueError } = await supabase
-            .from('venues')
-            .select('id, name')
-            .in('id', missingVenueIds);
-
-          if (venueError) {
-            console.error('Error loading venue names for daily specials:', venueError);
-          } else {
-            const venueNames = new Map((venueData || []).map((venue) => [venue.id, venue.name]));
-            filteredData = filteredData.map((special) => ({
-              ...special,
-              venue_name: special.venue_name || (special.venue_id ? venueNames.get(special.venue_id) || '' : ''),
-            }));
-          }
-        }
-
-        filteredData = [...filteredData].sort((a, b) => a.price - b.price);
-        setDailySpecials(filterDailySpecialsByPrice(filteredData, menuPriceFilter));
-      }
+      const dailySpecials = await loadExploreDailySpecials({ language, menuPriceFilter });
+      setDailySpecials(dailySpecials);
     } catch (error) {
       console.error('Error loading daily specials:', error);
     } finally {

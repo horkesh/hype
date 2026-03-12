@@ -101,7 +101,7 @@ Goal:
 - reduce prototype-generated complexity, duplication, and avoidable drift
 
 Status:
-- `Planned`
+- `In Progress`
 
 ## Current sprint board
 
@@ -121,8 +121,8 @@ Status:
   - Series detail
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
-  - remaining runtime issues should be treated as stabilization-first work
-  - current web verification on the home machine shows the Home route still hits a `Maximum update depth exceeded` loop during startup
+  - Home web/runtime verification is now green after the shared Home rebuild and web-safe image path changes
+  - current route-stability work has shifted toward simplification of the largest shared routes, especially Explore and Tonight, so future runtime bugs are easier to isolate
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -175,18 +175,22 @@ Status:
   - Git setup on the home machine is complete
   - Node and npm are installed, but PowerShell requires `npm.cmd` and `npx.cmd` because `npm.ps1` is blocked by execution policy
   - `expo start` can boot on this machine when run on a fixed port
-  - fresh `npm install` currently fails on a React 19 vs `react-leaflet@4.2.1` peer dependency conflict
-  - web preview boots on a fixed port, but the app currently falls into a Home-screen render loop
-  - remaining work is resolving the install conflict, fixing the Home render loop, then finishing EAS and Vercel preview flow
+  - `npm.cmd install` now succeeds after removing Hype's old `react-leaflet` dependency path
+  - web preview is stable enough for the current simplification and verification loop
+  - remaining work is finishing EAS and Vercel preview flow after the frontend cleanup wave settles
 
 #### E7-P1. Code quality baseline
 
-- Status: `Planned`
+- Status: `In Progress`
 - Goal:
   - turn current quality audit findings into tracked cleanup work
 - Plan:
   - `docs/08-reference/code_quality_audit_2026_03_09.md`
   - `docs/05-dev-ops/quality_guardrail_plan.md`
+- Progress:
+  - Home, Saved, and Profile platform wrappers are already collapsed
+  - Tonight now uses shared planner helpers instead of duplicated route-local constants and copy logic
+  - Explore now has one shared route implementation with extracted route metadata, filter helpers, and data loaders
 
 ## Backlog
 
@@ -307,6 +311,8 @@ Status:
 - shared Home rebuild under `components/home/HomeScreen.tsx`
 - web-safe image rendering path that removed the remaining Home render loop
 - shared Home/Profile/Saved route wrappers replacing duplicated iOS shells
+- shared Tonight planner helpers under `utils/tonightScreen.ts`
+- shared Explore route plus extracted helper surfaces under `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
 - Expo Router helper-route cleanup
 - regression tests for Home weather, image sources, and accidental `app/` helper files
 - regression tests for shared Home copy/date/countdown helpers
@@ -357,7 +363,7 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on Saved/Profile/Explore
+1. continue screen simplification and route stability on Explore and the next largest shared routes
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

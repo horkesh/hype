@@ -570,3 +570,11 @@ Copy this block when adding a new work entry.
 - Decisions: Keep Explore's Supabase loading logic in the route for now, but extract pure behavior first so the remaining route code is closer to “load data, set state, render” and easier to split further if needed.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: If we keep pushing Explore, the next clean seam is the debounced search plus the venue/daily-special loaders; otherwise the next shared-shell cleanup can move to another oversized route.
+
+### 2026-03-12 04:20
+- Goal: Finish the next Explore simplification seam by moving its debounced search and Supabase loading paths out of the route file, then refresh the stale continuity docs to match the real current state.
+- Changes made: Added `utils/exploreData.ts` for Explore search, venue loading, and daily-special loading; rewired `app/(tabs)/explore.tsx` so the route now mostly orchestrates state plus rendering; updated `docs/00-overview/handover.md` and `docs/00-overview/execution_board.md` so they no longer describe the already-fixed Home render loop or the resolved React 19 map-install blocker as current blockers, and now reflect the active route-simplification program.
+- Files touched: `utils/exploreData.ts`, `app/(tabs)/explore.tsx`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Treat route simplification work as continuity-critical documentation work too; when the active frontend story changes, update handover and the execution board in the same slice instead of leaving the docs one or two cleanup waves behind.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: The next clean seam is the remaining Explore state orchestration around the debounced search lifecycle, or a move to the next oversized shared route if that will buy more stability faster.
