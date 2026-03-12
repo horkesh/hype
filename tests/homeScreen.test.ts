@@ -13,7 +13,12 @@ test('getHomeHeroState falls back to time-of-day copy when weather is unavailabl
 test('getHomeHeroState returns weather-driven mood suggestions', () => {
   assert.deepEqual(
     getHomeHeroState('bs', { temp: 24, weatherCondition: 'clear sky' }, 14),
-    { heroMessage: 'Savrsen dan za bastu! \u2600\uFE0F', suggestedMood: 'outdoor' }
+    { heroMessage: 'Savr\u0161en dan za ba\u0161tu! \u2600\uFE0F', suggestedMood: 'outdoor' }
+  );
+
+  assert.deepEqual(
+    getHomeHeroState('bs', { temp: 14, weatherCondition: 'light rain' }, 14),
+    { heroMessage: 'Ki\u0161ovito vrijeme, idealno za kafi\u0107 \ud83c\udf27\ufe0f', suggestedMood: 'chill' }
   );
 
   assert.deepEqual(

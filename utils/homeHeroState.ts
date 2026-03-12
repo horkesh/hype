@@ -4,11 +4,11 @@ export type HomeLanguage = 'bs' | 'en';
 
 const WEATHER_MESSAGES = {
   clear: {
-    bs: 'Savrsen dan za bastu! \u2600\ufe0f',
+    bs: 'Savr\u0161en dan za ba\u0161tu! \u2600\ufe0f',
     en: 'Perfect day for outdoor plans! \u2600\ufe0f',
   },
   rain: {
-    bs: 'Kisovito vrijeme, idealno za kafic \ud83c\udf27\ufe0f',
+    bs: 'Ki\u0161ovito vrijeme, idealno za kafi\u0107 \ud83c\udf27\ufe0f',
     en: 'Rainy weather, perfect for a cafe \ud83c\udf27\ufe0f',
   },
   cold: {
