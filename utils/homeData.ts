@@ -19,9 +19,9 @@ export interface HomeEventItem {
   moods: string[];
   price_bam: number | null;
   location_name: string | null;
-  venues?: Array<{
+  venues?: {
     name: string;
-  }> | null;
+  } | null;
 }
 
 export interface HomeEventSeries {

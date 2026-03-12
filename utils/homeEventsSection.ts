@@ -24,7 +24,7 @@ export function getHomeEventCardContent(
   return {
     title: language === 'bs' ? event.title_bs : (event.title_en || event.title_bs),
     dateLabel: formatEventDateLabel(language, event.start_datetime),
-    venueName: event.venues?.[0]?.name || event.location_name || '',
+    venueName: event.venues?.name || event.location_name || '',
     priceLabel: event.price_bam
       ? `${event.price_bam} KM`
       : (language === 'bs' ? 'Besplatno' : 'Free'),

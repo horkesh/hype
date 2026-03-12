@@ -34,11 +34,11 @@ test('getHomeEventCardContent prefers related venue name and formatted price', (
     moods: [],
     price_bam: 15,
     location_name: 'Fallback venue',
-    venues: [{ name: 'Narodno pozoriste' }],
+    venues: { name: 'Narodno pozori\u0161te' },
   });
 
   assert.equal(content.title, 'Predstava');
-  assert.equal(content.venueName, 'Narodno pozoriste');
+  assert.equal(content.venueName, 'Narodno pozori\u0161te');
   assert.equal(content.priceLabel, '15 KM');
 });
 
