@@ -1,6 +1,11 @@
 
-import { Platform } from "react-native";
-import Constants from "expo-constants";
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+import {
+  getCallerInfoFromStack,
+  shouldMuteMessage,
+  stringifyLogArgs,
+} from '@/utils/errorLoggerUtils';
 
 // Global error logging for runtime errors
 // Captures console.log/warn/error and sends to Natively server for AI debugging
@@ -12,17 +17,6 @@ declare const __DEV__: boolean;
 const recentLogs: { [key: string]: boolean } = {};
 const clearLogAfterDelay = (logKey: string) => {
   setTimeout(() => delete recentLogs[logKey], 100);
-};
-
-// Messages to mute (noisy warnings that don't help debugging)
-const MUTED_MESSAGES = [
-  'each child in a list should have a unique "key" prop',
-  'Each child in a list should have a unique "key" prop',
-];
-
-// Check if a message should be muted
-const shouldMuteMessage = (message: string): boolean => {
-  return MUTED_MESSAGES.some(muted => message.includes(muted));
 };
 
 // Queue for batching logs
@@ -182,97 +176,8 @@ const sendErrorToParent = (level: string, message: string, data: any) => {
   }
 };
 
-// Function to extract meaningful source location from stack trace
-const extractSourceLocation = (stack: string): string => {
-  if (!stack) return '';
-
-  // Look for various patterns in the stack trace
-  const patterns = [
-    // Pattern for app files: app/filename.tsx:line:column
-    /at .+\/(app\/[^:)]+):(\d+):(\d+)/,
-    // Pattern for components: components/filename.tsx:line:column
-    /at .+\/(components\/[^:)]+):(\d+):(\d+)/,
-    // Pattern for any .tsx/.ts files
-    /at .+\/([^/]+\.tsx?):(\d+):(\d+)/,
-    // Pattern for bundle files with source maps
-    /at .+\/([^/]+\.bundle[^:]*):(\d+):(\d+)/,
-    // Pattern for any JavaScript file
-    /at .+\/([^/\s:)]+\.[jt]sx?):(\d+):(\d+)/
-  ];
-
-  for (const pattern of patterns) {
-    const match = stack.match(pattern);
-    if (match) {
-      return `${match[1]}:${match[2]}:${match[3]}`;
-    }
-  }
-
-  // If no specific pattern matches, try to find any file reference
-  const fileMatch = stack.match(/at .+\/([^/\s:)]+\.[jt]sx?):(\d+)/);
-  if (fileMatch) {
-    return `${fileMatch[1]}:${fileMatch[2]}`;
-  }
-
-  return '';
-};
-
-// Function to get caller information from stack trace
 const getCallerInfo = (): string => {
-  const stack = new Error().stack || '';
-  const lines = stack.split('\n');
-
-  // Skip the first few lines (Error, getCallerInfo, stringifyArgs, console override, setupErrorLogging internals)
-  for (let i = 3; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Skip internal errorLogger calls and node_modules
-    if (line.includes('errorLogger') || line.includes('node_modules')) {
-      continue;
-    }
-
-    // Try multiple patterns to extract source location
-    // Pattern 1: Standard format "at Component (file.tsx:10:5)"
-    let match = line.match(/at\s+\S+\s+\((?:.*\/)?([^/\s:)]+\.[jt]sx?):(\d+):(\d+)\)/);
-    if (match) {
-      return `${match[1]}:${match[2]}`;
-    }
-
-    // Pattern 2: Anonymous function "at file.tsx:10:5"
-    match = line.match(/at\s+(?:.*\/)?([^/\s:)]+\.[jt]sx?):(\d+):(\d+)/);
-    if (match) {
-      return `${match[1]}:${match[2]}`;
-    }
-
-    // Pattern 3: Hermes/React Native bundle format
-    match = line.match(/(?:.*\/)?([^/\s:)]+\.[jt]sx?):(\d+):\d+/);
-    if (match) {
-      return `${match[1]}:${match[2]}`;
-    }
-
-    // Pattern 4: Look for app/ or components/ paths specifically
-    if (line.includes('app/') || line.includes('components/') || line.includes('screens/') || line.includes('hooks/') || line.includes('utils/')) {
-      match = line.match(/([^/\s:)]+\.[jt]sx?):(\d+)/);
-      if (match) {
-        return `${match[1]}:${match[2]}`;
-      }
-    }
-  }
-
-  return '';
-};
-
-// Helper to safely stringify arguments
-const stringifyArgs = (args: any[]): string => {
-  return args.map(arg => {
-    if (typeof arg === 'string') return arg;
-    if (arg === null) return 'null';
-    if (arg === undefined) return 'undefined';
-    try {
-      return JSON.stringify(arg);
-    } catch {
-      return String(arg);
-    }
-  }).join(' ');
+  return getCallerInfoFromStack(new Error().stack || '');
 };
 
 export const setupErrorLogging = () => {
@@ -298,7 +203,7 @@ export const setupErrorLogging = () => {
     originalConsoleLog.apply(console, args);
 
     // Queue log for sending to server
-    const message = stringifyArgs(args);
+    const message = stringifyLogArgs(args);
     const source = getCallerInfo();
     queueLog('log', message, source);
   };
@@ -309,7 +214,7 @@ export const setupErrorLogging = () => {
     originalConsoleWarn.apply(console, args);
 
     // Queue log for sending to server (skip muted messages)
-    const message = stringifyArgs(args);
+    const message = stringifyLogArgs(args);
     if (shouldMuteMessage(message)) return;
 
     const source = getCallerInfo();
@@ -319,7 +224,7 @@ export const setupErrorLogging = () => {
   // Override console.error to capture and send to server
   console.error = (...args: any[]) => {
     // Queue log for sending to server (skip muted messages)
-    const message = stringifyArgs(args);
+    const message = stringifyLogArgs(args);
     if (shouldMuteMessage(message)) return;
 
     // Always call original first

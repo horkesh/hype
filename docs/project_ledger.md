@@ -849,3 +849,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a migration still needs legacy AsyncStorage key reads or mirrored writes, keep that logic in a tiny helper module with an injected storage interface so runtime code stays orchestration-only and Node-side tests can cover key drift directly.
 - Verification: `npx.cmd tsx --test tests/favoritesStorage.test.ts tests/favoritesMigration.test.ts tests/favorites.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the long-tail support cleanup on the next oversized helper or support surface, with the remaining Saved support files and `utils/errorLogger.ts` now stronger candidates.
+
+### 2026-03-12 23:00
+- Goal: Thin the remaining runtime logging support by moving pure muting and stack-shaping logic out of the Expo runtime module.
+- Changes made: Added `utils/errorLoggerUtils.ts` with helper-owned mute checks, log-argument stringification, source-location extraction, and caller-info parsing; rewrote `utils/errorLogger.ts` to consume those helpers instead of owning the pure logic inline; added `tests/errorLoggerUtils.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `utils/errorLogger.ts`, `utils/errorLoggerUtils.ts`, `tests/errorLoggerUtils.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a runtime support module mixes platform wiring with pure parsing or message-shaping behavior, move the pure logic into a testable helper first so the runtime file can shrink without requiring Expo or React Native in the test harness.
+- Verification: `npx.cmd tsx --test tests/errorLoggerUtils.test.ts tests/appRoutes.test.ts tests/favoritesStorage.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the long-tail support cleanup on the remaining Saved support surfaces, which are now the clearest shared UI lane still carrying bulky render branching.
