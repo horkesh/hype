@@ -33,7 +33,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - reproduce the Home web/runtime behavior after the latest render-loop mitigation
 - confirm whether `Maximum update depth exceeded` still happens in a real browser
 - if it still happens, capture the component stack from the browser-side logger before changing more code
-- separately decide how to handle the `react-leaflet@4.2.1` versus React 19 install conflict
+- keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
 Most relevant changed surfaces:
 - `app/(tabs)/saved.tsx`
@@ -185,7 +185,7 @@ Home machine:
 - backend admin env template now exists at `backend/.env`; the real service-role key should be filled there, not in the Expo app root `.env`
 - PowerShell may require `npm.cmd` and `npx.cmd`
 - `expo start` and web preview can boot on fixed ports
-- fresh `npm install` is currently blocked by the React 19 versus `react-leaflet@4.2.1` peer dependency conflict
+- `npm.cmd install` now succeeds after removing Hype's unused `react-leaflet` dependency and replacing the web map with an iframe/Leaflet embed
 - next setup targets after stabilization are EAS and Vercel
 
 ### Temporary Natively workaround
@@ -224,7 +224,6 @@ Known cleanup targets include:
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming
-- npm install conflict around `react-leaflet`
 
 See:
 - `docs/08-reference/code_quality_audit_2026_03_09.md`
@@ -262,7 +261,6 @@ Start with:
 
 For the next session, the most likely concrete start point is:
 - E1-P1 route stability and further screen simplification
-- R4 home-machine install conflict
 - B10 translation and encoding cleanup
 
 Do not start by expanding product scope unless the stabilization and alignment state is understood first.

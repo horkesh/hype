@@ -323,11 +323,11 @@ Status:
 
 ### R4. Home-machine install conflict
 
-- Status: `Active risk`
+- Status: `Resolved`
 - Problem:
-  - a fresh `npm install` fails under npm 11 because `react-leaflet@4.2.1` still declares React 18 peers while this app uses React 19 through Expo 54
+  - Hype previously depended on `react-leaflet@4.2.1`, whose React 18 peer range blocked fresh installs under React 19 / Expo 54
 - Action:
-  - decide whether to pin a compatible install mode for this repo or replace/upgrade the web map dependency to a React 19-compatible option
+  - keep the dependency removed unless a future map requirement truly needs a React DOM mapping library again
 
 ### R5. Web render-loop root cause still not fully isolated
 
@@ -363,9 +363,9 @@ Status:
 
 ### Wave 2
 
-1. decide and document the repo-approved fix for the React 19 versus `react-leaflet` install conflict
-2. continue shared-shell rollout to the next largest screens
-3. add more targeted regression coverage around auth refresh and rebuilt tab flows
+1. continue shared-shell rollout to the next largest screens
+2. add more targeted regression coverage around auth refresh and rebuilt tab flows
+3. keep simplifying large screens and removing ad hoc persistence from UI files
 
 ## Maintenance rule
 
