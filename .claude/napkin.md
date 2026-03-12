@@ -61,6 +61,8 @@
    Do instead: put tab-safe scrolling, empty/loading state framing, and section headers in shared primitives like `TabScreen`, `ContentState`, and `SectionHeader` before rebuilding another large screen.
 8. **[2026-03-12] Web stability beats decorative animation in core primitives**
    Do instead: keep image, card, and loading primitives explicitly web-safe first, then add native motion only when browser verification stays clean.
+9. **[2026-03-12] Large shared routes should end as orchestration files, not UI monoliths**
+   Do instead: once a shared route holds search, filters, lists, modals, and navigation together, extract named render sections into `components/<surface>/` and leave the route responsible mainly for state, loading, and navigation.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**
@@ -119,3 +121,5 @@
    Do instead: consult `docs/09-agents/` for specialist lenses and adapt blueprints to the current repo before adopting them wholesale.
 5. **[2026-03-09] Follow the repo workflow guide by default**
    Do instead: use `docs/00-overview/session_start_protocol.md` and `docs/00-overview/developer_workflow.md` as the standard session flow, then apply the relevant role checklist from `docs/09-agents/`.
+6. **[2026-03-12] Napkin updates are part of the slice, not an end-of-day extra**
+   Do instead: read `.claude/napkin.md` at the start of each Hype session and update it during the same slice whenever a reusable repo rule becomes clearer.

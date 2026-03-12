@@ -586,3 +586,10 @@ Copy this block when adding a new work entry.
 - Decisions: Finish a large-screen cleanup slice by leaving the route responsible for state and navigation only, while moving bulky render sections into named components and adding a small regression test whenever helper output is cleaned up.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Move to the next largest shared route and use the same pattern: extract pure helpers first, then extract bulky render sections, and keep handover/execution-board/ledger aligned in the same slice.
+
+### 2026-03-12 04:55
+- Goal: Make the napkin expectation explicit so recurring Hype rules are captured as the work evolves, not only after the fact.
+- Changes made: Updated `.claude/napkin.md` with one frontend simplification rule from the Explore cleanup wave and one working-style rule that napkin updates belong inside the same slice whenever a reusable repo lesson becomes clear.
+- Files touched: `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: Treat napkin maintenance as part of normal slice completion for Hype, alongside handover, execution board, and ledger updates when a reusable rule emerges.
+- Follow-up: Keep reading the napkin at session start and update it during future slices whenever the repo yields a durable working rule.
