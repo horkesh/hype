@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { ViewProps } from 'react-native';
+import { Platform, View, ViewProps } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -15,13 +15,21 @@ interface AnimatedCardProps extends ViewProps {
 }
 
 export function AnimatedCard({ children, delay = 0, style, ...props }: AnimatedCardProps) {
+  if (Platform.OS === 'web') {
+    return (
+      <View style={style} {...props}>
+        {children}
+      </View>
+    );
+  }
+
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
 
   useEffect(() => {
     opacity.value = withDelay(delay, withTiming(1, { duration: 400 }));
     translateY.value = withDelay(delay, withTiming(0, { duration: 400 }));
-  }, [delay, opacity, translateY]);
+  }, [delay]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
