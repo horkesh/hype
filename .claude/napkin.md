@@ -93,6 +93,8 @@
    Do instead: keep reusable auth/error tagging in tiny helper modules so Node-side tests can verify them without pulling in `react-native` or the Supabase client bootstrap.
 9. **[2026-03-12] Keep route-level persistence out of large tab screens**
    Do instead: when a tab still owns AsyncStorage or Supabase reads directly, move that loading and mutation path into `utils/<surface>Data.ts` or `utils/<surface>*Storage.ts` before splitting the render tree.
+10. **[2026-03-12] Keep route-level auth flows out of large settings screens**
+   Do instead: when a screen mixes sign-in, sign-up, sign-out, and profile persistence, move those auth/data calls into `utils/<surface>Data.ts` before extracting the UI into `components/<surface>/`.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

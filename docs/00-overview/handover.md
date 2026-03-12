@@ -45,9 +45,16 @@ Most relevant changed surfaces:
 - `components/saved/SwipeDeleteAction.tsx`
 - `app/(tabs)/profile.tsx`
 - `app/(tabs)/profile.ios.tsx`
+- `components/profile/ProfileAuthCard.tsx`
+- `components/profile/ProfileAccountCard.tsx`
+- `components/profile/ProfileMoodSection.tsx`
+- `components/profile/ProfileSettingsSection.tsx`
+- `components/profile/ProfileSignOutModal.tsx`
 - `app/venue/[id].tsx`
 - `utils/favorites.ts`
 - `utils/favoritesErrors.ts`
+- `utils/profileData.ts`
+- `utils/profileScreen.ts`
 - `utils/savedData.ts`
 - `utils/savedScreen.ts`
 - `utils/savedEventsStorage.ts`
@@ -57,6 +64,7 @@ Most relevant changed surfaces:
 - `utils/profileTaste.ts`
 - `utils/authSession.ts`
 - `tests/profileTaste.test.ts`
+- `tests/profileScreen.test.ts`
 - `docs/03-architecture/source_types_and_scrape_config.md`
 - `docs/03-architecture/source_priority_and_cadence.md`
 - `docs/03-architecture/dedupe_and_promotion_policy.md`
@@ -171,7 +179,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home and Tonight now on shared implementations, Explore decomposed into shared helper/render layers, and Saved now moved onto shared data/helpers/render sections while Profile remains the next large route target
+- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, leaving the next cleanup wave to focus on the remaining oversized non-tab surfaces plus encoding cleanup
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -265,6 +273,12 @@ The latest Saved cleanup pass added four more important outcomes:
 - moved Saved screen types, formatting helpers, and event-id parsing into `utils/savedScreen.ts` and `utils/savedEventsStorage.ts`
 - decomposed Saved rendering into focused UI sections under `components/saved/`
 - added targeted regression coverage for Saved helper behavior in `tests/savedScreen.test.ts` and `tests/savedEventsStorage.test.ts`
+
+The latest Profile cleanup pass added four more important outcomes:
+- moved Profile auth/session and taste-loading logic out of the route and into `utils/profileData.ts`
+- moved Profile mood/theme/demo-badge config into `utils/profileScreen.ts`
+- decomposed Profile rendering into focused UI sections under `components/profile/`
+- added targeted regression coverage for Profile helper behavior in `tests/profileScreen.test.ts`
 
 New regression coverage now exists for:
 - weather mood merging
