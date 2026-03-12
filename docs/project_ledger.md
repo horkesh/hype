@@ -530,3 +530,11 @@ Copy this block when adding a new work entry.
 - Decisions: Treat Hype's map as a self-contained web embed for now instead of carrying a React DOM map dependency that the product does not otherwise need; keep this scoped to Hype so other repos can continue using `react-leaflet` independently.
 - Verification: `npm.cmd install`; `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Continue the shared-shell cleanup through the next large screens, and only reintroduce a heavier web map dependency if a future Hype requirement truly needs it.
+
+### 2026-03-12 03:05
+- Goal: Simplify the duplicated Tonight planner flow without changing route structure or backend contracts.
+- Changes made: Added `utils/tonightScreen.ts` to hold shared Tonight types, moods, segment config, mock-plan generation, and share-text helpers; rewired both `app/(tabs)/tonight.tsx` and `app/(tabs)/tonight.ios.tsx` to consume those helpers instead of carrying their own copies of the same planning data and share logic; switched both screens to the shared image resolver and removed their local duplicated persistence/display helper definitions.
+- Files touched: `utils/tonightScreen.ts`, `app/(tabs)/tonight.tsx`, `app/(tabs)/tonight.ios.tsx`, `docs/project_ledger.md`
+- Decisions: Keep the two route files for now because they still differ in shell chrome (`HypeHeader` versus `Stack.Screen`), but move duplicated screen-state contracts and planner content into a shared helper first so future consolidation is smaller and safer.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: Finish the Tonight cleanup with a second pass focused only on user-facing copy normalization and then continue the same shared-helper extraction pattern into the next large duplicated tab screen.

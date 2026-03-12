@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -8,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  ImageSourcePropType,
   Linking,
   Modal,
   Share,
@@ -24,82 +22,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import { Map } from '@/components/Map';
-
-const isFreeEvent = (price: number | null): boolean => {
-  return price === null || price === 0;
-};
-
-interface Event {
-  id: string;
-  title_bs: string;
-  title_en: string | null;
-  description_bs: string | null;
-  description_en: string | null;
-  cover_image_url: string | null;
-  start_datetime: string;
-  price_bam: number | null;
-  ticket_url: string | null;
-  source: string | null;
-  moods: string[];
-  category: string;
-  venues?: {
-    name: string;
-  } | null;
-  location_name: string | null;
-}
-
-interface Venue {
-  id: string;
-  name: string;
-  category: string;
-  latitude: number;
-  longitude: number;
-}
-
-interface PlanStop {
-  time: string;
-  venueName: string;
-  activity: string;
-  price: number;
-}
-
-interface AIPlan {
-  stops: PlanStop[];
-  total: number;
-}
-
-type TimeSegment = 'morning' | 'lunch' | 'evening' | 'night';
-
-interface TimeSegmentConfig {
-  key: TimeSegment;
-  emoji: string;
-  label: string;
-  startHour: number;
-  endHour: number;
-}
-
-type MoodId = 'date_night' | 'party' | 'chill' | 'culture' | 'girlsnight' | 'outdoor' | 'foodie' | 'live_music' | 'sports' | 'art' | 'coffee' | 'drinks';
-
-const MOODS: { id: MoodId; emoji: string; label_bs: string; label_en: string }[] = [
-  { id: 'date_night', emoji: '💕', label_bs: 'Romantika', label_en: 'Date Night' },
-  { id: 'party', emoji: '🎉', label_bs: 'Žurka', label_en: 'Party' },
-  { id: 'chill', emoji: '😌', label_bs: 'Opušteno', label_en: 'Chill' },
-  { id: 'culture', emoji: '🎭', label_bs: 'Kultura', label_en: 'Culture' },
-  { id: 'girlsnight', emoji: '👯', label_bs: 'Cura noć', label_en: 'Girls Night' },
-  { id: 'outdoor', emoji: '🌳', label_bs: 'Napolju', label_en: 'Outdoor' },
-  { id: 'foodie', emoji: '🍽️', label_bs: 'Gurmani', label_en: 'Foodie' },
-  { id: 'live_music', emoji: '🎸', label_bs: 'Live muzika', label_en: 'Live Music' },
-  { id: 'sports', emoji: '⚽', label_bs: 'Sport', label_en: 'Sports' },
-  { id: 'art', emoji: '🎨', label_bs: 'Umjetnost', label_en: 'Art' },
-  { id: 'coffee', emoji: '☕', label_bs: 'Kafa', label_en: 'Coffee' },
-  { id: 'drinks', emoji: '🍹', label_bs: 'Piće', label_en: 'Drinks' },
-];
-
-function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
-  if (!source) return { uri: '' };
-  if (typeof source === 'string') return { uri: source };
-  return source as ImageSourcePropType;
-}
+import { resolveImageSource } from '@/utils/imageSource';
+import {
+  AIPlan,
+  buildTonightPlanShareText,
+  buildTonightSegments,
+  buildTonightVoteShareText,
+  Event,
+  generateMockTonightPlan,
+  isFreeEvent,
+  MoodId,
+  TONIGHT_MOODS,
+  TimeSegment,
+  TimeSegmentConfig,
+  Venue,
+} from '@/utils/tonightScreen';
 
 export default function TonightScreen() {
   const { t, language } = useApp();
@@ -126,12 +63,7 @@ export default function TonightScreen() {
   const [voteLink, setVoteLink] = useState<string | null>(null);
   const [votes, setVotes] = useState<{ [eventId: string]: number }>({});
 
-  const segments: TimeSegmentConfig[] = [
-    { key: 'morning', emoji: '☕', label: t('morning'), startHour: 6, endHour: 12 },
-    { key: 'lunch', emoji: '🍽️', label: t('lunch'), startHour: 12, endHour: 17 },
-    { key: 'evening', emoji: '🌆', label: t('evening'), startHour: 17, endHour: 22 },
-    { key: 'night', emoji: '🌙', label: t('night'), startHour: 22, endHour: 6 },
-  ];
+  const segments: TimeSegmentConfig[] = buildTonightSegments(t);
 
   const loadVenues = async () => {
     console.log('Loading venues for AI planner');
@@ -244,168 +176,6 @@ export default function TonightScreen() {
     loadVenues();
   }, []);
 
-  const generateMockPlan = (mood: MoodId, index: number): AIPlan => {
-    const restaurantVenues = venues.filter(v => v.category === 'restaurant');
-    const barVenues = venues.filter(v => v.category === 'bar');
-    const clubVenues = venues.filter(v => v.category === 'club');
-
-    const getRandomVenue = (list: Venue[]) => {
-      if (list.length === 0) return { name: 'Venue', id: '' };
-      return list[Math.floor(Math.random() * list.length)];
-    };
-
-    const plans: { [key in MoodId]: AIPlan[] } = {
-      date_night: [
-        {
-          stops: [
-            { time: '19:00', venueName: getRandomVenue(restaurantVenues).name || 'Dveri', activity: 'Večera', price: 45 },
-            { time: '21:30', venueName: getRandomVenue(barVenues).name || 'Zlatna Ribica', activity: 'Kokteli', price: 30 },
-          ],
-          total: 75,
-        },
-        {
-          stops: [
-            { time: '19:30', venueName: getRandomVenue(restaurantVenues).name || 'Park Princeva', activity: 'Večera', price: 50 },
-            { time: '22:00', venueName: getRandomVenue(barVenues).name || 'Kino Bosna', activity: 'Piće', price: 25 },
-          ],
-          total: 75,
-        },
-      ],
-      party: [
-        {
-          stops: [
-            { time: '20:00', venueName: getRandomVenue(restaurantVenues).name || 'Burger Inc', activity: 'Večera', price: 30 },
-            { time: '22:00', venueName: getRandomVenue(barVenues).name || 'Hacienda', activity: 'Kokteli', price: 35 },
-            { time: '00:00', venueName: getRandomVenue(clubVenues).name || 'Club Trezor', activity: 'Party', price: 15 },
-          ],
-          total: 80,
-        },
-        {
-          stops: [
-            { time: '21:00', venueName: getRandomVenue(barVenues).name || 'Blind Tiger', activity: 'Drinks', price: 40 },
-            { time: '23:30', venueName: getRandomVenue(clubVenues).name || 'Kino Bosna', activity: 'Party', price: 20 },
-          ],
-          total: 60,
-        },
-      ],
-      chill: [
-        {
-          stops: [
-            { time: '18:00', venueName: getRandomVenue(restaurantVenues).name || 'Karuzo', activity: 'Večera', price: 35 },
-            { time: '20:30', venueName: getRandomVenue(barVenues).name || 'Café Tito', activity: 'Piće', price: 20 },
-          ],
-          total: 55,
-        },
-        {
-          stops: [
-            { time: '19:00', venueName: getRandomVenue(restaurantVenues).name || 'Mala Kuhinja', activity: 'Večera', price: 40 },
-            { time: '21:00', venueName: getRandomVenue(barVenues).name || 'Pivnica HS', activity: 'Pivo', price: 15 },
-          ],
-          total: 55,
-        },
-      ],
-      culture: [
-        {
-          stops: [
-            { time: '18:00', venueName: 'Narodno pozorište', activity: 'Predstava', price: 20 },
-            { time: '21:00', venueName: getRandomVenue(restaurantVenues).name || 'Dveri', activity: 'Večera', price: 45 },
-          ],
-          total: 65,
-        },
-        {
-          stops: [
-            { time: '19:00', venueName: 'Kino Meeting Point', activity: 'Film', price: 10 },
-            { time: '21:30', venueName: getRandomVenue(barVenues).name || 'Zlatna Ribica', activity: 'Piće', price: 25 },
-          ],
-          total: 35,
-        },
-      ],
-      girlsnight: [
-        {
-          stops: [
-            { time: '19:00', venueName: getRandomVenue(restaurantVenues).name || 'Mash', activity: 'Večera', price: 40 },
-            { time: '21:30', venueName: getRandomVenue(barVenues).name || 'Hacienda', activity: 'Kokteli', price: 35 },
-            { time: '23:30', venueName: getRandomVenue(clubVenues).name || 'Club Trezor', activity: 'Party', price: 15 },
-          ],
-          total: 90,
-        },
-        {
-          stops: [
-            { time: '20:00', venueName: getRandomVenue(restaurantVenues).name || 'Karuzo', activity: 'Večera', price: 35 },
-            { time: '22:00', venueName: getRandomVenue(barVenues).name || 'Blind Tiger', activity: 'Drinks', price: 30 },
-          ],
-          total: 65,
-        },
-      ],
-      outdoor: [
-        {
-          stops: [
-            { time: '18:00', venueName: getRandomVenue(restaurantVenues).name || 'Park Princeva', activity: 'Večera', price: 45 },
-            { time: '20:30', venueName: getRandomVenue(barVenues).name || 'Café Tito', activity: 'Piće', price: 25 },
-          ],
-          total: 70,
-        },
-      ],
-      foodie: [
-        {
-          stops: [
-            { time: '19:00', venueName: getRandomVenue(restaurantVenues).name || 'Dveri', activity: 'Večera', price: 50 },
-            { time: '21:30', venueName: getRandomVenue(barVenues).name || 'Zlatna Ribica', activity: 'Digestiv', price: 20 },
-          ],
-          total: 70,
-        },
-      ],
-      live_music: [
-        {
-          stops: [
-            { time: '20:00', venueName: getRandomVenue(restaurantVenues).name || 'Karuzo', activity: 'Večera', price: 35 },
-            { time: '22:00', venueName: getRandomVenue(barVenues).name || 'Kino Bosna', activity: 'Live muzika', price: 25 },
-          ],
-          total: 60,
-        },
-      ],
-      sports: [
-        {
-          stops: [
-            { time: '19:00', venueName: getRandomVenue(barVenues).name || 'Pivnica HS', activity: 'Utakmica', price: 20 },
-            { time: '21:30', venueName: getRandomVenue(restaurantVenues).name || 'Burger Inc', activity: 'Večera', price: 30 },
-          ],
-          total: 50,
-        },
-      ],
-      art: [
-        {
-          stops: [
-            { time: '18:00', venueName: 'Galerija 11/07/95', activity: 'Izložba', price: 10 },
-            { time: '20:00', venueName: getRandomVenue(restaurantVenues).name || 'Dveri', activity: 'Večera', price: 45 },
-          ],
-          total: 55,
-        },
-      ],
-      coffee: [
-        {
-          stops: [
-            { time: '17:00', venueName: getRandomVenue(barVenues).name || 'Café Tito', activity: 'Kafa', price: 10 },
-            { time: '19:00', venueName: getRandomVenue(restaurantVenues).name || 'Mala Kuhinja', activity: 'Večera', price: 40 },
-          ],
-          total: 50,
-        },
-      ],
-      drinks: [
-        {
-          stops: [
-            { time: '20:00', venueName: getRandomVenue(barVenues).name || 'Hacienda', activity: 'Kokteli', price: 35 },
-            { time: '22:30', venueName: getRandomVenue(barVenues).name || 'Blind Tiger', activity: 'Drinks', price: 30 },
-          ],
-          total: 65,
-        },
-      ],
-    };
-
-    const moodPlans = plans[mood] || plans.chill;
-    return moodPlans[index % moodPlans.length];
-  };
-
   const handleGeneratePlan = async () => {
     if (!selectedMood) return;
     
@@ -414,7 +184,7 @@ export default function TonightScreen() {
     
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const plan = generateMockPlan(selectedMood, 0);
+    const plan = generateMockTonightPlan(selectedMood, 0, venues);
     setCurrentPlan(plan);
     setPlanIndex(0);
     setGeneratingPlan(false);
@@ -423,27 +193,23 @@ export default function TonightScreen() {
   const handleNextPlan = () => {
     if (!selectedMood) return;
     const nextIndex = planIndex + 1;
-    const plan = generateMockPlan(selectedMood, nextIndex);
+    const plan = generateMockTonightPlan(selectedMood, nextIndex, venues);
     setCurrentPlan(plan);
     setPlanIndex(nextIndex);
   };
 
   const handleSavePlan = () => {
     console.log('Saving plan:', currentPlan);
-    alert(language === 'bs' ? 'Plan sačuvan!' : 'Plan saved!');
+    alert(language === 'bs' ? 'Plan sacuvan!' : 'Plan saved!');
     setShowPlannerModal(false);
     setCurrentPlan(null);
   };
 
   const handleSharePlan = async () => {
     if (!currentPlan) return;
-    
-    const planText = currentPlan.stops.map((stop, i) => 
-      `${i + 1}. ${stop.time} — ${stop.venueName} — ${stop.activity} — ~${stop.price} KM`
-    ).join('\n');
-    
-    const shareText = `${language === 'bs' ? 'Moj plan za večeras' : 'My plan for tonight'}:\n\n${planText}\n\n${language === 'bs' ? 'Ukupno' : 'Total'}: ~${currentPlan.total} KM\n\n${language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'}`;
-    
+
+    const shareText = buildTonightPlanShareText(language, currentPlan);
+
     try {
       await Share.share({
         message: shareText,
@@ -452,7 +218,6 @@ export default function TonightScreen() {
       console.error('Error sharing plan:', error);
     }
   };
-
   const handleOpenVoteModal = () => {
     console.log('Opening vote modal');
     setSelectedEvents([]);
@@ -495,9 +260,9 @@ export default function TonightScreen() {
 
   const handleShareVote = async () => {
     if (!voteLink) return;
-    
-    const shareText = `${language === 'bs' ? 'Glasaj za večeras!' : 'Vote for tonight!'}\n\n${voteLink}\n\n${language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'}`;
-    
+
+    const shareText = buildTonightVoteShareText(language, voteLink);
+
     try {
       await Share.share({
         message: shareText,
@@ -506,7 +271,6 @@ export default function TonightScreen() {
       console.error('Error sharing vote:', error);
     }
   };
-
   const getUrgencyBadge = (eventDate: string) => {
     const eventDateTime = new Date(eventDate);
     const today = new Date();
@@ -756,13 +520,13 @@ export default function TonightScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>
-                {language === 'bs' ? 'AI Planer večeri' : 'AI Evening Planner'}
+                {language === 'bs' ? 'AI Planer veceri' : 'AI Evening Planner'}
               </Text>
               <TouchableOpacity onPress={() => {
                 setShowPlannerModal(false);
                 setCurrentPlan(null);
               }}>
-                <Text style={[styles.modalClose, { color: colors.text }]}>✕</Text>
+                <Text style={[styles.modalClose, { color: colors.text }]}>x</Text>
               </TouchableOpacity>
             </View>
 
@@ -770,10 +534,10 @@ export default function TonightScreen() {
               {!currentPlan ? (
                 <>
                   <Text style={[styles.sectionLabel, { color: colors.text }]}>
-                    {language === 'bs' ? 'Raspoloženje' : 'Mood'}
+                    {language === 'bs' ? 'Raspolozenje' : 'Mood'}
                   </Text>
                   <View style={styles.moodGrid}>
-                    {MOODS.map(mood => {
+                    {TONIGHT_MOODS.map(mood => {
                       const isSelected = selectedMood === mood.id;
                       const moodLabel = language === 'bs' ? mood.label_bs : mood.label_en;
                       
@@ -796,7 +560,7 @@ export default function TonightScreen() {
                   </View>
 
                   <Text style={[styles.sectionLabel, { color: colors.text }]}>
-                    {language === 'bs' ? `Budžet: ${budget} KM` : `Budget: ${budget} KM`}
+                    {language === 'bs' ? `Budzet: ${budget} KM` : `Budget: ${budget} KM`}
                   </Text>
                   <Slider
                     style={styles.slider}
@@ -953,7 +717,7 @@ export default function TonightScreen() {
                 setSelectedEvents([]);
                 setVoteLink(null);
               }}>
-                <Text style={[styles.modalClose, { color: colors.text }]}>✕</Text>
+                <Text style={[styles.modalClose, { color: colors.text }]}>x</Text>
               </TouchableOpacity>
             </View>
 
