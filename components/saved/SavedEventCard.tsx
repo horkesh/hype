@@ -4,58 +4,58 @@ import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeabl
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
 import { SwipeDeleteAction } from '@/components/saved/SwipeDeleteAction';
-import { SavedEvent } from '@/utils/savedScreen';
+import { SavedEventCardModel } from '@/utils/savedContent';
 
 interface SavedEventCardProps {
   accentColor: string;
   cardColor: string;
-  dateDisplay: string;
-  event: SavedEvent;
-  eventTitle: string;
+  event: SavedEventCardModel;
   onDelete: (eventId: string) => void;
   onPress: (eventId: string) => void;
-  priceDisplay: string;
   textColor: string;
   textSecondaryColor: string;
-  venueName: string;
 }
 
 export function SavedEventCard({
   accentColor,
   cardColor,
-  dateDisplay,
   event,
-  eventTitle,
   onDelete,
   onPress,
-  priceDisplay,
   textColor,
   textSecondaryColor,
-  venueName,
 }: SavedEventCardProps) {
   return (
     <ReanimatedSwipeable
       renderRightActions={(_, drag) => (
-        <SwipeDeleteAction drag={drag} onDelete={() => onDelete(event.id)} />
+        <SwipeDeleteAction drag={drag} onDelete={() => onDelete(event.eventId)} />
       )}
       overshootRight={false}
     >
       <TouchableOpacity
-        onPress={() => onPress(event.id)}
+        onPress={() => onPress(event.eventId)}
         style={[styles.card, { backgroundColor: cardColor }]}
       >
-        <ImageWithPlaceholder source={event.cover_image_url} style={styles.cardImage} categoryEmoji="🎟️" />
+        <ImageWithPlaceholder
+          source={event.imageSource}
+          style={styles.cardImage}
+          categoryEmoji="\u{1F39F}\uFE0F"
+        />
         <View style={styles.cardContent}>
           <Text style={[styles.cardTitle, { color: textColor }]} numberOfLines={2}>
-            {eventTitle}
+            {event.title}
           </Text>
-          {venueName ? (
-            <Text style={[styles.metaText, { color: textSecondaryColor }]}>{venueName}</Text>
+          {event.venueName ? (
+            <Text style={[styles.metaText, { color: textSecondaryColor }]}>
+              {event.venueName}
+            </Text>
           ) : null}
           <View style={styles.eventMeta}>
-            <Text style={[styles.metaText, { color: textSecondaryColor }]}>{dateDisplay}</Text>
+            <Text style={[styles.metaText, { color: textSecondaryColor }]}>
+              {event.dateDisplay}
+            </Text>
             <View style={[styles.priceBadge, { backgroundColor: accentColor }]}>
-              <Text style={styles.priceText}>{priceDisplay}</Text>
+              <Text style={styles.priceText}>{event.priceDisplay}</Text>
             </View>
           </View>
         </View>

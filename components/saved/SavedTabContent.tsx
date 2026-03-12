@@ -1,10 +1,15 @@
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { SavedBadgeCard } from '@/components/saved/SavedBadgeCard';
+import { SavedBadgeGrid } from '@/components/saved/SavedBadgeGrid';
 import { SavedEmptyState } from '@/components/saved/SavedEmptyState';
-import { SavedEventCard } from '@/components/saved/SavedEventCard';
-import { SavedVenueCard } from '@/components/saved/SavedVenueCard';
+import { SavedEventList } from '@/components/saved/SavedEventList';
+import { SavedVenueList } from '@/components/saved/SavedVenueList';
+import {
+  buildSavedBadgeCardModels,
+  buildSavedEventCardModels,
+  buildSavedVenueCardModels,
+} from '@/utils/savedContent';
 import {
   DEMO_EARNED_BADGES,
   formatSavedBadgeDate,
@@ -62,6 +67,22 @@ export function SavedTabContent({
   onRemoveVenue,
 }: SavedTabContentProps) {
   const emptyState = getSavedEmptyState(activeTab, isSignedIn, isBosnian);
+  const venueModels = buildSavedVenueCardModels(venues, {
+    getPriceLevelDisplay: getSavedPriceLevelDisplay,
+    moodLookup: SAVED_MOODS,
+  });
+  const eventModels = buildSavedEventCardModels(events, {
+    atLabel: eventAtLabel,
+    formatDate: formatSavedEventDate,
+    freeLabel,
+    isBosnian,
+  });
+  const badgeModels = buildSavedBadgeCardModels(badges, {
+    earnedBadgeKeys: DEMO_EARNED_BADGES,
+    formatDate: formatSavedBadgeDate,
+    getProgress: getSavedBadgeProgress,
+    isBosnian,
+  });
 
   if (isLoading) {
     return (
@@ -72,7 +93,7 @@ export function SavedTabContent({
   }
 
   if (activeTab === 'venues') {
-    if (venues.length === 0) {
+    if (venueModels.length === 0) {
       return (
         <SavedEmptyState
           accentColor={accentColor}
@@ -88,29 +109,21 @@ export function SavedTabContent({
     }
 
     return (
-      <ScrollView style={styles.content}>
-        <View style={styles.cardsContainer}>
-          {venues.map((venue) => (
-            <SavedVenueCard
-              key={venue.id}
-              accentColor={accentColor}
-              backgroundColor={backgroundColor}
-              cardColor={cardColor}
-              getPriceLevelDisplay={getSavedPriceLevelDisplay}
-              onDelete={onRemoveVenue}
-              onPress={onPressVenue}
-              textColor={textColor}
-              textSecondaryColor={textSecondaryColor}
-              venue={venue}
-            />
-          ))}
-        </View>
-      </ScrollView>
+      <SavedVenueList
+        accentColor={accentColor}
+        backgroundColor={backgroundColor}
+        cardColor={cardColor}
+        models={venueModels}
+        onPressVenue={onPressVenue}
+        onRemoveVenue={onRemoveVenue}
+        textColor={textColor}
+        textSecondaryColor={textSecondaryColor}
+      />
     );
   }
 
   if (activeTab === 'events') {
-    if (events.length === 0) {
+    if (eventModels.length === 0) {
       return (
         <SavedEmptyState
           accentColor={accentColor}
@@ -126,30 +139,19 @@ export function SavedTabContent({
     }
 
     return (
-      <ScrollView style={styles.content}>
-        <View style={styles.cardsContainer}>
-          {events.map((event) => (
-            <SavedEventCard
-              key={event.id}
-              accentColor={accentColor}
-              cardColor={cardColor}
-              dateDisplay={formatSavedEventDate(event.start_datetime, eventAtLabel)}
-              event={event}
-              eventTitle={isBosnian ? event.title_bs : event.title_en || event.title_bs}
-              onDelete={onRemoveEvent}
-              onPress={onPressEvent}
-              priceDisplay={event.price_bam ? `${event.price_bam} KM` : freeLabel}
-              textColor={textColor}
-              textSecondaryColor={textSecondaryColor}
-              venueName={event.venues?.name || event.location_name || ''}
-            />
-          ))}
-        </View>
-      </ScrollView>
+      <SavedEventList
+        accentColor={accentColor}
+        cardColor={cardColor}
+        models={eventModels}
+        onPressEvent={onPressEvent}
+        onRemoveEvent={onRemoveEvent}
+        textColor={textColor}
+        textSecondaryColor={textSecondaryColor}
+      />
     );
   }
 
-  if (badges.length === 0) {
+  if (badgeModels.length === 0) {
     return (
       <SavedEmptyState
         accentColor={accentColor}
@@ -165,48 +167,21 @@ export function SavedTabContent({
   }
 
   return (
-    <ScrollView style={styles.content}>
-      <View style={styles.badgesGrid}>
-        {badges.map((badge) => {
-          const isEarned = DEMO_EARNED_BADGES.includes(badge.badge_key);
-
-          return (
-            <SavedBadgeCard
-              key={badge.id}
-              accentColor={accentColor}
-              backgroundColor={backgroundColor}
-              badge={badge}
-              badgeName={isBosnian ? badge.name_bs : badge.name_en}
-              earnedDate={formatSavedBadgeDate(new Date().toISOString())}
-              isEarned={isEarned}
-              progress={getSavedBadgeProgress(badge.badge_key)}
-              textColor={textColor}
-              textSecondaryColor={textSecondaryColor}
-            />
-          );
-        })}
-      </View>
-    </ScrollView>
+    <SavedBadgeGrid
+      accentColor={accentColor}
+      backgroundColor={backgroundColor}
+      models={badgeModels}
+      textColor={textColor}
+      textSecondaryColor={textSecondaryColor}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 320,
-  },
-  cardsContainer: {
-    padding: 16,
-  },
-  badgesGrid: {
-    padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
   },
 });

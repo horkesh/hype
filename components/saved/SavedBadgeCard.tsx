@@ -1,16 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { SavedBadge } from '@/utils/savedScreen';
+import { SavedBadgeCardModel } from '@/utils/savedContent';
 
 interface SavedBadgeCardProps {
   accentColor: string;
   backgroundColor: string;
-  badge: SavedBadge;
-  badgeName: string;
-  earnedDate: string;
-  isEarned: boolean;
-  progress: { current: number; total: number };
+  badge: SavedBadgeCardModel;
   textColor: string;
   textSecondaryColor: string;
 }
@@ -19,33 +15,29 @@ export function SavedBadgeCard({
   accentColor,
   backgroundColor,
   badge,
-  badgeName,
-  earnedDate,
-  isEarned,
-  progress,
   textColor,
   textSecondaryColor,
 }: SavedBadgeCardProps) {
-  const progressPercent = (progress.current / progress.total) * 100;
+  const progressPercent = (badge.progress.current / badge.progress.total) * 100;
 
   return (
     <View
       style={[
         styles.badgeCard,
         {
-          backgroundColor: isEarned ? '#FFFFFF' : backgroundColor,
-          opacity: isEarned ? 1 : 0.6,
+          backgroundColor: badge.isEarned ? '#FFFFFF' : backgroundColor,
+          opacity: badge.isEarned ? 1 : 0.6,
         },
       ]}
     >
       <Text style={styles.badgeIcon}>{badge.icon}</Text>
       <Text style={[styles.badgeName, { color: textColor }]} numberOfLines={1}>
-        {badgeName}
+        {badge.badgeName}
       </Text>
-      {isEarned ? (
+      {badge.isEarned ? (
         <View style={styles.earnedBadge}>
           <Text style={[styles.earnedText, { color: accentColor }]}>Earned</Text>
-          <Text style={[styles.earnedDate, { color: textSecondaryColor }]}>{earnedDate}</Text>
+          <Text style={[styles.earnedDate, { color: textSecondaryColor }]}>{badge.earnedDate}</Text>
         </View>
       ) : (
         <View style={styles.progressContainer}>
@@ -58,9 +50,9 @@ export function SavedBadgeCard({
             />
           </View>
           <Text style={[styles.progressText, { color: textSecondaryColor }]}>
-            {progress.current}
+            {badge.progress.current}
             <Text style={styles.progressSeparator}>/</Text>
-            {progress.total}
+            {badge.progress.total}
           </Text>
         </View>
       )}

@@ -222,6 +222,7 @@ Status:
 - Home helper/test literals are now cleaned in `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, and `tests/homeScreen.test.ts`, so the Home regression suite no longer preserves mojibake
 - favorites legacy-key reads and mirrored writes now live in `utils/favoritesStorage.ts`, leaving `utils/favorites.ts` focused on auth and Supabase orchestration with direct storage-helper coverage in `tests/favoritesStorage.test.ts`
 - runtime log muting, stringification, and stack parsing now live in `utils/errorLoggerUtils.ts`, leaving `utils/errorLogger.ts` focused on platform wiring with direct helper coverage in `tests/errorLoggerUtils.test.ts`
+- Saved venue/event/badge card shaping now lives in `utils/savedContent.ts`, leaving `components/saved/SavedTabContent.tsx` focused on loading and empty-state branching with direct helper coverage in `tests/savedContent.test.ts`
 
 ## Backlog
 
@@ -322,6 +323,7 @@ Status:
   - Home helper tests now assert the cleaned helper output directly instead of carrying damaged literals from earlier prototype passes
   - favorites legacy-key merge and mirrored-write behavior now has direct Node-side coverage in `tests/favoritesStorage.test.ts`
   - runtime logging mute and stack-shaping behavior now has direct Node-side coverage in `tests/errorLoggerUtils.test.ts`
+  - Saved venue/event/badge view-model shaping now has direct Node-side coverage in `tests/savedContent.test.ts`
 
 #### B13. Adapter and compatibility cleanup
 

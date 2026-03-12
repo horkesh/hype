@@ -115,6 +115,8 @@
    Do instead: when a migration still has to read or mirror legacy AsyncStorage keys, keep the read/write/merge logic in a tiny helper module with an injected storage interface so Node-side tests can cover key drift and mirrored writes without importing the React Native runtime.
 13. **[2026-03-12] Runtime logging modules should push pure stack and message shaping into helper modules**
    Do instead: when a runtime-only logger still carries muting rules, argument stringification, or stack parsing inline, move those pure pieces into `utils/<surface>Utils.ts` first so Node-side tests can cover them and the runtime module can stay focused on platform wiring.
+14. **[2026-03-12] Large saved-state content shells should build card models before rendering lists**
+   Do instead: when a Saved-style surface still branches across venues, events, and badges inline, move localized card text, price/date formatting, mood badges, and earned/progress state into `utils/<surface>Content.ts`, then keep the shell responsible only for empty/loading branching and delegating to list/grid components.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

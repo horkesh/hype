@@ -857,3 +857,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a runtime support module mixes platform wiring with pure parsing or message-shaping behavior, move the pure logic into a testable helper first so the runtime file can shrink without requiring Expo or React Native in the test harness.
 - Verification: `npx.cmd tsx --test tests/errorLoggerUtils.test.ts tests/appRoutes.test.ts tests/favoritesStorage.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the long-tail support cleanup on the remaining Saved support surfaces, which are now the clearest shared UI lane still carrying bulky render branching.
+
+### 2026-03-12 23:15
+- Goal: Thin the remaining Saved support shell by moving venue, event, and badge card shaping out of the shared content component.
+- Changes made: Added `utils/savedContent.ts` for Saved venue/event/badge view-model shaping; added `components/saved/SavedVenueList.tsx`, `components/saved/SavedEventList.tsx`, and `components/saved/SavedBadgeGrid.tsx`; rewrote `components/saved/SavedTabContent.tsx` to delegate to those extracted list/grid surfaces; updated the Saved card components to consume helper-shaped models instead of shaping display data inline; added `tests/savedContent.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `components/saved/SavedTabContent.tsx`, `components/saved/SavedVenueCard.tsx`, `components/saved/SavedEventCard.tsx`, `components/saved/SavedBadgeCard.tsx`, `components/saved/SavedVenueList.tsx`, `components/saved/SavedEventList.tsx`, `components/saved/SavedBadgeGrid.tsx`, `utils/savedContent.ts`, `tests/savedContent.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a shared Saved surface still branches across three content types inline, shape the card data first in a helper module and let the shell render named list/grid components instead of mixing all the per-tab display rules together.
+- Verification: `npx.cmd tsx --test tests/savedContent.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the narrower post-cleanup wave on the next remaining shared support surface rather than reopening stable route/controller work.

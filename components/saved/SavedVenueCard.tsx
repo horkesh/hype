@@ -4,25 +4,23 @@ import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeabl
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
 import { SwipeDeleteAction } from '@/components/saved/SwipeDeleteAction';
-import { SavedVenue, SAVED_MOODS } from '@/utils/savedScreen';
+import { SavedVenueCardModel } from '@/utils/savedContent';
 
 interface SavedVenueCardProps {
   accentColor: string;
   backgroundColor: string;
   cardColor: string;
-  getPriceLevelDisplay: (level: number) => string;
   onDelete: (venueId: string) => void;
   onPress: (venueId: string) => void;
   textColor: string;
   textSecondaryColor: string;
-  venue: SavedVenue;
+  venue: SavedVenueCardModel;
 }
 
 export function SavedVenueCard({
   accentColor,
   backgroundColor,
   cardColor,
-  getPriceLevelDisplay,
   onDelete,
   onPress,
   textColor,
@@ -32,15 +30,19 @@ export function SavedVenueCard({
   return (
     <ReanimatedSwipeable
       renderRightActions={(_, drag) => (
-        <SwipeDeleteAction drag={drag} onDelete={() => onDelete(venue.id)} />
+        <SwipeDeleteAction drag={drag} onDelete={() => onDelete(venue.venueId)} />
       )}
       overshootRight={false}
     >
       <TouchableOpacity
-        onPress={() => onPress(venue.id)}
+        onPress={() => onPress(venue.venueId)}
         style={[styles.card, { backgroundColor: cardColor }]}
       >
-        <ImageWithPlaceholder source={venue.cover_image_url} style={styles.cardImage} categoryEmoji="📍" />
+        <ImageWithPlaceholder
+          source={venue.imageSource}
+          style={styles.cardImage}
+          categoryEmoji="\u{1F4CD}"
+        />
         <View style={styles.cardContent}>
           <Text style={[styles.cardTitle, { color: textColor }]} numberOfLines={1}>
             {venue.name}
@@ -55,14 +57,17 @@ export function SavedVenueCard({
               </Text>
             ) : null}
             <Text style={[styles.metaText, { color: textSecondaryColor }]}>
-              {getPriceLevelDisplay(venue.price_level)}
+              {venue.priceDisplay}
             </Text>
           </View>
-          {venue.moods && venue.moods.length > 0 ? (
+          {venue.moodBadges.length > 0 ? (
             <View style={styles.moodBadges}>
-              {venue.moods.slice(0, 3).map((mood, index) => (
-                <View key={`${venue.id}-${mood}-${index}`} style={[styles.moodBadge, { backgroundColor }]}>
-                  <Text style={styles.moodEmoji}>{SAVED_MOODS[mood] || '✨'}</Text>
+              {venue.moodBadges.map((moodBadge, index) => (
+                <View
+                  key={`${venue.id}-${moodBadge}-${index}`}
+                  style={[styles.moodBadge, { backgroundColor }]}
+                >
+                  <Text style={styles.moodEmoji}>{moodBadge}</Text>
                 </View>
               ))}
             </View>

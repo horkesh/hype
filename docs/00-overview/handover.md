@@ -34,6 +34,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - keep the remaining Tonight follow-up on the new deterministic mock-plan path, with `utils/tonightMockPlans.ts` now owning planner sample generation so `utils/tonightScreen.ts` can stay focused on shared types, labels, and share text
 - keep the favorites migration on the helper-owned storage path too, with `utils/favoritesStorage.ts` now owning legacy key reads, mirrored writes, and remote-missing calculations so `utils/favorites.ts` can stay focused on auth plus Supabase orchestration
 - keep the runtime logging cleanup on the helper-owned utility path too, with `utils/errorLoggerUtils.ts` now owning mute rules, log-argument stringification, and stack parsing so `utils/errorLogger.ts` can stay focused on platform wiring and log forwarding
+- keep the Saved support cleanup on the helper-owned content path too, with `utils/savedContent.ts` now owning venue/event/badge card shaping so `components/saved/SavedTabContent.tsx` can stay focused on loading, empty-state branching, and delegating to list/grid sections
 - treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
@@ -52,6 +53,9 @@ Most relevant changed surfaces:
 - `components/saved/SavedBadgeCard.tsx`
 - `components/saved/SavedEmptyState.tsx`
 - `components/saved/SavedTabContent.tsx`
+- `components/saved/SavedVenueList.tsx`
+- `components/saved/SavedEventList.tsx`
+- `components/saved/SavedBadgeGrid.tsx`
 - `components/saved/SwipeDeleteAction.tsx`
 - `app/(tabs)/profile.tsx`
 - `app/(tabs)/profile.ios.tsx`
@@ -102,12 +106,14 @@ Most relevant changed surfaces:
 - `utils/profileScreen.ts`
 - `utils/savedData.ts`
 - `utils/savedScreen.ts`
+- `utils/savedContent.ts`
 - `utils/savedEventsStorage.ts`
 - `contexts/AppContext.tsx`
 - `tests/favorites.test.ts`
 - `tests/favoritesStorage.test.ts`
 - `tests/errorLoggerUtils.test.ts`
 - `tests/savedScreen.test.ts`
+- `tests/savedContent.test.ts`
 - `tests/savedEventsStorage.test.ts`
 - `utils/profileTaste.ts`
 - `utils/authSession.ts`
@@ -517,6 +523,11 @@ The latest runtime logging cleanup pass added three more important outcomes:
 - moved mute rules, log-argument stringification, source-location extraction, and caller-info parsing into `utils/errorLoggerUtils.ts`, leaving `utils/errorLogger.ts` focused on runtime log forwarding and platform wiring
 - kept the existing runtime logging behavior intact while making the pure shaping logic testable without importing Expo or React Native
 - added targeted regression coverage in `tests/errorLoggerUtils.test.ts` so future cleanup can keep shrinking `errorLogger.ts` without losing the stack/muting behavior
+
+The latest Saved content cleanup pass added three more important outcomes:
+- moved Saved venue, event, and badge card shaping into `utils/savedContent.ts`, leaving `components/saved/SavedTabContent.tsx` focused on loading and empty-state branching
+- split the Saved content branches into `SavedVenueList.tsx`, `SavedEventList.tsx`, and `SavedBadgeGrid.tsx`, so the top-level Saved content shell no longer renders all three list/grid variants inline
+- added targeted regression coverage in `tests/savedContent.test.ts` so localized card titles, date/price text, mood badges, and badge earned/progress state are now covered directly
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
