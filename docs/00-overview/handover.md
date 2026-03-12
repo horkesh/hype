@@ -30,13 +30,13 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
-- continue narrower follow-up cleanup instead of another broad structural sweep, with the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, and shared chrome already on the helper-plus-components pattern
+- treat the bounded frontend cleanup program as complete: the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, shared chrome, runtime helper surfaces, and Saved/Explore support shells are now on the helper-plus-components pattern
 - keep the remaining Tonight follow-up on the new deterministic mock-plan path, with `utils/tonightMockPlans.ts` now owning planner sample generation so `utils/tonightScreen.ts` can stay focused on shared types, labels, and share text
 - keep the favorites migration on the helper-owned storage path too, with `utils/favoritesStorage.ts` now owning legacy key reads, mirrored writes, and remote-missing calculations so `utils/favorites.ts` can stay focused on auth plus Supabase orchestration
 - keep the runtime logging cleanup on the helper-owned utility path too, with `utils/errorLoggerUtils.ts` now owning mute rules, log-argument stringification, and stack parsing so `utils/errorLogger.ts` can stay focused on platform wiring and log forwarding
 - keep the Saved support cleanup on the helper-owned content path too, with `utils/savedContent.ts` now owning venue/event/badge card shaping so `components/saved/SavedTabContent.tsx` can stay focused on loading, empty-state branching, and delegating to list/grid sections
 - keep the Explore support cleanup on the composition path too, with `ExploreScreenBody.tsx` now delegating result and modal branching into `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` instead of owning both lanes inline
-- treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, `utils/savedScreen.ts`, `utils/profileSettings.ts`, `utils/tonightScreen.ts`, and `utils/homeScreenContent.ts` before touching leaf UI files
+- treat future frontend cleanup as narrow and evidence-driven: source-layer copy fixes, regression prevention, and any newly discovered outliers should be handled as isolated slices instead of another broad structural sweep
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -289,7 +289,7 @@ Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
 - shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, and the shared cross-platform map surface now using one helper-owned embed builder
-- the planned broad frontend cleanup wave is complete across Tonight planner support, Explore filter shell, Profile settings, Venue actions, shared tab chrome, Tonight list support, and saved-state helper consistency, so frontend maintenance has shifted to narrower follow-up cleanup like shared translation/config encoding repair and regression prevention rather than another broad structural sweep
+- the bounded frontend cleanup program is now complete across support surfaces, runtime utilities, helper-owned copy, and the final Saved/Explore shells, so frontend maintenance has shifted to regression prevention, live verification, and narrow follow-up cleanup rather than more structural rescue
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -544,6 +544,11 @@ The latest source-layer copy cleanup pass added three more important outcomes:
 - kept the cleanup at the source-of-truth layer rather than patching leaf components, so Profile, Tonight, Home, and Saved inherit the improved copy automatically
 - refreshed the adjacent Node-side tests so the cleaned helper output is now enforced directly in `tests/profileSettings.test.ts`, `tests/tonightScreen.test.ts`, `tests/homeScreenContent.test.ts`, and `tests/savedScreen.test.ts`
 
+The latest hardening pass added three more important outcomes:
+- reran the aggregate targeted pack across rebuilt Home, Explore, Tonight, Saved, Profile, detail, map, shared chrome, favorites, persistence, and runtime-helper surfaces with `105/105` tests passing
+- reran `npm.cmd run build:web` successfully after the final cleanup slices
+- closed the bounded frontend cleanup program in the docs, with remaining work now described as live verification, frontend/backend alignment, and narrow regression-driven cleanup instead of another structural sweep
+
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
 - decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
@@ -575,12 +580,9 @@ New regression coverage now exists for:
 ### Current quality risks
 
 Known cleanup targets include:
-- oversized screen files
-- remaining oversized shared route files whose behavior sections still need extraction
-- broader encoding cleanup outside the rebuilt/touched surfaces, with the shared translation/config source layer now partially cleaned
 - any future regressions that reintroduce hardcoded copy or route-level persistence into rebuilt screens
-- mojibake and encoding-damaged strings
-- long-tail persistence cleanup that still belongs in helper layers rather than UI files
+- long-tail encoding or diacritic cleanup outside the rebuilt/touched helper surfaces
+- any newly discovered outlier component that materially violates the orchestration-first pattern
 
 See:
 - `docs/08-reference/code_quality_audit_2026_03_09.md`
