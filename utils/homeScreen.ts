@@ -23,7 +23,7 @@ export async function loadHomeStaticContent(
     loadHomeRandomCafe(),
     loadHomeEventSeries(),
     loadHomeWeather().catch((error) => {
-      console.log('Home weather fetch failed, using fallback message', error);
+      console.error('Home weather fetch failed, using fallback message', error);
       return null;
     }),
   ]);
