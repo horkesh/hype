@@ -11,6 +11,14 @@ const venues = [
   { id: 'c-1', name: 'Club Trezor', category: 'club', latitude: 43.89, longitude: 18.45 },
 ];
 
+test('mock plan activity labels use correct Bosnian diacritics', () => {
+  const plan = generateMockTonightPlan('date_night', 0, venues);
+  const activities = plan.stops.map((s) => s.activity);
+
+  assert.ok(activities.includes('Ve\u010Dera'));
+  assert.ok(!activities.some((a) => a === 'Vecera'));
+});
+
 test('generateMockTonightPlan stays deterministic even if Math.random changes', () => {
   const originalRandom = Math.random;
 
