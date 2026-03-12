@@ -4,6 +4,8 @@ This is the default startup sequence for every Hype session.
 
 If you are resuming work on Hype, start here.
 
+If it is a cold start, machine switch, or agent handoff, read `handover.md` first.
+
 ## Purpose
 
 Use this protocol to make sure every session begins with:
@@ -16,10 +18,19 @@ This keeps planning, memory, and execution aligned.
 
 ## Startup order
 
+### 0. For handoffs or cold starts, read handover first
+
+Read:
+[handover.md](./handover.md)
+
+Why:
+- it gives the shortest high-signal project briefing
+- it reduces context loss between agents and machines
+
 ### 1. Read the execution board
 
 Read:
-[execution_board.md](C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app\docs\00-overview\execution_board.md)
+[execution_board.md](./execution_board.md)
 
 Why:
 - it is the structured planning source of truth
@@ -28,7 +39,7 @@ Why:
 ### 2. Read the napkin
 
 Read:
-[napkin.md](C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app\.claude\napkin.md)
+[napkin.md](../../.claude/napkin.md)
 
 Why:
 - it holds recurring repo-specific rules
@@ -38,7 +49,7 @@ Why:
 ### 3. Read the project ledger
 
 Read:
-[project_ledger.md](C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app\docs\project_ledger.md)
+[project_ledger.md](../project_ledger.md)
 
 Why:
 - it shows the latest chronological changes
@@ -48,9 +59,12 @@ Why:
 ### 4. Read task-specific supporting docs
 
 Then read only what the task needs:
+- quick "what remains" synthesis: `docs/00-overview/program_map.md`
 - architecture work: `docs/03-architecture/`
 - product behavior: `docs/04-product/`
 - setup and delivery: `docs/05-dev-ops/`
+- home-machine runtime or backend verification: `docs/05-dev-ops/home_machine_verification_checklist.md`
+- live Supabase content reality checks: `docs/03-architecture/venue_seed_reconciliation.md`, `docs/03-architecture/events_series_reconciliation.md`, `docs/03-architecture/daily_specials_reconciliation.md`
 - durable decisions: `docs/06-decisions/`
 - role lenses: `docs/09-agents/`
 

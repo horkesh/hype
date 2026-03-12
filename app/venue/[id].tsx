@@ -10,6 +10,7 @@ import {
   Image,
   ImageSourcePropType,
   Linking,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useApp } from '@/contexts/AppContext';
@@ -17,8 +18,13 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { IconSymbol } from '@/components/IconSymbol';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { normalizeDailySpecialRows, normalizeVenue } from '@/utils/errorLogger';
+import {
+  addVenueFavoriteForCurrentUser,
+  isFavoritesAuthRequiredError,
+  isVenueFavoritedByCurrentUser,
+  removeVenueFavoriteForCurrentUser,
+} from '@/utils/favorites';
 
 // Helper to resolve image sources
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
@@ -166,8 +172,7 @@ export default function VenueDetailScreen() {
 
   const checkIfSaved = async () => {
     try {
-      const savedVenues = JSON.parse(await AsyncStorage.getItem('savedVenues') || '[]');
-      setIsSaved(savedVenues.includes(id));
+      setIsSaved(await isVenueFavoritedByCurrentUser(id));
     } catch (error) {
       console.error('Error checking saved status:', error);
     }
@@ -177,19 +182,18 @@ export default function VenueDetailScreen() {
     console.log('Toggling save for venue:', id);
 
     try {
-      const savedVenues = JSON.parse(await AsyncStorage.getItem('savedVenues') || '[]');
-      
       if (isSaved) {
-        const filtered = savedVenues.filter((venueId: string) => venueId !== id);
-        await AsyncStorage.setItem('savedVenues', JSON.stringify(filtered));
+        await removeVenueFavoriteForCurrentUser(id);
         setIsSaved(false);
       } else {
-        savedVenues.push(id);
-        await AsyncStorage.setItem('savedVenues', JSON.stringify(savedVenues));
+        await addVenueFavoriteForCurrentUser(id);
         setIsSaved(true);
       }
     } catch (error) {
       console.error('Error toggling save:', error);
+      if (isFavoritesAuthRequiredError(error)) {
+        Alert.alert('Sign in required', 'Please sign in from Profile to save venues.');
+      }
     }
   };
 
