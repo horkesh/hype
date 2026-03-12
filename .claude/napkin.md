@@ -65,6 +65,8 @@
    Do instead: once a shared route holds search, filters, lists, modals, and navigation together, extract named render sections into `components/<surface>/` and leave the route responsible mainly for state, loading, and navigation.
 10. **[2026-03-12] Pull time/data logic out before splitting large tab modals and cards**
    Do instead: for oversized discovery screens like `Tonight`, extract segment/date loaders and pure label/selection helpers into `utils/<surface>*.ts` first, then split the remaining render tree into `components/<surface>/`.
+11. **[2026-03-12] Large support components should follow the same orchestration pattern as routes**
+   Do instead: when a shared support surface like `HomeScreen` owns network loading, weather/copy logic, and bulky render sections together, move data access into `utils/<surface>Data.ts`, keep pure copy/date helpers in `utils/<surface>Screen.ts`, and split hero/list/feature sections into `components/<surface>/`.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

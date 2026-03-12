@@ -122,7 +122,7 @@ Status:
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
   - Home web/runtime verification is now green after the shared Home rebuild and web-safe image path changes
-  - current route-stability work has shifted toward simplification of the largest shared routes and detail surfaces, with Venue detail, Event detail, and Series detail now moved onto extracted data/helper/render modules
+  - current route-stability work has shifted toward simplification of the largest shared routes, support surfaces, and detail surfaces, with Home support plus Venue detail plus Event detail plus Series detail now moved onto extracted data/helper/render modules
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -189,6 +189,7 @@ Status:
   - `docs/05-dev-ops/quality_guardrail_plan.md`
 - Progress:
   - Home, Saved, and Profile platform wrappers are already collapsed
+  - Home now also uses `utils/homeData.ts` and focused `components/home/` sections instead of a large mixed data/render support component
   - Saved now uses shared data/persistence helpers and extracted render components instead of one large route-local implementation
   - Profile now uses shared auth/data helpers and extracted render components instead of one large mixed auth/settings/taste route
   - Tonight now has one shared route implementation with extracted planner/vote/event rendering, data loaders, and helper logic
@@ -372,8 +373,8 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next oversized surfaces outside the rebuilt tab stack, with encoding cleanup and remaining mixed admin/supporting routes now the clearest targets
-   the main detail-screen lane is now simplified, so the next wave should target remaining mixed-support surfaces plus broader mojibake cleanup
+1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup now the clearest target
+   the main tab, home-support, and detail-screen lanes are simplified, so the next wave should focus on shared support components like large modals, filters, and navigation chrome plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

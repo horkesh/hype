@@ -16,48 +16,48 @@ interface HomeSectionLabels {
 }
 
 export const HOME_MOODS: HomeMoodOption[] = [
-  { id: 'party', emoji: '🎉', label_bs: 'Party', label_en: 'Party' },
-  { id: 'chill', emoji: '😌', label_bs: 'Chill', label_en: 'Chill' },
-  { id: 'girls_night', emoji: '👯', label_bs: 'Girls Night', label_en: 'Girls Night' },
-  { id: 'date_night', emoji: '💑', label_bs: 'Date Night', label_en: 'Date Night' },
-  { id: 'muzika', emoji: '🎵', label_bs: 'Muzika', label_en: 'Music' },
-  { id: 'romantika', emoji: '💕', label_bs: 'Romantika', label_en: 'Romance' },
-  { id: 'kultura', emoji: '🎭', label_bs: 'Kultura', label_en: 'Culture' },
-  { id: 'foodie', emoji: '🍽️', label_bs: 'Foodie', label_en: 'Foodie' },
-  { id: 'brunch', emoji: '🥐', label_bs: 'Brunch', label_en: 'Brunch' },
-  { id: 'after_work', emoji: '🍻', label_bs: 'After Work', label_en: 'After Work' },
-  { id: 'outdoor', emoji: '🌳', label_bs: 'Outdoor', label_en: 'Outdoor' },
-  { id: 'turista', emoji: '📸', label_bs: 'Turista', label_en: 'Tourist' },
+  { id: 'party', emoji: '\ud83c\udf89', label_bs: 'Party', label_en: 'Party' },
+  { id: 'chill', emoji: '\ud83d\ude0c', label_bs: 'Chill', label_en: 'Chill' },
+  { id: 'girls_night', emoji: '\ud83d\udc6f', label_bs: 'Girls Night', label_en: 'Girls Night' },
+  { id: 'date_night', emoji: '\ud83d\udc91', label_bs: 'Date Night', label_en: 'Date Night' },
+  { id: 'muzika', emoji: '\ud83c\udfb5', label_bs: 'Muzika', label_en: 'Music' },
+  { id: 'romantika', emoji: '\ud83d\udc95', label_bs: 'Romantika', label_en: 'Romance' },
+  { id: 'kultura', emoji: '\ud83c\udfad', label_bs: 'Kultura', label_en: 'Culture' },
+  { id: 'foodie', emoji: '\ud83c\udf7d\ufe0f', label_bs: 'Foodie', label_en: 'Foodie' },
+  { id: 'brunch', emoji: '\ud83e\udd50', label_bs: 'Brunch', label_en: 'Brunch' },
+  { id: 'after_work', emoji: '\ud83c\udf7b', label_bs: 'After Work', label_en: 'After Work' },
+  { id: 'outdoor', emoji: '\ud83c\udf33', label_bs: 'Outdoor', label_en: 'Outdoor' },
+  { id: 'turista', emoji: '\ud83d\udcf8', label_bs: 'Turista', label_en: 'Tourist' },
 ];
 
 export function getTimeOfDayHeroMessage(language: HomeLanguage, hour: number): string {
   if (hour < 12) {
-    return language === 'bs' ? 'Dobro jutro, Sarajevo! ☕' : 'Good morning, Sarajevo! ☕';
+    return language === 'bs' ? 'Dobro jutro, Sarajevo! \u2615' : 'Good morning, Sarajevo! \u2615';
   }
 
   if (hour < 18) {
     return language === 'bs'
-      ? 'Dobar dan! Šta radiš danas? 🌞'
-      : 'Good afternoon! What are you up to? 🌞';
+      ? 'Dobar dan! \u0160ta radi\u0161 danas? \ud83c\udf1e'
+      : 'Good afternoon! What are you up to? \ud83c\udf1e';
   }
 
   return language === 'bs'
-    ? 'Dobro veče! Vrijeme je za izlazak 🌙'
-    : 'Good evening! Time to go out 🌙';
+    ? 'Dobro ve\u010de! Vrijeme je za izlazak \ud83c\udf19'
+    : 'Good evening! Time to go out \ud83c\udf19';
 }
 
 export function getDefaultHeroSubtitle(language: HomeLanguage): string {
   return language === 'bs'
-    ? 'Otkrijte najbolje što Sarajevo nudi danas'
+    ? 'Otkrijte najbolje \u0161to Sarajevo nudi danas'
     : 'Discover the best Sarajevo has to offer today';
 }
 
 export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels {
   if (language === 'bs') {
     return {
-      moods: 'Kako se osjećaš?',
-      cafes: 'Kafić dana',
-      events: 'Nadolazeći događaji',
+      moods: 'Kako se osje\u0107a\u0161?',
+      cafes: 'Kafi\u0107 dana',
+      events: 'Nadolaze\u0107i doga\u0111aji',
       series: 'Festivali & Serijali',
       seeAll: 'Vidi sve',
     };
@@ -65,7 +65,7 @@ export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels 
 
   return {
     moods: 'How are you feeling?',
-    cafes: 'Café of the day',
+    cafes: 'Cafe of the day',
     events: 'Upcoming events',
     series: 'Festivals & Series',
     seeAll: 'See all',
@@ -74,8 +74,8 @@ export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels 
 
 export function getEmptyEventsMessage(language: HomeLanguage): string {
   return language === 'bs'
-    ? 'Ništa za danas — ali sutra je novi dan! 🌅'
-    : 'Nothing for today — but tomorrow is a new day! 🌅';
+    ? 'Ni\u0161ta za danas, ali sutra je novi dan! \ud83c\udf04'
+    : 'Nothing for today, but tomorrow is a new day! \ud83c\udf04';
 }
 
 export function getCafeDescription(
@@ -83,11 +83,7 @@ export function getCafeDescription(
   descriptionBs: string | null,
   descriptionEn: string | null
 ): string | null {
-  if (language === 'bs') {
-    return descriptionBs ?? descriptionEn;
-  }
-
-  return descriptionEn ?? descriptionBs;
+  return language === 'bs' ? (descriptionBs ?? descriptionEn) : (descriptionEn ?? descriptionBs);
 }
 
 export function formatEventDateLabel(
@@ -120,21 +116,28 @@ export function getSeriesCountdownLabel(
   endDate: string,
   now: Date = new Date()
 ): string {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  const start = toLocalCalendarDate(startDate);
+  const end = toLocalCalendarDate(endDate);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
 
-  if (now < start) {
-    const daysUntil = Math.ceil((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (today < start) {
+    const daysUntil = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     const daysText = language === 'bs' ? 'dana' : 'days';
 
     return language === 'bs'
-      ? `Počinje za ${daysUntil} ${daysText}`
+      ? `Po\u010dinje za ${daysUntil} ${daysText}`
       : `Starts in ${daysUntil} ${daysText}`;
   }
 
-  if (now >= start && now <= end) {
-    return language === 'bs' ? '🔥 Aktivno sada' : '🔥 Active now';
+  if (today >= start && today <= end) {
+    return language === 'bs' ? '\ud83d\udd25 Aktivno sada' : '\ud83d\udd25 Active now';
   }
 
-  return language === 'bs' ? 'Završeno' : 'Ended';
+  return language === 'bs' ? 'Zavr\u0161eno' : 'Ended';
+}
+
+function toLocalCalendarDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
 }

@@ -26,7 +26,7 @@ test('time-of-day hero messages are deterministic by hour and language', () => {
 });
 
 test('series countdown covers future, active, and ended states', () => {
-  const now = new Date('2026-03-12T12:00:00.000Z');
+  const now = new Date(2026, 2, 12, 12, 0, 0);
 
   assert.equal(
     getSeriesCountdownLabel('en', '2026-03-15', '2026-03-20', now),
@@ -75,6 +75,7 @@ test('cafe description prefers language-specific text with fallback', () => {
 
 test('home copy helpers return stable copy collections', () => {
   assert.equal(getDefaultHeroSubtitle('bs'), 'Otkrijte najbolje što Sarajevo nudi danas');
-  assert.equal(getEmptyEventsMessage('en'), 'Nothing for today — but tomorrow is a new day! 🌅');
+  assert.equal(getEmptyEventsMessage('en'), 'Nothing for today, but tomorrow is a new day! 🌄');
   assert.equal(HOME_MOODS[0].id, 'party');
+  assert.equal(HOME_MOODS[0].emoji, '🎉');
 });
