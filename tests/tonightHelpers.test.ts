@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  buildTonightPlanMarkers,
   createMockVoteState,
   formatEventTime,
   getInitialTonightSegment,
@@ -56,6 +57,31 @@ test('toggleTonightSelection respects the four-item cap', () => {
 
 test('createMockVoteState seeds selected events with zero votes', () => {
   assert.deepEqual(createMockVoteState(['a', 'b']), { a: 0, b: 0 });
+});
+
+test('buildTonightPlanMarkers returns stable marker positions per stop order', () => {
+  const markers = buildTonightPlanMarkers({
+    total: 60,
+    stops: [
+      { time: '19:00', venueName: 'Cafe Tito', activity: 'Kafa', price: 10 },
+      { time: '21:00', venueName: 'Dveri', activity: 'Vecera', price: 50 },
+    ],
+  });
+
+  assert.deepEqual(markers, [
+    {
+      id: 'stop-0',
+      latitude: 43.8643,
+      longitude: 18.4071,
+      title: 'Cafe Tito',
+    },
+    {
+      id: 'stop-1',
+      latitude: 43.8523,
+      longitude: 18.4201,
+      title: 'Dveri',
+    },
+  ]);
 });
 
 test('getUrgencyBadge returns today and tomorrow labels correctly', () => {

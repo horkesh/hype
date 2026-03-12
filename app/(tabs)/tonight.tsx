@@ -9,6 +9,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { loadTonightEvents, loadTonightVenues } from '@/utils/tonightData';
 import {
+  AIPlan,
   buildTonightPlanShareText,
   buildTonightSegments,
   buildTonightVoteShareText,
@@ -17,7 +18,6 @@ import {
   MoodId,
   TimeSegment,
   Venue,
-  AIPlan,
 } from '@/utils/tonightScreen';
 import {
   createMockVoteState,
@@ -62,12 +62,12 @@ export default function TonightScreen() {
     () => ({
       budget: isBosnian ? `Budzet: ${budget} KM` : `Budget: ${budget} KM`,
       close: 'X',
-      generate: isBosnian ? 'Generisi plan ✨' : 'Generate plan ✨',
+      generate: isBosnian ? 'Generisi plan \u2728' : 'Generate plan \u2728',
       group: isBosnian ? `Grupa: ${groupSize} osoba` : `Group: ${groupSize} people`,
       mood: isBosnian ? 'Raspolozenje' : 'Mood',
-      nextPlan: isBosnian ? '🔄 Daj drugi plan' : '🔄 Another plan',
-      save: isBosnian ? '💾 Sacuvaj' : '💾 Save',
-      share: isBosnian ? '📤 Podijeli' : '📤 Share',
+      nextPlan: isBosnian ? '\u{1F504} Daj drugi plan' : '\u{1F504} Another plan',
+      save: isBosnian ? '\u{1F4BE} Sacuvaj' : '\u{1F4BE} Save',
+      share: isBosnian ? '\u{1F4E4} Podijeli' : '\u{1F4E4} Share',
       title: isBosnian ? 'AI Planer veceri' : 'AI Evening Planner',
       total: isBosnian ? 'Ukupno:' : 'Total:',
     }),
@@ -80,12 +80,12 @@ export default function TonightScreen() {
       createVote: isBosnian ? 'Kreiraj glasanje' : 'Create vote',
       results: isBosnian ? 'Rezultati:' : 'Results:',
       selectedCount: isBosnian ? 'Izabrano:' : 'Selected:',
-      shareLink: isBosnian ? '📤 Podijeli link' : '📤 Share link',
+      shareLink: isBosnian ? '\u{1F4E4} Podijeli link' : '\u{1F4E4} Share link',
       title: isBosnian ? 'Grupno glasanje' : 'Group Voting',
       vote: isBosnian ? 'Glasaj' : 'Vote',
       voteLink: isBosnian ? 'Link za glasanje:' : 'Voting link:',
       votePrompt: isBosnian
-        ? 'Izaberi 2-4 dogadjaja za glasanje'
+        ? 'Izaberi 2-4 dogadaja za glasanje'
         : 'Select 2-4 events for voting',
       voteWord: isBosnian ? 'glasova' : 'votes',
     }),
@@ -284,11 +284,11 @@ export default function TonightScreen() {
       onShareVote={handleShareVote}
       onToggleSelection={toggleEventSelection}
       onVote={handleVote}
-      plannerButtonText={isBosnian ? 'Predlozi mi plan ✨' : 'Suggest a plan ✨'}
+      plannerButtonText={isBosnian ? 'Predlozi mi plan \u2728' : 'Suggest a plan \u2728'}
       plannerLabels={plannerLabels}
       refreshing={refreshing}
       renderEventProps={renderEventProps}
-      secondaryButtonText={isBosnian ? 'Predlozi ekipi 🗳️' : 'Suggest to group 🗳️'}
+      secondaryButtonText={isBosnian ? 'Predlozi ekipi \u{1F5F3}' : 'Suggest to group \u{1F5F3}'}
       selectedEvents={selectedEvents}
       selectedMood={selectedMood}
       segments={segments}

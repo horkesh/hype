@@ -1,16 +1,10 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 
+import { TonightActionButtons } from '@/components/tonight/TonightActionButtons';
 import { TonightEventCard } from '@/components/tonight/TonightEventCard';
+import { TonightEventList } from '@/components/tonight/TonightEventList';
 import { TonightPlannerModal } from '@/components/tonight/TonightPlannerModal';
+import { TonightSegmentTabs } from '@/components/tonight/TonightSegmentTabs';
 import { TonightVoteModal } from '@/components/tonight/TonightVoteModal';
 import { AIPlan, Event, MoodId, TimeSegment, TimeSegmentConfig } from '@/utils/tonightScreen';
 
@@ -141,93 +135,38 @@ export function TonightScreenContent({
 }: TonightScreenContentProps) {
   return (
     <>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.primaryAction} onPress={onOpenPlanner}>
-          <Text style={styles.primaryActionText}>{plannerButtonText}</Text>
-        </TouchableOpacity>
+      <TonightActionButtons
+        cardColor={cardColor}
+        plannerButtonText={plannerButtonText}
+        secondaryButtonText={secondaryButtonText}
+        onOpenPlanner={onOpenPlanner}
+        onOpenVote={onOpenVote}
+      />
 
-        <TouchableOpacity
-          style={[styles.secondaryAction, { backgroundColor: cardColor }]}
-          onPress={onOpenVote}
-        >
-          <Text style={styles.secondaryActionText}>{secondaryButtonText}</Text>
-        </TouchableOpacity>
-      </View>
+      <TonightSegmentTabs
+        activeSegment={activeSegment}
+        cardColor={cardColor}
+        colorsText={colorsText}
+        segments={segments}
+        onSelectSegment={onSelectSegment}
+      />
 
-      <View style={styles.segmentTabs}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentTabsContent}>
-          {segments.map((segment) => {
-            const isActive = activeSegment === segment.key;
-
-            return (
-              <TouchableOpacity
-                key={segment.key}
-                style={[
-                  styles.segmentTab,
-                  { backgroundColor: isActive ? '#D4A056' : cardColor },
-                ]}
-                onPress={() => onSelectSegment(segment.key)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.segmentEmoji}>{segment.emoji}</Text>
-                <Text style={[styles.segmentLabel, { color: isActive ? '#FFFFFF' : colorsText }]}>
-                  {segment.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#D4A056" />
-        </View>
-      ) : events.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>{'\uD83C\uDF05'}</Text>
-          <Text style={[styles.emptyText, { color: textSecondaryColor }]}>{emptyStateMessage}</Text>
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#D4A056"
-              colors={['#D4A056']}
-            />
-          }
-        >
-          {events.map((event) => {
-            const eventProps = renderEventProps(event);
-
-            return (
-              <TonightEventCard
-                key={event.id}
-                cardColor={cardColor}
-                event={event}
-                eventMetaSeparator={eventMetaSeparator}
-                eventTime={eventProps.eventTime}
-                eventTitle={eventProps.eventTitle}
-                isSelected={eventProps.isSelected}
-                onOpenTicket={onOpenTicket}
-                onPress={() => onEventPress(event.id)}
-                onToggleSelection={onToggleSelection}
-                priceText={eventProps.priceText}
-                showSelectionControls={showVoteModal && !voteLink}
-                textColor={colorsText}
-                textSecondaryColor={textSecondaryColor}
-                ticketButtonText={eventProps.ticketButtonText}
-                urgencyBadge={eventProps.urgencyBadge}
-                venueName={eventProps.venueName}
-              />
-            );
-          })}
-        </ScrollView>
-      )}
+      <TonightEventList
+        cardColor={cardColor}
+        colorsText={colorsText}
+        emptyStateMessage={emptyStateMessage}
+        eventMetaSeparator={eventMetaSeparator}
+        events={events}
+        loading={loading}
+        refreshing={refreshing}
+        showSelectionControls={showVoteModal && !voteLink}
+        textSecondaryColor={textSecondaryColor}
+        onEventPress={onEventPress}
+        onOpenTicket={onOpenTicket}
+        onRefresh={onRefresh}
+        onToggleSelection={onToggleSelection}
+        renderEventProps={renderEventProps}
+      />
 
       <TonightPlannerModal
         activePlan={activePlan}
@@ -295,89 +234,3 @@ export function TonightScreenContent({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  actionButtons: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 12,
-  },
-  primaryAction: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    alignItems: 'center',
-    backgroundColor: '#D4A056',
-  },
-  primaryActionText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  secondaryAction: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D4A056',
-  },
-  secondaryActionText: {
-    color: '#D4A056',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  segmentTabs: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  segmentTabsContent: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  segmentTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    gap: 8,
-  },
-  segmentEmoji: {
-    fontSize: 18,
-  },
-  segmentLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 16,
-    gap: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});

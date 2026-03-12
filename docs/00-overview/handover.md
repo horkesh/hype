@@ -142,12 +142,18 @@ Most relevant changed surfaces:
 - `app/(tabs)/tonight.ios.tsx`
 - `components/tonight/TonightScreenContent.tsx`
 - `components/tonight/TonightEventCard.tsx`
+- `components/tonight/TonightActionButtons.tsx`
+- `components/tonight/TonightSegmentTabs.tsx`
+- `components/tonight/TonightEventList.tsx`
 - `components/tonight/TonightPlannerModal.tsx`
+- `components/tonight/TonightPlannerSetup.tsx`
+- `components/tonight/TonightPlannerResults.tsx`
 - `components/tonight/TonightVoteModal.tsx`
 - `utils/tonightScreen.ts`
 - `utils/tonightData.ts`
 - `utils/tonightHelpers.ts`
 - `tests/tonightHelpers.test.ts`
+- `tests/tonightScreen.test.ts`
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
 - `components/explore/ExploreSearchSection.tsx`
@@ -304,6 +310,12 @@ The latest Tonight cleanup pass added four more important outcomes:
 - moved Tonight segment, urgency, ticket, price, and vote-selection helpers into `utils/tonightHelpers.ts`
 - decomposed Tonight rendering into focused UI sections under `components/tonight/` and added helper regression coverage in `tests/tonightHelpers.test.ts`
 
+The latest Tonight support cleanup pass added four more important outcomes:
+- split the remaining bulky Tonight support surfaces into focused components for action buttons, segment tabs, event-list framing, planner setup, and planner results under `components/tonight/`
+- made `components/tonight/TonightScreenContent.tsx` and `components/tonight/TonightPlannerModal.tsx` orchestration-heavy instead of mixed UI monoliths
+- moved planner map marker generation into deterministic helper logic in `utils/tonightHelpers.ts` so the mock planner map no longer jitters across renders
+- cleaned the touched Tonight mood, segment, and share copy and added targeted regression coverage in `tests/tonightScreen.test.ts`
+
 The latest Saved cleanup pass added four more important outcomes:
 - moved Saved venue, event, and badge loading out of the route and into `utils/savedData.ts`
 - moved Saved screen types, formatting helpers, and event-id parsing into `utils/savedScreen.ts` and `utils/savedEventsStorage.ts`
@@ -350,7 +362,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- remaining mixed-support screens outside the rebuilt tab/detail surfaces, especially larger modals, filters, and navigation chrome
+- remaining mixed-support screens outside the rebuilt tab/detail surfaces, especially larger filters and navigation chrome
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming

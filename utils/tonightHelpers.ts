@@ -1,4 +1,5 @@
 import {
+  AIPlan,
   Event,
   TimeSegment,
   TimeSegmentConfig,
@@ -8,6 +9,25 @@ export interface TonightUrgencyBadge {
   color: string;
   label: string;
 }
+
+interface TonightPlanMarker {
+  id: string;
+  latitude: number;
+  longitude: number;
+  title: string;
+}
+
+const TONIGHT_PLAN_CENTER = {
+  latitude: 43.8563,
+  longitude: 18.4131,
+};
+
+const TONIGHT_PLAN_OFFSETS = [
+  { latitude: 0.008, longitude: -0.006 },
+  { latitude: -0.004, longitude: 0.007 },
+  { latitude: 0.003, longitude: 0.002 },
+  { latitude: -0.007, longitude: -0.003 },
+];
 
 export function getInitialTonightSegment(date: Date): TimeSegment {
   const currentHour = date.getHours();
@@ -135,4 +155,17 @@ export function createMockVoteState(selectedEvents: string[]): Record<string, nu
     accumulator[eventId] = 0;
     return accumulator;
   }, {});
+}
+
+export function buildTonightPlanMarkers(activePlan: AIPlan): TonightPlanMarker[] {
+  return activePlan.stops.map((stop, index) => {
+    const offset = TONIGHT_PLAN_OFFSETS[index % TONIGHT_PLAN_OFFSETS.length];
+
+    return {
+      id: `stop-${index}`,
+      latitude: TONIGHT_PLAN_CENTER.latitude + offset.latitude,
+      longitude: TONIGHT_PLAN_CENTER.longitude + offset.longitude,
+      title: stop.venueName,
+    };
+  });
 }

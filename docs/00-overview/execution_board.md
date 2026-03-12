@@ -319,6 +319,7 @@ Status:
 - shared Home/Profile/Saved route wrappers replacing duplicated iOS shells
 - shared Tonight planner helpers under `utils/tonightScreen.ts`
 - shared Tonight route plus extracted helper/data/render surfaces under `utils/tonightHelpers.ts`, `utils/tonightData.ts`, and `components/tonight/`
+- Tonight support surfaces now also split planner setup/results, event-list framing, segment tabs, and action buttons into focused `components/tonight/` modules, with deterministic planner-map markers and targeted `tests/tonightScreen.test.ts` coverage
 - shared Saved route plus extracted helper/data/render surfaces under `utils/savedData.ts`, `utils/savedScreen.ts`, `utils/savedEventsStorage.ts`, and `components/saved/`
 - shared Profile route plus extracted auth/data/render surfaces under `utils/profileData.ts`, `utils/profileScreen.ts`, and `components/profile/`
 - shared Explore route plus extracted helper surfaces under `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
@@ -374,7 +375,7 @@ Status:
 ### Wave 1
 
 1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup now the clearest target
-   the main tab, home-support, and detail-screen lanes are simplified, so the next wave should focus on shared support components like large modals, filters, and navigation chrome plus broader mojibake cleanup
+   the main tab, home-support, and detail-screen lanes are simplified, so the next wave should focus on shared support components like large filters and navigation chrome plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 
