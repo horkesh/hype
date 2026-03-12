@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface EventPurchaseSectionProps {
   isFree: boolean;
+  freeEntryLabel: string;
   priceLabel: string;
   priceDisplay: string;
   ticketButtonText: string;
@@ -13,24 +14,23 @@ interface EventPurchaseSectionProps {
     text: string;
     textSecondary: string;
   };
-  language: 'bs' | 'en';
 }
 
 export function EventPurchaseSection({
   isFree,
+  freeEntryLabel,
   priceLabel,
   priceDisplay,
   ticketButtonText,
   showTicketButton,
   onTicketPress,
   colors,
-  language,
 }: EventPurchaseSectionProps) {
   if (isFree) {
     return (
       <View style={[styles.freeEntryBadge, { backgroundColor: '#10B981' }]}>
         <Text style={styles.freeEntryText}>
-          {'\u2705'} {language === 'bs' ? 'Besplatan ulaz' : 'Free entry'}
+          {'\u2705'} {freeEntryLabel}
         </Text>
       </View>
     );

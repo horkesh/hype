@@ -6,6 +6,7 @@ import {
   getEventCategoryEmoji,
   getEventDetailDescription,
   getEventDetailTitle,
+  getEventFreeEntryLabel,
   getEventMoodEmoji,
   getEventPriceDisplay,
   getEventTicketButtonText,
@@ -27,6 +28,11 @@ test('event detail date formatting includes year and at label', () => {
     formatEventDetailDateTime('2026-03-12T08:05:00', 'at'),
     '12.3.2026 at 08:05'
   );
+});
+
+test('event detail free entry label is localized', () => {
+  assert.equal(getEventFreeEntryLabel('bs'), 'Besplatan ulaz');
+  assert.equal(getEventFreeEntryLabel('en'), 'Free entry');
 });
 
 test('event detail price helpers return localized free and paid text', () => {

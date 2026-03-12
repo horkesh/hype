@@ -25,6 +25,7 @@ import {
   getEventCategoryEmoji,
   getEventDetailDescription,
   getEventDetailTitle,
+  getEventFreeEntryLabel,
   getEventMoodEmoji,
   getEventPriceDisplay,
   getEventTicketButtonText,
@@ -169,13 +170,13 @@ export default function EventDetailScreen() {
 
           <EventPurchaseSection
             isFree={isFree}
+            freeEntryLabel={getEventFreeEntryLabel(language)}
             priceLabel={t('price')}
             priceDisplay={priceDisplay}
             ticketButtonText={ticketButtonText}
             showTicketButton={Boolean(event.ticket_url)}
             onTicketPress={handleTicketPress}
             colors={colors}
-            language={language}
           />
 
           {eventDescription ? (

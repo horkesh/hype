@@ -137,6 +137,10 @@ export function getEventTicketButtonText(
   return language === 'bs' ? 'Kupi kartu' : 'Buy ticket';
 }
 
+export function getEventFreeEntryLabel(language: EventDetailLanguage): string {
+  return language === 'bs' ? 'Besplatan ulaz' : 'Free entry';
+}
+
 export function getEventCategoryEmoji(category: string): string {
   return EVENT_CATEGORY_EMOJIS[category] || EVENT_CATEGORY_EMOJIS.other;
 }
