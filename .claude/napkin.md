@@ -111,6 +111,8 @@
    Do instead: when a screen mixes sign-in, sign-up, sign-out, and profile persistence, move those auth/data calls into `utils/<surface>Data.ts` before extracting the UI into `components/<surface>/`.
 11. **[2026-03-12] Temporary adapter workarounds should collapse back into the canonical adapter module**
    Do instead: if normalization or compatibility logic gets copied into a runtime or logging module as a short-term workaround, move callers back to `utils/dataAdapters.ts` and add focused adapter tests as soon as the blocking tooling constraint is gone.
+12. **[2026-03-12] Storage migration helpers should be testable without the full app runtime**
+   Do instead: when a migration still has to read or mirror legacy AsyncStorage keys, keep the read/write/merge logic in a tiny helper module with an injected storage interface so Node-side tests can cover key drift and mirrored writes without importing the React Native runtime.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

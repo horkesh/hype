@@ -32,6 +32,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
 - continue narrower follow-up cleanup instead of another broad structural sweep, with the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, and shared chrome already on the helper-plus-components pattern
 - keep the remaining Tonight follow-up on the new deterministic mock-plan path, with `utils/tonightMockPlans.ts` now owning planner sample generation so `utils/tonightScreen.ts` can stay focused on shared types, labels, and share text
+- keep the favorites migration on the helper-owned storage path too, with `utils/favoritesStorage.ts` now owning legacy key reads, mirrored writes, and remote-missing calculations so `utils/favorites.ts` can stay focused on auth plus Supabase orchestration
 - treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
@@ -80,6 +81,7 @@ Most relevant changed surfaces:
 - `components/venue/VenueSpecialsSection.tsx`
 - `utils/dataAdapters.ts`
 - `utils/favorites.ts`
+- `utils/favoritesStorage.ts`
 - `utils/favoritesErrors.ts`
 - `utils/eventDetailData.ts`
 - `utils/eventDetailScreen.ts`
@@ -100,6 +102,7 @@ Most relevant changed surfaces:
 - `utils/savedEventsStorage.ts`
 - `contexts/AppContext.tsx`
 - `tests/favorites.test.ts`
+- `tests/favoritesStorage.test.ts`
 - `tests/savedScreen.test.ts`
 - `tests/savedEventsStorage.test.ts`
 - `utils/profileTaste.ts`
@@ -500,6 +503,11 @@ The latest Tonight mock-plan cleanup pass added three more important outcomes:
 - moved Tonight planner sample generation into `utils/tonightMockPlans.ts`, leaving `utils/tonightScreen.ts` focused on shared types, labels, moods, segments, and share text
 - replaced the remaining `Math.random()` venue picking in the mock planner with stable seed-based selection derived from mood and plan index
 - added targeted regression coverage in `tests/tonightMockPlans.test.ts` so future planner cleanup cannot quietly reintroduce nondeterministic sample output
+
+The latest favorites storage cleanup pass added three more important outcomes:
+- moved legacy favorite-key reads, mirrored writes, and remote-missing calculations into `utils/favoritesStorage.ts`, leaving `utils/favorites.ts` focused on auth and Supabase orchestration
+- kept the current dual-key migration behavior intact while making the storage path testable without importing the React Native runtime
+- added targeted regression coverage in `tests/favoritesStorage.test.ts` so storage-key drift and mirrored writes now have direct Node-side coverage
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

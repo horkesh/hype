@@ -220,6 +220,7 @@ Status:
 - Tonight mock planner samples now live in `utils/tonightMockPlans.ts`, and the remaining sample venue selection is deterministic instead of depending on `Math.random()`
 - Profile auth/session/taste controller state now lives in `hooks/useProfileController.ts`, and route-owned auth/modal alerts now come from `utils/profileSettings.ts`
 - Home helper/test literals are now cleaned in `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, and `tests/homeScreen.test.ts`, so the Home regression suite no longer preserves mojibake
+- favorites legacy-key reads and mirrored writes now live in `utils/favoritesStorage.ts`, leaving `utils/favorites.ts` focused on auth and Supabase orchestration with direct storage-helper coverage in `tests/favoritesStorage.test.ts`
 
 ## Backlog
 
@@ -318,6 +319,7 @@ Status:
   - deterministic Tonight mock-plan generation is now covered directly in `tests/tonightMockPlans.test.ts`
   - touched Profile auth and sign-out modal copy now lives in `utils/profileSettings.ts`, with direct coverage in `tests/profileSettings.test.ts`
   - Home helper tests now assert the cleaned helper output directly instead of carrying damaged literals from earlier prototype passes
+  - favorites legacy-key merge and mirrored-write behavior now has direct Node-side coverage in `tests/favoritesStorage.test.ts`
 
 #### B13. Adapter and compatibility cleanup
 

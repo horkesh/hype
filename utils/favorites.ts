@@ -2,10 +2,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/integrations/supabase/client';
 import { FavoritesAuthRequiredError } from '@/utils/favoritesErrors';
 import {
-  getLegacyFavoriteVenueIdsFromStoredValues,
   LEGACY_FAVORITE_VENUE_KEYS,
   shouldSeedRemoteFavorites,
 } from '@/utils/favoritesLegacy';
+import {
+  buildMissingRemoteFavoriteVenueIds,
+  getStoredFavoriteVenueIds,
+  mergeFavoriteVenueIds,
+  persistStoredFavoriteVenueIds,
+} from '@/utils/favoritesStorage';
 import { isAuthSessionMissingError } from '@/utils/supabaseErrors';
 
 export {
@@ -32,37 +37,24 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 async function getLegacyFavoriteVenueIds(): Promise<string[]> {
-  const storedValues = await Promise.all(
-    [...LEGACY_FAVORITE_VENUE_KEYS].map((key) => AsyncStorage.getItem(key)),
+  return getStoredFavoriteVenueIds(
+    {
+      getItem: (key) => AsyncStorage.getItem(key),
+      setItem: (key, value) => AsyncStorage.setItem(key, value),
+    },
+    LEGACY_FAVORITE_VENUE_KEYS,
   );
-
-  return getLegacyFavoriteVenueIdsFromStoredValues(...storedValues);
 }
 
 async function persistLegacyFavoriteVenueIds(ids: string[]): Promise<void> {
-  const serialized = JSON.stringify(ids);
-
-  await Promise.all(
-    LEGACY_FAVORITE_VENUE_KEYS.map((key) => AsyncStorage.setItem(key, serialized)),
+  await persistStoredFavoriteVenueIds(
+    {
+      getItem: (key) => AsyncStorage.getItem(key),
+      setItem: (key, value) => AsyncStorage.setItem(key, value),
+    },
+    LEGACY_FAVORITE_VENUE_KEYS,
+    ids,
   );
-}
-
-function mergeUniqueIds(...groups: string[][]): string[] {
-  const seen = new Set<string>();
-  const merged: string[] = [];
-
-  for (const group of groups) {
-    for (const id of group) {
-      if (seen.has(id)) {
-        continue;
-      }
-
-      seen.add(id);
-      merged.push(id);
-    }
-  }
-
-  return merged;
 }
 
 export async function requireCurrentUserId(): Promise<string> {
@@ -97,7 +89,7 @@ export async function getFavoriteVenueIdsForCurrentUser(): Promise<string[]> {
     .map((favorite) => favorite.venue_id)
     .filter((venueId): venueId is string => typeof venueId === 'string');
 
-  const mergedIds = mergeUniqueIds(remoteIds, legacyIds);
+  const mergedIds = mergeFavoriteVenueIds(remoteIds, legacyIds);
 
   if (shouldSeedRemoteFavorites(legacyIds, remoteIds)) {
     await supabase
@@ -112,7 +104,7 @@ export async function getFavoriteVenueIdsForCurrentUser(): Promise<string[]> {
         },
       );
   } else {
-    const missingRemoteIds = legacyIds.filter((venueId) => !remoteIds.includes(venueId));
+    const missingRemoteIds = buildMissingRemoteFavoriteVenueIds(legacyIds, remoteIds);
     if (missingRemoteIds.length > 0) {
       await supabase
         .from('favorites')
@@ -158,7 +150,7 @@ export async function addVenueFavoriteForCurrentUser(venueId: string): Promise<v
   }
 
   const legacyIds = await getLegacyFavoriteVenueIds();
-  await persistLegacyFavoriteVenueIds(mergeUniqueIds([venueId], legacyIds));
+  await persistLegacyFavoriteVenueIds(mergeFavoriteVenueIds([venueId], legacyIds));
 }
 
 export async function removeVenueFavoriteForCurrentUser(venueId: string): Promise<void> {

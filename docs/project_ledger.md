@@ -841,3 +841,11 @@ Copy this block when adding a new work entry.
 - Decisions: Keep temporary planner sample catalogs in a dedicated helper module and make sample venue selection derive from stable inputs so shared copy/type modules stop accumulating mock-behavior logic and nondeterminism.
 - Verification: `npx.cmd tsx --test tests/tonightMockPlans.test.ts tests/tonightScreen.test.ts tests/tonightHelpers.test.ts tests/tonightPlanner.test.ts tests/tonightVote.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the long-tail support cleanup on the next oversized shared helper or support component, with `utils/favorites.ts` and the remaining Saved support surfaces now stronger candidates than the already-thin tab controllers.
+
+### 2026-03-12 22:45
+- Goal: Thin the remaining favorites runtime module by moving legacy storage migration logic into a small helper layer that Node tests can verify directly.
+- Changes made: Added `utils/favoritesStorage.ts` with helper-owned merge, missing-remote, read, and mirrored-write behavior behind an injected storage interface; rewrote `utils/favorites.ts` to call the storage helper instead of owning the legacy-key logic inline; added `tests/favoritesStorage.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `utils/favorites.ts`, `utils/favoritesStorage.ts`, `tests/favoritesStorage.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a migration still needs legacy AsyncStorage key reads or mirrored writes, keep that logic in a tiny helper module with an injected storage interface so runtime code stays orchestration-only and Node-side tests can cover key drift directly.
+- Verification: `npx.cmd tsx --test tests/favoritesStorage.test.ts tests/favoritesMigration.test.ts tests/favorites.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the long-tail support cleanup on the next oversized helper or support surface, with the remaining Saved support files and `utils/errorLogger.ts` now stronger candidates.
