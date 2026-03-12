@@ -77,7 +77,7 @@ Goal:
 - use home machine for runtime/builds and work machine for browser preview and planning
 
 Status:
-- `Planned`
+- `In Progress`
 
 ### E5. Ingestion and scraper pipeline
 
@@ -122,6 +122,7 @@ Status:
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
   - remaining runtime issues should be treated as stabilization-first work
+  - current web verification on the home machine shows the Home route still hits a `Maximum update depth exceeded` loop during startup
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -138,27 +139,45 @@ Status:
 
 #### E3-P1. Favorites migration
 
-- Status: `Planned`
+- Status: `In Progress`
 - Goal:
   - replace AsyncStorage-based saved venues with Supabase `favorites`
 - Plan:
   - `docs/03-architecture/favorites_migration_plan.md`
+- Progress:
+  - shared Supabase favorites helper added
+  - Saved venues tab now reads venue favorites from Supabase for authenticated users
+  - Venue detail save/unsave now targets `favorites`
+  - current first-pass UX is `sign in to save`
+  - saved events remain on AsyncStorage until their backend model is confirmed
 
 #### E3-P2. Taste profile migration
 
-- Status: `Planned`
+- Status: `In Progress`
 - Goal:
   - replace AsyncStorage taste profile with `profiles.taste_moods`
 - Plan:
   - `docs/03-architecture/profile_taste_migration_plan.md`
+- Progress:
+  - shared profile taste helper added
+  - Profile screens now read and write `profiles.taste_moods` for authenticated users
+  - current first-pass UX is `sign in to personalize`
+  - home-machine verification is still needed for the authenticated flow and any required profile bootstrap behavior
 
 #### E4-P1. Home machine transition
 
-- Status: `Planned`
+- Status: `In Progress`
 - Goal:
   - move active development from Natively to Expo/EAS on the home machine
 - Plan:
   - `docs/05-dev-ops/home_work_transition_checklist.md`
+- Progress:
+  - Git setup on the home machine is complete
+  - Node and npm are installed, but PowerShell requires `npm.cmd` and `npx.cmd` because `npm.ps1` is blocked by execution policy
+  - `expo start` can boot on this machine when run on a fixed port
+  - fresh `npm install` currently fails on a React 19 vs `react-leaflet@4.2.1` peer dependency conflict
+  - web preview boots on a fixed port, but the app currently falls into a Home-screen render loop
+  - remaining work is resolving the install conflict, fixing the Home render loop, then finishing EAS and Vercel preview flow
 
 #### E7-P1. Code quality baseline
 
@@ -224,6 +243,19 @@ Status:
 - Status: `Backlog`
 - Goal:
   - define end-to-end ingestion flow using live scraper tables and backend orchestration
+- Progress:
+  - repo-native ingestion workflow doc added
+  - ADR added for Supabase-plus-backend ingestion ownership
+  - backend ingestion route scaffold added for future source listing and manual source runs
+  - endpoint/data contract added for `scrape_sources`, `raw_events`, and `scrape_log`
+  - `GET /ingestion/sources` now has an env-driven live-read implementation path for backend/admin use
+  - `POST /ingestion/run/:sourceId` now creates a real `scrape_log` row before fetch/parser work exists
+  - `POST /ingestion/run/:sourceId` now performs first-pass raw intake for `direct_html` sources, including fetch, candidate extraction, raw-event insert/skip, and `last_scraped_at` updates
+  - source-aware extraction now exists ahead of generic anchor fallback for Pozorista, AllEvents, and KupiKartu event-link patterns
+  - direct-html ingestion now honors source-configured list and category page URLs instead of assuming one homepage fetch
+  - raw-intake enrichment, detail enrichment, and parse-preview scaffolding now exist for the first active sources
+  - repo-native SQL and architecture notes now exist for reconciling live `venues`, `events`, `event_series`, and `daily_specials` before import or promotion work
+  - repo-native publishability rules now exist for promotion workflow, venue matching, and canonical event updates, so the next backend wave can move toward promotion-preview logic instead of just expanding source breadth
 
 #### B8. Admin and moderation surfaces
 
@@ -239,15 +271,15 @@ Status:
 
 #### B10. Translation and encoding cleanup
 
-- Status: `Backlog`
+- Status: `Active`
 - Goal:
-  - repair mojibake and user-facing string corruption
+  - repair mojibake and user-facing string corruption, with rebuilt shared surfaces cleaned first
 
 #### B11. Platform duplication reduction
 
-- Status: `Backlog`
+- Status: `In progress`
 - Goal:
-  - collapse near-identical `.tsx` and `.ios.tsx` files where behavior is effectively shared
+  - collapse near-identical `.tsx` and `.ios.tsx` files where behavior is effectively shared, starting with rebuilt tabs
 
 #### B12. Quality audit automation
 
@@ -270,6 +302,14 @@ Status:
 - first schema-alignment adapter pass
 - several route stability fixes across detail screens and Explore
 - home/work transition checklist
+- Home weather-state loop mitigation
+- shared tab-shell foundation (`TabScreen`, `SectionHeader`, `ContentState`)
+- shared Home rebuild under `components/home/HomeScreen.tsx`
+- web-safe image rendering path that removed the remaining Home render loop
+- shared Home/Profile/Saved route wrappers replacing duplicated iOS shells
+- Expo Router helper-route cleanup
+- regression tests for Home weather, image sources, and accidental `app/` helper files
+- regression tests for shared Home copy/date/countdown helpers
 
 ## Blockers and risks
 
@@ -281,13 +321,29 @@ Status:
 - Action:
   - align dependency versions using Expo-compatible install flow on the home machine
 
+### R4. Home-machine install conflict
+
+- Status: `Active risk`
+- Problem:
+  - a fresh `npm install` fails under npm 11 because `react-leaflet@4.2.1` still declares React 18 peers while this app uses React 19 through Expo 54
+- Action:
+  - decide whether to pin a compatible install mode for this repo or replace/upgrade the web map dependency to a React 19-compatible option
+
+### R5. Web render-loop root cause still not fully isolated
+
+- Status: `Resolved in rebuilt Home`
+- Problem:
+  - the original Home/web `Maximum update depth exceeded` loop came from unstable frontend composition and a web-hostile image/loading path
+- Action:
+  - keep new shared-shell work on the rebuilt path, and do not reintroduce web-only animation/state behavior into core image/card primitives without browser verification
+
 ### R2. Natively copy/paste workflow
 
 - Status: `Active risk`
 - Problem:
   - manual file syncing makes it easy for the runtime to lag behind the real repo
 - Action:
-  - move off Natively as soon as home-machine Expo flow is working
+  - continue the move off Natively now that home-machine Git is set up; next unlock is a stable Expo runtime on the home machine
 
 ### R3. Frontend/backend maturity gap
 
@@ -301,15 +357,15 @@ Status:
 
 ### Wave 1
 
-1. finish route stability
-2. fix Expo AsyncStorage environment issue
-3. complete current schema-alignment pass
+1. continue screen simplification and route stability on Saved/Profile/Explore
+2. keep reducing duplicated screen variants and direct persistence logic in UI files
+3. repair remaining mojibake outside the rebuilt Home path
 
 ### Wave 2
 
-1. migrate favorites to Supabase
-2. migrate taste profile to Supabase
-3. document env variables and deployment settings
+1. decide and document the repo-approved fix for the React 19 versus `react-leaflet` install conflict
+2. continue shared-shell rollout to the next largest screens
+3. add more targeted regression coverage around auth refresh and rebuilt tab flows
 
 ## Maintenance rule
 

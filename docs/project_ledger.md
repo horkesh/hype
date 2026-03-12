@@ -5,11 +5,11 @@ This is the living source of truth for active development. We should read it at 
 ## Project snapshot
 
 - Project: Hype
-- Repo root: `C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app`
+- Repo root: the current local checkout of the `Hype app` repository
 - Primary frontend: Expo Router app in the repo root
 - Secondary backend: Node service in `backend/`
-- Current phase: Foundation and codebase mapping
-- Last updated: 2026-03-09
+- Current phase: Stabilize and align the prototype against the live Supabase backend
+- Last updated: 2026-03-10
 
 ## Product intent
 
@@ -30,10 +30,10 @@ This is the living source of truth for active development. We should read it at 
 
 | Workstream | Status | Notes |
 | --- | --- | --- |
-| Documentation foundation | In progress | Initial docs structure and ledger created on 2026-03-09. |
+| Documentation foundation | In progress | Core docs system is in place; current work is consistency cleanup and workflow refinement. |
 | Frontend app mapping | In progress | Route groups and shared components identified. |
 | Backend mapping | In progress | Startup entrypoint identified; routes not yet implemented. |
-| Architecture cleanup | Pending | Candidate topics: env handling, duplicated Supabase client, translation encoding review. |
+| Architecture cleanup | In progress | Current priorities include env handling, duplicated Supabase client cleanup, and translation encoding review. |
 
 ## Known issues and observations
 
@@ -214,6 +214,55 @@ Copy this block when adding a new work entry.
 - Decisions: Keep the role guide lightweight and practical rather than turning it into ceremony or duplicate documentation.
 - Follow-up: Use the role guide implicitly during future sessions and expand it only if a recurring ambiguity appears.
 
+### 2026-03-10 09:00
+- Goal: Reduce context loss between agents and machines with a formal handoff layer.
+- Changes made: Added `handover.md` as a short high-signal cross-session briefing, added `handover_protocol.md` to define when it should be refreshed, and updated the session start protocol so cold starts and handoffs read the handover first.
+- Files touched: `docs/00-overview/handover.md`, `docs/00-overview/handover_protocol.md`, `docs/00-overview/session_start_protocol.md`, `docs/README.md`, `docs/project_ledger.md`
+- Decisions: Use the handover docs to tighten continuity across home/work and across agents, instead of expecting every future session to reconstruct the project state from multiple documents.
+- Follow-up: Refresh `handover.md` whenever the architecture stance, environment setup, or active workstreams materially change.
+
+### 2026-03-10 09:15
+- Goal: Record that the home-machine setup has advanced beyond planning.
+- Changes made: Updated the execution board, handover, and home/work transition checklist to reflect that Git is now set up on the home machine and that the remaining transition work is Node/npm, Expo, EAS, and Vercel.
+- Files touched: `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/05-dev-ops/home_work_transition_checklist.md`, `docs/project_ledger.md`
+- Decisions: Treat the home-machine transition as `In Progress` rather than merely planned.
+- Follow-up: Confirm the next milestone on the home machine with `npm install`, `npx expo start`, and `npm run web`.
+
+### 2026-03-10 09:35
+- Goal: Remove stale user-specific absolute paths from shared workflow docs.
+- Changes made: Replaced profile-specific Windows path references with relative links or generic path examples in the session start protocol, transition checklist, and project ledger.
+- Files touched: `docs/00-overview/session_start_protocol.md`, `docs/05-dev-ops/home_work_transition_checklist.md`, `docs/project_ledger.md`
+- Decisions: Shared coordination docs should stay machine-agnostic unless a local absolute path is explicitly required.
+- Follow-up: Watch future handoff and setup docs for profile-specific path leakage during review.
+
+### 2026-03-10 09:45
+- Goal: Merge duplicate ledger files into one canonical project ledger.
+- Changes made: Confirmed that repo docs already standardize on `docs/project_ledger.md`, removed the stray uppercase-ledger reference from the recent history, and retired the duplicate `docs/PROJECT_LEDGER.md` file.
+- Files touched: `docs/project_ledger.md`, `.claude/napkin.md`
+- Decisions: `docs/project_ledger.md` is the only canonical ledger for this repo; do not create or update a parallel uppercase ledger.
+- Follow-up: Keep future doc-process cleanup aligned to the repo-native lowercase ledger rather than generic external conventions.
+
+### 2026-03-10 10:00
+- Goal: Align the core workflow docs after the handover and ledger cleanup changes.
+- Changes made: Updated the docs index to reflect the current startup order, changed the execution board so the home/work transition epic matches its in-progress sprint item, and refreshed the top-level project ledger snapshot to match the current stabilize-and-align phase.
+- Files touched: `docs/README.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: The docs index should describe the same startup flow as the session start protocol and handover docs, and status labels should match across overview documents.
+- Follow-up: Keep the core workflow docs synchronized whenever startup order, active phase, or epic status changes.
+
+### 2026-03-10 10:25
+- Goal: Verify the actual home-machine runtime setup instead of assuming it is still a future step.
+- Changes made: Confirmed `git` and `node` are installed locally, found that PowerShell execution policy blocks `npm.ps1` so `npm.cmd` and `npx.cmd` are required, reproduced a fresh `npm install` failure caused by the React 19 vs `react-leaflet@4.2.1` peer dependency conflict, and verified that Expo Metro and web preview can still boot on fixed ports. The web preview successfully bundled `index.ts`, but the app immediately hit repeated Home-screen `Maximum update depth exceeded` errors. Updated the execution board, transition checklist, and napkin to reflect these verified home-machine realities.
+- Files touched: `.claude/napkin.md`, `docs/00-overview/execution_board.md`, `docs/05-dev-ops/home_work_transition_checklist.md`, `docs/project_ledger.md`
+- Decisions: Treat the remaining home-machine work as an active runtime/debugging track, not just an environment-setup checklist item.
+- Follow-up: Investigate the Home-screen render loop, then decide whether the install conflict should be resolved by dependency alignment or by documenting a repo-approved npm install mode.
+
+### 2026-03-10 23:30
+- Goal: Keep narrowing the web render loop with regression tests and route-surface cleanup.
+- Changes made: Added regression tests for stable image sources, weather-driven mood merging, and accidental helper files under the Expo Router `app/` tree; moved Home weather mood updates to a functional state merge so the initialization callback no longer depends on `selectedMood`; extracted `utils/homeWeather.ts`; stabilized image source reuse through `utils/imageSource.ts`; and removed the duplicate `app/integrations/supabase/` compatibility files so Expo Router no longer treats helper code as routes.
+- Files touched: `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `components/ImageWithPlaceholder.tsx`, `utils/imageSource.ts`, `utils/homeWeather.ts`, `tests/imageSource.test.ts`, `tests/homeWeather.test.ts`, `tests/appRoutes.test.ts`, `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: Helper-only integration modules should live outside `app/`, and Home weather should use functional state updates when it needs the current mood to avoid effect dependency loops.
+- Follow-up: Reproduce the web runtime in a real browser again and inspect whether the remaining `Maximum update depth exceeded` errors persist after the route cleanup; if they do, instrument the browser-side error logger to surface component stack details.
+
 ### 2026-03-09 23:35
 - Goal: Publish the project to GitHub with repo-facing documentation that matches the actual codebase.
 - Changes made: Created the GitHub remote, pushed the initial repository, removed a hardcoded OpenWeather API key from the Home screens, and rewrote the root `README.md` to describe the real app/backend split, current status, and local development flow.
@@ -227,3 +276,249 @@ Copy this block when adding a new work entry.
 - Files touched: `utils/publicConfig.ts`, `integrations/supabase/client.ts`, `app/integrations/supabase/client.ts`, `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `.env.example`, `.gitignore`, `app.json`, `README.md`, `docs/05-dev-ops/env_and_secrets.md`, `docs/project_ledger.md`
 - Decisions: Use one canonical frontend public-config surface and one canonical frontend Supabase client surface; keep Expo `extra` as a fallback, but prefer `EXPO_PUBLIC_*` variables for day-to-day setup.
 - Follow-up: Fill `.env` with the real public values locally, verify Expo startup against the new config, and later decide whether to replace `app.json` with a fully dynamic app config file.
+
+### 2026-03-11 00:10
+- Goal: Refresh the handover docs so work can resume cleanly on the home machine.
+- Changes made: Updated `handover.md` with the concrete resume point, current runtime blockers, and the exact files tied to the latest Home/web stabilization pass; expanded `handover_protocol.md` so mid-debugging handoffs preserve symptom, mitigation, and next verification step; refreshed `current_state.md`; and aligned the execution board's recent-completion and next-wave notes with the current web-loop and install-conflict reality.
+- Files touched: `docs/00-overview/handover.md`, `docs/00-overview/handover_protocol.md`, `docs/00-overview/current_state.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Treat the next session's first job as verification of the remaining Home/web loop on the home machine, not as open-ended new feature work.
+- Follow-up: On resume, start with `docs/00-overview/handover.md`, then rerun the web path and capture a browser component stack if the loop still reproduces.
+
+### 2026-03-11 10:30
+- Goal: Start the first real migration from prototype-local user state to canonical Supabase favorites.
+- Changes made: Added shared favorites helpers for current-user reads and venue favorite writes, switched the Saved venues tab on both default and iOS surfaces to load venue favorites from the Supabase `favorites` table, switched venue detail save/unsave to Supabase-backed favorites, and added a small auth-required error helper plus regression tests around that error contract. Also updated the execution board so favorites migration is now tracked as in progress.
+- Files touched: `utils/favorites.ts`, `utils/favoritesErrors.ts`, `app/(tabs)/saved.tsx`, `app/(tabs)/saved.ios.tsx`, `app/venue/[id].tsx`, `tests/favorites.test.ts`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Use `sign in to save` as the first-pass UX instead of keeping guest-sync complexity during stabilization; keep saved events on AsyncStorage until their canonical backend model is confirmed separately.
+- Follow-up: Verify the authenticated favorites flow on the home machine, decide whether to add optimistic refresh/listeners around auth state, and then begin the `profiles.taste_moods` migration.
+
+### 2026-03-11 10:50
+- Goal: Continue the migration of prototype-local user state by moving taste profile persistence into canonical user profiles.
+- Changes made: Added shared profile taste helpers for reading and writing `profiles.taste_moods`, removed AsyncStorage-based taste persistence from both profile screen variants, changed mood toggles to require authentication, and added a small regression test for the new auth-required error contract. Updated the execution board so taste-profile migration is now also in progress.
+- Files touched: `utils/profileTaste.ts`, `app/(tabs)/profile.tsx`, `app/(tabs)/profile.ios.tsx`, `tests/profileTaste.test.ts`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Use `sign in to personalize` as the first-pass UX for taste profile instead of maintaining guest-local taste state during stabilization; rely on a safe `profiles` upsert path for the first write, while leaving deeper profile bootstrap verification to the home machine.
+- Follow-up: On the home machine, verify that authenticated mood selection persists across reloads and confirm whether any account path still lacks a writable `profiles` row.
+
+### 2026-03-11 11:05
+- Goal: Make the new Supabase-backed saved/profile flows react to auth changes without requiring an app restart.
+- Changes made: Added a shared Supabase auth-session subscription helper and wired the Saved and Profile screens on both default and iOS surfaces to refresh when auth state changes. This should let sign-in and sign-out update favorites visibility and profile taste state immediately.
+- Files touched: `utils/authSession.ts`, `app/(tabs)/saved.tsx`, `app/(tabs)/saved.ios.tsx`, `app/(tabs)/profile.tsx`, `app/(tabs)/profile.ios.tsx`, `docs/project_ledger.md`
+- Decisions: Keep auth refresh lightweight and screen-local for now rather than introducing a global auth context during stabilization.
+- Follow-up: Verify on the home machine that signing in from Profile updates Saved/Profile state without reopening the app, then decide whether a broader session context is still needed.
+
+### 2026-03-11 11:25
+- Goal: Turn scraper planning into an executable backend-oriented ingestion slice.
+- Changes made: Added a repo-native ingestion workflow doc, recorded an ADR that keeps Supabase ingestion tables as canonical storage with the separate backend as orchestration layer, added a first backend ingestion route registration surface with health/source/run placeholders, and updated backend/docs planning so scraper work now has a concrete entrypoint.
+- Files touched: `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/06-decisions/adr_0003_ingestion_orchestration.md`, `backend/src/routes/ingestion.ts`, `backend/src/index.ts`, `backend/README.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Keep the first ingestion slice route-first and contract-first rather than pretending full scraping is implemented; preserve a strict separation between raw intake tables and public canonical content tables.
+- Follow-up: Implement real `scrape_sources` reads and `scrape_log`/`raw_events` write flows in the backend once a runtime-capable environment is available.
+
+### 2026-03-11 11:40
+- Goal: Make the ingestion route scaffold backend-ready by grounding it in the actual live Supabase ingestion schema.
+- Changes made: Read the live schema, index, and policy exports for `scrape_sources`, `raw_events`, and `scrape_log`; documented the exact live field contract plus first-pass route request/response shapes; and captured the current unique/dedupe and privilege assumptions in a dedicated ingestion endpoint contract doc.
+- Files touched: `docs/03-architecture/ingestion_endpoint_contract.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Use `raw_events.source_url` as the first duplicate guard where available, keep ingestion endpoints privileged/admin-oriented, and treat parse/promotion as a later slice after raw-intake wiring is working.
+- Follow-up: On a runtime-capable machine, implement real `scrape_sources` reads and `scrape_log`/`raw_events` writes against this contract.
+
+### 2026-03-11 11:55
+- Goal: Convert the first ingestion route from a placeholder into a real backend read path.
+- Changes made: Added an explicit backend-only Supabase admin helper, added an ingestion-source service that maps `scrape_sources` rows into operator-facing route summaries with a derived `readyToRun` flag, and upgraded `GET /ingestion/sources` to return live data when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Updated backend and env docs to describe the new admin-only variables.
+- Files touched: `backend/src/lib/supabaseAdmin.ts`, `backend/src/services/ingestionSources.ts`, `backend/src/routes/ingestion.ts`, `backend/README.md`, `docs/05-dev-ops/env_and_secrets.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Use explicit REST-based backend admin access for the first ingestion read instead of relying on hidden framework DB magic; keep the service-role path backend-only and do not expose it to the Expo client.
+- Follow-up: On a runtime-capable machine, hit `GET /ingestion/sources` with backend admin env configured and then implement the first `POST /ingestion/run/:sourceId` write path.
+
+### 2026-03-11 12:10
+- Goal: Land the first safe ingestion write path without pretending fetch/parser orchestration already exists.
+- Changes made: Extended the backend Supabase admin helper to support write requests, added source lookup by id plus scrape-log creation services, and upgraded `POST /ingestion/run/:sourceId` so it now validates the source, rejects inactive/missing sources cleanly, creates a real `scrape_log` row, and returns a queued run summary with the new `logId`. Updated the ingestion contract and planning docs to match the new behavior.
+- Files touched: `backend/src/lib/supabaseAdmin.ts`, `backend/src/services/ingestionSources.ts`, `backend/src/services/ingestionRuns.ts`, `backend/src/routes/ingestion.ts`, `docs/03-architecture/ingestion_endpoint_contract.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Treat queued log creation as the first backend write milestone before adding fetch or raw-event persistence; default manual route calls to `dryRun = true` until the source fetch path is implemented.
+- Follow-up: On a runtime-capable machine, verify that `POST /ingestion/run/:sourceId` creates `scrape_log` rows correctly, then add source fetch plus `raw_events` insert/skip logic.
+
+### 2026-03-11 12:20
+- Goal: Make sure the app repo itself preserves the intended Instagram scraping strategy instead of relying on older root planning docs.
+- Changes made: Folded the documented Instagram ingestion policy into the app repo architecture docs, including the phased execution path of Apify first, self-hosted headless fallback later, and official connected-account APIs long term.
+- Files touched: `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Treat Instagram as a first-class ingestion source type in repo-native docs, with raw provenance preserved before canonical promotion.
+- Follow-up: Add explicit `scrape_config` conventions for Instagram and other source types when the source-type taxonomy doc is created.
+
+### 2026-03-11 12:35
+- Goal: Transport the next highest-value scraping architecture pieces into the app repo so ingestion planning becomes self-contained.
+- Changes made: Added repo-native docs for source taxonomy and `scrape_config` conventions, source priority tiers and cadence guidance, and dedupe/promotion policy between raw intake and canonical content. Linked these surfaces back into the main ingestion workflow and handover context.
+- Files touched: `docs/03-architecture/source_types_and_scrape_config.md`, `docs/03-architecture/source_priority_and_cadence.md`, `docs/03-architecture/dedupe_and_promotion_policy.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Keep source richness in `scrape_config` first instead of prematurely expanding schema columns; keep promotion conservative and confidence-based, especially for Instagram-origin content.
+- Follow-up: Add a dedicated source-seeding strategy doc and Facebook-policy doc if we keep deepening ingestion planning before runtime implementation.
+
+### 2026-03-11 12:45
+- Goal: Add a practical seeding strategy so the new source taxonomy can turn into a real `scrape_sources` inventory.
+- Changes made: Added a repo-native source seeding strategy covering source seeding order, Instagram account discovery, venue-linked versus citywide source rules, provenance metadata, and conservative activation guidance. Linked it into the ingestion workflow and handover docs.
+- Files touched: `docs/03-architecture/source_seeding_strategy.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Seed citywide high-signal sources first, then venue-linked sources, and only activate uncertain sources after a manual validation pass; keep source provenance in `scrape_config` until repeated use justifies schema expansion.
+- Follow-up: Transport Facebook policy and media enrichment policy if we want the ingestion architecture to be fully self-contained in the app repo.
+
+### 2026-03-11 12:55
+- Goal: Finish the remaining major ingestion-policy transfers so the app repo can stand on its own without the older root architecture docs.
+- Changes made: Added repo-native docs for Facebook acquisition strategy and policy, plus a media enrichment policy for venue/event imagery discovered during ingestion. Linked both back into the ingestion workflow and handover docs.
+- Files touched: `docs/03-architecture/facebook_source_policy.md`, `docs/03-architecture/media_enrichment_policy.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Use Facebook-proxy sources as the practical default before direct Facebook scraping, and treat scraped media as enrichment input first rather than automatic canonical truth.
+- Follow-up: If we keep deepening architecture transport, the next likely doc is a source-review/admin workflow note tying together source health, raw review, and image review.
+
+### 2026-03-11 13:05
+- Goal: Close the ingestion architecture loop with an operator-facing review workflow.
+- Changes made: Added a repo-native operator workflow doc covering source health review, manual run review, raw event review, venue matching, dedupe/promotion decisions, and media review. Linked it into the main ingestion workflow and handover context.
+- Files touched: `docs/03-architecture/operator_review_workflow.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Keep the first operator/admin workflow lightweight and backend/reporting-first rather than building a full admin UI too early.
+- Follow-up: If implementation continues before home-machine verification, the next strongest step is the first `raw_events` insert/skip path behind `POST /ingestion/run/:sourceId`.
+
+### 2026-03-11 13:20
+- Goal: Extend manual ingestion runs into the first real raw-intake path instead of stopping at queued log creation.
+- Changes made: Added source-fetch and generic candidate-extraction helpers for `direct_html` sources, added raw-event insert/skip and `last_scraped_at` update services, upgraded `POST /ingestion/run/:sourceId` so it now fetches source HTML, extracts anchor-based candidates, logs the intake summary, and inserts `raw_events` on non-dry runs. Added a small pure extraction test and updated the ingestion contract and handover context accordingly.
+- Files touched: `backend/src/services/ingestionFetch.ts`, `backend/src/services/rawEvents.ts`, `backend/src/lib/supabaseAdmin.ts`, `backend/src/services/ingestionRuns.ts`, `backend/src/routes/ingestion.ts`, `backend/tests/ingestionFetch.test.ts`, `docs/03-architecture/ingestion_endpoint_contract.md`, `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Limit the first raw-intake implementation to `direct_html` sources and generic anchor extraction; defer source-specific parsing and non-HTML fetch methods until runtime verification exists.
+- Follow-up: On a runtime-capable machine, verify the new raw-intake path against one safe `direct_html` source, then improve source-aware extraction quality and begin parse-stage work.
+
+### 2026-03-11 13:30
+- Goal: Start replacing generic raw-intake extraction with source-aware logic for one safe Tier 1 source.
+- Changes made: Added a source-extractor layer, implemented a first Pozorista-aware extractor that prefers `?event=` links, and wired raw-intake extraction to use source-aware logic before falling back to generic anchor harvesting. Added a focused pure test for the new extractor and refreshed handover context.
+- Files touched: `backend/src/services/sourceExtractors.ts`, `backend/src/services/ingestionFetch.ts`, `backend/tests/sourceExtractors.test.ts`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Start source-aware extraction with Pozorista because its event-link structure is relatively predictable and lower-risk than jumping straight to noisier sources.
+- Follow-up: Add the next source-aware extractor for another Tier 1 source such as AllEvents or KupiKartu once the home machine verifies the current raw-intake path.
+
+### 2026-03-11 13:40
+- Goal: Extend source-aware raw-intake extraction to a second Tier 1 pattern so manual ingestion runs produce higher-signal candidates.
+- Changes made: Added an AllEvents-aware extractor that recognizes Sarajevo event links with stable event-id tails, kept source-aware extraction ahead of generic fallback, expanded the pure extractor test coverage, and refreshed planning context to reflect that raw intake now branches by source type for both Pozorista and AllEvents.
+- Files touched: `backend/src/services/sourceExtractors.ts`, `backend/tests/sourceExtractors.test.ts`, `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Expand source-aware extraction one safe Tier 1 source at a time so ingestion quality improves without overfitting the raw-intake path before runtime verification.
+- Follow-up: Add the next safe extractor candidate such as KupiKartu, then verify the manual run route on the home machine against at least one `direct_html` source for each supported extractor pattern.
+
+### 2026-03-11 13:55
+- Goal: Extend source-aware raw-intake extraction to the first ticketing-platform source so backend intake starts recognizing cleaner paid-event links too.
+- Changes made: Added a KupiKartu-aware extractor that recognizes `/karte/event/{id}/{slug}` links, trims common homepage card noise like leading dates and trailing `@Venue` text from candidate titles, expanded extractor test coverage, and updated planning docs plus parser-hint vocabulary to reflect the new supported pattern.
+- Files touched: `backend/src/services/sourceExtractors.ts`, `backend/tests/sourceExtractors.test.ts`, `docs/03-architecture/source_types_and_scrape_config.md`, `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Treat KupiKartu as the next safe source-aware extractor because its event URL structure is stable and its homepage cards already expose useful title/date/venue context without requiring a headless-first solution.
+- Follow-up: On the home machine, verify `POST /ingestion/run/:sourceId` against one KupiKartu source and one previous website/aggregator source, then decide whether to add category-page coverage or start a detail-enrichment pass for source-specific fetches.
+
+### 2026-03-11 14:05
+- Goal: Align the first raw-intake fetch path with the repo-native source contract so source-specific list pages are actually usable.
+- Changes made: Upgraded the ingestion fetch flow to prefer `scrape_config.list_url` over `source_url` for `direct_html` sources, carried the fetched page URL through extraction and run logging, updated extractor and fetch tests to cover list-page-relative URLs, and refreshed the ingestion contract plus backend README to match the implementation.
+- Files touched: `backend/src/services/ingestionFetch.ts`, `backend/src/services/sourceExtractors.ts`, `backend/src/services/ingestionRuns.ts`, `backend/src/routes/ingestion.ts`, `backend/tests/ingestionFetch.test.ts`, `docs/03-architecture/ingestion_endpoint_contract.md`, `backend/README.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Treat `scrape_config.list_url` as the first-class direct-html fetch target when present so sources can point at a stable homepage while still scraping a more useful listings URL operationally.
+- Follow-up: On the home machine, verify at least one source that uses a dedicated list page and confirm the run summary/log captures the fetched URL correctly before expanding to multi-page category fetches.
+
+### 2026-03-11 14:20
+- Goal: Extend the direct-html intake path so ticketing and aggregator sources can fetch more than one configured listing page in a single manual run.
+- Changes made: Upgraded the fetch path to resolve and fetch `scrape_config.list_url`, `list_urls`, and `category_urls`, merged candidate intake across those pages with source-url dedupe, exposed fetched page arrays in run summaries/logging, and updated the source-config and ingestion contract docs to reflect multi-page support.
+- Files touched: `backend/src/services/ingestionFetch.ts`, `backend/src/services/ingestionRuns.ts`, `backend/src/routes/ingestion.ts`, `docs/03-architecture/source_types_and_scrape_config.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `backend/README.md`, `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Treat multi-page direct-html intake as config-driven rather than source-hardcoded so ticketing and aggregator sources can expand coverage without route changes.
+- Follow-up: On the home machine, verify one source that uses `category_urls` or `list_urls`, then decide whether the next backend slice should be detail-page enrichment or operator-facing source seeding for the first real source inventory.
+
+### 2026-03-11 14:35
+- Goal: Add one compact planning surface that answers what remains, in what order, and on which machine, without replacing the existing docs system.
+- Changes made: Added `docs/00-overview/program_map.md` as a concise synthesis of current phase, workstreams, now/next/later sequencing, machine-specific ownership, blockers, and the working definition of v0.1 done. Linked it into the docs index, startup protocol, and handover so future sessions can find it quickly.
+- Files touched: `docs/00-overview/program_map.md`, `docs/README.md`, `docs/00-overview/session_start_protocol.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Keep the planning system layered: `master_roadmap.md` for long-range sequencing, `execution_board.md` for active planning, `handover.md` for the next resume point, and `program_map.md` for the shortest end-to-end view of remaining work.
+- Follow-up: Keep `program_map.md` high-signal and short; update it when the current phase, machine split, or definition of near-term done materially changes.
+
+### 2026-03-11 14:50
+- Goal: Add a durable home-machine runtime-validation playbook so the next runtime-capable session can execute checks in a fixed order with explicit evidence capture.
+- Changes made: Added `docs/05-dev-ops/home_machine_verification_checklist.md` covering machine preflight, Home/web verification, favorites verification, taste-profile verification, auth refresh verification, backend ingestion verification, and post-run documentation rules. Linked it into the docs index, startup protocol, and handover so future sessions can use it as the standard home-machine execution script.
+- Files touched: `docs/05-dev-ops/home_machine_verification_checklist.md`, `docs/README.md`, `docs/00-overview/session_start_protocol.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Keep setup concerns in `home_work_transition_checklist.md` and use the new checklist only for runtime/backend verification; require explicit failure evidence capture instead of vague `retest` notes.
+- Follow-up: On the home machine, use this checklist as the first runtime pass and update the ledger/handover with pass/fail evidence for Home, favorites, taste profile, auth refresh, and ingestion.
+
+### 2026-03-11 15:05
+- Goal: Turn the ingestion architecture into a concrete first `scrape_sources` shortlist so the next runtime-capable session knows exactly which sources to seed and validate.
+- Changes made: Added `docs/03-architecture/initial_source_inventory.md` with a repo-native first source inventory, including recommended active sources, seeded-but-inactive sources, skip-for-now sources, and the preferred home-machine verification order. Linked it into the docs index, handover, and program map.
+- Files touched: `docs/03-architecture/initial_source_inventory.md`, `docs/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Treat Pozorista, AllEvents, and KupiKartu as the first active ingestion sources because they best fit the current backend; keep Entrio, FiestaLama, CineStar, and first Instagram accounts seeded later or inactive until fetch/parser support catches up.
+- Follow-up: On the home machine, use the source inventory together with the verification checklist to run Pozorista first, AllEvents second, and KupiKartu third.
+
+### 2026-03-11 15:20
+- Goal: Make the initial source inventory directly usable on the home machine by adding a repo-native SQL seed artifact.
+- Changes made: Added `backend/sql/initial_scrape_sources_seed.sql` covering the first active sources plus seeded-but-inactive follow-ons, and linked that seed into the backend README, handover, and program map so the next runtime-capable session can apply it without reconstructing inserts from docs.
+- Files touched: `backend/sql/initial_scrape_sources_seed.sql`, `backend/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Keep the first seed conservative and aligned to the current backend capabilities: activate Pozorista, AllEvents, and KupiKartu first; seed Entrio, FiestaLama, CineStar, and first Instagram accounts as inactive until their fetch paths are ready.
+- Follow-up: On the home machine, apply the seed, confirm `GET /ingestion/sources` returns the seeded rows, and then use the verification checklist in the recommended source order.
+
+### 2026-03-11 15:40
+- Goal: Push the next meaningful ingestion slice in one pass by improving raw-row quality and adding operator inspection support.
+- Changes made: Extended the raw candidate shape so first source-aware extractors can carry `date_raw`, `image_url`, `venue_raw`, and `venue_name_raw` into `raw_events`; enriched KupiKartu, AllEvents, and Pozorista extraction accordingly; updated raw-event inserts to persist those fields; added focused extractor assertions; added `backend/sql/ingestion_operator_queries.sql`; and documented the new raw-intake enrichment layer in repo-native architecture and handover docs.
+- Files touched: `backend/src/services/ingestionFetch.ts`, `backend/src/services/sourceExtractors.ts`, `backend/src/services/rawEvents.ts`, `backend/tests/sourceExtractors.test.ts`, `backend/sql/ingestion_operator_queries.sql`, `docs/03-architecture/raw_intake_enrichment_plan.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `backend/README.md`, `docs/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Improve raw-intake usefulness before building detail-page enrichment; keep listing-level metadata provisional and source-specific instead of pretending generic parsing is reliable enough for canonical promotion.
+- Follow-up: On the home machine, seed the first sources, run the verification checklist, then use the operator queries to inspect how much date/venue/image metadata actually landed for Pozorista, AllEvents, and KupiKartu.
+
+### 2026-03-11 16:00
+- Goal: Push detail-page enrichment into the first active ingestion sources so raw rows arrive with better metadata before the later parse stage.
+- Changes made: Added `backend/src/services/sourceDetailEnrichment.ts`, wired `fetchSourceContent` to apply limited source-specific detail enrichment, implemented AllEvents event-page JSON-LD enrichment plus KupiKartu detail-page metadata enrichment, added focused pure tests for those enrichers, and refreshed the enrichment contract/docs/handover context to reflect the new behavior.
+- Files touched: `backend/src/services/sourceDetailEnrichment.ts`, `backend/src/services/ingestionFetch.ts`, `backend/tests/sourceDetailEnrichment.test.ts`, `docs/03-architecture/raw_intake_enrichment_plan.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `backend/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Keep detail enrichment source-specific and capped to the first candidates per run instead of turning raw intake into an unbounded generic crawler; enrich AllEvents and KupiKartu now, leave Pozorista on listing-context enrichment until real run data proves a detail pass is worth the extra fetches.
+- Follow-up: On the home machine, validate that AllEvents and KupiKartu raw rows now land with richer description/date/venue/image data, then decide whether the next slice should be Pozorista detail enrichment or the first parse/match workflow.
+
+### 2026-03-11 16:20
+- Goal: Add the first parse-stage scaffolding so recent `raw_events` can be normalized and reviewed before any canonical promotion work starts.
+- Changes made: Added `backend/src/services/parsePreview.ts`, added admin read routes for recent raw rows and parse previews, added a focused pure parse-preview test, extended the operator SQL pack with a parse-preview-oriented query, and documented the new preview/review stage in repo-native architecture, backend, handover, and program docs.
+- Files touched: `backend/src/services/parsePreview.ts`, `backend/src/routes/ingestion.ts`, `backend/tests/parsePreview.test.ts`, `backend/sql/ingestion_operator_queries.sql`, `docs/03-architecture/parse_preview_workflow.md`, `docs/03-architecture/operator_review_workflow.md`, `docs/03-architecture/ingestion_endpoint_contract.md`, `backend/README.md`, `docs/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Keep the first parse stage preview-only and backend-admin-only; derive normalized candidate fields, confidence, and review reasons without writing to canonical tables yet.
+- Follow-up: On the home machine, run ingestion first, then inspect `GET /ingestion/raw/recent` and `GET /ingestion/parse-preview` to see whether the first active sources are producing enough structured rows to justify the first real parse/match workflow.
+
+### 2026-03-11 16:35
+- Goal: Correct the venue planning posture by grounding it in the real 1233-venue seed instead of treating venue population as a greenfield problem.
+- Changes made: Inspected `hype-venues-seed.json`, confirmed it contains 1233 venues with strong schema overlap against live `venues`, documented the current findings and remaining unknowns in `docs/03-architecture/venue_seed_reconciliation.md`, and added `backend/sql/venue_reconciliation_queries.sql` so the home machine can compare the large seed against the actual live `venues` table.
+- Files touched: `docs/03-architecture/venue_seed_reconciliation.md`, `backend/sql/venue_reconciliation_queries.sql`, `docs/README.md`, `backend/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Treat the existing 1233-venue seed as a primary import candidate; do not plan a fresh venue-discovery effort; reconcile against live `venues` first and then decide whether to backfill, merge, or mostly validate the current live table.
+- Follow-up: On the home machine, run the venue reconciliation queries against live Supabase, then decide whether the next venue slice is an upsert import, a cleanup merge, or only a targeted backfill.
+
+### 2026-03-11 16:55
+- Goal: Extend the same reconciliation discipline from venues to the other canonical content tables whose schema is known but whose live row reality is not yet repo-visible.
+- Changes made: Added repo-native reconciliation docs for `events` plus `event_series` and for `daily_specials`, added matching SQL query packs for live content-quality inspection, and wired those assets into the docs index, backend README, handover, program map, and execution board.
+- Files touched: `docs/03-architecture/events_series_reconciliation.md`, `docs/03-architecture/daily_specials_reconciliation.md`, `backend/sql/events_series_reconciliation_queries.sql`, `backend/sql/daily_specials_reconciliation_queries.sql`, `docs/README.md`, `backend/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Treat `events`, `event_series`, and `daily_specials` the same way as venues for planning purposes: canonical schema is understood, but import/promotion/UI decisions should wait for live row-level reconciliation on the home machine instead of being treated as pure architecture exercises.
+- Follow-up: On the home machine, run the new reconciliation query packs against live Supabase, then decide whether the next canonical-content slice is event promotion design, series matching, daily-specials UI cleanup, or targeted data cleanup based on actual live quality.
+
+### 2026-03-11 17:05
+- Goal: Make sure the new live-content reconciliation work becomes part of the standard home-machine execution path instead of living only in architecture docs and handover notes.
+- Changes made: Extended `home_machine_verification_checklist.md` with a dedicated live canonical-content reconciliation step covering venues, events, event series, and daily specials, and updated the session-start protocol so future sessions can find those reconciliation docs quickly when the task is live Supabase reality-checking.
+- Files touched: `docs/05-dev-ops/home_machine_verification_checklist.md`, `docs/00-overview/session_start_protocol.md`, `docs/project_ledger.md`
+- Decisions: Treat live-data reconciliation as a standard home-machine verification responsibility alongside runtime, auth, and ingestion checks, not as an ad hoc investigation.
+- Follow-up: On the home machine, use the checklist section after the runtime and ingestion checks so the next planning decisions are grounded in real canonical-content quality, not schema assumptions alone.
+
+### 2026-03-11 17:20
+- Goal: Close the biggest remaining ingestion-to-publishing architecture gaps by documenting the rulebook for canonical promotion, venue matching, and safe event enrichment.
+- Changes made: Added repo-native strategy docs for the first promotion workflow, venue matching, and canonical event update policy, then linked them into the ingestion workflow, parse-preview workflow, operator-review workflow, docs index, handover, and program map.
+- Files touched: `docs/03-architecture/promotion_workflow.md`, `docs/03-architecture/venue_matching_strategy.md`, `docs/03-architecture/canonical_event_update_policy.md`, `docs/03-architecture/scraper_ingestion_workflow.md`, `docs/03-architecture/operator_review_workflow.md`, `docs/03-architecture/parse_preview_workflow.md`, `docs/README.md`, `docs/00-overview/handover.md`, `docs/00-overview/program_map.md`, `docs/project_ledger.md`
+- Decisions: Treat the next ingestion implementation wave as publishability work, not just more scraping breadth; require explicit staged decisions for venue matching, duplicate handling, and field-level canonical updates before broader automatic promotion is attempted.
+- Follow-up: After home-machine reconciliation verifies live canonical-content quality, use these docs to design the first backend promotion-preview implementation rather than expanding source coverage first.
+
+### 2026-03-11 17:30
+- Goal: Prepare the backend-only Supabase admin env surface so the home machine can add the service-role key without guessing where it belongs.
+- Changes made: Added `backend/.env` and `backend/.env.example` with `SUPABASE_URL` preset and an empty `SUPABASE_SERVICE_ROLE_KEY` placeholder, then documented that location in the backend README.
+- Files touched: `backend/.env`, `backend/.env.example`, `backend/README.md`, `docs/project_ledger.md`
+- Decisions: Keep the service-role key in `backend/.env`, not the Expo app root `.env`, so admin credentials stay backend-only.
+- Follow-up: On the home machine, paste the real `SUPABASE_SERVICE_ROLE_KEY` into `backend/.env`, then use it for ingestion and reconciliation work.
+
+### 2026-03-11 17:40
+- Goal: Make sure the new backend admin env location is explicit in the home-machine continuity layer instead of only in README and chat.
+- Changes made: Updated `handover.md` and `home_machine_verification_checklist.md` to call out `backend/.env` as the backend admin env source of truth, and added a reusable napkin rule to keep the service-role key out of the Expo app root `.env`.
+- Files touched: `docs/00-overview/handover.md`, `docs/05-dev-ops/home_machine_verification_checklist.md`, `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: Treat `backend/.env` as part of the standard home-machine preflight for ingestion and live reconciliation work.
+- Follow-up: On the home machine, verify the backend runtime actually loads `backend/.env` before using the ingestion and reconciliation routes as proof of connectivity.
+
+### 2026-03-11 18:00
+- Goal: Turn the Hype pitch into an actionable product-design direction and a usable exploration workflow instead of leaving design advice only in chat.
+- Changes made: Reviewed the pitch proposal against the current product surfaces, added a repo-native design-direction brief focused on Hype as a warm Sarajevo-first concierge rather than a generic event app, and added a Pencil prompt pack meant to generate exploratory directions before convergence in Figma. Linked both into the docs index.
+- Files touched: `docs/04-product/design_direction_brief.md`, `docs/04-product/pencil_prompt_pack.md`, `docs/README.md`, `docs/project_ledger.md`
+- Decisions: Use Pencil for fast divergent concept exploration and Figma for the actual design system and source of truth; anchor the visual direction in mood-first discovery, city pulse, local trust, and editorial warmth.
+- Follow-up: Generate a few Pencil directions for Home first, choose one, then move the winning direction into Figma for the first component and layout system pass.
+
+### 2026-03-11 18:10
+- Goal: Make sure the new design-direction work is visible in the home-machine continuity layer, not only in product docs and chat.
+- Changes made: Updated `handover.md` to list the design brief and Pencil prompt pack as relevant changed surfaces and explicit design-direction pickup docs for the home-machine session.
+- Files touched: `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Treat the design brief and Pencil prompt pack as real continuity assets, because the next design exploration will start on the home machine.
+- Follow-up: On the home machine, open the design brief and prompt pack before generating the first Home concepts in Pencil.
+
+### 2026-03-12 01:30
+- Goal: Rebuild the unstable frontend shell in place, starting with the shared tab foundation and Home, then finish the home-machine verification pass against the live backend.
+- Changes made: Added shared tab-shell primitives (`TabScreen`, `SectionHeader`, `ContentState`), rebuilt Home into `components/home/HomeScreen.tsx` with extracted copy/date helpers, collapsed Home/Profile/Saved iOS wrappers to shared implementations, made `ImageWithPlaceholder` explicitly web-safe to remove the remaining Home render loop, fixed the Home cafe query to match the real `venues` schema, and cleaned up a few touched theme/type issues in `FloatingTabBar`, `MoodChip`, and `SkeletonLoader`.
+- Files touched: `components/TabScreen.tsx`, `components/SectionHeader.tsx`, `components/ContentState.tsx`, `components/home/HomeScreen.tsx`, `components/ImageWithPlaceholder.tsx`, `components/MoodChip.tsx`, `components/SkeletonLoader.tsx`, `components/FloatingTabBar.tsx`, `app/(tabs)/(home)/index.tsx`, `app/(tabs)/(home)/index.ios.tsx`, `app/(tabs)/saved.ios.tsx`, `app/(tabs)/profile.ios.tsx`, `app/(tabs)/saved.tsx`, `app/(tabs)/profile.tsx`, `app/(tabs)/_layout.tsx`, `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Use one shared Home implementation for web and native unless a platform branch is clearly necessary; prefer static, web-safe card layouts over decorative motion when stability is at stake; keep the current backend contracts and migration helpers as the architecture boundary instead of rewriting backend assumptions.
+- Verification: `npx.cmd tsx --test tests/homeScreenContent.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/favoritesMigration.test.ts tests/favorites.test.ts tests/supabaseErrors.test.ts`; real Expo web verification on port `8123` confirmed no `Maximum update depth exceeded`, taste-profile persistence to `profiles.taste_moods`, venue save/unsave behavior against `favorites`, Saved reflecting the backend favorite state, and the sign-out prompt flow in dedicated browser runs.
+- Follow-up: Keep reducing large screen files and remaining `.tsx` / `.ios.tsx` duplication, repair mojibake outside the rebuilt shell, and decide the repo-approved fix for the React 19 versus `react-leaflet@4.2.1` install conflict.
