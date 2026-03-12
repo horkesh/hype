@@ -48,7 +48,7 @@ Vercel is useful, but it should not be the main mobile build path.
 From the repo root:
 
 ```powershell
-cd "C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app"
+cd "C:\path\to\Hype app"
 ```
 
 Install and verify:
@@ -66,6 +66,13 @@ git init
 git add .
 git commit -m "Initial local repo setup"
 ```
+
+Current note:
+- Git setup on the home machine is complete.
+- The next practical checkpoints are `npm install`, `npx expo start`, and `npm run web`.
+- On this Windows setup, use `npm.cmd` and `npx.cmd` from PowerShell if execution policy blocks `npm.ps1`.
+- Current verified blocker: a fresh install fails on a React 19 vs `react-leaflet@4.2.1` peer dependency conflict under npm 11.
+- Current verified runtime state: Metro and web preview can start on fixed ports, but the web app currently hits a Home-screen `Maximum update depth exceeded` loop.
 
 Install dependencies:
 

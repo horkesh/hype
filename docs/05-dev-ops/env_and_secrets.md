@@ -33,5 +33,7 @@ This keeps local development environment-driven while preserving an explicit fal
 ## Still to do
 
 - Decide the real backend base URL to use across local dev and deployment.
-- Document backend-only environment variables once the service grows beyond scaffolding.
+- Backend-only Supabase admin routes should use:
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
 - Reduce placeholder config in `app.json` further if the project moves fully to dynamic app config later.
