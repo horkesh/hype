@@ -389,11 +389,21 @@ The latest Profile cleanup pass added four more important outcomes:
 - decomposed Profile rendering into focused UI sections under `components/profile/`
 - added targeted regression coverage for Profile helper behavior in `tests/profileScreen.test.ts`
 
+The latest Profile settings cleanup pass added three more important outcomes:
+- moved settings copy, language options, mood-title copy, badge-count copy, and sign-out labels into `utils/profileSettings.ts`
+- split the settings surface into `ProfileSettingsCard.tsx` and `ProfileOptionToggleGroup.tsx`, leaving `ProfileSettingsSection.tsx` as orchestration over helper-owned settings data
+- cleaned the touched Profile route copy by routing badge-count, sign-out, and mood-title text through the shared settings helper
+
 The latest Venue detail cleanup pass added four more important outcomes:
 - moved Venue detail Supabase reads and favorite-state mutations out of the route and into `utils/venueDetailData.ts`
 - moved Venue detail localized copy, hours math, event-date formatting, and mood metadata into `utils/venueDetailScreen.ts`
 - decomposed Venue detail rendering into focused UI sections under `components/venue/` and switched it onto the shared `ImageWithPlaceholder` path
 - added targeted regression coverage for Venue detail helper behavior in `tests/venueDetailScreen.test.ts`
+
+The latest Venue action cleanup pass added three more important outcomes:
+- moved venue action-button and delivery-button definitions into `utils/venueActions.ts`
+- split the action surface into `VenuePrimaryActionGroup.tsx` and `VenueDeliveryActionGroup.tsx`, leaving `VenueActionButtons.tsx` as dispatch orchestration over helper-owned action data
+- added targeted regression coverage in `tests/venueActions.test.ts` so action ordering and saved-state icon behavior stay stable
 
 The latest Event detail cleanup pass added four more important outcomes:
 - moved Event detail Supabase reads and saved-event persistence out of the route and into `utils/eventDetailData.ts`

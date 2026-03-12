@@ -12,6 +12,7 @@ interface ProfileAccountCardProps {
   cardColor: string;
   email: string;
   onSignOut: () => void;
+  signOutLabel: string;
   textColor: string;
   textSecondaryColor: string;
 }
@@ -25,6 +26,7 @@ export function ProfileAccountCard({
   cardColor,
   email,
   onSignOut,
+  signOutLabel,
   textColor,
   textSecondaryColor,
 }: ProfileAccountCardProps) {
@@ -50,7 +52,7 @@ export function ProfileAccountCard({
         onPress={onSignOut}
         style={[styles.signOutButton, { borderColor: accentColor }]}
       >
-        <Text style={[styles.signOutButtonText, { color: accentColor }]}>Odjavi se</Text>
+        <Text style={[styles.signOutButtonText, { color: accentColor }]}>{signOutLabel}</Text>
       </TouchableOpacity>
     </View>
   );

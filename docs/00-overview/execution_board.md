@@ -207,6 +207,8 @@ Status:
   - Series events support now uses focused date-group, event-card, and mood-badge sections under `components/series/`, so the last large series list surface is thinner too
   - Tonight planner support now uses `utils/tonightPlanner.ts` plus extracted modal header, mood-grid, group-size, stop-list, and action-row sections, so the remaining planner files are mostly orchestration instead of one bulky support stack
   - Explore filter support now also uses extracted modal-header and filter-content sections, so `ExploreFilterModal.tsx` is down to shell orchestration over helper-owned filter behavior
+  - Profile settings now use helper-owned copy plus extracted settings-card and option-toggle sections, so the route and settings surface no longer carry hardcoded settings copy
+  - Venue actions now use helper-owned action definitions plus extracted primary and delivery action groups, so `VenueActionButtons.tsx` is down to dispatch orchestration
 
 ## Backlog
 
@@ -386,8 +388,8 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with Explore/Profile/Venue support and encoding cleanup now the clearest targets
-   the main tab, home-support, detail-screen, map, tab-bar chrome, and Tonight planner lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
+1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup and the remaining shared chrome/support layer now the clearest targets
+   the main tab, home-support, detail-screen, map, tab-bar chrome, Tonight planner, Explore filter shell, Profile settings, and Venue action lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

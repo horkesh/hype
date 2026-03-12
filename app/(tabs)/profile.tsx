@@ -25,6 +25,9 @@ import {
   signOutProfile,
   signUpProfile,
 } from '@/utils/profileData';
+import {
+  getProfileSettingsCopy,
+} from '@/utils/profileSettings';
 import { isProfileTasteAuthRequiredError } from '@/utils/profileTaste';
 import {
   PROFILE_DEMO_BADGES,
@@ -37,6 +40,7 @@ export default function ProfileScreen() {
   const { language, setLanguage, setThemeMode, themeMode } = useApp();
   const { colors } = useTheme();
   const isBosnian = language === 'bs';
+  const settingsCopy = getProfileSettingsCopy(isBosnian);
 
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -187,12 +191,13 @@ export default function ProfileScreen() {
             <ProfileAccountCard
               accentColor={colors.accent}
               backgroundColor={colors.background}
-              badgeCountLabel={isBosnian ? 'Bedževa' : 'Badges'}
+              badgeCountLabel={settingsCopy.badgeCountLabel}
               badgeCountNumber={PROFILE_DEMO_BADGES.length}
               badges={PROFILE_DEMO_BADGES}
               cardColor={colors.card}
               email={user.email || ''}
               onSignOut={() => setShowSignOutModal(true)}
+              signOutLabel={settingsCopy.signOutLabel}
               textColor={colors.text}
               textSecondaryColor={colors.textSecondary}
             />
@@ -207,7 +212,7 @@ export default function ProfileScreen() {
           moods={PROFILE_MOODS}
           onToggleMood={handleToggleMood}
           selectedMoods={selectedMoods}
-          title="Šta te zanima?"
+          title={settingsCopy.moodTitle}
         />
 
         <ProfileSettingsSection
