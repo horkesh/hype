@@ -562,3 +562,11 @@ Copy this block when adding a new work entry.
 - Decisions: Keep the current Explore logic in the route file for now, but move passive screen metadata and contracts into a utility module first so future Explore refactors work on behavior/layout rather than re-parsing embedded lookup data.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Continue with Explore-specific behavior simplification next, especially the loader/filter/search sections, or switch to the next oversized shared screen if a bigger stability payoff appears.
+
+### 2026-03-12 04:05
+- Goal: Continue the Explore simplification by moving pure filter/state helper logic out of the route file.
+- Changes made: Added `utils/exploreHelpers.ts` with pure helpers for open-now evaluation, price-display formatting, client-side venue and menu filtering, and selection toggling; rewired `app/(tabs)/explore.tsx` to use those helpers instead of carrying local copies of the same logic.
+- Files touched: `utils/exploreHelpers.ts`, `app/(tabs)/explore.tsx`, `docs/project_ledger.md`
+- Decisions: Keep Explore's Supabase loading logic in the route for now, but extract pure behavior first so the remaining route code is closer to “load data, set state, render” and easier to split further if needed.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: If we keep pushing Explore, the next clean seam is the debounced search plus the venue/daily-special loaders; otherwise the next shared-shell cleanup can move to another oversized route.

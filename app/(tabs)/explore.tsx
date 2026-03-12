@@ -21,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { IconSymbol } from '@/components/IconSymbol';
 import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/errorLogger';
 import { DailySpecial, EXPLORE_CATEGORIES, EXPLORE_MOODS, SearchResult, Venue } from '@/utils/exploreScreen';
+import { filterDailySpecialsByPrice, filterVenuesByClientRules, getPriceLevelDisplay, isVenueOpenNow, toggleSelection, toggleSingleSelection } from '@/utils/exploreHelpers';
 import { resolveImageSource } from '@/utils/imageSource';
 import debounce from 'lodash.debounce';
 import Slider from '@react-native-community/slider';
@@ -143,16 +144,7 @@ export default function ExploreScreen() {
       } else {
         let filteredData = normalizeVenueRows(data, language);
 
-        if (filterPriceLevel < 4) {
-          filteredData = filteredData.filter((venue) => venue.price_level <= filterPriceLevel);
-        }
-
-        // Apply "open now" filter (client-side)
-        if (filterOpenNow) {
-          filteredData = filteredData.filter((venue) => isOpenNow(venue.opening_hours));
-        }
-
-        setVenues(filteredData);
+        setVenues(filterVenuesByClientRules(filteredData, filterPriceLevel, filterOpenNow));
       }
     } catch (error) {
       console.error('Error loading venues:', error);
@@ -205,17 +197,7 @@ export default function ExploreScreen() {
         }
 
         filteredData = [...filteredData].sort((a, b) => a.price - b.price);
-
-        // Apply price filter
-        if (menuPriceFilter === 'up_to_8') {
-          filteredData = filteredData.filter((special) => special.price <= 8);
-        } else if (menuPriceFilter === '8_to_12') {
-          filteredData = filteredData.filter((special) => special.price > 8 && special.price <= 12);
-        } else if (menuPriceFilter === '12_plus') {
-          filteredData = filteredData.filter((special) => special.price > 12);
-        }
-
-        setDailySpecials(filteredData);
+        setDailySpecials(filterDailySpecialsByPrice(filteredData, menuPriceFilter));
       }
     } catch (error) {
       console.error('Error loading daily specials:', error);
@@ -243,52 +225,22 @@ export default function ExploreScreen() {
   }, [activeTab, loadVenues, loadDailySpecials]);
 
   // Check if venue is open now
-  const isOpenNow = (openingHours: any): boolean => {
-    if (!openingHours) return false;
-
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const todaySchedule = openingHours[dayOfWeek];
-    if (!todaySchedule || todaySchedule.length === 0) return false;
-
-    for (const period of todaySchedule) {
-      const openParts = period.open.split(':');
-      const closeParts = period.close.split(':');
-      const openMinutes = parseInt(openParts[0]) * 60 + parseInt(openParts[1]);
-      const closeMinutes = parseInt(closeParts[0]) * 60 + parseInt(closeParts[1]);
-
-      if (currentMinutes >= openMinutes && currentMinutes <= closeMinutes) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   const toggleMood = (moodId: string) => {
     console.log('Toggling mood:', moodId);
-    setSelectedMoods((prev) =>
-      prev.includes(moodId) ? prev.filter((id) => id !== moodId) : [...prev, moodId]
-    );
+    setSelectedMoods((prev) => toggleSelection(prev, moodId));
   };
 
   const selectCategory = (categoryId: string) => {
     console.log('Selecting category:', categoryId);
-    setSelectedCategory((prev) => (prev === categoryId ? null : categoryId));
+    setSelectedCategory((prev) => toggleSingleSelection(prev, categoryId));
   };
 
   const toggleFilterMood = (moodId: string) => {
-    setFilterMoods((prev) =>
-      prev.includes(moodId) ? prev.filter((id) => id !== moodId) : [...prev, moodId]
-    );
+    setFilterMoods((prev) => toggleSelection(prev, moodId));
   };
 
   const toggleFilterCategory = (categoryId: string) => {
-    setFilterCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
-    );
+    setFilterCategories((prev) => toggleSelection(prev, categoryId));
   };
 
   const applyFilters = () => {
@@ -303,10 +255,6 @@ export default function ExploreScreen() {
     setFilterCategories([]);
     setFilterPriceLevel(4);
     setFilterOpenNow(false);
-  };
-
-  const getPriceLevelDisplay = (level: number): string => {
-    return '€'.repeat(level);
   };
 
   const handleVenueTap = (venueId: string) => {
