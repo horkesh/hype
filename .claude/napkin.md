@@ -77,6 +77,8 @@
    Do instead: when a planner, vote, or other temporary mock flow needs generated URLs or result payloads, derive them from stable inputs in helper modules instead of using `Math.random()` in route handlers.
 16. **[2026-03-12] Route-owned alert copy should move with the rest of the screen copy**
    Do instead: when a route still hardcodes auth, error, or confirmation alerts, move that copy into the same helper module that owns the screen's settings or display strings before splitting the route controller.
+17. **[2026-03-12] Deterministic mock planners should live outside shared copy/type modules**
+   Do instead: when a screen still uses temporary mock plan generation, keep the generated-plan catalog in a dedicated helper like `utils/<surface>Mock*.ts`, derive venue picks from stable inputs instead of `Math.random()`, and leave the main `utils/<surface>Screen.ts` module focused on types, labels, and share text.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

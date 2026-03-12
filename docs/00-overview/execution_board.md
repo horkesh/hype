@@ -217,6 +217,7 @@ Status:
 - Saved tab labels and empty-state routing/copy now live in `utils/savedScreen.ts` plus `components/saved/SavedTabContent.tsx`, so the route is back to orchestration and the touched Saved copy is helper-owned
 - Explore search, filter, and refresh controller state now lives in `hooks/useExploreController.ts` plus `components/explore/ExploreScreenBody.tsx`, so the route itself is down to shell selection and prop wiring
 - Tonight planner, vote, refresh, and navigation controller state now lives in `hooks/useTonightController.ts`, and the mock vote-link path is deterministic through `utils/tonightVote.ts`
+- Tonight mock planner samples now live in `utils/tonightMockPlans.ts`, and the remaining sample venue selection is deterministic instead of depending on `Math.random()`
 - Profile auth/session/taste controller state now lives in `hooks/useProfileController.ts`, and route-owned auth/modal alerts now come from `utils/profileSettings.ts`
 - Home helper/test literals are now cleaned in `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, and `tests/homeScreen.test.ts`, so the Home regression suite no longer preserves mojibake
 
@@ -314,6 +315,7 @@ Status:
   - Saved tab labels and empty-state copy now also live in `utils/savedScreen.ts`, with matching helper assertions and route rendering moved into `components/saved/SavedTabContent.tsx`
   - touched Explore test literals are now clean, and helper-owned menu-filter labels now have direct coverage in `tests/exploreHelpers.test.ts`
   - touched Tonight emoji and label assertions are now clean, and deterministic mock vote-link generation is covered in `tests/tonightVote.test.ts`
+  - deterministic Tonight mock-plan generation is now covered directly in `tests/tonightMockPlans.test.ts`
   - touched Profile auth and sign-out modal copy now lives in `utils/profileSettings.ts`, with direct coverage in `tests/profileSettings.test.ts`
   - Home helper tests now assert the cleaned helper output directly instead of carrying damaged literals from earlier prototype passes
 

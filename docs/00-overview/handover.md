@@ -31,6 +31,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
 - continue narrower follow-up cleanup instead of another broad structural sweep, with the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, and shared chrome already on the helper-plus-components pattern
+- keep the remaining Tonight follow-up on the new deterministic mock-plan path, with `utils/tonightMockPlans.ts` now owning planner sample generation so `utils/tonightScreen.ts` can stay focused on shared types, labels, and share text
 - treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
@@ -186,11 +187,13 @@ Most relevant changed surfaces:
 - `utils/mapEmbed.ts`
 - `tests/mapEmbed.test.ts`
 - `utils/tonightScreen.ts`
+- `utils/tonightMockPlans.ts`
 - `utils/tonightData.ts`
 - `utils/tonightHelpers.ts`
 - `utils/tonightVote.ts`
 - `tests/tonightHelpers.test.ts`
 - `tests/tonightScreen.test.ts`
+- `tests/tonightMockPlans.test.ts`
 - `tests/tonightVote.test.ts`
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
@@ -492,6 +495,11 @@ The latest Home helper cleanup pass added three more important outcomes:
 - normalized `utils/homeScreenContent.ts` onto clean code-point escapes for mood emoji and helper copy, keeping the source helper layer readable and consistent with the rest of the rebuilt app
 - cleaned `tests/homeScreenContent.test.ts` and `tests/homeScreen.test.ts` so Home helper regressions now assert the repaired output instead of preserving old mojibake literals
 - confirmed the Home helper pack still passes under Expo web export; Metro logged a cache-deserialization fallback once during export, but the build recovered and completed successfully
+
+The latest Tonight mock-plan cleanup pass added three more important outcomes:
+- moved Tonight planner sample generation into `utils/tonightMockPlans.ts`, leaving `utils/tonightScreen.ts` focused on shared types, labels, moods, segments, and share text
+- replaced the remaining `Math.random()` venue picking in the mock planner with stable seed-based selection derived from mood and plan index
+- added targeted regression coverage in `tests/tonightMockPlans.test.ts` so future planner cleanup cannot quietly reintroduce nondeterministic sample output
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

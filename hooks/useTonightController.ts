@@ -9,7 +9,6 @@ import {
   buildTonightSegments,
   buildTonightVoteShareText,
   Event,
-  generateMockTonightPlan,
   getTonightPlannerLabels,
   getTonightVoteLabels,
   MoodId,
@@ -25,6 +24,7 @@ import {
   getUrgencyBadge,
   toggleTonightSelection,
 } from '@/utils/tonightHelpers';
+import { generateMockTonightPlan } from '@/utils/tonightMockPlans';
 import { buildMockTonightVoteLink } from '@/utils/tonightVote';
 
 interface UseTonightControllerOptions {

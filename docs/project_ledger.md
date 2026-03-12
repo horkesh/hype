@@ -833,3 +833,11 @@ Copy this block when adding a new work entry.
 - Decisions: When long-tail encoding cleanup reaches a helper layer, update the adjacent regression tests in the same slice so the suite stops preserving corrupted literals as the expected output.
 - Verification: `npx.cmd tsx --test tests/homeScreen.test.ts tests/homeScreenContent.test.ts tests/homeEventsSection.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the long-tail support and encoding wave on the next touched helper/test surfaces, not by reopening the now-thinner main tab-route controllers.
+
+### 2026-03-12 22:30
+- Goal: Continue the long-tail Tonight follow-up by removing the last nondeterministic mock-plan path from the planner helper layer.
+- Changes made: Added `utils/tonightMockPlans.ts` to own Tonight planner sample generation; rewrote `hooks/useTonightController.ts` to import the planner samples from the dedicated helper module; removed the old `generateMockTonightPlan()` implementation from `utils/tonightScreen.ts`; added `tests/tonightMockPlans.test.ts` to prove the planner output stays stable even if `Math.random()` changes; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `utils/tonightMockPlans.ts`, `hooks/useTonightController.ts`, `utils/tonightScreen.ts`, `tests/tonightMockPlans.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Keep temporary planner sample catalogs in a dedicated helper module and make sample venue selection derive from stable inputs so shared copy/type modules stop accumulating mock-behavior logic and nondeterminism.
+- Verification: `npx.cmd tsx --test tests/tonightMockPlans.test.ts tests/tonightScreen.test.ts tests/tonightHelpers.test.ts tests/tonightPlanner.test.ts tests/tonightVote.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the long-tail support cleanup on the next oversized shared helper or support component, with `utils/favorites.ts` and the remaining Saved support surfaces now stronger candidates than the already-thin tab controllers.
