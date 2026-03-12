@@ -189,6 +189,7 @@ Status:
   - `docs/05-dev-ops/quality_guardrail_plan.md`
 - Progress:
   - Home, Saved, and Profile platform wrappers are already collapsed
+  - Saved now uses shared data/persistence helpers and extracted render components instead of one large route-local implementation
   - Tonight now has one shared route implementation with extracted planner/vote/event rendering, data loaders, and helper logic
   - Explore now has one shared route implementation with extracted route metadata, filter helpers, data loaders, and focused render components under `components/explore/`
 
@@ -313,6 +314,7 @@ Status:
 - shared Home/Profile/Saved route wrappers replacing duplicated iOS shells
 - shared Tonight planner helpers under `utils/tonightScreen.ts`
 - shared Tonight route plus extracted helper/data/render surfaces under `utils/tonightHelpers.ts`, `utils/tonightData.ts`, and `components/tonight/`
+- shared Saved route plus extracted helper/data/render surfaces under `utils/savedData.ts`, `utils/savedScreen.ts`, `utils/savedEventsStorage.ts`, and `components/saved/`
 - shared Explore route plus extracted helper surfaces under `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
 - shared Explore render sections under `components/explore/` plus helper regression coverage in `tests/exploreHelpers.test.ts`
 - Expo Router helper-route cleanup
@@ -365,7 +367,7 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next largest shared routes now that Explore and Tonight are both collapsed into shared helper/component structures
+1. continue screen simplification and route stability on the next largest shared route, with Profile now the clearest remaining target after Explore, Tonight, and Saved
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

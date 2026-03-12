@@ -91,6 +91,8 @@
    Do instead: when a source defines `scrape_config.list_url`, `list_urls`, or `category_urls`, fetch those configured pages and carry the fetched page URL into raw candidate provenance and scrape logs.
 8. **[2026-03-12] Pure error-tag tests should not import the full app client graph**
    Do instead: keep reusable auth/error tagging in tiny helper modules so Node-side tests can verify them without pulling in `react-native` or the Supabase client bootstrap.
+9. **[2026-03-12] Keep route-level persistence out of large tab screens**
+   Do instead: when a tab still owns AsyncStorage or Supabase reads directly, move that loading and mutation path into `utils/<surface>Data.ts` or `utils/<surface>*Storage.ts` before splitting the render tree.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

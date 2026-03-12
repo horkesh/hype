@@ -37,12 +37,23 @@ If you are continuing work on the home machine, resume with this exact focus:
 Most relevant changed surfaces:
 - `app/(tabs)/saved.tsx`
 - `app/(tabs)/saved.ios.tsx`
+- `components/saved/SavedTabs.tsx`
+- `components/saved/SavedVenueCard.tsx`
+- `components/saved/SavedEventCard.tsx`
+- `components/saved/SavedBadgeCard.tsx`
+- `components/saved/SavedEmptyState.tsx`
+- `components/saved/SwipeDeleteAction.tsx`
 - `app/(tabs)/profile.tsx`
 - `app/(tabs)/profile.ios.tsx`
 - `app/venue/[id].tsx`
 - `utils/favorites.ts`
 - `utils/favoritesErrors.ts`
+- `utils/savedData.ts`
+- `utils/savedScreen.ts`
+- `utils/savedEventsStorage.ts`
 - `tests/favorites.test.ts`
+- `tests/savedScreen.test.ts`
+- `tests/savedEventsStorage.test.ts`
 - `utils/profileTaste.ts`
 - `utils/authSession.ts`
 - `tests/profileTaste.test.ts`
@@ -160,7 +171,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight now on one shared implementation with extracted data/helpers/render sections, and Explore now on one shared implementation with extracted constants/filter/data helpers plus extracted render sections under `components/explore/`
+- shared-screen simplification across the largest tab routes, with Home and Tonight now on shared implementations, Explore decomposed into shared helper/render layers, and Saved now moved onto shared data/helpers/render sections while Profile remains the next large route target
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -248,6 +259,12 @@ The latest Tonight cleanup pass added four more important outcomes:
 - moved Tonight event loading and venue loading into `utils/tonightData.ts`
 - moved Tonight segment, urgency, ticket, price, and vote-selection helpers into `utils/tonightHelpers.ts`
 - decomposed Tonight rendering into focused UI sections under `components/tonight/` and added helper regression coverage in `tests/tonightHelpers.test.ts`
+
+The latest Saved cleanup pass added four more important outcomes:
+- moved Saved venue, event, and badge loading out of the route and into `utils/savedData.ts`
+- moved Saved screen types, formatting helpers, and event-id parsing into `utils/savedScreen.ts` and `utils/savedEventsStorage.ts`
+- decomposed Saved rendering into focused UI sections under `components/saved/`
+- added targeted regression coverage for Saved helper behavior in `tests/savedScreen.test.ts` and `tests/savedEventsStorage.test.ts`
 
 New regression coverage now exists for:
 - weather mood merging
