@@ -896,3 +896,11 @@ Copy this block when adding a new work entry.
 - Decisions: Continue fixing diacritics at the source-of-truth helper layer; when a component only needs a `language` prop for one string, move that string to the helper and pass it as a display prop instead.
 - Verification: `npm test` (117/117); `npx.cmd expo export -p web` succeeded
 - Follow-up: The remaining diacritic and encoding long-tail is now very thin across utils and components; next priorities should shift to live runtime verification (favorites, taste profile, auth refresh) and then frontend/backend alignment work.
+
+### 2026-03-12 (home machine session, continued)
+- Goal: Fix a real schema alignment bug found during the frontend/backend audit.
+- Changes made: Fixed the Home event card venue join type from `Array<{name}>` to `{name} | null` in `homeData.ts`, and updated `homeEventsSection.ts` to use `event.venues?.name` instead of `event.venues?.[0]?.name`. Supabase returns a single object for many-to-one joins, so the array accessor was silently failing — home event cards were not showing venue names from the join.
+- Files touched: `utils/homeData.ts`, `utils/homeEventsSection.ts`, `tests/homeEventsSection.test.ts`
+- Decisions: When Supabase returns a many-to-one join (like `venues(name)` on events), always type it as `{name} | null`, not `Array<{name}>`. The rest of the codebase was already correct; this was the only outlier.
+- Verification: `npm test` (117/117); web build still green
+- Follow-up: No remaining array-style venue join accessors found; the schema alignment audit shows adapters are covering the known field-name mismatches correctly.
