@@ -10,7 +10,7 @@ export default function TabLayout() {
   const tabs: TabBarItem[] = [
     {
       name: '(home)',
-      route: '/(tabs)/(home)/',
+      route: '/(tabs)/(home)',
       icon: 'home',
       label: t('home'),
     },

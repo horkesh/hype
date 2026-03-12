@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -34,7 +34,7 @@ const MOOD_COLORS: Record<string, { light: string; dark: string }> = {
 };
 
 export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChipProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
@@ -52,11 +52,41 @@ export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChip
   });
 
   const moodColor = MOOD_COLORS[moodId] || { light: 'rgba(0, 0, 0, 0.05)', dark: 'rgba(255, 255, 255, 0.1)' };
-  const backgroundColor = colors.theme === 'dark' ? moodColor.dark : moodColor.light;
+  const backgroundColor = isDark ? moodColor.dark : moodColor.light;
 
   const selectedBackgroundColor = colors.accent;
   const selectedTextColor = '#FFFFFF';
   const normalTextColor = colors.text;
+  const chipStyle = [
+    styles.chip,
+    {
+      backgroundColor: isSelected ? selectedBackgroundColor : backgroundColor,
+      borderColor: isSelected ? colors.accent : 'transparent',
+    },
+  ];
+
+  if (Platform.OS === 'web') {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        style={chipStyle}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.emoji}>{emoji}</Text>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: isSelected ? selectedTextColor : normalTextColor,
+              fontFamily: isSelected ? 'DMSans_700Bold' : 'DMSans_500Medium',
+            },
+          ]}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
 
   return (
     <AnimatedTouchable
@@ -64,12 +94,8 @@ export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChip
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={[
-        styles.chip,
         animatedStyle,
-        {
-          backgroundColor: isSelected ? selectedBackgroundColor : backgroundColor,
-          borderColor: isSelected ? colors.accent : 'transparent',
-        },
+        chipStyle,
       ]}
       activeOpacity={0.8}
     >

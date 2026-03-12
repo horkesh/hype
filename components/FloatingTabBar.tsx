@@ -104,6 +104,7 @@ export default function FloatingTabBar({
   const pathname = usePathname();
   const theme = useTheme();
   const animatedValue = useSharedValue(0);
+  const pathnameString = typeof pathname === 'string' ? pathname : '';
 
   const activeTabIndex = React.useMemo(() => {
     let bestMatch = -1;
@@ -112,13 +113,15 @@ export default function FloatingTabBar({
     tabs.forEach((tab, index) => {
       let score = 0;
 
-      if (pathname === tab.route) {
+      const routePath = typeof tab.route === 'string' ? tab.route : tab.route.pathname;
+
+      if (pathnameString === routePath) {
         score = 100;
-      } else if (pathname.startsWith(tab.route as string)) {
+      } else if (pathnameString.startsWith(routePath)) {
         score = 80;
-      } else if (pathname.includes(tab.name)) {
+      } else if (pathnameString.includes(tab.name)) {
         score = 60;
-      } else if (tab.route.includes('/(tabs)/') && pathname.includes(tab.route.split('/(tabs)/')[1])) {
+      } else if (routePath.includes('/(tabs)/') && pathnameString.includes(routePath.split('/(tabs)/')[1])) {
         score = 40;
       }
 
@@ -129,7 +132,7 @@ export default function FloatingTabBar({
     });
 
     return bestMatch >= 0 ? bestMatch : 0;
-  }, [pathname, tabs]);
+  }, [pathnameString, tabs]);
 
   React.useEffect(() => {
     if (activeTabIndex >= 0) {
@@ -139,7 +142,7 @@ export default function FloatingTabBar({
         mass: 1,
       });
     }
-  }, [activeTabIndex, animatedValue]);
+  }, [activeTabIndex]);
 
   const handleTabPress = (route: Href) => {
     router.push(route);

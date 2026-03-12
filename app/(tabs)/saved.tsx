@@ -10,6 +10,7 @@ import {
   Image,
   ImageSourcePropType,
   Platform,
+  Alert,
 } from 'react-native';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
@@ -23,6 +24,14 @@ import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated
 import * as Haptics from 'expo-haptics';
 import { IconSymbol } from '@/components/IconSymbol';
 import { normalizeVenueRows } from '@/utils/errorLogger';
+import { resolveImageSource } from '@/utils/imageSource';
+import {
+  getCurrentUserId,
+  getFavoriteVenueIdsForCurrentUser,
+  isFavoritesAuthRequiredError,
+  removeVenueFavoriteForCurrentUser,
+} from '@/utils/favorites';
+import { subscribeToAuthChanges } from '@/utils/authSession';
 
 interface Venue {
   id: string;
@@ -82,12 +91,6 @@ const MOODS: { [key: string]: string } = {
 // Demo earned badges (for demo purposes)
 const DEMO_EARNED_BADGES = ['kafedzija', 'explorer', 'hype_og'];
 
-function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
-  if (!source) return { uri: '' };
-  if (typeof source === 'string') return { uri: source };
-  return source as ImageSourcePropType;
-}
-
 export default function SavedScreen() {
   const { t, language } = useApp();
   const { colors } = useTheme();
@@ -98,6 +101,7 @@ export default function SavedScreen() {
   const [savedEvents, setSavedEvents] = useState<Event[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   const loadSavedItems = useCallback(async () => {
     console.log('Loading saved items for tab:', activeTab);
@@ -121,15 +125,19 @@ export default function SavedScreen() {
     loadSavedItems();
   }, [loadSavedItems]);
 
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthChanges(() => {
+      loadSavedItems();
+    });
+
+    return unsubscribe;
+  }, [loadSavedItems]);
+
   const loadSavedVenues = async () => {
     try {
-      const savedIds = await AsyncStorage.getItem('saved_venues');
-      if (!savedIds) {
-        setSavedVenues([]);
-        return;
-      }
-
-      const ids = JSON.parse(savedIds);
+      const userId = await getCurrentUserId();
+      setIsSignedIn(Boolean(userId));
+      const ids = await getFavoriteVenueIdsForCurrentUser();
       if (ids.length === 0) {
         setSavedVenues([]);
         return;
@@ -209,15 +217,14 @@ export default function SavedScreen() {
   const removeVenue = async (venueId: string) => {
     console.log('Removing venue:', venueId);
     try {
-      const savedIds = await AsyncStorage.getItem('saved_venues');
-      if (savedIds) {
-        let ids = JSON.parse(savedIds);
-        ids = ids.filter((id: string) => id !== venueId);
-        await AsyncStorage.setItem('saved_venues', JSON.stringify(ids));
-        setSavedVenues(prev => prev.filter(v => v.id !== venueId));
-      }
+      await removeVenueFavoriteForCurrentUser(venueId);
+      setSavedVenues(prev => prev.filter(v => v.id !== venueId));
     } catch (error) {
       console.error('Error removing venue:', error);
+      if (isFavoritesAuthRequiredError(error)) {
+        setIsSignedIn(false);
+        Alert.alert('Sign in required', 'Please sign in from Profile to manage saved venues.');
+      }
     }
   };
 
@@ -327,7 +334,7 @@ export default function SavedScreen() {
       >
         <TouchableOpacity
           onPress={() => handleVenueTap(venue.id)}
-          style={[styles.card, { backgroundColor: colors.cardBackground }]}
+          style={[styles.card, { backgroundColor: colors.card }]}
         >
           <Image source={imageSource} style={styles.cardImage} />
           <View style={styles.cardContent}>
@@ -377,7 +384,7 @@ export default function SavedScreen() {
       >
         <TouchableOpacity
           onPress={() => handleEventTap(event.id)}
-          style={[styles.card, { backgroundColor: colors.cardBackground }]}
+          style={[styles.card, { backgroundColor: colors.card }]}
         >
           <Image source={imageSource} style={styles.cardImage} />
           <View style={styles.cardContent}>
@@ -416,7 +423,7 @@ export default function SavedScreen() {
         style={[
           styles.badgeCard,
           {
-            backgroundColor: isEarned ? colors.cardBackground : colors.background,
+            backgroundColor: isEarned ? colors.card : colors.background,
             opacity: isEarned ? 1 : 0.6,
           }
         ]}
@@ -436,7 +443,7 @@ export default function SavedScreen() {
           </View>
         ) : (
           <View style={styles.progressContainer}>
-            <View style={[styles.progressBar, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.progressBar, { backgroundColor: colors.card }]}>
               <View
                 style={[
                   styles.progressFill,
@@ -459,18 +466,29 @@ export default function SavedScreen() {
     const isVenuesTab = activeTab === 'venues';
     const isEventsTab = activeTab === 'events';
     const emoji = isVenuesTab ? '❤️' : isEventsTab ? '🎟️' : '🏅';
+    const isSignedOutVenuesState = isVenuesTab && !isSignedIn;
     const title = isVenuesTab 
-      ? 'Nema sačuvanih mjesta' 
+      ? (isSignedOutVenuesState ? 'Prijavi se da sačuvaš mjesta' : 'Nema sačuvanih mjesta')
       : isEventsTab 
       ? 'Nema sačuvanih događaja'
       : 'Nema bedževa';
     const subtitle = isVenuesTab 
-      ? 'Sačuvaj svoja omiljena mjesta da ih lako pronađeš kasnije'
+      ? (isSignedOutVenuesState
+        ? 'Otvori Profil i prijavi se da bi favoriti bili sačuvani na svim uređajima.'
+        : 'Sačuvaj svoja omiljena mjesta da ih lako pronađeš kasnije')
       : isEventsTab
       ? 'Sačuvaj događaje koji te zanimaju'
       : 'Osvoji bedževe kroz aktivnost u aplikaciji';
-    const buttonText = isVenuesTab ? 'Istraži mjesta' : isEventsTab ? 'Pogledaj događaje' : 'Istraži grad';
-    const buttonRoute = isVenuesTab ? '/(tabs)/explore' : isEventsTab ? '/(tabs)/tonight' : '/(tabs)/explore';
+    const buttonText = isVenuesTab
+      ? (isSignedOutVenuesState ? 'Otvori Profil' : 'Istraži mjesta')
+      : isEventsTab
+      ? 'Pogledaj događaje'
+      : 'Istraži grad';
+    const buttonRoute = isVenuesTab
+      ? (isSignedOutVenuesState ? '/(tabs)/profile' : '/(tabs)/explore')
+      : isEventsTab
+      ? '/(tabs)/tonight'
+      : '/(tabs)/explore';
 
     return (
       <View style={styles.emptyState}>

@@ -9,13 +9,19 @@ import {
   TextInput,
   ActivityIndicator,
   Modal,
+  Alert,
 } from 'react-native';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { HypeHeader } from '@/components/HypeHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/integrations/supabase/client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getTasteMoodsForCurrentUser,
+  isProfileTasteAuthRequiredError,
+  saveTasteMoodsForCurrentUser,
+} from '@/utils/profileTaste';
+import { subscribeToAuthChanges } from '@/utils/authSession';
 
 const MOODS = [
   { id: 'party', emoji: '🎉', label_bs: 'Party', label_en: 'Party' },
@@ -54,7 +60,20 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     checkUser();
-    loadTasteProfile();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthChanges((session) => {
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        loadTasteProfile();
+      } else {
+        setSelectedMoods([]);
+      }
+    });
+
+    return unsubscribe;
   }, []);
 
   const checkUser = async () => {
@@ -63,6 +82,11 @@ export default function ProfileScreen() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      if (user) {
+        await loadTasteProfile();
+      } else {
+        setSelectedMoods([]);
+      }
     } catch (error) {
       console.error('Error checking user:', error);
     } finally {
@@ -72,10 +96,8 @@ export default function ProfileScreen() {
 
   const loadTasteProfile = async () => {
     try {
-      const saved = await AsyncStorage.getItem('taste_profile');
-      if (saved) {
-        setSelectedMoods(JSON.parse(saved));
-      }
+      const moods = await getTasteMoodsForCurrentUser();
+      setSelectedMoods(moods);
     } catch (error) {
       console.error('Error loading taste profile:', error);
     }
@@ -83,19 +105,35 @@ export default function ProfileScreen() {
 
   const saveTasteProfile = async (moods: string[]) => {
     try {
-      await AsyncStorage.setItem('taste_profile', JSON.stringify(moods));
+      await saveTasteMoodsForCurrentUser(moods);
       console.log('Taste profile saved:', moods);
     } catch (error) {
       console.error('Error saving taste profile:', error);
+      if (isProfileTasteAuthRequiredError(error)) {
+        Alert.alert('Sign in required', 'Please sign in to save your taste profile.');
+      }
+      throw error;
     }
   };
 
-  const toggleMood = (moodId: string) => {
+  const toggleMood = async (moodId: string) => {
     const newMoods = selectedMoods.includes(moodId)
       ? selectedMoods.filter(id => id !== moodId)
       : [...selectedMoods, moodId];
+
+    if (!user) {
+      Alert.alert('Sign in required', 'Please sign in to personalize your taste profile.');
+      return;
+    }
+
+    const previousMoods = selectedMoods;
     setSelectedMoods(newMoods);
-    saveTasteProfile(newMoods);
+
+    try {
+      await saveTasteProfile(newMoods);
+    } catch (error) {
+      setSelectedMoods(previousMoods);
+    }
   };
 
   const handleSignIn = async () => {
@@ -114,6 +152,7 @@ export default function ProfileScreen() {
       }
 
       setUser(data.user);
+      await loadTasteProfile();
       setEmail('');
       setPassword('');
     } catch (error: any) {
@@ -156,6 +195,7 @@ export default function ProfileScreen() {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      setSelectedMoods([]);
       setShowSignOutModal(false);
     } catch (error) {
       console.error('Sign out error:', error);
@@ -202,7 +242,7 @@ export default function ProfileScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               {isSignUp ? 'Registracija' : 'Prijava'}
             </Text>
-            <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
               <TextInput
                 style={[styles.input, { backgroundColor: colors.background, color: colors.text }]}
                 placeholder="Email"
@@ -243,7 +283,7 @@ export default function ProfileScreen() {
         ) : (
           <View style={styles.userSection}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Nalog</Text>
-            <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
               <Text style={[styles.emailText, { color: colors.text }]}>{user.email}</Text>
               
               <View style={styles.badgesSection}>
@@ -291,7 +331,7 @@ export default function ProfileScreen() {
                   style={[
                     styles.moodChip,
                     {
-                      backgroundColor: isSelected ? colors.accent : colors.cardBackground,
+                      backgroundColor: isSelected ? colors.accent : colors.card,
                       borderColor: colors.accent,
                     }
                   ]}
@@ -314,7 +354,7 @@ export default function ProfileScreen() {
             Postavke
           </Text>
           
-          <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>
               Jezik / Language
             </Text>
@@ -356,7 +396,7 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>
               Tema / Theme
             </Text>
@@ -388,7 +428,7 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>
               O aplikaciji
             </Text>
@@ -406,7 +446,7 @@ export default function ProfileScreen() {
         onRequestClose={() => setShowSignOutModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>
               Odjavi se?
             </Text>

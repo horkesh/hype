@@ -13,7 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 
 interface SkeletonLoaderProps {
   width?: number | string;
-  height?: number;
+  height?: number | string;
   borderRadius?: number;
   style?: any;
 }
@@ -29,7 +29,7 @@ export function SkeletonLoader({
 
   useEffect(() => {
     opacity.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
-  }, [opacity]);
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

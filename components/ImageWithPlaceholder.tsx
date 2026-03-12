@@ -1,21 +1,15 @@
 
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, ImageSourcePropType, Text } from 'react-native';
+import { View, Image, StyleSheet, ImageSourcePropType, Text, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SkeletonLoader } from './SkeletonLoader';
+import { resolveImageSource } from '@/utils/imageSource';
 
 interface ImageWithPlaceholderProps {
   source: string | number | ImageSourcePropType | null | undefined;
   style?: any;
   categoryEmoji?: string;
   borderRadius?: number;
-}
-
-function resolveImageSource(source: string | number | ImageSourcePropType | null | undefined): ImageSourcePropType | null {
-  if (!source) return null;
-  if (typeof source === 'string') return { uri: source };
-  if (typeof source === 'number') return source as ImageSourcePropType;
-  return source as ImageSourcePropType;
 }
 
 export function ImageWithPlaceholder({
@@ -39,6 +33,17 @@ export function ImageWithPlaceholder({
           style={StyleSheet.absoluteFill}
         />
         <Text style={styles.emoji}>{categoryEmoji}</Text>
+      </View>
+    );
+  }
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[style, { borderRadius }]}>
+        <Image
+          source={resolvedSource}
+          style={[style, { borderRadius }]}
+        />
       </View>
     );
   }
