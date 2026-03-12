@@ -158,7 +158,9 @@ Most relevant changed surfaces:
 - `components/tonight/TonightPlannerModal.tsx`
 - `components/tonight/TonightPlannerSetup.tsx`
 - `components/tonight/TonightPlannerResults.tsx`
+- `components/tonight/TonightModalStack.tsx`
 - `components/tonight/TonightVoteModal.tsx`
+- `components/tonight/TonightVoteEventCard.tsx`
 - `components/tonight/TonightVoteSetup.tsx`
 - `components/tonight/TonightVoteResults.tsx`
 - `components/tonight/TonightVoteResultCard.tsx`
@@ -347,6 +349,11 @@ The latest Tonight vote cleanup pass added four more important outcomes:
 - moved selected-event-to-result-row mapping and vote-creation gating into `utils/tonightVote.ts` so the vote flow now has a testable helper layer instead of inline modal logic
 - kept the modal itself as a thin header and state-switch shell, with the create-vote path and vote-results path rendered by dedicated subcomponents
 - added targeted regression coverage in `tests/tonightVote.test.ts` so vote-result shaping and the two-event create threshold stay stable while the remaining Tonight support cleanup continues
+
+The latest Tonight shell cleanup pass added three more important outcomes:
+- split the remaining modal composition out of `components/tonight/TonightScreenContent.tsx` into `components/tonight/TonightModalStack.tsx`
+- moved the vote-only event-card adapter into `components/tonight/TonightVoteEventCard.tsx` so the screen-content shell no longer owns a large inline render function
+- left `TonightScreenContent` focused on action chrome, segment tabs, event-list framing, and modal visibility wiring instead of mixing all screen-level sub-surfaces together
 
 The latest Saved cleanup pass added four more important outcomes:
 - moved Saved venue, event, and badge loading out of the route and into `utils/savedData.ts`

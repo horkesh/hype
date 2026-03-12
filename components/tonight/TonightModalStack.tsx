@@ -1,44 +1,35 @@
 import React from 'react';
 
-import { TonightActionButtons } from '@/components/tonight/TonightActionButtons';
-import { TonightEventList } from '@/components/tonight/TonightEventList';
-import { TonightModalStack } from '@/components/tonight/TonightModalStack';
-import { TonightSegmentTabs } from '@/components/tonight/TonightSegmentTabs';
-import { AIPlan, Event, MoodId, TimeSegment, TimeSegmentConfig } from '@/utils/tonightScreen';
+import { TonightPlannerModal } from '@/components/tonight/TonightPlannerModal';
+import { TonightVoteEventCard } from '@/components/tonight/TonightVoteEventCard';
+import { TonightVoteModal } from '@/components/tonight/TonightVoteModal';
+import { AIPlan, Event, MoodId } from '@/utils/tonightScreen';
 
-interface TonightScreenContentProps {
+interface TonightModalStackProps {
   activePlan: AIPlan | null;
-  activeSegment: TimeSegment;
   budget: number;
   cardColor: string;
   colorsText: string;
-  emptyStateMessage: string;
   eventMetaSeparator: string;
   events: Event[];
   generatingPlan: boolean;
   groupSize: number;
   isBosnian: boolean;
-  loading: boolean;
   onClosePlanner: () => void;
   onCloseVote: () => void;
   onCreateVote: () => void;
   onEventPress: (eventId: string) => void;
   onGeneratePlan: () => void;
   onNextPlan: () => void;
-  onOpenPlanner: () => void;
   onOpenTicket: (url: string) => void;
-  onOpenVote: () => void;
-  onRefresh: () => void;
   onSavePlan: () => void;
   onSelectGroupSize: (value: number) => void;
   onSelectMood: (value: MoodId) => void;
-  onSelectSegment: (segment: TimeSegment) => void;
   onSetBudget: (value: number) => void;
   onSharePlan: () => void;
   onShareVote: () => void;
   onToggleSelection: (eventId: string) => void;
   onVote: (eventId: string) => void;
-  plannerButtonText: string;
   plannerLabels: {
     budget: string;
     close: string;
@@ -51,7 +42,6 @@ interface TonightScreenContentProps {
     title: string;
     total: string;
   };
-  refreshing: boolean;
   renderEventProps: (event: Event) => {
     eventTime: string;
     eventTitle: string;
@@ -61,10 +51,8 @@ interface TonightScreenContentProps {
     urgencyBadge: { label: string; color: string } | null;
     venueName: string;
   };
-  secondaryButtonText: string;
   selectedEvents: string[];
   selectedMood: MoodId | null;
-  segments: TimeSegmentConfig[];
   showPlannerModal: boolean;
   showVoteModal: boolean;
   textSecondaryColor: string;
@@ -84,121 +72,93 @@ interface TonightScreenContentProps {
   votes: Record<string, number>;
 }
 
-export function TonightScreenContent({
+export function TonightModalStack({
   activePlan,
-  activeSegment,
   budget,
   cardColor,
   colorsText,
-  emptyStateMessage,
   eventMetaSeparator,
   events,
   generatingPlan,
   groupSize,
   isBosnian,
-  loading,
   onClosePlanner,
   onCloseVote,
   onCreateVote,
   onEventPress,
   onGeneratePlan,
   onNextPlan,
-  onOpenPlanner,
   onOpenTicket,
-  onOpenVote,
-  onRefresh,
   onSavePlan,
   onSelectGroupSize,
   onSelectMood,
-  onSelectSegment,
   onSetBudget,
   onSharePlan,
   onShareVote,
   onToggleSelection,
   onVote,
-  plannerButtonText,
   plannerLabels,
-  refreshing,
   renderEventProps,
-  secondaryButtonText,
   selectedEvents,
   selectedMood,
-  segments,
   showPlannerModal,
   showVoteModal,
   textSecondaryColor,
   voteLabels,
   voteLink,
   votes,
-}: TonightScreenContentProps) {
+}: TonightModalStackProps) {
   return (
     <>
-      <TonightActionButtons
-        cardColor={cardColor}
-        plannerButtonText={plannerButtonText}
-        secondaryButtonText={secondaryButtonText}
-        onOpenPlanner={onOpenPlanner}
-        onOpenVote={onOpenVote}
-      />
-
-      <TonightSegmentTabs
-        activeSegment={activeSegment}
-        cardColor={cardColor}
-        colorsText={colorsText}
-        segments={segments}
-        onSelectSegment={onSelectSegment}
-      />
-
-      <TonightEventList
-        cardColor={cardColor}
-        colorsText={colorsText}
-        emptyStateMessage={emptyStateMessage}
-        eventMetaSeparator={eventMetaSeparator}
-        events={events}
-        loading={loading}
-        refreshing={refreshing}
-        showSelectionControls={showVoteModal && !voteLink}
-        textSecondaryColor={textSecondaryColor}
-        onEventPress={onEventPress}
-        onOpenTicket={onOpenTicket}
-        onRefresh={onRefresh}
-        onToggleSelection={onToggleSelection}
-        renderEventProps={renderEventProps}
-      />
-
-      <TonightModalStack
+      <TonightPlannerModal
         activePlan={activePlan}
+        backgroundColor="#FFFFFF"
         budget={budget}
         cardColor={cardColor}
+        closeLabel={plannerLabels.close}
         colorsText={colorsText}
-        eventMetaSeparator={eventMetaSeparator}
-        events={events}
         generatingPlan={generatingPlan}
         groupSize={groupSize}
         isBosnian={isBosnian}
-        onClosePlanner={onClosePlanner}
-        onCloseVote={onCloseVote}
-        onCreateVote={onCreateVote}
-        onEventPress={onEventPress}
+        onClose={onClosePlanner}
         onGeneratePlan={onGeneratePlan}
         onNextPlan={onNextPlan}
-        onOpenTicket={onOpenTicket}
         onSavePlan={onSavePlan}
         onSelectGroupSize={onSelectGroupSize}
         onSelectMood={onSelectMood}
         onSetBudget={onSetBudget}
         onSharePlan={onSharePlan}
-        onShareVote={onShareVote}
-        onToggleSelection={onToggleSelection}
-        onVote={onVote}
         plannerLabels={plannerLabels}
-        renderEventProps={renderEventProps}
-        selectedEvents={selectedEvents}
         selectedMood={selectedMood}
-        showPlannerModal={showPlannerModal}
-        showVoteModal={showVoteModal}
+        visible={showPlannerModal}
+      />
+
+      <TonightVoteModal
+        cardColor={cardColor}
+        closeLabel={voteLabels.close}
+        colorsText={colorsText}
+        events={events}
+        labels={voteLabels}
+        onClose={onCloseVote}
+        onCreateVote={onCreateVote}
+        onShareVote={onShareVote}
+        onVote={onVote}
+        renderEventCard={(event) => (
+          <TonightVoteEventCard
+            cardColor={cardColor}
+            colorsText={colorsText}
+            event={event}
+            eventMetaSeparator={eventMetaSeparator}
+            onEventPress={onEventPress}
+            onOpenTicket={onOpenTicket}
+            onToggleSelection={onToggleSelection}
+            renderEventProps={renderEventProps}
+            textSecondaryColor={textSecondaryColor}
+          />
+        )}
+        selectedEvents={selectedEvents}
         textSecondaryColor={textSecondaryColor}
-        voteLabels={voteLabels}
+        visible={showVoteModal}
         voteLink={voteLink}
         votes={votes}
       />
