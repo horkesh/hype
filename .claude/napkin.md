@@ -69,6 +69,8 @@
    Do instead: when planner or filter modals are still bulky, move shared header chrome, option grids, grouped action rows, and stop/result list markup into `components/<surface>/` plus tiny `utils/<surface>*.ts` view-model helpers so the modal file only chooses which section to show.
 12. **[2026-03-12] Encoding cleanup should happen at the source-of-truth helper or context layer**
    Do instead: when mojibake shows up in rebuilt surfaces, fix the string tables, config helpers, or shared formatting modules first, then update tests to assert the cleaned output instead of patching leaf components one by one.
+13. **[2026-03-12] Tab-route labels and empty states should live in helper modules, not the route file**
+   Do instead: when a tab screen still hardcodes tab labels, empty-state copy, or route-target decisions inline, move that state copy into `utils/<surface>Screen.ts` and keep the route focused on loading, auth refresh, and navigation callbacks.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

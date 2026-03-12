@@ -214,6 +214,7 @@ Status:
 - the planned broad frontend cleanup wave is complete; follow-on work should now be narrower consistency cleanup, future regression prevention, and remaining non-rebuilt-surface cleanup instead of another cross-app structural sweep
 - shared translation and helper-owned config cleanup has started in `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts`, with matching regression assertions added so encoding fixes land at the source layer instead of in leaf screens
 - the old Natively-era adapter workaround has been removed from `utils/errorLogger.ts`, with Explore, Saved, and Venue detail normalization callers now back on `utils/dataAdapters.ts` and covered by direct adapter tests
+- Saved tab labels and empty-state routing/copy now live in `utils/savedScreen.ts` plus `components/saved/SavedTabContent.tsx`, so the route is back to orchestration and the touched Saved copy is helper-owned
 
 ## Backlog
 
@@ -306,6 +307,7 @@ Status:
   - app-wide translation strings in `contexts/AppContext.tsx` are now cleaned
   - helper-owned Profile and Saved config in `utils/profileScreen.ts` and `utils/savedScreen.ts` now expose clean emoji and currency output
   - regression coverage now asserts clean helper output in `tests/profileScreen.test.ts` and `tests/savedScreen.test.ts`
+  - Saved tab labels and empty-state copy now also live in `utils/savedScreen.ts`, with matching helper assertions and route rendering moved into `components/saved/SavedTabContent.tsx`
 
 #### B13. Adapter and compatibility cleanup
 

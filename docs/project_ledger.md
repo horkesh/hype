@@ -793,3 +793,11 @@ Copy this block when adding a new work entry.
 - Decisions: Once a tooling constraint is gone, temporary compatibility logic should collapse back into the canonical helper module immediately, with direct regression tests added there instead of leaving route behavior to prove adapter correctness indirectly.
 - Verification: `npx.cmd tsx --test tests/dataAdapters.test.ts tests/venueDetailScreen.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the evidence-driven post-cleanup sweep on the next remaining large route/controller surface, with `app/(tabs)/explore.tsx` and the other large shared tab routes still the strongest candidates.
+
+### 2026-03-12 21:10
+- Goal: Thin the remaining Saved route shell while cleaning another pocket of damaged tab and empty-state copy.
+- Changes made: Moved Saved tab labels plus empty-state copy/routing into `utils/savedScreen.ts`; added `components/saved/SavedTabContent.tsx` to own loading, empty-state, and card-list rendering; rewrote `app/(tabs)/saved.tsx` as a lighter orchestration route; rewrote `components/saved/SavedTabs.tsx` to accept helper-owned localized tab labels; expanded `tests/savedScreen.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `app/(tabs)/saved.tsx`, `components/saved/SavedTabContent.tsx`, `components/saved/SavedTabs.tsx`, `utils/savedScreen.ts`, `tests/savedScreen.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a tab route still hardcodes tab labels, empty-state copy, and route-target decisions inline, move that copy into the helper layer and extract a dedicated content surface so the route only owns loading, auth refresh, and navigation callbacks.
+- Verification: `npx.cmd tsx --test tests/savedScreen.test.ts tests/appRoutes.test.ts tests/dataAdapters.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the controller-thinning wave on the next remaining large tab route, with `app/(tabs)/explore.tsx` still the clearest candidate.

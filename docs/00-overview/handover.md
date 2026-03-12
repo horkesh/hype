@@ -48,6 +48,7 @@ Most relevant changed surfaces:
 - `components/saved/SavedEventCard.tsx`
 - `components/saved/SavedBadgeCard.tsx`
 - `components/saved/SavedEmptyState.tsx`
+- `components/saved/SavedTabContent.tsx`
 - `components/saved/SwipeDeleteAction.tsx`
 - `app/(tabs)/profile.tsx`
 - `app/(tabs)/profile.ios.tsx`
@@ -459,6 +460,11 @@ The latest adapter cleanup pass added three more important outcomes:
 - removed the old Natively-era normalization workaround from `utils/errorLogger.ts`, leaving that module focused on runtime log forwarding instead of UI data compatibility
 - moved Explore, Saved, and Venue detail normalization back onto the canonical `utils/dataAdapters.ts` module
 - added `tests/dataAdapters.test.ts` so the shared venue and daily-special adapter layer now has direct regression coverage instead of being validated only indirectly through route tests
+
+The latest Saved cleanup pass added three more important outcomes:
+- moved Saved tab labels and empty-state copy into `utils/savedScreen.ts`, cleaning another pocket of damaged user-facing text at the helper layer instead of inside the route
+- added `components/saved/SavedTabContent.tsx`, leaving `app/(tabs)/saved.tsx` focused on loading, auth refresh, and navigation callbacks instead of render branching
+- expanded `tests/savedScreen.test.ts` so localized tab labels and empty-state routing/copy are now covered directly
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

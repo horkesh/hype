@@ -5,7 +5,9 @@ import {
   formatSavedBadgeDate,
   formatSavedEventDate,
   getSavedBadgeProgress,
+  getSavedEmptyState,
   getSavedPriceLevelDisplay,
+  getSavedTabLabels,
   SAVED_MOODS,
 } from '@/utils/savedScreen';
 
@@ -32,4 +34,22 @@ test('formatSavedBadgeDate returns a compact date', () => {
 test('saved mood icons stay clean and stable', () => {
   assert.equal(SAVED_MOODS.party, '\u{1F389}');
   assert.equal(SAVED_MOODS.foodie, '\u{1F37D}');
+});
+
+test('saved tab labels expose clean localized text', () => {
+  const bosnianTabs = getSavedTabLabels(true);
+  const englishTabs = getSavedTabLabels(false);
+
+  assert.equal(bosnianTabs[0]?.label, '\u2764\uFE0F Favoriti');
+  assert.equal(bosnianTabs[1]?.label, '\u{1F39F}\uFE0F Dogadaji');
+  assert.equal(englishTabs[2]?.label, '\u{1F3C6} Badges');
+});
+
+test('saved empty state copy changes for signed-out venue favorites', () => {
+  const signedOutVenues = getSavedEmptyState('venues', false, true);
+  const badges = getSavedEmptyState('badges', true, false);
+
+  assert.equal(signedOutVenues.title, 'Prijavi se da sacuvas mjesta');
+  assert.equal(signedOutVenues.buttonRoute, '/(tabs)/profile');
+  assert.equal(badges.subtitle, 'Earn badges through your activity in the app.');
 });
