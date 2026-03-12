@@ -224,6 +224,7 @@ Status:
 - runtime log muting, stringification, and stack parsing now live in `utils/errorLoggerUtils.ts`, leaving `utils/errorLogger.ts` focused on platform wiring with direct helper coverage in `tests/errorLoggerUtils.test.ts`
 - Saved venue/event/badge card shaping now lives in `utils/savedContent.ts`, leaving `components/saved/SavedTabContent.tsx` focused on loading and empty-state branching with direct helper coverage in `tests/savedContent.test.ts`
 - Explore result and modal branching now lives in `ExploreResultsSection.tsx` and `ExploreModalStack.tsx`, leaving `ExploreScreenBody.tsx` focused on top-level composition over search, controls, results, and modal sections
+- source-layer Bosnian helper copy is now cleaned further in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts`, with adjacent Node-side assertions updated to enforce the corrected output
 
 ## Backlog
 
@@ -325,6 +326,7 @@ Status:
   - favorites legacy-key merge and mirrored-write behavior now has direct Node-side coverage in `tests/favoritesStorage.test.ts`
   - runtime logging mute and stack-shaping behavior now has direct Node-side coverage in `tests/errorLoggerUtils.test.ts`
   - Saved venue/event/badge view-model shaping now has direct Node-side coverage in `tests/savedContent.test.ts`
+  - helper-owned Bosnian diacritic cleanup is now covered directly in the touched Profile, Tonight, Home, and Saved helper tests
 
 #### B13. Adapter and compatibility cleanup
 

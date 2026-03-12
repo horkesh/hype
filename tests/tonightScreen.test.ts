@@ -27,18 +27,18 @@ test('Tonight share text uses cleaned Bosnian copy', () => {
     stops: [{ time: '19:00', venueName: 'Dveri', activity: 'Vecera', price: 60 }],
   });
 
-  assert.match(planText, /Moj plan za veceras/);
+  assert.match(planText, /Moj plan za večeras/);
   assert.match(planText, /Kreirano sa Hype app/);
 
   const voteText = buildTonightVoteShareText('bs', 'https://hype.ba/vote/demo');
-  assert.match(voteText, /Glasaj za veceras!/);
+  assert.match(voteText, /Glasaj za večeras!/);
 });
 
 test('Tonight labels expose clean planner and vote copy', () => {
   const plannerLabels = getTonightPlannerLabels(true, 80, 2);
   const voteLabels = getTonightVoteLabels(false);
 
-  assert.equal(plannerLabels.generate, 'Generisi plan \u2728');
+  assert.equal(plannerLabels.generate, 'Generiši plan \u2728');
   assert.equal(plannerLabels.nextPlan, '\u{1F504} Daj drugi plan');
   assert.equal(voteLabels.shareLink, '\u{1F4E4} Share link');
   assert.equal(voteLabels.votePrompt, 'Select 2-4 events for voting');

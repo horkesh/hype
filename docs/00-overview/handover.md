@@ -36,7 +36,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - keep the runtime logging cleanup on the helper-owned utility path too, with `utils/errorLoggerUtils.ts` now owning mute rules, log-argument stringification, and stack parsing so `utils/errorLogger.ts` can stay focused on platform wiring and log forwarding
 - keep the Saved support cleanup on the helper-owned content path too, with `utils/savedContent.ts` now owning venue/event/badge card shaping so `components/saved/SavedTabContent.tsx` can stay focused on loading, empty-state branching, and delegating to list/grid sections
 - keep the Explore support cleanup on the composition path too, with `ExploreScreenBody.tsx` now delegating result and modal branching into `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` instead of owning both lanes inline
-- treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
+- treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, `utils/savedScreen.ts`, `utils/profileSettings.ts`, `utils/tonightScreen.ts`, and `utils/homeScreenContent.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -105,6 +105,7 @@ Most relevant changed surfaces:
 - `tests/savedSeriesStorage.test.ts`
 - `utils/profileData.ts`
 - `utils/profileScreen.ts`
+- `utils/profileSettings.ts`
 - `utils/savedData.ts`
 - `utils/savedScreen.ts`
 - `utils/savedContent.ts`
@@ -120,6 +121,7 @@ Most relevant changed surfaces:
 - `utils/authSession.ts`
 - `tests/profileTaste.test.ts`
 - `tests/profileScreen.test.ts`
+- `tests/profileSettings.test.ts`
 - `docs/03-architecture/source_types_and_scrape_config.md`
 - `docs/03-architecture/source_priority_and_cadence.md`
 - `docs/03-architecture/dedupe_and_promotion_policy.md`
@@ -536,6 +538,11 @@ The latest Explore body cleanup pass added three more important outcomes:
 - split `components/explore/ExploreScreenBody.tsx` into a thinner composition shell plus `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` for the result and modal branches
 - kept the existing Explore data/filter behavior unchanged while removing the last large inline result-vs-modal branch from the shared screen body
 - confirmed the Explore helper and web-export pack still passes after the composition split, so future cleanup can target narrower copy or helper issues instead of the screen-body shell itself
+
+The latest source-layer copy cleanup pass added three more important outcomes:
+- corrected helper-owned Bosnian strings in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts` so the rebuilt app now uses proper diacritics instead of plain ASCII fallbacks in those shared sources
+- kept the cleanup at the source-of-truth layer rather than patching leaf components, so Profile, Tonight, Home, and Saved inherit the improved copy automatically
+- refreshed the adjacent Node-side tests so the cleaned helper output is now enforced directly in `tests/profileSettings.test.ts`, `tests/tonightScreen.test.ts`, `tests/homeScreenContent.test.ts`, and `tests/savedScreen.test.ts`
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

@@ -116,11 +116,11 @@ export function getSavedTabLabels(isBosnian: boolean): SavedTabLabel[] {
     },
     {
       key: 'events',
-      label: isBosnian ? '\u{1F39F}\uFE0F Dogadaji' : '\u{1F39F}\uFE0F Events',
+      label: isBosnian ? '\u{1F39F}\uFE0F Događaji' : '\u{1F39F}\uFE0F Events',
     },
     {
       key: 'badges',
-      label: isBosnian ? '\u{1F3C6} Bedzevi' : '\u{1F3C6} Badges',
+      label: isBosnian ? '\u{1F3C6} Bedževi' : '\u{1F3C6} Badges',
     },
   ];
 }
@@ -140,9 +140,9 @@ export function getSavedEmptyState(
       buttonText: isBosnian ? 'Otvori profil' : 'Open profile',
       emoji: '\u2764\uFE0F',
       subtitle: isBosnian
-        ? 'Otvori Profil i prijavi se da bi favoriti bili sacuvani na svim uredajima.'
+        ? 'Otvori Profil i prijavi se da bi favoriti bili sačuvani na svim uređajima.'
         : 'Open Profile and sign in so your favorites stay synced across devices.',
-      title: isBosnian ? 'Prijavi se da sacuvas mjesta' : 'Sign in to save places',
+      title: isBosnian ? 'Prijavi se da sačuvaš mjesta' : 'Sign in to save places',
     };
   }
 
@@ -152,21 +152,21 @@ export function getSavedEmptyState(
       buttonText: isBosnian ? 'Istrazi mjesta' : 'Explore places',
       emoji: '\u2764\uFE0F',
       subtitle: isBosnian
-        ? 'Sacuvaj svoja omiljena mjesta da ih lako pronades kasnije.'
+        ? 'Sačuvaj svoja omiljena mjesta da ih lako pronađeš kasnije.'
         : 'Save your favorite places so they are easy to find later.',
-      title: isBosnian ? 'Nema sacuvanih mjesta' : 'No saved places yet',
+      title: isBosnian ? 'Nema sačuvanih mjesta' : 'No saved places yet',
     };
   }
 
   if (isEventsTab) {
     return {
       buttonRoute: '/(tabs)/tonight',
-      buttonText: isBosnian ? 'Pogledaj dogadaje' : 'See events',
+      buttonText: isBosnian ? 'Pogledaj događaje' : 'See events',
       emoji: '\u{1F39F}\uFE0F',
       subtitle: isBosnian
-        ? 'Sacuvaj dogadaje koji te zanimaju.'
+        ? 'Sačuvaj događaje koji te zanimaju.'
         : 'Save events that catch your eye.',
-      title: isBosnian ? 'Nema sacuvanih dogadaja' : 'No saved events yet',
+      title: isBosnian ? 'Nema sačuvanih događaja' : 'No saved events yet',
     };
   }
 
@@ -175,8 +175,8 @@ export function getSavedEmptyState(
     buttonText: isBosnian ? 'Istrazi grad' : 'Explore the city',
     emoji: '\u{1F3C6}',
     subtitle: isBosnian
-      ? 'Osvoji bedzeve kroz aktivnost u aplikaciji.'
+      ? 'Osvoji bedževe kroz aktivnost u aplikaciji.'
       : 'Earn badges through your activity in the app.',
-    title: isBosnian ? 'Nema bedzeva' : 'No badges yet',
+    title: isBosnian ? 'Nema bedževa' : 'No badges yet',
   };
 }

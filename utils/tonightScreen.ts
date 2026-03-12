@@ -63,8 +63,8 @@ export type MoodId =
 
 export const TONIGHT_MOODS: { id: MoodId; emoji: string; label_bs: string; label_en: string }[] = [
   { id: 'date_night', emoji: '\u{1F496}', label_bs: 'Romantika', label_en: 'Date Night' },
-  { id: 'party', emoji: '\u{1F389}', label_bs: 'Zurka', label_en: 'Party' },
-  { id: 'chill', emoji: '\u{1F60C}', label_bs: 'Opusteno', label_en: 'Chill' },
+  { id: 'party', emoji: '\u{1F389}', label_bs: 'Žurka', label_en: 'Party' },
+  { id: 'chill', emoji: '\u{1F60C}', label_bs: 'Opušteno', label_en: 'Chill' },
   { id: 'culture', emoji: '\u{1F3AD}', label_bs: 'Kultura', label_en: 'Culture' },
   { id: 'girlsnight', emoji: '\u{1F46F}', label_bs: 'Girls night', label_en: 'Girls Night' },
   { id: 'outdoor', emoji: '\u{1F333}', label_bs: 'Napolju', label_en: 'Outdoor' },
@@ -73,7 +73,7 @@ export const TONIGHT_MOODS: { id: MoodId; emoji: string; label_bs: string; label
   { id: 'sports', emoji: '\u26BD', label_bs: 'Sport', label_en: 'Sports' },
   { id: 'art', emoji: '\u{1F3A8}', label_bs: 'Umjetnost', label_en: 'Art' },
   { id: 'coffee', emoji: '\u2615', label_bs: 'Kafa', label_en: 'Coffee' },
-  { id: 'drinks', emoji: '\u{1F379}', label_bs: 'Pice', label_en: 'Drinks' },
+  { id: 'drinks', emoji: '\u{1F379}', label_bs: 'Piće', label_en: 'Drinks' },
 ];
 
 export interface TonightPlannerLabels {
@@ -108,15 +108,15 @@ export function getTonightPlannerLabels(
   groupSize: number
 ): TonightPlannerLabels {
   return {
-    budget: isBosnian ? `Budzet: ${budget} KM` : `Budget: ${budget} KM`,
+    budget: isBosnian ? `Budžet: ${budget} KM` : `Budget: ${budget} KM`,
     close: 'X',
-    generate: isBosnian ? 'Generisi plan \u2728' : 'Generate plan \u2728',
+    generate: isBosnian ? 'Generiši plan \u2728' : 'Generate plan \u2728',
     group: isBosnian ? `Grupa: ${groupSize} osoba` : `Group: ${groupSize} people`,
-    mood: isBosnian ? 'Raspolozenje' : 'Mood',
+    mood: isBosnian ? 'Raspoloženje' : 'Mood',
     nextPlan: isBosnian ? '\u{1F504} Daj drugi plan' : '\u{1F504} Another plan',
-    save: isBosnian ? '\u{1F4BE} Sacuvaj' : '\u{1F4BE} Save',
+    save: isBosnian ? '\u{1F4BE} Sačuvaj' : '\u{1F4BE} Save',
     share: isBosnian ? '\u{1F4E4} Podijeli' : '\u{1F4E4} Share',
-    title: isBosnian ? 'AI Planer veceri' : 'AI Evening Planner',
+    title: isBosnian ? 'AI Planer večeri' : 'AI Evening Planner',
     total: isBosnian ? 'Ukupno:' : 'Total:',
   };
 }
@@ -132,7 +132,7 @@ export function getTonightVoteLabels(isBosnian: boolean): TonightVoteLabels {
     vote: isBosnian ? 'Glasaj' : 'Vote',
     voteLink: isBosnian ? 'Link za glasanje:' : 'Voting link:',
     votePrompt: isBosnian
-      ? 'Izaberi 2-4 dogadaja za glasanje'
+      ? 'Izaberi 2-4 događaja za glasanje'
       : 'Select 2-4 events for voting',
     voteWord: isBosnian ? 'glasova' : 'votes',
   };
@@ -156,13 +156,13 @@ export function buildTonightPlanShareText(language: string, currentPlan: AIPlan)
     .map((stop, index) => `${index + 1}. ${stop.time} - ${stop.venueName} - ${stop.activity} - ~${stop.price} KM`)
     .join('\n');
 
-  return `${language === 'bs' ? 'Moj plan za veceras' : 'My plan for tonight'}:\n\n${planText}\n\n${
+  return `${language === 'bs' ? 'Moj plan za večeras' : 'My plan for tonight'}:\n\n${planText}\n\n${
     language === 'bs' ? 'Ukupno' : 'Total'
   }: ~${currentPlan.total} KM\n\n${language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'}`;
 }
 
 export function buildTonightVoteShareText(language: string, voteLink: string): string {
-  return `${language === 'bs' ? 'Glasaj za veceras!' : 'Vote for tonight!'}\n\n${voteLink}\n\n${
+  return `${language === 'bs' ? 'Glasaj za večeras!' : 'Vote for tonight!'}\n\n${voteLink}\n\n${
     language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'
   }`;
 }

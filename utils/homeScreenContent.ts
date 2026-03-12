@@ -39,7 +39,7 @@ export function getTimeOfDayHeroMessage(language: HomeLanguage, hour: number): s
 
   if (hour < 18) {
     return language === 'bs'
-      ? 'Dobar dan! \u0160ta radi\u0161 danas? \u{1F31E}'
+      ? 'Dobar dan! Šta radiš danas? \u{1F31E}'
       : 'Good afternoon! What are you up to? \u{1F31E}';
   }
 
@@ -57,7 +57,7 @@ export function getDefaultHeroSubtitle(language: HomeLanguage): string {
 export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels {
   if (language === 'bs') {
     return {
-      moods: 'Kako se osje\u0107a\u0161?',
+      moods: 'Kako se osjećaš?',
       cafes: 'Kafi\u0107 dana',
       events: 'Nadolaze\u0107i doga\u0111aji',
       series: 'Festivali & Serijali',
@@ -76,7 +76,7 @@ export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels 
 
 export function getEmptyEventsMessage(language: HomeLanguage): string {
   return language === 'bs'
-    ? 'Ni\u0161ta za danas, ali sutra je novi dan! \u{1F304}'
+    ? 'Ništa za danas, ali sutra je novi dan! \u{1F304}'
     : 'Nothing for today, but tomorrow is a new day! \u{1F304}';
 }
 

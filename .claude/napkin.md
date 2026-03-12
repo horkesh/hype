@@ -119,6 +119,8 @@
    Do instead: when a Saved-style surface still branches across venues, events, and badges inline, move localized card text, price/date formatting, mood badges, and earned/progress state into `utils/<surface>Content.ts`, then keep the shell responsible only for empty/loading branching and delegating to list/grid components.
 15. **[2026-03-12] Large screen-body shells should split search-or-controls from results-or-modals first**
    Do instead: when a shared screen body still owns both the top chrome and the result/modal branching, extract named `ResultsSection` and `ModalStack` components before chasing smaller prop cleanups so the body becomes an obvious composition shell.
+16. **[2026-03-12] Source-layer Bosnian copy cleanup should fix diacritics, not just mojibake**
+   Do instead: once mojibake is gone, continue the consistency sweep by correcting helper-owned Bosnian strings like `sacuvaj`, `dogadaji`, or `otkazi` to their proper diacritic forms in the source tables and update the adjacent Node-side tests in the same slice.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

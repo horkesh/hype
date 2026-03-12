@@ -44,23 +44,23 @@ export function getProfileSettingsCopy(isBosnian: boolean): ProfileSettingsCopy 
       : 'Check your email for the confirmation link.',
     authCheckEmailTitle: isBosnian ? 'Provjeri email' : 'Check your email',
     authRequiredBody: isBosnian
-      ? 'Prijavi se da personalizujes svoj ukus.'
+      ? 'Prijavi se da personalizuješ svoj ukus.'
       : 'Please sign in to personalize your taste profile.',
     authRequiredSaveBody: isBosnian
-      ? 'Prijavi se da sacuvas svoj profil ukusa.'
+      ? 'Prijavi se da sačuvaš svoj profil ukusa.'
       : 'Please sign in to save your taste profile.',
     authRequiredTitle: isBosnian ? 'Potrebna je prijava' : 'Sign in required',
-    badgeCountLabel: isBosnian ? 'Bedzeva' : 'Badges',
+    badgeCountLabel: isBosnian ? 'Bedževa' : 'Badges',
     languageTitle: isBosnian ? 'Jezik / Language' : 'Language / Jezik',
-    moodTitle: isBosnian ? 'Sta te zanima?' : 'What are you into?',
+    moodTitle: isBosnian ? 'Šta te zanima?' : 'What are you into?',
     sectionTitle: isBosnian ? 'Postavke' : 'Settings',
     signInFailedBody: isBosnian ? 'Prijava nije uspjela' : 'Failed to sign in',
     signInFailedTitle: isBosnian ? 'Prijava nije uspjela' : 'Sign in failed',
     signOutLabel: isBosnian ? 'Odjavi se' : 'Sign out',
     signOutModalBody: isBosnian
-      ? 'Da li si siguran/na da zelis da se odjavis?'
+      ? 'Da li si siguran/na da želiš da se odjaviš?'
       : 'Are you sure you want to sign out?',
-    signOutModalCancel: isBosnian ? 'Otkazi' : 'Cancel',
+    signOutModalCancel: isBosnian ? 'Otkaži' : 'Cancel',
     signOutModalConfirm: isBosnian ? 'Odjavi se' : 'Sign out',
     signOutModalTitle: isBosnian ? 'Odjavi se?' : 'Sign out?',
     signUpFailedBody: isBosnian ? 'Registracija nije uspjela' : 'Failed to sign up',

@@ -873,3 +873,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a shared screen body still owns both its top-level search/controls composition and its results-or-modals branching, split the latter into named sections first so the body becomes a stable orchestration shell.
 - Verification: `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/exploreLists.test.ts tests/exploreScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Move from support-surface decomposition into the source-layer consistency sweep next, with encoding and helper contract cleanup now the better leverage than more UI shell splitting.
+
+### 2026-03-12 23:45
+- Goal: Run the source-layer consistency sweep by correcting helper-owned Bosnian copy and keeping the adjacent tests aligned with the repaired output.
+- Changes made: Cleaned Bosnian helper strings in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts`; updated `tests/profileSettings.test.ts`, `tests/tonightScreen.test.ts`, and `tests/savedScreen.test.ts` to assert the corrected output; reran the helper pack after fixing one remaining Saved tab-label source string; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, `utils/savedScreen.ts`, `tests/profileSettings.test.ts`, `tests/tonightScreen.test.ts`, `tests/savedScreen.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: After mojibake is gone, continue source-layer cleanup by restoring proper Bosnian diacritics in helper tables and copy modules instead of accepting ASCII fallback spellings in shared app text.
+- Verification: `npx.cmd tsx --test tests/profileSettings.test.ts tests/tonightScreen.test.ts tests/homeScreenContent.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Finish with the long-tail audit and aggregate hardening pass, touching only remaining oversized surfaces that still materially violate the orchestration-first pattern.
