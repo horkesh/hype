@@ -200,6 +200,7 @@ Status:
   - Series detail now uses `utils/seriesDetailData.ts`, `utils/seriesDetailScreen.ts`, focused `components/series/` sections, and shared saved-series storage helpers instead of one mixed fetch/save/render route
   - the shared cross-platform map now uses `utils/mapEmbed.ts` so native and web share one embed/marker builder instead of carrying duplicated HTML-generation paths
   - Home events support now uses `components/home/HomeCardRail.tsx`, `components/home/HomeEventCard.tsx`, `components/home/HomeSeriesCard.tsx`, and `utils/homeEventsSection.ts` so the remaining Home section is orchestration-heavy too
+  - Tonight vote support now uses `utils/tonightVote.ts` plus focused `components/tonight/` vote sections, so the modal itself is mostly a state-switch shell instead of another mixed support monolith
 
 ## Backlog
 

@@ -159,6 +159,9 @@ Most relevant changed surfaces:
 - `components/tonight/TonightPlannerSetup.tsx`
 - `components/tonight/TonightPlannerResults.tsx`
 - `components/tonight/TonightVoteModal.tsx`
+- `components/tonight/TonightVoteSetup.tsx`
+- `components/tonight/TonightVoteResults.tsx`
+- `components/tonight/TonightVoteResultCard.tsx`
 - `components/Map.tsx`
 - `components/Map.web.tsx`
 - `utils/mapEmbed.ts`
@@ -166,8 +169,10 @@ Most relevant changed surfaces:
 - `utils/tonightScreen.ts`
 - `utils/tonightData.ts`
 - `utils/tonightHelpers.ts`
+- `utils/tonightVote.ts`
 - `tests/tonightHelpers.test.ts`
 - `tests/tonightScreen.test.ts`
+- `tests/tonightVote.test.ts`
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
 - `components/explore/ExploreSearchSection.tsx`
@@ -329,6 +334,12 @@ The latest Tonight support cleanup pass added four more important outcomes:
 - made `components/tonight/TonightScreenContent.tsx` and `components/tonight/TonightPlannerModal.tsx` orchestration-heavy instead of mixed UI monoliths
 - moved planner map marker generation into deterministic helper logic in `utils/tonightHelpers.ts` so the mock planner map no longer jitters across renders
 - cleaned the touched Tonight mood, segment, and share copy and added targeted regression coverage in `tests/tonightScreen.test.ts`
+
+The latest Tonight vote cleanup pass added four more important outcomes:
+- split `components/tonight/TonightVoteModal.tsx` into focused vote-setup, vote-results, and vote-result-card sections under `components/tonight/`
+- moved selected-event-to-result-row mapping and vote-creation gating into `utils/tonightVote.ts` so the vote flow now has a testable helper layer instead of inline modal logic
+- kept the modal itself as a thin header and state-switch shell, with the create-vote path and vote-results path rendered by dedicated subcomponents
+- added targeted regression coverage in `tests/tonightVote.test.ts` so vote-result shaping and the two-event create threshold stay stable while the remaining Tonight support cleanup continues
 
 The latest Saved cleanup pass added four more important outcomes:
 - moved Saved venue, event, and badge loading out of the route and into `utils/savedData.ts`
