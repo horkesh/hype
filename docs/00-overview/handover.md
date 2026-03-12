@@ -180,10 +180,17 @@ Most relevant changed surfaces:
 - `components/explore/ExploreVenueList.tsx`
 - `components/explore/ExploreMenuList.tsx`
 - `components/explore/ExploreFilterModal.tsx`
+- `components/explore/ExploreResultsState.tsx`
+- `components/explore/ExploreVenueCard.tsx`
+- `components/explore/ExploreVenueMoodBadges.tsx`
+- `components/explore/ExploreMenuFilterChips.tsx`
+- `components/explore/ExploreMenuCard.tsx`
 - `utils/exploreScreen.ts`
 - `utils/exploreHelpers.ts`
 - `utils/exploreData.ts`
+- `utils/exploreLists.ts`
 - `tests/exploreHelpers.test.ts`
+- `tests/exploreLists.test.ts`
 - `docs/04-product/design_direction_brief.md`
 - `docs/04-product/pencil_prompt_pack.md`
 
@@ -394,6 +401,12 @@ The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
 - cleaned the shared Explore mood/category lookup emoji data in `utils/exploreScreen.ts` so rebuilt Explore support surfaces no longer depend on encoded lookup artifacts
 - added targeted regression coverage for Explore lookup data in `tests/exploreScreen.test.ts` alongside the refreshed helper coverage in `tests/exploreHelpers.test.ts`
+
+The latest Explore results cleanup pass added four more important outcomes:
+- split `components/explore/ExploreVenueList.tsx` and `components/explore/ExploreMenuList.tsx` into focused result-state, venue-card, venue-mood, menu-filter, and menu-card sections under `components/explore/`
+- moved Explore list-only helpers into `utils/exploreLists.ts` so venue mood-badge selection and daily-special price formatting now live in a testable helper layer
+- cleaned the touched venue-card image fallback path while replacing the old encoded marker emoji source with a stable shared icon string
+- added targeted regression coverage in `tests/exploreLists.test.ts` so mood-badge selection and menu price formatting stay stable while the remaining Explore support cleanup continues
 
 The latest map cleanup pass added four more important outcomes:
 - moved shared map HTML generation, popup escaping, and default-region config into `utils/mapEmbed.ts`
