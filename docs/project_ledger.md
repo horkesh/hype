@@ -881,3 +881,18 @@ Copy this block when adding a new work entry.
 - Decisions: After mojibake is gone, continue source-layer cleanup by restoring proper Bosnian diacritics in helper tables and copy modules instead of accepting ASCII fallback spellings in shared app text.
 - Verification: `npx.cmd tsx --test tests/profileSettings.test.ts tests/tonightScreen.test.ts tests/homeScreenContent.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Finish with the long-tail audit and aggregate hardening pass, touching only remaining oversized surfaces that still materially violate the orchestration-first pattern.
+
+### 2026-03-12 (home machine session)
+- Goal: Continue the narrow diacritic and helper-ownership cleanup on the home machine.
+- Changes made:
+  - Installed `tsx` as a dev dependency and added `npm test` script for the Node test runner
+  - Extracted Tonight action button labels (planner button, vote button, plan-saved alert) from the route and controller into `getTonightActionLabels()` in `tonightScreen.ts`, fixing "Predlozi" to "Predloži" and "sacuvan" to "sačuvan"
+  - Fixed mock plan activity labels in `tonightMockPlans.ts`: Vecera to Večera, Pice to Piće, pozoriste to pozorište, Izlozba to Izložba
+  - Fixed Home weather hero messages in `homeHeroState.ts`: Savrsen to Savršen, bastu to baštu, Kisovito to Kišovito, kafic to kafić
+  - Moved the event free-entry badge label from inline component logic in `EventPurchaseSection.tsx` to `getEventFreeEntryLabel()` in `eventDetailScreen.ts`, removing the component's language prop
+  - Confirmed web build still passes after all changes
+  - Full test suite: 117/117 passing (up from 114 at session start)
+- Files touched: `package.json`, `utils/tonightScreen.ts`, `hooks/useTonightController.ts`, `app/(tabs)/tonight.tsx`, `utils/tonightMockPlans.ts`, `utils/homeHeroState.ts`, `utils/eventDetailScreen.ts`, `components/event/EventPurchaseSection.tsx`, `app/event/[id].tsx`, `tests/tonightScreen.test.ts`, `tests/tonightMockPlans.test.ts`, `tests/homeScreen.test.ts`, `tests/eventDetailScreen.test.ts`, `docs/project_ledger.md`
+- Decisions: Continue fixing diacritics at the source-of-truth helper layer; when a component only needs a `language` prop for one string, move that string to the helper and pass it as a display prop instead.
+- Verification: `npm test` (117/117); `npx.cmd expo export -p web` succeeded
+- Follow-up: The remaining diacritic and encoding long-tail is now very thin across utils and components; next priorities should shift to live runtime verification (favorites, taste profile, auth refresh) and then frontend/backend alignment work.

@@ -327,6 +327,11 @@ Status:
   - runtime logging mute and stack-shaping behavior now has direct Node-side coverage in `tests/errorLoggerUtils.test.ts`
   - Saved venue/event/badge view-model shaping now has direct Node-side coverage in `tests/savedContent.test.ts`
   - helper-owned Bosnian diacritic cleanup is now covered directly in the touched Profile, Tonight, Home, and Saved helper tests
+  - Tonight action labels (planner/vote buttons, plan-saved alert) now live in `getTonightActionLabels()` in `tonightScreen.ts` with correct diacritics
+  - mock plan activity labels in `tonightMockPlans.ts` now use correct diacritics (Večera, Piće, pozorište, Izložba)
+  - Home weather hero messages in `homeHeroState.ts` now use correct diacritics (Savršen, baštu, Kišovito, kafić)
+  - event free-entry badge label now lives in `getEventFreeEntryLabel()` in `eventDetailScreen.ts` instead of hardcoded in the component
+  - `npm test` script now exists and runs 117 tests via Node test runner with tsx
 
 #### B13. Adapter and compatibility cleanup
 
