@@ -441,6 +441,11 @@ The latest Explore support cleanup pass added four more important outcomes:
 - cleaned the shared Explore mood/category lookup emoji data in `utils/exploreScreen.ts` so rebuilt Explore support surfaces no longer depend on encoded lookup artifacts
 - added targeted regression coverage for Explore lookup data in `tests/exploreScreen.test.ts` alongside the refreshed helper coverage in `tests/exploreHelpers.test.ts`
 
+The latest Explore filter-shell cleanup pass added three more important outcomes:
+- split the remaining filter-modal shell into `components/explore/ExploreModalHeader.tsx` and `components/explore/ExploreFilterContent.tsx`
+- made `components/explore/ExploreFilterModal.tsx` a thin modal shell over extracted header, content, and action sections
+- kept the filter-selection behavior on the existing helper-owned Explore path while reducing one more support file to orchestration-first structure
+
 The latest Explore results cleanup pass added four more important outcomes:
 - split `components/explore/ExploreVenueList.tsx` and `components/explore/ExploreMenuList.tsx` into focused result-state, venue-card, venue-mood, menu-filter, and menu-card sections under `components/explore/`
 - moved Explore list-only helpers into `utils/exploreLists.ts` so venue mood-badge selection and daily-special price formatting now live in a testable helper layer

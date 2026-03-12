@@ -1,11 +1,9 @@
 import React from 'react';
-import { Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
-import { IconSymbol } from '@/components/IconSymbol';
 import { ExploreFilterActions } from '@/components/explore/ExploreFilterActions';
-import { ExploreFilterChipGrid } from '@/components/explore/ExploreFilterChipGrid';
-import { ExploreFilterOpenNowRow } from '@/components/explore/ExploreFilterOpenNowRow';
-import { ExploreFilterPriceSection } from '@/components/explore/ExploreFilterPriceSection';
+import { ExploreFilterContent } from '@/components/explore/ExploreFilterContent';
+import { ExploreModalHeader } from '@/components/explore/ExploreModalHeader';
 import { ExploreLookupItem } from '@/utils/exploreScreen';
 
 interface ExploreFilterModalProps {
@@ -71,60 +69,34 @@ export function ExploreFilterModal({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={close}>
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { backgroundColor: cardColor }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: borderColor }]}>
-            <Text style={[styles.modalTitle, { color: textColor }]}>{title}</Text>
-            <TouchableOpacity onPress={close}>
-              <IconSymbol
-                ios_icon_name="xmark"
-                android_material_icon_name="close"
-                size={24}
-                color={textColor}
-              />
-            </TouchableOpacity>
-          </View>
+          <ExploreModalHeader
+            borderColor={borderColor}
+            onClose={close}
+            textColor={textColor}
+            title={title}
+          />
 
           <ScrollView style={styles.modalScroll}>
-            <ExploreFilterChipGrid
+            <ExploreFilterContent
               accentColor={accentColor}
               backgroundColor={backgroundColor}
               borderColor={borderColor}
-              items={moods}
-              selectedIds={filterMoods}
-              textColor={textColor}
-              title="Moods"
-              translate={translate}
-              onToggle={onToggleFilterMood}
-            />
-
-            <ExploreFilterChipGrid
-              accentColor={accentColor}
-              backgroundColor={backgroundColor}
-              borderColor={borderColor}
-              items={categories}
-              selectedIds={filterCategories}
-              textColor={textColor}
-              title={categoriesLabel}
-              translate={translate}
-              onToggle={onToggleFilterCategory}
-            />
-
-            <ExploreFilterPriceSection
-              accentColor={accentColor}
-              borderColor={borderColor}
-              priceLevel={filterPriceLevel}
+              categories={categories}
+              categoriesLabel={categoriesLabel}
+              filterCategories={filterCategories}
+              filterMoods={filterMoods}
+              filterOpenNow={filterOpenNow}
+              filterPriceLevel={filterPriceLevel}
+              getPriceLevelDisplay={getPriceLevelDisplay}
+              moods={moods}
+              onSetFilterOpenNow={onSetFilterOpenNow}
+              onSetFilterPriceLevel={onSetFilterPriceLevel}
+              onToggleFilterCategory={onToggleFilterCategory}
+              onToggleFilterMood={onToggleFilterMood}
+              openNowLabel={openNowLabel}
               priceLevelLabel={priceLevelLabel}
               textColor={textColor}
-              valueLabel={getPriceLevelDisplay(filterPriceLevel)}
-              onSetPriceLevel={onSetFilterPriceLevel}
-            />
-
-            <ExploreFilterOpenNowRow
-              accentColor={accentColor}
-              borderColor={borderColor}
-              isEnabled={filterOpenNow}
-              label={openNowLabel}
-              textColor={textColor}
-              onToggle={() => onSetFilterOpenNow(!filterOpenNow)}
+              translate={translate}
             />
           </ScrollView>
 
@@ -154,17 +126,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     maxHeight: '80%',
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   modalScroll: {
     padding: 20,

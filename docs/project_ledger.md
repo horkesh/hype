@@ -737,3 +737,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a modal still mixes shared header chrome, repeated option-grid markup, grouped action buttons, and view-model shaping, extract those repeatable pieces first so the modal file only chooses between setup and results states.
 - Verification: `npx.cmd tsx --test tests/tonightPlanner.test.ts tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/tonightVote.test.ts`; `npm.cmd run build:web`
 - Follow-up: Move directly into the next remaining support wave on Explore/Profile/Venue instead of reopening the Tonight route.
+
+### 2026-03-12 20:25
+- Goal: Finish the remaining Explore filter-shell cleanup so the modal itself only owns the platform shell and delegates the visible filter body to extracted sections.
+- Changes made: Added `components/explore/ExploreModalHeader.tsx` and `components/explore/ExploreFilterContent.tsx`; rewrote `components/explore/ExploreFilterModal.tsx` around those extracted header/content/action sections; and refreshed handover plus the execution board so the Explore support lane reflects the thinner filter shell.
+- Files touched: `components/explore/ExploreModalHeader.tsx`, `components/explore/ExploreFilterContent.tsx`, `components/explore/ExploreFilterModal.tsx`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Once filter selection and price/open-now behavior already live in helper-backed props, keep the modal cleanup focused on the shell by extracting shared header and content composition instead of inventing a second logic layer.
+- Verification: `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/exploreScreen.test.ts tests/exploreLists.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the phase on Profile and Venue support surfaces, where helper-owned copy/action definitions are still the bigger remaining need.

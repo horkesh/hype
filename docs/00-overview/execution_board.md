@@ -206,6 +206,7 @@ Status:
   - Home screen shell now uses `components/home/HomeContentSections.tsx` plus helper-owned weather/hero orchestration, and Tonight event cards now use focused image/badge/meta/action sections instead of one leaf monolith
   - Series events support now uses focused date-group, event-card, and mood-badge sections under `components/series/`, so the last large series list surface is thinner too
   - Tonight planner support now uses `utils/tonightPlanner.ts` plus extracted modal header, mood-grid, group-size, stop-list, and action-row sections, so the remaining planner files are mostly orchestration instead of one bulky support stack
+  - Explore filter support now also uses extracted modal-header and filter-content sections, so `ExploreFilterModal.tsx` is down to shell orchestration over helper-owned filter behavior
 
 ## Backlog
 
