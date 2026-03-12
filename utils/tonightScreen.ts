@@ -76,6 +76,68 @@ export const TONIGHT_MOODS: { id: MoodId; emoji: string; label_bs: string; label
   { id: 'drinks', emoji: '\u{1F379}', label_bs: 'Pice', label_en: 'Drinks' },
 ];
 
+export interface TonightPlannerLabels {
+  budget: string;
+  close: string;
+  generate: string;
+  group: string;
+  mood: string;
+  nextPlan: string;
+  save: string;
+  share: string;
+  title: string;
+  total: string;
+}
+
+export interface TonightVoteLabels {
+  close: string;
+  createVote: string;
+  results: string;
+  selectedCount: string;
+  shareLink: string;
+  title: string;
+  vote: string;
+  voteLink: string;
+  votePrompt: string;
+  voteWord: string;
+}
+
+export function getTonightPlannerLabels(
+  isBosnian: boolean,
+  budget: number,
+  groupSize: number
+): TonightPlannerLabels {
+  return {
+    budget: isBosnian ? `Budzet: ${budget} KM` : `Budget: ${budget} KM`,
+    close: 'X',
+    generate: isBosnian ? 'Generisi plan \u2728' : 'Generate plan \u2728',
+    group: isBosnian ? `Grupa: ${groupSize} osoba` : `Group: ${groupSize} people`,
+    mood: isBosnian ? 'Raspolozenje' : 'Mood',
+    nextPlan: isBosnian ? '\u{1F504} Daj drugi plan' : '\u{1F504} Another plan',
+    save: isBosnian ? '\u{1F4BE} Sacuvaj' : '\u{1F4BE} Save',
+    share: isBosnian ? '\u{1F4E4} Podijeli' : '\u{1F4E4} Share',
+    title: isBosnian ? 'AI Planer veceri' : 'AI Evening Planner',
+    total: isBosnian ? 'Ukupno:' : 'Total:',
+  };
+}
+
+export function getTonightVoteLabels(isBosnian: boolean): TonightVoteLabels {
+  return {
+    close: 'X',
+    createVote: isBosnian ? 'Kreiraj glasanje' : 'Create vote',
+    results: isBosnian ? 'Rezultati:' : 'Results:',
+    selectedCount: isBosnian ? 'Izabrano:' : 'Selected:',
+    shareLink: isBosnian ? '\u{1F4E4} Podijeli link' : '\u{1F4E4} Share link',
+    title: isBosnian ? 'Grupno glasanje' : 'Group Voting',
+    vote: isBosnian ? 'Glasaj' : 'Vote',
+    voteLink: isBosnian ? 'Link za glasanje:' : 'Voting link:',
+    votePrompt: isBosnian
+      ? 'Izaberi 2-4 dogadaja za glasanje'
+      : 'Select 2-4 events for voting',
+    voteWord: isBosnian ? 'glasova' : 'votes',
+  };
+}
+
 export function isFreeEvent(price: number | null): boolean {
   return price === null || price === 0;
 }

@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildTonightVoteResults, canCreateTonightVote } from '@/utils/tonightVote';
+import {
+  buildMockTonightVoteLink,
+  buildTonightVoteResults,
+  canCreateTonightVote,
+} from '@/utils/tonightVote';
 
 const EVENTS = [
   {
@@ -54,4 +58,11 @@ test('buildTonightVoteResults returns only selected events that still exist', ()
     { eventId: 'event-1', title: 'Svirka', voteCount: 3 },
     { eventId: 'event-2', title: 'Predstava', voteCount: 1 },
   ]);
+});
+
+test('buildMockTonightVoteLink is deterministic for the selected ids', () => {
+  assert.equal(
+    buildMockTonightVoteLink(['event-2', 'event-1']),
+    'hype.ba/vote/event-1-event-2'
+  );
 });

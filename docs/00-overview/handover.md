@@ -179,6 +179,7 @@ Most relevant changed surfaces:
 - `components/tonight/TonightVoteSetup.tsx`
 - `components/tonight/TonightVoteResults.tsx`
 - `components/tonight/TonightVoteResultCard.tsx`
+- `hooks/useTonightController.ts`
 - `components/Map.tsx`
 - `components/Map.web.tsx`
 - `utils/mapEmbed.ts`
@@ -473,6 +474,12 @@ The latest Explore controller cleanup pass added four more important outcomes:
 - added `components/explore/ExploreScreenBody.tsx`, leaving `app/(tabs)/explore.tsx` focused on shell selection and prop wiring instead of holding the full screen markup
 - moved menu-filter label shaping into `utils/exploreHelpers.ts` and added direct regression coverage for it in `tests/exploreHelpers.test.ts`
 - cleaned the touched Explore emoji test fixtures in `tests/exploreScreen.test.ts` and `tests/exploreLists.test.ts` so the Explore helper surface no longer carries damaged literal assertions
+
+The latest Tonight controller cleanup pass added four more important outcomes:
+- moved Tonight segment, planner, vote, refresh, and navigation controller state into `hooks/useTonightController.ts`, so the route no longer owns the full planner/vote state machine inline
+- moved planner-label and vote-label shaping into `utils/tonightScreen.ts`, leaving the route with less hardcoded controller copy
+- replaced the old `Math.random()` vote-link mock with deterministic helper-owned link generation in `utils/tonightVote.ts`
+- cleaned the touched Tonight emoji/copy assertions in `tests/tonightScreen.test.ts` and expanded `tests/tonightVote.test.ts` so the deterministic vote-link behavior is covered directly
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

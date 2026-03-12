@@ -73,6 +73,8 @@
    Do instead: when a tab screen still hardcodes tab labels, empty-state copy, or route-target decisions inline, move that state copy into `utils/<surface>Screen.ts` and keep the route focused on loading, auth refresh, and navigation callbacks.
 14. **[2026-03-12] Large tab routes should split controller state from screen markup**
    Do instead: when a shared tab route still mixes debounced search, filter state, loading effects, refresh behavior, and big JSX, move the state/effect layer into `hooks/use<Surface>Controller.ts` and the screen markup into `components/<surface>/<Surface>ScreenBody.tsx`.
+15. **[2026-03-12] Mock user-facing flows should be deterministic too**
+   Do instead: when a planner, vote, or other temporary mock flow needs generated URLs or result payloads, derive them from stable inputs in helper modules instead of using `Math.random()` in route handlers.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

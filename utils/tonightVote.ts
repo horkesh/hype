@@ -10,6 +10,17 @@ export function canCreateTonightVote(selectedEvents: string[]): boolean {
   return selectedEvents.length >= 2;
 }
 
+export function buildMockTonightVoteLink(selectedEvents: string[]): string {
+  const suffix = selectedEvents
+    .slice()
+    .sort()
+    .join('-')
+    .replace(/[^a-zA-Z0-9-]/g, '')
+    .slice(0, 32);
+
+  return `hype.ba/vote/${suffix || 'demo'}`;
+}
+
 export function buildTonightVoteResults(
   events: Event[],
   selectedEvents: string[],

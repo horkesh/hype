@@ -809,3 +809,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a tab route still mixes debounced search, filter state, refresh behavior, load effects, and a large JSX tree, split the controller layer into a hook and the visible screen into a body component so the route is reduced to shell choice and prop wiring.
 - Verification: `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/exploreScreen.test.ts tests/exploreLists.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the controller-thinning wave on the remaining large tab routes, with `app/(tabs)/tonight.tsx` and `app/(tabs)/profile.tsx` now the next strongest candidates.
+
+### 2026-03-12 21:40
+- Goal: Thin the remaining Tonight route controller and remove nondeterministic mock vote-link generation from the tab route.
+- Changes made: Added `hooks/useTonightController.ts` for Tonight planner/vote/refresh/navigation state and side effects; rewrote `app/(tabs)/tonight.tsx` as a thinner shell over the controller and `TonightScreenContent`; moved planner-label and vote-label shaping into `utils/tonightScreen.ts`; added deterministic `buildMockTonightVoteLink()` in `utils/tonightVote.ts`; cleaned touched Tonight emoji/copy tests in `tests/tonightScreen.test.ts`; expanded `tests/tonightVote.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `app/(tabs)/tonight.tsx`, `hooks/useTonightController.ts`, `utils/tonightScreen.ts`, `utils/tonightVote.ts`, `tests/tonightScreen.test.ts`, `tests/tonightVote.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a route still owns a whole planner/vote controller stack, move that state and side effects into a hook; when a mock user-facing URL or payload is generated in a route handler, derive it from stable inputs in a helper instead of using `Math.random()`.
+- Verification: `npx.cmd tsx --test tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/tonightVote.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the controller-thinning wave on the remaining large tab routes, with `app/(tabs)/profile.tsx` now the strongest remaining candidate.
