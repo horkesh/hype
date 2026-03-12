@@ -25,7 +25,7 @@ test('TONIGHT_MOODS and segments expose clean emojis instead of mojibake', () =>
 test('Tonight share text uses cleaned Bosnian copy', () => {
   const planText = buildTonightPlanShareText('bs', {
     total: 60,
-    stops: [{ time: '19:00', venueName: 'Dveri', activity: 'Vecera', price: 60 }],
+    stops: [{ time: '19:00', venueName: 'Dveri', activity: 'Ve\u010Dera', price: 60 }],
   });
 
   assert.match(planText, /Moj plan za večeras/);

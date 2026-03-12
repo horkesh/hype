@@ -29,13 +29,13 @@ test('buildTonightPlannerMoodOptions localizes labels without changing ids', () 
 test('buildTonightPlannerStopRows shapes plan stops for the results list', () => {
   const rows = buildTonightPlannerStopRows({
     total: 55,
-    stops: [{ time: '19:00', venueName: 'Dveri', activity: 'Vecera', price: 55 }],
+    stops: [{ time: '19:00', venueName: 'Dveri', activity: 'Ve\u010Dera', price: 55 }],
   });
 
   assert.deepEqual(rows, [
     {
       id: 'Dveri-19:00-0',
-      activity: 'Vecera',
+      activity: 'Ve\u010Dera',
       priceText: '~55 KM',
       time: '19:00',
       venueName: 'Dveri',

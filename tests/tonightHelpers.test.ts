@@ -64,7 +64,7 @@ test('buildTonightPlanMarkers returns stable marker positions per stop order', (
     total: 60,
     stops: [
       { time: '19:00', venueName: 'Cafe Tito', activity: 'Kafa', price: 10 },
-      { time: '21:00', venueName: 'Dveri', activity: 'Vecera', price: 50 },
+      { time: '21:00', venueName: 'Dveri', activity: 'Ve\u010Dera', price: 50 },
     ],
   });
 
