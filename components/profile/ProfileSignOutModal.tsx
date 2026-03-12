@@ -4,42 +4,48 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface ProfileSignOutModalProps {
   accentColor: string;
   backgroundColor: string;
+  body: string;
+  cancelLabel: string;
+  confirmLabel: string;
   onCancel: () => void;
   onConfirm: () => void;
   textColor: string;
   textSecondaryColor: string;
+  title: string;
   visible: boolean;
 }
 
 export function ProfileSignOutModal({
   accentColor,
   backgroundColor,
+  body,
+  cancelLabel,
+  confirmLabel,
   onCancel,
   onConfirm,
   textColor,
   textSecondaryColor,
+  title,
   visible,
 }: ProfileSignOutModalProps) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { backgroundColor: '#FFFFFF' }]}>
-          <Text style={[styles.modalTitle, { color: textColor }]}>Odjavi se?</Text>
-          <Text style={[styles.modalText, { color: textSecondaryColor }]}>
-            Da li si siguran/na da želiš da se odjaviš?
-          </Text>
+          <Text style={[styles.modalTitle, { color: textColor }]}>{title}</Text>
+          <Text style={[styles.modalText, { color: textSecondaryColor }]}>{body}</Text>
           <View style={styles.modalButtons}>
             <TouchableOpacity
               onPress={onCancel}
               style={[styles.modalButton, { backgroundColor }]}
             >
-              <Text style={[styles.modalButtonText, { color: textColor }]}>Otkaži</Text>
+              <Text style={[styles.modalButtonText, { color: textColor }]}>{cancelLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onConfirm}
               style={[styles.modalButton, { backgroundColor: accentColor }]}
             >
-              <Text style={[styles.modalButtonText, { color: '#FFFFFF' }]}>Odjavi se</Text>
+              <Text style={[styles.modalButtonText, { color: '#FFFFFF' }]}>{confirmLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>

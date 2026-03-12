@@ -75,6 +75,8 @@
    Do instead: when a shared tab route still mixes debounced search, filter state, loading effects, refresh behavior, and big JSX, move the state/effect layer into `hooks/use<Surface>Controller.ts` and the screen markup into `components/<surface>/<Surface>ScreenBody.tsx`.
 15. **[2026-03-12] Mock user-facing flows should be deterministic too**
    Do instead: when a planner, vote, or other temporary mock flow needs generated URLs or result payloads, derive them from stable inputs in helper modules instead of using `Math.random()` in route handlers.
+16. **[2026-03-12] Route-owned alert copy should move with the rest of the screen copy**
+   Do instead: when a route still hardcodes auth, error, or confirmation alerts, move that copy into the same helper module that owns the screen's settings or display strings before splitting the route controller.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

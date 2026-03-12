@@ -817,3 +817,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a route still owns a whole planner/vote controller stack, move that state and side effects into a hook; when a mock user-facing URL or payload is generated in a route handler, derive it from stable inputs in a helper instead of using `Math.random()`.
 - Verification: `npx.cmd tsx --test tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/tonightVote.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the controller-thinning wave on the remaining large tab routes, with `app/(tabs)/profile.tsx` now the strongest remaining candidate.
+
+### 2026-03-12 21:55
+- Goal: Thin the remaining Profile route controller and move route-owned auth/modal alerts into helper-owned settings copy.
+- Changes made: Added `hooks/useProfileController.ts` for Profile auth/session/taste state and side effects; rewrote `app/(tabs)/profile.tsx` as a thinner shell over the controller plus existing extracted sections; expanded `utils/profileSettings.ts` to own auth-required, sign-in/sign-up, check-email, and sign-out modal copy; cleaned and localized `components/profile/ProfileSignOutModal.tsx`; expanded `tests/profileSettings.test.ts`; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `app/(tabs)/profile.tsx`, `hooks/useProfileController.ts`, `utils/profileSettings.ts`, `components/profile/ProfileSignOutModal.tsx`, `tests/profileSettings.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a route still owns alert strings for auth, save failures, or confirmation modals, move that copy into the same helper module that already owns the screen's settings text before splitting the controller layer into a hook.
+- Verification: `npx.cmd tsx --test tests/profileScreen.test.ts tests/profileSettings.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: The main tab-route controller wave is now much smaller; the strongest remaining cleanup candidates are smaller shared support surfaces and long-tail encoding cleanup outside the rebuilt/tested paths.

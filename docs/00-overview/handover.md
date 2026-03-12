@@ -57,6 +57,7 @@ Most relevant changed surfaces:
 - `components/profile/ProfileMoodSection.tsx`
 - `components/profile/ProfileSettingsSection.tsx`
 - `components/profile/ProfileSignOutModal.tsx`
+- `hooks/useProfileController.ts`
 - `app/venue/[id].tsx`
 - `app/event/[id].tsx`
 - `app/series/[id].tsx`
@@ -480,6 +481,12 @@ The latest Tonight controller cleanup pass added four more important outcomes:
 - moved planner-label and vote-label shaping into `utils/tonightScreen.ts`, leaving the route with less hardcoded controller copy
 - replaced the old `Math.random()` vote-link mock with deterministic helper-owned link generation in `utils/tonightVote.ts`
 - cleaned the touched Tonight emoji/copy assertions in `tests/tonightScreen.test.ts` and expanded `tests/tonightVote.test.ts` so the deterministic vote-link behavior is covered directly
+
+The latest Profile controller cleanup pass added four more important outcomes:
+- moved Profile auth/session/taste controller state into `hooks/useProfileController.ts`, so the route no longer owns the full auth flow inline
+- moved sign-in, sign-up, sign-out, and auth-required alert copy into `utils/profileSettings.ts`, keeping route-owned alert text aligned with the rest of the helper-owned settings copy
+- cleaned and localized `components/profile/ProfileSignOutModal.tsx` so the modal no longer carries hardcoded damaged Bosnian strings
+- expanded `tests/profileSettings.test.ts` so the touched modal/auth copy is covered directly
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

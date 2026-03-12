@@ -20,6 +20,9 @@ test('profile settings copy is localized and clean', () => {
   assert.equal(bosnian.sectionTitle, 'Postavke');
   assert.equal(bosnian.badgeCountLabel, 'Bedzeva');
   assert.equal(bosnian.moodTitle, 'Sta te zanima?');
+  assert.equal(bosnian.signOutModalCancel, 'Otkazi');
+  assert.equal(bosnian.authRequiredTitle, 'Potrebna je prijava');
   assert.equal(english.sectionTitle, 'Settings');
   assert.equal(english.signOutLabel, 'Sign out');
+  assert.equal(english.signOutModalBody, 'Are you sure you want to sign out?');
 });

@@ -1,11 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HypeHeader } from '@/components/HypeHeader';
@@ -15,147 +9,21 @@ import { ProfileMoodSection } from '@/components/profile/ProfileMoodSection';
 import { ProfileSettingsSection } from '@/components/profile/ProfileSettingsSection';
 import { ProfileSignOutModal } from '@/components/profile/ProfileSignOutModal';
 import { useApp } from '@/contexts/AppContext';
+import { useProfileController } from '@/hooks/useProfileController';
 import { useTheme } from '@/hooks/useTheme';
-import { subscribeToAuthChanges } from '@/utils/authSession';
-import {
-  loadProfileTaste,
-  loadProfileUserAndTaste,
-  saveProfileTaste,
-  signInProfile,
-  signOutProfile,
-  signUpProfile,
-} from '@/utils/profileData';
-import {
-  getProfileSettingsCopy,
-} from '@/utils/profileSettings';
-import { isProfileTasteAuthRequiredError } from '@/utils/profileTaste';
 import {
   PROFILE_DEMO_BADGES,
   PROFILE_MOODS,
   PROFILE_THEME_OPTIONS,
-  toggleProfileMoodSelection,
 } from '@/utils/profileScreen';
 
 export default function ProfileScreen() {
   const { language, setLanguage, setThemeMode, themeMode } = useApp();
   const { colors } = useTheme();
   const isBosnian = language === 'bs';
-  const settingsCopy = getProfileSettingsCopy(isBosnian);
+  const controller = useProfileController({ isBosnian });
 
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
-  const [showSignOutModal, setShowSignOutModal] = useState(false);
-
-  const checkUser = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const result = await loadProfileUserAndTaste();
-      setUser(result.user);
-      setSelectedMoods(result.moods);
-    } catch (error) {
-      console.error('Error checking user:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void checkUser();
-  }, [checkUser]);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges((session) => {
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        void loadProfileTaste().then(setSelectedMoods).catch((error) => {
-          console.error('Error loading taste profile:', error);
-        });
-      } else {
-        setSelectedMoods([]);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const handleToggleMood = useCallback(
-    async (moodId: string) => {
-      if (!user) {
-        Alert.alert('Sign in required', 'Please sign in to personalize your taste profile.');
-        return;
-      }
-
-      const nextMoods = toggleProfileMoodSelection(selectedMoods, moodId);
-      const previousMoods = selectedMoods;
-      setSelectedMoods(nextMoods);
-
-      try {
-        await saveProfileTaste(nextMoods);
-      } catch (error) {
-        console.error('Error saving taste profile:', error);
-        setSelectedMoods(previousMoods);
-
-        if (isProfileTasteAuthRequiredError(error)) {
-          Alert.alert('Sign in required', 'Please sign in to save your taste profile.');
-        }
-      }
-    },
-    [selectedMoods, user]
-  );
-
-  const handleSignIn = useCallback(async () => {
-    setAuthLoading(true);
-
-    try {
-      const nextUser = await signInProfile(email, password);
-      setUser(nextUser);
-      setSelectedMoods(await loadProfileTaste());
-      setEmail('');
-      setPassword('');
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      Alert.alert('Sign in failed', error.message || 'Failed to sign in');
-    } finally {
-      setAuthLoading(false);
-    }
-  }, [email, password]);
-
-  const handleSignUp = useCallback(async () => {
-    setAuthLoading(true);
-
-    try {
-      await signUpProfile(email, password);
-      Alert.alert('Check your email', 'Check your email for the confirmation link.');
-      setIsSignUp(false);
-      setEmail('');
-      setPassword('');
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      Alert.alert('Sign up failed', error.message || 'Failed to sign up');
-    } finally {
-      setAuthLoading(false);
-    }
-  }, [email, password]);
-
-  const handleSignOut = useCallback(async () => {
-    try {
-      await signOutProfile();
-      setUser(null);
-      setSelectedMoods([]);
-      setShowSignOutModal(false);
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  }, []);
-
-  if (isLoading) {
+  if (controller.isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <HypeHeader />
@@ -171,19 +39,19 @@ export default function ProfileScreen() {
       <HypeHeader />
       <ScrollView style={styles.content}>
         <View style={styles.section}>
-          {!user ? (
+          {!controller.user ? (
             <ProfileAuthCard
               accentColor={colors.accent}
-              authLoading={authLoading}
+              authLoading={controller.authLoading}
               backgroundColor={colors.background}
               cardColor={colors.card}
-              email={email}
-              isSignUp={isSignUp}
-              onChangeEmail={setEmail}
-              onChangePassword={setPassword}
-              onSubmit={isSignUp ? handleSignUp : handleSignIn}
-              onToggleMode={() => setIsSignUp((current) => !current)}
-              password={password}
+              email={controller.email}
+              isSignUp={controller.isSignUp}
+              onChangeEmail={controller.setEmail}
+              onChangePassword={controller.setPassword}
+              onSubmit={controller.isSignUp ? controller.handleSignUp : controller.handleSignIn}
+              onToggleMode={() => controller.setIsSignUp((current) => !current)}
+              password={controller.password}
               placeholderTextColor={colors.textSecondary}
               textColor={colors.text}
             />
@@ -191,13 +59,13 @@ export default function ProfileScreen() {
             <ProfileAccountCard
               accentColor={colors.accent}
               backgroundColor={colors.background}
-              badgeCountLabel={settingsCopy.badgeCountLabel}
+              badgeCountLabel={controller.settingsCopy.badgeCountLabel}
               badgeCountNumber={PROFILE_DEMO_BADGES.length}
               badges={PROFILE_DEMO_BADGES}
               cardColor={colors.card}
-              email={user.email || ''}
-              onSignOut={() => setShowSignOutModal(true)}
-              signOutLabel={settingsCopy.signOutLabel}
+              email={controller.user.email || ''}
+              onSignOut={() => controller.setShowSignOutModal(true)}
+              signOutLabel={controller.settingsCopy.signOutLabel}
               textColor={colors.text}
               textSecondaryColor={colors.textSecondary}
             />
@@ -210,9 +78,9 @@ export default function ProfileScreen() {
           colorsText={colors.text}
           isBosnian={isBosnian}
           moods={PROFILE_MOODS}
-          onToggleMood={handleToggleMood}
-          selectedMoods={selectedMoods}
-          title={settingsCopy.moodTitle}
+          onToggleMood={controller.handleToggleMood}
+          selectedMoods={controller.selectedMoods}
+          title={controller.settingsCopy.moodTitle}
         />
 
         <ProfileSettingsSection
@@ -233,11 +101,15 @@ export default function ProfileScreen() {
       <ProfileSignOutModal
         accentColor={colors.accent}
         backgroundColor={colors.background}
-        onCancel={() => setShowSignOutModal(false)}
-        onConfirm={handleSignOut}
+        body={controller.settingsCopy.signOutModalBody}
+        cancelLabel={controller.settingsCopy.signOutModalCancel}
+        confirmLabel={controller.settingsCopy.signOutModalConfirm}
+        onCancel={() => controller.setShowSignOutModal(false)}
+        onConfirm={controller.handleSignOut}
         textColor={colors.text}
         textSecondaryColor={colors.textSecondary}
-        visible={showSignOutModal}
+        title={controller.settingsCopy.signOutModalTitle}
+        visible={controller.showSignOutModal}
       />
     </SafeAreaView>
   );
