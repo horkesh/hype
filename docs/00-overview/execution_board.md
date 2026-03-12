@@ -211,7 +211,8 @@ Status:
   - Venue actions now use helper-owned action definitions plus extracted primary and delivery action groups, so `VenueActionButtons.tsx` is down to dispatch orchestration
   - shared chrome now also uses extracted tab-indicator and tab-button-row sections, and Tonight list rendering now uses helper-owned event-card view models plus extracted list-state/card-list sections
   - saved-event and saved-series persistence now live behind shared storage helpers, with legacy event keys kept in sync so rebuilt surfaces no longer duplicate AsyncStorage logic
-  - the planned broad frontend cleanup wave is complete; follow-on work should now be narrower consistency cleanup, future regression prevention, and remaining non-rebuilt-surface cleanup instead of another cross-app structural sweep
+- the planned broad frontend cleanup wave is complete; follow-on work should now be narrower consistency cleanup, future regression prevention, and remaining non-rebuilt-surface cleanup instead of another cross-app structural sweep
+- shared translation and helper-owned config cleanup has started in `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts`, with matching regression assertions added so encoding fixes land at the source layer instead of in leaf screens
 
 ## Backlog
 
@@ -299,6 +300,11 @@ Status:
 - Status: `Active`
 - Goal:
   - repair mojibake and user-facing string corruption, with rebuilt shared surfaces cleaned first
+- Progress:
+  - Explore helper price display has already been cleaned at the helper layer
+  - app-wide translation strings in `contexts/AppContext.tsx` are now cleaned
+  - helper-owned Profile and Saved config in `utils/profileScreen.ts` and `utils/savedScreen.ts` now expose clean emoji and currency output
+  - regression coverage now asserts clean helper output in `tests/profileScreen.test.ts` and `tests/savedScreen.test.ts`
 
 #### B11. Platform duplication reduction
 
@@ -394,7 +400,7 @@ Status:
 1. focus follow-on cleanup on broader encoding issues and any untouched long-tail support surfaces, not another all-frontends structural sweep
    the planned Home/Explore/Tonight/Saved/Profile/detail/shared-chrome cleanup wave is now complete, so next work should be narrower and evidence-driven
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
-3. repair remaining mojibake outside the rebuilt Home path
+3. continue encoding cleanup by fixing shared translation and helper/config sources before leaf screens whenever mojibake is found
 
 ### Wave 2
 

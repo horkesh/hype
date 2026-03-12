@@ -14,8 +14,8 @@ test('toggleProfileMoodSelection adds and removes moods predictably', () => {
 });
 
 test('profile mood config keeps clean emoji values', () => {
-  assert.equal(PROFILE_MOODS[0]?.emoji, '🎉');
-  assert.equal(PROFILE_MOODS[7]?.emoji, '🍽️');
+  assert.equal(PROFILE_MOODS[0]?.emoji, '\u{1F389}');
+  assert.equal(PROFILE_MOODS[7]?.emoji, '\u{1F37D}\uFE0F');
 });
 
 test('profile theme config exposes the expected choices', () => {
@@ -26,6 +26,6 @@ test('profile theme config exposes the expected choices', () => {
 });
 
 test('profile demo badges keep their visible icons', () => {
-  assert.equal(PROFILE_DEMO_BADGES[0]?.icon, '☕');
-  assert.equal(PROFILE_DEMO_BADGES[2]?.icon, '👑');
+  assert.equal(PROFILE_DEMO_BADGES[0]?.icon, '\u2615');
+  assert.equal(PROFILE_DEMO_BADGES[2]?.icon, '\u{1F451}');
 });

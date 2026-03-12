@@ -30,8 +30,8 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
-- continue the shared-screen simplification pass on the largest remaining routes and support surfaces, with Explore and Tonight now on shared helpers, the Tonight planner stack now further split into helper-owned mood/stop defaults plus smaller modal sections, and the cross-platform map surface simplified too
-- treat Home support, Venue detail, Event detail, Series detail, and the shared map surface as already on the extracted helper/render pattern; the next cleanup wave should target remaining mixed-support surfaces plus broader encoding cleanup
+- continue narrower follow-up cleanup instead of another broad structural sweep, with the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, and shared chrome already on the helper-plus-components pattern
+- treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -93,6 +93,7 @@ Most relevant changed surfaces:
 - `utils/savedData.ts`
 - `utils/savedScreen.ts`
 - `utils/savedEventsStorage.ts`
+- `contexts/AppContext.tsx`
 - `tests/favorites.test.ts`
 - `tests/savedScreen.test.ts`
 - `tests/savedEventsStorage.test.ts`
@@ -259,8 +260,8 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, and the shared cross-platform map surface now using one helper-owned embed builder, leaving the next cleanup wave to focus on remaining mixed-support surfaces and broader encoding cleanup
-- the planned remaining frontend cleanup wave is now complete across Tonight planner support, Explore filter shell, Profile settings, Venue actions, shared tab chrome, Tonight list support, and saved-state helper consistency, so the next frontend maintenance work should be narrower follow-up cleanup rather than another broad structural sweep
+- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, and the shared cross-platform map surface now using one helper-owned embed builder
+- the planned broad frontend cleanup wave is complete across Tonight planner support, Explore filter shell, Profile settings, Venue actions, shared tab chrome, Tonight list support, and saved-state helper consistency, so frontend maintenance has shifted to narrower follow-up cleanup like shared translation/config encoding repair and regression prevention rather than another broad structural sweep
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -456,6 +457,12 @@ The latest shared chrome cleanup pass added three more important outcomes:
 - moved Tonight event-card view-model shaping into `utils/tonightContent.ts` and split the list surface into `TonightEventListState.tsx` plus `TonightEventCards.tsx`
 - added targeted regression coverage in `tests/tonightContent.test.ts` so the Tonight list view-model layer stays stable while the final consistency sweep cleans the remaining touched copy
 
+The latest encoding cleanup pass added four more important outcomes:
+- cleaned shared translation and label strings in `contexts/AppContext.tsx` so app-wide copy stops inheriting mojibake from the main translation source
+- cleaned shared mood and badge config in `utils/profileScreen.ts` and `utils/savedScreen.ts` so rebuilt Profile and Saved surfaces now read stable emoji and currency output from helper-owned config
+- updated `tests/profileScreen.test.ts` and `tests/savedScreen.test.ts` to assert the repaired helper output directly, keeping future encoding regressions closer to the source layer
+- kept the route and component layer unchanged for this pass by fixing the source-of-truth context/helper modules first instead of patching leaf UI files
+
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
 - decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
@@ -489,7 +496,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- broader encoding cleanup outside the rebuilt/touched surfaces
+- broader encoding cleanup outside the rebuilt/touched surfaces, with the shared translation/config source layer now partially cleaned
 - any future regressions that reintroduce hardcoded copy or route-level persistence into rebuilt screens
 - mojibake and encoding-damaged strings
 - long-tail persistence cleanup that still belongs in helper layers rather than UI files

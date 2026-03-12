@@ -67,6 +67,8 @@
    Do instead: for oversized support surfaces like `HomeScreen`, `Tonight` planner/content chrome, `FloatingTabBar`, settings cards, venue action buttons, reused filter/mood/category chip sets, or cross-platform map/embed surfaces, extract data, route heuristics, pure copy/selection/layout helpers, and shared markup builders into `utils/<surface>*.ts`, keep mock UI data deterministic instead of using `Math.random()` in render paths, clean shared lookup modules at the source, and split action bars, tabs, lists, modal sections, navigation buttons, chip groups, thin platform shells, and toggle rows into `components/<surface>/`.
 11. **[2026-03-12] Modal cleanup should extract the repeatable shell pieces before chasing prop noise**
    Do instead: when planner or filter modals are still bulky, move shared header chrome, option grids, grouped action rows, and stop/result list markup into `components/<surface>/` plus tiny `utils/<surface>*.ts` view-model helpers so the modal file only chooses which section to show.
+12. **[2026-03-12] Encoding cleanup should happen at the source-of-truth helper or context layer**
+   Do instead: when mojibake shows up in rebuilt surfaces, fix the string tables, config helpers, or shared formatting modules first, then update tests to assert the cleaned output instead of patching leaf components one by one.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

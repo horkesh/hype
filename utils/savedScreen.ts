@@ -36,18 +36,18 @@ export interface SavedBadge {
 export type SavedTabKey = 'venues' | 'events' | 'badges';
 
 export const SAVED_MOODS: Record<string, string> = {
-  party: '🎉',
-  chill: '😌',
-  girls_night: '👯',
-  date_night: '💑',
-  music: '🎵',
-  romance: '💕',
-  culture: '🎭',
-  foodie: '🍽️',
-  brunch: '🥐',
-  after_work: '🍻',
-  outdoor: '🌳',
-  tourist: '📸',
+  party: '\u{1F389}',
+  chill: '\u{1F60C}',
+  girls_night: '\u{1F46F}',
+  date_night: '\u{1F491}',
+  music: '\u{1F3B5}',
+  romance: '\u{1F495}',
+  culture: '\u{1F3AD}',
+  foodie: '\u{1F37D}',
+  brunch: '\u{1F950}',
+  after_work: '\u{1F37B}',
+  outdoor: '\u{1F333}',
+  tourist: '\u{1F4F8}',
 };
 
 export const DEMO_EARNED_BADGES = ['kafedzija', 'explorer', 'hype_og'];
