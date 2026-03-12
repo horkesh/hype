@@ -134,13 +134,18 @@ Most relevant changed surfaces:
 - `components/home/HomeMoodSection.tsx`
 - `components/home/HomeFeaturedCafeSection.tsx`
 - `components/home/HomeEventsSection.tsx`
+- `components/home/HomeCardRail.tsx`
+- `components/home/HomeEventCard.tsx`
+- `components/home/HomeSeriesCard.tsx`
 - `utils/homeData.ts`
 - `utils/homeScreenContent.ts`
+- `utils/homeEventsSection.ts`
 - `utils/homeWeather.ts`
 - `utils/imageSource.ts`
 - `components/ImageWithPlaceholder.tsx`
 - `tests/homeWeather.test.ts`
 - `tests/homeScreenContent.test.ts`
+- `tests/homeEventsSection.test.ts`
 - `tests/imageSource.test.ts`
 - `tests/appRoutes.test.ts`
 - `app/(tabs)/tonight.tsx`
@@ -361,6 +366,12 @@ The latest Home support cleanup pass added four more important outcomes:
 - decomposed Home rendering into focused `components/home/` sections for hero, moods, featured cafe, and event/series rails
 - refreshed regression coverage in `tests/homeScreenContent.test.ts` so cleaned copy and countdown behavior stay stable
 
+The latest Home events cleanup pass added four more important outcomes:
+- split `components/home/HomeEventsSection.tsx` into shared `HomeCardRail`, `HomeEventCard`, and `HomeSeriesCard` support components so the section is now orchestration-heavy instead of a mixed rail/card monolith
+- moved Home event-card and series-card display copy into `utils/homeEventsSection.ts` so localized title, venue, price, and countdown behavior live in a testable helper layer
+- kept web/native rail behavior shared behind one thin component instead of repeating the same event and series layout branches inside the section
+- added targeted regression coverage in `tests/homeEventsSection.test.ts` so event-card and series-card display formatting stay stable while the remaining Home support cleanup continues
+
 The latest shared tab-bar cleanup pass added four more important outcomes:
 - moved FloatingTabBar route matching, indicator sizing, and theme-surface color decisions into `utils/floatingTabBar.ts`
 - split tab-button rendering into `components/tabbar/FloatingTabButton.tsx` so `components/FloatingTabBar.tsx` is now mostly shared-chrome orchestration
@@ -391,6 +402,7 @@ Known cleanup targets include:
 - remaining oversized shared route files whose behavior sections still need extraction
 - remaining mixed-support screens outside the rebuilt tab/detail surfaces
 - remaining oversized shared support components that still mix orchestration and bulky rendering
+- remaining oversized card/list support components inside rebuilt surfaces
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming
