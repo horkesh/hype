@@ -260,6 +260,7 @@ Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
 - shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, and the shared cross-platform map surface now using one helper-owned embed builder, leaving the next cleanup wave to focus on remaining mixed-support surfaces and broader encoding cleanup
+- the planned remaining frontend cleanup wave is now complete across Tonight planner support, Explore filter shell, Profile settings, Venue actions, shared tab chrome, Tonight list support, and saved-state helper consistency, so the next frontend maintenance work should be narrower follow-up cleanup rather than another broad structural sweep
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -488,12 +489,10 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- remaining mixed-support screens outside the rebuilt tab/detail surfaces
-- remaining oversized shared support components that still mix orchestration and bulky rendering
-- remaining oversized card/list support components inside rebuilt surfaces
+- broader encoding cleanup outside the rebuilt/touched surfaces
+- any future regressions that reintroduce hardcoded copy or route-level persistence into rebuilt screens
 - mojibake and encoding-damaged strings
-- direct AsyncStorage use scattered across screens
-- inconsistent saved-state naming
+- long-tail persistence cleanup that still belongs in helper layers rather than UI files
 
 See:
 - `docs/08-reference/code_quality_audit_2026_03_09.md`

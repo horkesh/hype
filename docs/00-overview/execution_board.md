@@ -211,6 +211,7 @@ Status:
   - Venue actions now use helper-owned action definitions plus extracted primary and delivery action groups, so `VenueActionButtons.tsx` is down to dispatch orchestration
   - shared chrome now also uses extracted tab-indicator and tab-button-row sections, and Tonight list rendering now uses helper-owned event-card view models plus extracted list-state/card-list sections
   - saved-event and saved-series persistence now live behind shared storage helpers, with legacy event keys kept in sync so rebuilt surfaces no longer duplicate AsyncStorage logic
+  - the planned broad frontend cleanup wave is complete; follow-on work should now be narrower consistency cleanup, future regression prevention, and remaining non-rebuilt-surface cleanup instead of another cross-app structural sweep
 
 ## Backlog
 
@@ -390,8 +391,8 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup and the remaining shared chrome/support layer now the clearest targets
-   the main tab, home-support, detail-screen, map, tab-bar chrome, Tonight planner, Explore filter shell, Profile settings, and Venue action lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
+1. focus follow-on cleanup on broader encoding issues and any untouched long-tail support surfaces, not another all-frontends structural sweep
+   the planned Home/Explore/Tonight/Saved/Profile/detail/shared-chrome cleanup wave is now complete, so next work should be narrower and evidence-driven
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 
