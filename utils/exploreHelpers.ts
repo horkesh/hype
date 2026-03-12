@@ -38,7 +38,7 @@ export function filterVenuesByClientRules(
 }
 
 export function getPriceLevelDisplay(level: number): string {
-  return '€'.repeat(level);
+  return '\u20ac'.repeat(level);
 }
 
 export function isVenueOpenNow(openingHours: any): boolean {

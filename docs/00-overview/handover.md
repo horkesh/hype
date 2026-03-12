@@ -89,9 +89,15 @@ Most relevant changed surfaces:
 - `utils/tonightScreen.ts`
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
+- `components/explore/ExploreSearchSection.tsx`
+- `components/explore/ExploreControls.tsx`
+- `components/explore/ExploreVenueList.tsx`
+- `components/explore/ExploreMenuList.tsx`
+- `components/explore/ExploreFilterModal.tsx`
 - `utils/exploreScreen.ts`
 - `utils/exploreHelpers.ts`
 - `utils/exploreData.ts`
+- `tests/exploreHelpers.test.ts`
 - `docs/04-product/design_direction_brief.md`
 - `docs/04-product/pencil_prompt_pack.md`
 
@@ -147,7 +153,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight moved onto shared helpers, and Explore now on one shared implementation with extracted constants/filter/data helpers
+- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight moved onto shared helpers, and Explore now on one shared implementation with extracted constants/filter/data helpers plus extracted render sections under `components/explore/`
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -174,7 +180,7 @@ Immediate resume sequence:
 1. use `npm.cmd` or `npx.cmd` from PowerShell on the home machine
 2. rerun the web app on the fixed working port
 3. spot-check Home, Explore, Tonight, Saved, and Profile after the latest simplification commits
-4. if the shared routes stay stable, continue reducing oversized route files by moving pure helpers and duplicated constants out of the route bodies
+4. if the shared routes stay stable, continue reducing oversized route files by moving route-local orchestration and remaining bulky render sections into shared components or helper modules
 5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change
 
 ## Important known realities
@@ -224,6 +230,11 @@ The latest route-simplification passes added four more important outcomes:
 - moved Tonight planner types, moods, segments, and share text into `utils/tonightScreen.ts`
 - collapsed Explore to one real shared route implementation, with `app/(tabs)/explore.ios.tsx` now only re-exporting the shared screen
 - extracted Explore's route metadata, pure filter helpers, and Supabase loading helpers into `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
+
+The latest Explore cleanup pass added three more important outcomes:
+- decomposed the shared Explore route into focused UI sections under `components/explore/` for search, controls, venue rendering, menu rendering, and the filter modal
+- fixed the Explore price-level display mojibake at the helper layer so the rebuilt route no longer emits broken `€` strings
+- added explicit regression coverage for Explore helper behavior in `tests/exploreHelpers.test.ts`
 
 New regression coverage now exists for:
 - weather mood merging

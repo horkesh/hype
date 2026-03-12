@@ -190,7 +190,7 @@ Status:
 - Progress:
   - Home, Saved, and Profile platform wrappers are already collapsed
   - Tonight now uses shared planner helpers instead of duplicated route-local constants and copy logic
-  - Explore now has one shared route implementation with extracted route metadata, filter helpers, and data loaders
+  - Explore now has one shared route implementation with extracted route metadata, filter helpers, data loaders, and focused render components under `components/explore/`
 
 ## Backlog
 
@@ -313,6 +313,7 @@ Status:
 - shared Home/Profile/Saved route wrappers replacing duplicated iOS shells
 - shared Tonight planner helpers under `utils/tonightScreen.ts`
 - shared Explore route plus extracted helper surfaces under `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
+- shared Explore render sections under `components/explore/` plus helper regression coverage in `tests/exploreHelpers.test.ts`
 - Expo Router helper-route cleanup
 - regression tests for Home weather, image sources, and accidental `app/` helper files
 - regression tests for shared Home copy/date/countdown helpers
@@ -363,7 +364,7 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on Explore and the next largest shared routes
+1. continue screen simplification and route stability on the next largest shared routes now that Explore's helpers and render sections are extracted
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 
