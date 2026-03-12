@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  ImageSourcePropType,
   Modal,
   Platform,
   RefreshControl,
@@ -21,16 +20,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/integrations/supabase/client';
 import { IconSymbol } from '@/components/IconSymbol';
 import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/errorLogger';
+import { resolveImageSource } from '@/utils/imageSource';
 import debounce from 'lodash.debounce';
 import Slider from '@react-native-community/slider';
-import { useRouter } from 'expo-router';
-
-// Helper to resolve image sources
-function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
-  if (!source) return { uri: '' };
-  if (typeof source === 'string') return { uri: source };
-  return source as ImageSourcePropType;
-}
+import { Stack, useRouter } from 'expo-router';
 
 interface Venue {
   id: string;
@@ -389,10 +382,8 @@ export default function ExploreScreen() {
     }
   };
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
-      <HypeHeader />
-
+  const content = (
+    <>
       <ScrollView 
         style={styles.content} 
         keyboardShouldPersistTaps="handled"
@@ -773,6 +764,22 @@ export default function ExploreScreen() {
           </View>
         </View>
       </Modal>
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <View style={[styles.container, styles.iosContainer, { backgroundColor: colors.background }]}>
+        <Stack.Screen options={{ headerShown: false }} />
+        {content}
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <HypeHeader />
+      {content}
     </SafeAreaView>
   );
 }
@@ -780,6 +787,9 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  iosContainer: {
+    paddingTop: 48,
   },
   content: {
     flex: 1,

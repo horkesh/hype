@@ -546,3 +546,11 @@ Copy this block when adding a new work entry.
 - Decisions: Keep the shared helper as the source of truth for mood definitions and leave this pass focused on copy/UI polish only, rather than broadening it into another structural refactor.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Continue with the next large duplicated tab screen and use the same pattern of shared helper extraction first, then copy/surface cleanup as a second pass where needed.
+
+### 2026-03-12 03:40
+- Goal: Remove the remaining full-file Explore duplication now that Saved, Profile, Home, and Tonight have already been trimmed down.
+- Changes made: Made `app/(tabs)/explore.tsx` platform-aware for the only real shell difference (`HypeHeader` + `SafeAreaView` on non-iOS versus `Stack.Screen` + top padding on iOS), switched it to the shared `resolveImageSource` helper, and reduced `app/(tabs)/explore.ios.tsx` to a thin re-export of the shared implementation.
+- Files touched: `app/(tabs)/explore.tsx`, `app/(tabs)/explore.ios.tsx`, `docs/project_ledger.md`
+- Decisions: Collapse Explore into one shared implementation instead of introducing another intermediate component layer, because the route-body logic was already effectively identical and only the outer shell differed.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: Continue the remaining large-screen simplification by extracting Explore's duplicated constants/types next or moving to the next oversized shared tab surface if that yields a bigger stability win.
