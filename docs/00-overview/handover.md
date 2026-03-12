@@ -75,6 +75,7 @@ Most relevant changed surfaces:
 - `components/venue/VenueInfoSection.tsx`
 - `components/venue/VenueEventsSection.tsx`
 - `components/venue/VenueSpecialsSection.tsx`
+- `utils/dataAdapters.ts`
 - `utils/favorites.ts`
 - `utils/favoritesErrors.ts`
 - `utils/eventDetailData.ts`
@@ -83,6 +84,7 @@ Most relevant changed surfaces:
 - `utils/seriesDetailScreen.ts`
 - `utils/venueDetailData.ts`
 - `utils/venueDetailScreen.ts`
+- `tests/dataAdapters.test.ts`
 - `tests/eventDetailScreen.test.ts`
 - `tests/seriesDetailScreen.test.ts`
 - `tests/venueDetailScreen.test.ts`
@@ -311,16 +313,6 @@ Home machine:
 - `npm.cmd install` now succeeds after removing Hype's unused `react-leaflet` dependency and replacing the web map with an iframe/Leaflet embed
 - next setup targets after stabilization are EAS and Vercel
 
-### Temporary Natively workaround
-
-Because Natively could not create new source files easily, some temporary compatibility logic was mirrored into:
-- `utils/errorLogger.ts`
-
-The real architectural home for that logic is:
-- `utils/dataAdapters.ts`
-
-This workaround should be removed once Natively is no longer in the loop.
-
 ### Latest stabilization pass
 
 The latest verified code changes did three important things:
@@ -462,6 +454,11 @@ The latest encoding cleanup pass added four more important outcomes:
 - cleaned shared mood and badge config in `utils/profileScreen.ts` and `utils/savedScreen.ts` so rebuilt Profile and Saved surfaces now read stable emoji and currency output from helper-owned config
 - updated `tests/profileScreen.test.ts` and `tests/savedScreen.test.ts` to assert the repaired helper output directly, keeping future encoding regressions closer to the source layer
 - kept the route and component layer unchanged for this pass by fixing the source-of-truth context/helper modules first instead of patching leaf UI files
+
+The latest adapter cleanup pass added three more important outcomes:
+- removed the old Natively-era normalization workaround from `utils/errorLogger.ts`, leaving that module focused on runtime log forwarding instead of UI data compatibility
+- moved Explore, Saved, and Venue detail normalization back onto the canonical `utils/dataAdapters.ts` module
+- added `tests/dataAdapters.test.ts` so the shared venue and daily-special adapter layer now has direct regression coverage instead of being validated only indirectly through route tests
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

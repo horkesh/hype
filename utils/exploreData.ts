@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/errorLogger';
+import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/dataAdapters';
 import { filterDailySpecialsByPrice, filterVenuesByClientRules } from '@/utils/exploreHelpers';
 import { DailySpecial, SearchResult, Venue } from '@/utils/exploreScreen';
 

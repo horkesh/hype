@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { normalizeVenueRows } from '@/utils/errorLogger';
+import { normalizeVenueRows } from '@/utils/dataAdapters';
 import {
   getCurrentUserId,
   getFavoriteVenueIdsForCurrentUser,

@@ -785,3 +785,11 @@ Copy this block when adding a new work entry.
 - Decisions: When mojibake appears in rebuilt surfaces, fix the translation tables and helper-owned config modules first, then let the UI inherit the repair instead of scattering one-off label fixes through components.
 - Verification: `npx.cmd tsx --test tests/profileScreen.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts tests/homeScreenContent.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the long-tail encoding sweep on other shared source modules and untouched support surfaces, keeping docs and napkin updated as each meaningful slice lands.
+
+### 2026-03-12 20:55
+- Goal: Remove the leftover Natively-era adapter workaround so normalization logic lives in one canonical helper surface again.
+- Changes made: Repointed Explore, Saved, and Venue detail data loaders from `utils/errorLogger.ts` to `utils/dataAdapters.ts`; removed the duplicated normalization exports from `utils/errorLogger.ts`; added `tests/dataAdapters.test.ts`; and refreshed handover, the execution board, and the napkin so the cleanup story no longer treats adapter duplication as an acceptable temporary state.
+- Files touched: `utils/exploreData.ts`, `utils/savedData.ts`, `utils/venueDetailData.ts`, `utils/errorLogger.ts`, `tests/dataAdapters.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: Once a tooling constraint is gone, temporary compatibility logic should collapse back into the canonical helper module immediately, with direct regression tests added there instead of leaving route behavior to prove adapter correctness indirectly.
+- Verification: `npx.cmd tsx --test tests/dataAdapters.test.ts tests/venueDetailScreen.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the evidence-driven post-cleanup sweep on the next remaining large route/controller surface, with `app/(tabs)/explore.tsx` and the other large shared tab routes still the strongest candidates.

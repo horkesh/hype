@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { normalizeDailySpecialRows, normalizeVenue } from '@/utils/errorLogger';
+import { normalizeDailySpecialRows, normalizeVenue } from '@/utils/dataAdapters';
 import {
   addVenueFavoriteForCurrentUser,
   isVenueFavoritedByCurrentUser,

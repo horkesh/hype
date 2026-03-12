@@ -213,6 +213,7 @@ Status:
   - saved-event and saved-series persistence now live behind shared storage helpers, with legacy event keys kept in sync so rebuilt surfaces no longer duplicate AsyncStorage logic
 - the planned broad frontend cleanup wave is complete; follow-on work should now be narrower consistency cleanup, future regression prevention, and remaining non-rebuilt-surface cleanup instead of another cross-app structural sweep
 - shared translation and helper-owned config cleanup has started in `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts`, with matching regression assertions added so encoding fixes land at the source layer instead of in leaf screens
+- the old Natively-era adapter workaround has been removed from `utils/errorLogger.ts`, with Explore, Saved, and Venue detail normalization callers now back on `utils/dataAdapters.ts` and covered by direct adapter tests
 
 ## Backlog
 
@@ -305,6 +306,16 @@ Status:
   - app-wide translation strings in `contexts/AppContext.tsx` are now cleaned
   - helper-owned Profile and Saved config in `utils/profileScreen.ts` and `utils/savedScreen.ts` now expose clean emoji and currency output
   - regression coverage now asserts clean helper output in `tests/profileScreen.test.ts` and `tests/savedScreen.test.ts`
+
+#### B13. Adapter and compatibility cleanup
+
+- Status: `In Progress`
+- Goal:
+  - keep schema-normalization and compatibility logic in one canonical helper surface instead of mirrored workaround modules
+- Progress:
+  - Explore, Saved, and Venue detail now read normalization helpers from `utils/dataAdapters.ts`
+  - the temporary adapter duplication inside `utils/errorLogger.ts` has been removed
+  - direct regression coverage now exists in `tests/dataAdapters.test.ts`
 
 #### B11. Platform duplication reduction
 
@@ -401,6 +412,7 @@ Status:
    the planned Home/Explore/Tonight/Saved/Profile/detail/shared-chrome cleanup wave is now complete, so next work should be narrower and evidence-driven
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. continue encoding cleanup by fixing shared translation and helper/config sources before leaf screens whenever mojibake is found
+4. keep collapsing temporary workaround logic back into canonical helper modules, with `utils/errorLogger.ts` already cleaned and remaining route/controller cleanup still evidence-driven
 
 ### Wave 2
 
