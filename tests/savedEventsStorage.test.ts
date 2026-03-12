@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  hasSavedEventId,
   parseSavedEventIds,
   removeSavedEventIdFromList,
+  toggleSavedEventIdInList,
 } from '@/utils/savedEventsStorage';
 
 test('parseSavedEventIds reads string arrays safely', () => {
@@ -14,4 +16,11 @@ test('parseSavedEventIds reads string arrays safely', () => {
 
 test('removeSavedEventIdFromList removes only the requested event', () => {
   assert.deepEqual(removeSavedEventIdFromList(['a', 'b', 'c'], 'b'), ['a', 'c']);
+});
+
+test('saved event list helpers detect and toggle membership predictably', () => {
+  assert.equal(hasSavedEventId(['a', 'b'], 'b'), true);
+  assert.equal(hasSavedEventId(['a', 'b'], 'c'), false);
+  assert.deepEqual(toggleSavedEventIdInList(['a', 'b'], 'b'), ['a']);
+  assert.deepEqual(toggleSavedEventIdInList(['a', 'b'], 'c'), ['a', 'b', 'c']);
 });
