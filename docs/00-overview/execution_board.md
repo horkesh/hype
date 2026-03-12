@@ -218,6 +218,7 @@ Status:
 - Explore search, filter, and refresh controller state now lives in `hooks/useExploreController.ts` plus `components/explore/ExploreScreenBody.tsx`, so the route itself is down to shell selection and prop wiring
 - Tonight planner, vote, refresh, and navigation controller state now lives in `hooks/useTonightController.ts`, and the mock vote-link path is deterministic through `utils/tonightVote.ts`
 - Profile auth/session/taste controller state now lives in `hooks/useProfileController.ts`, and route-owned auth/modal alerts now come from `utils/profileSettings.ts`
+- Home helper/test literals are now cleaned in `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, and `tests/homeScreen.test.ts`, so the Home regression suite no longer preserves mojibake
 
 ## Backlog
 
@@ -314,6 +315,7 @@ Status:
   - touched Explore test literals are now clean, and helper-owned menu-filter labels now have direct coverage in `tests/exploreHelpers.test.ts`
   - touched Tonight emoji and label assertions are now clean, and deterministic mock vote-link generation is covered in `tests/tonightVote.test.ts`
   - touched Profile auth and sign-out modal copy now lives in `utils/profileSettings.ts`, with direct coverage in `tests/profileSettings.test.ts`
+  - Home helper tests now assert the cleaned helper output directly instead of carrying damaged literals from earlier prototype passes
 
 #### B13. Adapter and compatibility cleanup
 

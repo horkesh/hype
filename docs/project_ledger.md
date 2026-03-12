@@ -825,3 +825,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a route still owns alert strings for auth, save failures, or confirmation modals, move that copy into the same helper module that already owns the screen's settings text before splitting the controller layer into a hook.
 - Verification: `npx.cmd tsx --test tests/profileScreen.test.ts tests/profileSettings.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: The main tab-route controller wave is now much smaller; the strongest remaining cleanup candidates are smaller shared support surfaces and long-tail encoding cleanup outside the rebuilt/tested paths.
+
+### 2026-03-12 22:10
+- Goal: Continue the long-tail encoding cleanup by repairing the Home helper/test layer so the regression suite reflects the cleaned helper output.
+- Changes made: Rewrote `utils/homeScreenContent.ts` with clean code-point escapes for mood emoji and helper copy; cleaned `tests/homeScreenContent.test.ts` and `tests/homeScreen.test.ts` so they assert the repaired strings directly; refreshed handover, the execution board, and the napkin; and recorded the one-off Metro cache-deserialization fallback that still allowed the export to complete.
+- Files touched: `utils/homeScreenContent.ts`, `tests/homeScreenContent.test.ts`, `tests/homeScreen.test.ts`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When long-tail encoding cleanup reaches a helper layer, update the adjacent regression tests in the same slice so the suite stops preserving corrupted literals as the expected output.
+- Verification: `npx.cmd tsx --test tests/homeScreen.test.ts tests/homeScreenContent.test.ts tests/homeEventsSection.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the long-tail support and encoding wave on the next touched helper/test surfaces, not by reopening the now-thinner main tab-route controllers.

@@ -13,16 +13,16 @@ import {
 } from '@/utils/homeScreenContent';
 
 test('home labels reflect the selected language', () => {
-  assert.equal(getHomeSectionLabels('bs').events, 'Nadolazeći događaji');
+  assert.equal(getHomeSectionLabels('bs').events, 'Nadolaze\u0107i doga\u0111aji');
   assert.equal(getHomeSectionLabels('en').events, 'Upcoming events');
   assert.equal(getHomeSectionLabels('bs').seeAll, 'Vidi sve');
   assert.equal(getHomeSectionLabels('en').seeAll, 'See all');
 });
 
 test('time-of-day hero messages are deterministic by hour and language', () => {
-  assert.equal(getTimeOfDayHeroMessage('bs', 9), 'Dobro jutro, Sarajevo! ☕');
-  assert.equal(getTimeOfDayHeroMessage('en', 15), 'Good afternoon! What are you up to? 🌞');
-  assert.equal(getTimeOfDayHeroMessage('bs', 21), 'Dobro veče! Vrijeme je za izlazak 🌙');
+  assert.equal(getTimeOfDayHeroMessage('bs', 9), 'Dobro jutro, Sarajevo! \u2615');
+  assert.equal(getTimeOfDayHeroMessage('en', 15), 'Good afternoon! What are you up to? \u{1F31E}');
+  assert.equal(getTimeOfDayHeroMessage('bs', 21), 'Dobro ve\u010de! Vrijeme je za izlazak \u{1F319}');
 });
 
 test('series countdown covers future, active, and ended states', () => {
@@ -34,7 +34,7 @@ test('series countdown covers future, active, and ended states', () => {
   );
   assert.equal(
     getSeriesCountdownLabel('bs', '2026-03-10', '2026-03-15', now),
-    '🔥 Aktivno sada'
+    '\u{1F525} Aktivno sada'
   );
   assert.equal(
     getSeriesCountdownLabel('en', '2026-03-01', '2026-03-05', now),
@@ -74,8 +74,8 @@ test('cafe description prefers language-specific text with fallback', () => {
 });
 
 test('home copy helpers return stable copy collections', () => {
-  assert.equal(getDefaultHeroSubtitle('bs'), 'Otkrijte najbolje što Sarajevo nudi danas');
-  assert.equal(getEmptyEventsMessage('en'), 'Nothing for today, but tomorrow is a new day! 🌄');
+  assert.equal(getDefaultHeroSubtitle('bs'), 'Otkrijte najbolje \u0161to Sarajevo nudi danas');
+  assert.equal(getEmptyEventsMessage('en'), 'Nothing for today, but tomorrow is a new day! \u{1F304}');
   assert.equal(HOME_MOODS[0].id, 'party');
-  assert.equal(HOME_MOODS[0].emoji, '🎉');
+  assert.equal(HOME_MOODS[0].emoji, '\u{1F389}');
 });

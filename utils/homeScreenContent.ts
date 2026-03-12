@@ -16,34 +16,36 @@ interface HomeSectionLabels {
 }
 
 export const HOME_MOODS: HomeMoodOption[] = [
-  { id: 'party', emoji: '\ud83c\udf89', label_bs: 'Party', label_en: 'Party' },
-  { id: 'chill', emoji: '\ud83d\ude0c', label_bs: 'Chill', label_en: 'Chill' },
-  { id: 'girls_night', emoji: '\ud83d\udc6f', label_bs: 'Girls Night', label_en: 'Girls Night' },
-  { id: 'date_night', emoji: '\ud83d\udc91', label_bs: 'Date Night', label_en: 'Date Night' },
-  { id: 'muzika', emoji: '\ud83c\udfb5', label_bs: 'Muzika', label_en: 'Music' },
-  { id: 'romantika', emoji: '\ud83d\udc95', label_bs: 'Romantika', label_en: 'Romance' },
-  { id: 'kultura', emoji: '\ud83c\udfad', label_bs: 'Kultura', label_en: 'Culture' },
-  { id: 'foodie', emoji: '\ud83c\udf7d\ufe0f', label_bs: 'Foodie', label_en: 'Foodie' },
-  { id: 'brunch', emoji: '\ud83e\udd50', label_bs: 'Brunch', label_en: 'Brunch' },
-  { id: 'after_work', emoji: '\ud83c\udf7b', label_bs: 'After Work', label_en: 'After Work' },
-  { id: 'outdoor', emoji: '\ud83c\udf33', label_bs: 'Outdoor', label_en: 'Outdoor' },
-  { id: 'turista', emoji: '\ud83d\udcf8', label_bs: 'Turista', label_en: 'Tourist' },
+  { id: 'party', emoji: '\u{1F389}', label_bs: 'Party', label_en: 'Party' },
+  { id: 'chill', emoji: '\u{1F60C}', label_bs: 'Chill', label_en: 'Chill' },
+  { id: 'girls_night', emoji: '\u{1F46F}', label_bs: 'Girls Night', label_en: 'Girls Night' },
+  { id: 'date_night', emoji: '\u{1F491}', label_bs: 'Date Night', label_en: 'Date Night' },
+  { id: 'muzika', emoji: '\u{1F3B5}', label_bs: 'Muzika', label_en: 'Music' },
+  { id: 'romantika', emoji: '\u{1F495}', label_bs: 'Romantika', label_en: 'Romance' },
+  { id: 'kultura', emoji: '\u{1F3AD}', label_bs: 'Kultura', label_en: 'Culture' },
+  { id: 'foodie', emoji: '\u{1F37D}\uFE0F', label_bs: 'Foodie', label_en: 'Foodie' },
+  { id: 'brunch', emoji: '\u{1F950}', label_bs: 'Brunch', label_en: 'Brunch' },
+  { id: 'after_work', emoji: '\u{1F37B}', label_bs: 'After Work', label_en: 'After Work' },
+  { id: 'outdoor', emoji: '\u{1F333}', label_bs: 'Outdoor', label_en: 'Outdoor' },
+  { id: 'turista', emoji: '\u{1F4F8}', label_bs: 'Turista', label_en: 'Tourist' },
 ];
 
 export function getTimeOfDayHeroMessage(language: HomeLanguage, hour: number): string {
   if (hour < 12) {
-    return language === 'bs' ? 'Dobro jutro, Sarajevo! \u2615' : 'Good morning, Sarajevo! \u2615';
+    return language === 'bs'
+      ? 'Dobro jutro, Sarajevo! \u2615'
+      : 'Good morning, Sarajevo! \u2615';
   }
 
   if (hour < 18) {
     return language === 'bs'
-      ? 'Dobar dan! \u0160ta radi\u0161 danas? \ud83c\udf1e'
-      : 'Good afternoon! What are you up to? \ud83c\udf1e';
+      ? 'Dobar dan! \u0160ta radi\u0161 danas? \u{1F31E}'
+      : 'Good afternoon! What are you up to? \u{1F31E}';
   }
 
   return language === 'bs'
-    ? 'Dobro ve\u010de! Vrijeme je za izlazak \ud83c\udf19'
-    : 'Good evening! Time to go out \ud83c\udf19';
+    ? 'Dobro ve\u010de! Vrijeme je za izlazak \u{1F319}'
+    : 'Good evening! Time to go out \u{1F319}';
 }
 
 export function getDefaultHeroSubtitle(language: HomeLanguage): string {
@@ -74,8 +76,8 @@ export function getHomeSectionLabels(language: HomeLanguage): HomeSectionLabels 
 
 export function getEmptyEventsMessage(language: HomeLanguage): string {
   return language === 'bs'
-    ? 'Ni\u0161ta za danas, ali sutra je novi dan! \ud83c\udf04'
-    : 'Nothing for today, but tomorrow is a new day! \ud83c\udf04';
+    ? 'Ni\u0161ta za danas, ali sutra je novi dan! \u{1F304}'
+    : 'Nothing for today, but tomorrow is a new day! \u{1F304}';
 }
 
 export function getCafeDescription(
@@ -131,7 +133,7 @@ export function getSeriesCountdownLabel(
   }
 
   if (today >= start && today <= end) {
-    return language === 'bs' ? '\ud83d\udd25 Aktivno sada' : '\ud83d\udd25 Active now';
+    return language === 'bs' ? '\u{1F525} Aktivno sada' : '\u{1F525} Active now';
   }
 
   return language === 'bs' ? 'Zavr\u0161eno' : 'Ended';

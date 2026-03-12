@@ -119,6 +119,8 @@
    Do instead: install one machine marker file at `C:\Users\haris.daul\.codex-machine.toml` on each machine so future sessions can distinguish protected work flows from full-dev home flows without guesswork.
 4. **[2026-03-12] Local runtime artifacts should never stay unignored**
    Do instead: ignore Expo log files and `test-results/` as soon as they appear so sync noise does not turn into fake repo work.
+5. **[2026-03-12] Metro cache deserialization errors are not necessarily a build blocker**
+   Do instead: if Expo web logs `Unable to deserialize cloned data` from Metro cache reads, note it, let Metro fall back to the full crawl once, and only treat it as a blocker if the export itself fails.
 
 ## User Directives
 1. **[2026-03-09] Keep a living project ledger in `docs/`**

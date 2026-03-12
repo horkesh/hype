@@ -488,6 +488,11 @@ The latest Profile controller cleanup pass added four more important outcomes:
 - cleaned and localized `components/profile/ProfileSignOutModal.tsx` so the modal no longer carries hardcoded damaged Bosnian strings
 - expanded `tests/profileSettings.test.ts` so the touched modal/auth copy is covered directly
 
+The latest Home helper cleanup pass added three more important outcomes:
+- normalized `utils/homeScreenContent.ts` onto clean code-point escapes for mood emoji and helper copy, keeping the source helper layer readable and consistent with the rest of the rebuilt app
+- cleaned `tests/homeScreenContent.test.ts` and `tests/homeScreen.test.ts` so Home helper regressions now assert the repaired output instead of preserving old mojibake literals
+- confirmed the Home helper pack still passes under Expo web export; Metro logged a cache-deserialization fallback once during export, but the build recovered and completed successfully
+
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
 - decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
