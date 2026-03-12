@@ -122,7 +122,7 @@ Status:
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
   - Home web/runtime verification is now green after the shared Home rebuild and web-safe image path changes
-  - current route-stability work has shifted toward simplification of the largest shared routes, especially Explore and Tonight, so future runtime bugs are easier to isolate
+  - current route-stability work has shifted toward simplification of the largest shared routes and detail surfaces, with Venue detail now moved onto extracted data/helper/render modules and Event/Series detail next in line
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -193,6 +193,7 @@ Status:
   - Profile now uses shared auth/data helpers and extracted render components instead of one large mixed auth/settings/taste route
   - Tonight now has one shared route implementation with extracted planner/vote/event rendering, data loaders, and helper logic
   - Explore now has one shared route implementation with extracted route metadata, filter helpers, data loaders, and focused render components under `components/explore/`
+  - Venue detail now uses `utils/venueDetailData.ts`, `utils/venueDetailScreen.ts`, and focused `components/venue/` sections instead of one mixed fetch/save/render route
 
 ## Backlog
 
@@ -370,6 +371,7 @@ Status:
 ### Wave 1
 
 1. continue screen simplification and route stability on the next oversized surfaces outside the rebuilt tab stack, with encoding cleanup and remaining mixed detail/admin routes now the clearest targets
+   current first targets are Event detail and Series detail now that Venue detail is decomposed
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

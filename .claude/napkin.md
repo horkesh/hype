@@ -51,8 +51,8 @@
    Do instead: make route and tab changes through the relevant `_layout.tsx` files and route folders instead of patching navigation behavior ad hoc inside leaf screens.
 3. **[2026-03-12] Collapse platform wrappers once behavior is truly shared**
    Do instead: keep `.ios.tsx` and `.web.tsx` files only when they represent real platform differences; otherwise re-export the shared screen and keep the logic in one place.
-4. **[2026-03-09] Detail screens should define async helpers before effects**
-   Do instead: declare local loaders and persistence helpers before any `useEffect` that calls them, or use hoisted function declarations instead of later `const` function expressions.
+4. **[2026-03-12] Large detail screens should extract loaders and localized display helpers before UI sections**
+   Do instead: move Supabase reads, save-state mutations, hours/date/copy formatting, and similar display logic into `utils/<surface>Data.ts` and `utils/<surface>Screen.ts` before splitting hero, tabs, and cards into `components/<surface>/`.
 5. **[2026-03-09] Effect dependencies should use stable inputs, not local callback identities**
    Do instead: base detail-screen effects on stable values like route params or selected ids unless the callbacks are intentionally memoized.
 6. **[2026-03-09] Debounced handlers need a real debounced instance**

@@ -31,6 +31,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
 - continue the shared-screen simplification pass on the largest remaining routes, with Explore now partly collapsed and Tonight already moved onto shared helpers
+- treat Venue detail as already on the shared-route pattern; the next large non-tab cleanup targets are Event detail and Series detail
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -51,8 +52,18 @@ Most relevant changed surfaces:
 - `components/profile/ProfileSettingsSection.tsx`
 - `components/profile/ProfileSignOutModal.tsx`
 - `app/venue/[id].tsx`
+- `components/venue/VenueDetailHeader.tsx`
+- `components/venue/VenueHoursSection.tsx`
+- `components/venue/VenueActionButtons.tsx`
+- `components/venue/VenueDetailTabs.tsx`
+- `components/venue/VenueInfoSection.tsx`
+- `components/venue/VenueEventsSection.tsx`
+- `components/venue/VenueSpecialsSection.tsx`
 - `utils/favorites.ts`
 - `utils/favoritesErrors.ts`
+- `utils/venueDetailData.ts`
+- `utils/venueDetailScreen.ts`
+- `tests/venueDetailScreen.test.ts`
 - `utils/profileData.ts`
 - `utils/profileScreen.ts`
 - `utils/savedData.ts`
@@ -179,7 +190,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, leaving the next cleanup wave to focus on the remaining oversized non-tab surfaces plus encoding cleanup
+- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures and Venue detail now following the same route-orchestration pattern, leaving the next cleanup wave to focus on Event detail, Series detail, and remaining encoding cleanup
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -207,6 +218,7 @@ Immediate resume sequence:
 2. rerun the web app on the fixed working port
 3. spot-check Home, Explore, Tonight, Saved, and Profile after the latest simplification commits
 4. if the shared routes stay stable, continue reducing oversized route files by moving route-local orchestration and remaining bulky render sections into shared components or helper modules
+   with Venue detail complete, the next best route targets are `app/event/[id].tsx` and `app/series/[id].tsx`
 5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change
 
 ## Important known realities
@@ -280,6 +292,12 @@ The latest Profile cleanup pass added four more important outcomes:
 - decomposed Profile rendering into focused UI sections under `components/profile/`
 - added targeted regression coverage for Profile helper behavior in `tests/profileScreen.test.ts`
 
+The latest Venue detail cleanup pass added four more important outcomes:
+- moved Venue detail Supabase reads and favorite-state mutations out of the route and into `utils/venueDetailData.ts`
+- moved Venue detail localized copy, hours math, event-date formatting, and mood metadata into `utils/venueDetailScreen.ts`
+- decomposed Venue detail rendering into focused UI sections under `components/venue/` and switched it onto the shared `ImageWithPlaceholder` path
+- added targeted regression coverage for Venue detail helper behavior in `tests/venueDetailScreen.test.ts`
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -290,6 +308,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
+- remaining oversized non-tab detail screens, especially Event detail and Series detail
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming
