@@ -865,3 +865,11 @@ Copy this block when adding a new work entry.
 - Decisions: When a shared Saved surface still branches across three content types inline, shape the card data first in a helper module and let the shell render named list/grid components instead of mixing all the per-tab display rules together.
 - Verification: `npx.cmd tsx --test tests/savedContent.test.ts tests/savedScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the narrower post-cleanup wave on the next remaining shared support surface rather than reopening stable route/controller work.
+
+### 2026-03-12 23:30
+- Goal: Finish the current support-wave pass by thinning the shared Explore screen body into named result and modal sections instead of leaving both branch trees inline.
+- Changes made: Added `components/explore/ExploreResultsSection.tsx` and `components/explore/ExploreModalStack.tsx`; rewrote `components/explore/ExploreScreenBody.tsx` to delegate result and modal branching to those extracted sections; kept the existing Explore helper-owned list/filter behavior intact; and refreshed handover, the execution board, and the napkin in the same slice.
+- Files touched: `components/explore/ExploreScreenBody.tsx`, `components/explore/ExploreResultsSection.tsx`, `components/explore/ExploreModalStack.tsx`, `.claude/napkin.md`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `docs/project_ledger.md`
+- Decisions: When a shared screen body still owns both its top-level search/controls composition and its results-or-modals branching, split the latter into named sections first so the body becomes a stable orchestration shell.
+- Verification: `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/exploreLists.test.ts tests/exploreScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Move from support-surface decomposition into the source-layer consistency sweep next, with encoding and helper contract cleanup now the better leverage than more UI shell splitting.

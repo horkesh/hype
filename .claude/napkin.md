@@ -117,6 +117,8 @@
    Do instead: when a runtime-only logger still carries muting rules, argument stringification, or stack parsing inline, move those pure pieces into `utils/<surface>Utils.ts` first so Node-side tests can cover them and the runtime module can stay focused on platform wiring.
 14. **[2026-03-12] Large saved-state content shells should build card models before rendering lists**
    Do instead: when a Saved-style surface still branches across venues, events, and badges inline, move localized card text, price/date formatting, mood badges, and earned/progress state into `utils/<surface>Content.ts`, then keep the shell responsible only for empty/loading branching and delegating to list/grid components.
+15. **[2026-03-12] Large screen-body shells should split search-or-controls from results-or-modals first**
+   Do instead: when a shared screen body still owns both the top chrome and the result/modal branching, extract named `ResultsSection` and `ModalStack` components before chasing smaller prop cleanups so the body becomes an obvious composition shell.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**

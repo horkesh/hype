@@ -35,6 +35,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - keep the favorites migration on the helper-owned storage path too, with `utils/favoritesStorage.ts` now owning legacy key reads, mirrored writes, and remote-missing calculations so `utils/favorites.ts` can stay focused on auth plus Supabase orchestration
 - keep the runtime logging cleanup on the helper-owned utility path too, with `utils/errorLoggerUtils.ts` now owning mute rules, log-argument stringification, and stack parsing so `utils/errorLogger.ts` can stay focused on platform wiring and log forwarding
 - keep the Saved support cleanup on the helper-owned content path too, with `utils/savedContent.ts` now owning venue/event/badge card shaping so `components/saved/SavedTabContent.tsx` can stay focused on loading, empty-state branching, and delegating to list/grid sections
+- keep the Explore support cleanup on the composition path too, with `ExploreScreenBody.tsx` now delegating result and modal branching into `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` instead of owning both lanes inline
 - treat encoding cleanup and other long-tail consistency work as the next priority, starting from shared translation/config sources like `contexts/AppContext.tsx`, `utils/profileScreen.ts`, and `utils/savedScreen.ts` before touching leaf UI files
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
@@ -212,6 +213,8 @@ Most relevant changed surfaces:
 - `app/(tabs)/explore.ios.tsx`
 - `components/explore/ExploreSearchSection.tsx`
 - `components/explore/ExploreScreenBody.tsx`
+- `components/explore/ExploreResultsSection.tsx`
+- `components/explore/ExploreModalStack.tsx`
 - `components/explore/ExploreControls.tsx`
 - `components/explore/ExploreVenueList.tsx`
 - `components/explore/ExploreMenuList.tsx`
@@ -528,6 +531,11 @@ The latest Saved content cleanup pass added three more important outcomes:
 - moved Saved venue, event, and badge card shaping into `utils/savedContent.ts`, leaving `components/saved/SavedTabContent.tsx` focused on loading and empty-state branching
 - split the Saved content branches into `SavedVenueList.tsx`, `SavedEventList.tsx`, and `SavedBadgeGrid.tsx`, so the top-level Saved content shell no longer renders all three list/grid variants inline
 - added targeted regression coverage in `tests/savedContent.test.ts` so localized card titles, date/price text, mood badges, and badge earned/progress state are now covered directly
+
+The latest Explore body cleanup pass added three more important outcomes:
+- split `components/explore/ExploreScreenBody.tsx` into a thinner composition shell plus `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` for the result and modal branches
+- kept the existing Explore data/filter behavior unchanged while removing the last large inline result-vs-modal branch from the shared screen body
+- confirmed the Explore helper and web-export pack still passes after the composition split, so future cleanup can target narrower copy or helper issues instead of the screen-body shell itself
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

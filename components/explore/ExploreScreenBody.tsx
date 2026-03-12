@@ -2,12 +2,11 @@ import React from 'react';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { ExploreControls } from '@/components/explore/ExploreControls';
-import { ExploreFilterModal } from '@/components/explore/ExploreFilterModal';
-import { ExploreMenuList } from '@/components/explore/ExploreMenuList';
+import { ExploreModalStack } from '@/components/explore/ExploreModalStack';
+import { ExploreResultsSection } from '@/components/explore/ExploreResultsSection';
 import { ExploreSearchSection } from '@/components/explore/ExploreSearchSection';
-import { ExploreVenueList } from '@/components/explore/ExploreVenueList';
 import { DailySpecial, ExploreLookupItem, SearchResult, Venue } from '@/utils/exploreScreen';
-import { ExploreMenuFilterOption, getPriceLevelDisplay, isVenueOpenNow } from '@/utils/exploreHelpers';
+import { ExploreMenuFilterOption, getPriceLevelDisplay } from '@/utils/exploreHelpers';
 
 type ExploreTabKey = 'list' | 'menu';
 
@@ -174,41 +173,29 @@ export function ExploreScreenBody({
           translate={translate}
         />
 
-        {activeTab === 'list' ? (
-          <ExploreVenueList
-            accentColor={accentColor}
-            backgroundColor={backgroundColor}
-            cardColor={cardColor}
-            getPriceLevelDisplay={getPriceLevelDisplay}
-            isVenueOpenNow={isVenueOpenNow}
-            loading={loading}
-            moods={moods}
-            noResultsLabel={noResultsLabel}
-            onVenuePress={onVenuePress}
-            openNowLabel={openNowLabel}
-            textColor={textColor}
-            textSecondaryColor={textSecondaryColor}
-            venues={venues}
-          />
-        ) : (
-          <ExploreMenuList
-            accentColor={accentColor}
-            borderColor={borderColor}
-            cardColor={cardColor}
-            dailySpecials={dailySpecials}
-            filters={filters}
-            loading={loading}
-            noResultsLabel={noResultsLabel}
-            onToggleFilter={onToggleFilter}
-            selectedFilter={selectedFilter}
-            textColor={textColor}
-            textSecondaryColor={textSecondaryColor}
-            validUntilLabel={validUntilLabel}
-          />
-        )}
+        <ExploreResultsSection
+          accentColor={accentColor}
+          activeTab={activeTab}
+          backgroundColor={backgroundColor}
+          borderColor={borderColor}
+          cardColor={cardColor}
+          dailySpecials={dailySpecials}
+          filters={filters}
+          loading={loading}
+          moods={moods}
+          noResultsLabel={noResultsLabel}
+          onToggleFilter={onToggleFilter}
+          onVenuePress={onVenuePress}
+          openNowLabel={openNowLabel}
+          selectedFilter={selectedFilter}
+          textColor={textColor}
+          textSecondaryColor={textSecondaryColor}
+          validUntilLabel={validUntilLabel}
+          venues={venues}
+        />
       </ScrollView>
 
-      <ExploreFilterModal
+      <ExploreModalStack
         accentColor={accentColor}
         applyFiltersLabel={translate('applyFilters')}
         backgroundColor={backgroundColor}
