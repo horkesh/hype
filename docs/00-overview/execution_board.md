@@ -209,6 +209,7 @@ Status:
   - Explore filter support now also uses extracted modal-header and filter-content sections, so `ExploreFilterModal.tsx` is down to shell orchestration over helper-owned filter behavior
   - Profile settings now use helper-owned copy plus extracted settings-card and option-toggle sections, so the route and settings surface no longer carry hardcoded settings copy
   - Venue actions now use helper-owned action definitions plus extracted primary and delivery action groups, so `VenueActionButtons.tsx` is down to dispatch orchestration
+  - shared chrome now also uses extracted tab-indicator and tab-button-row sections, and Tonight list rendering now uses helper-owned event-card view models plus extracted list-state/card-list sections
 
 ## Backlog
 

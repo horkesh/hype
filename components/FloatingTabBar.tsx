@@ -8,14 +8,13 @@ import {
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FloatingTabButton } from '@/components/tabbar/FloatingTabButton';
+import { FloatingTabButtons } from '@/components/tabbar/FloatingTabButtons';
+import { FloatingTabIndicator } from '@/components/tabbar/FloatingTabIndicator';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '@/hooks/useTheme';
 import Animated, {
-  useAnimatedStyle,
   useSharedValue,
   withSpring,
-  interpolate,
 } from 'react-native-reanimated';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
@@ -76,20 +75,6 @@ export default function FloatingTabBar({
   const [indicatorStart, indicatorEnd] = getTabIndicatorTranslateRange(containerWidth, tabs.length);
   const surfaceColors = getTabBarSurfaceColors(isDark);
 
-  const indicatorStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateX: interpolate(
-            animatedValue.value,
-            [0, tabs.length - 1],
-            [indicatorStart, indicatorEnd]
-          ),
-        },
-      ],
-    };
-  });
-
   const dynamicStyles = {
     blurContainer: {
       ...styles.blurContainer,
@@ -132,25 +117,21 @@ export default function FloatingTabBar({
           style={[dynamicStyles.blurContainer, { borderRadius }]}
         >
           <View style={dynamicStyles.background} />
-          <Animated.View style={[dynamicStyles.indicator, indicatorStyle]} />
-          <View style={styles.tabsContainer}>
-            {tabs.map((tab, index) => {
-              const isActive = activeTabIndex === index;
-              const iconColor = isActive ? '#D4A056' : surfaceColors.iconColor;
-              const labelColor = isActive ? '#D4A056' : surfaceColors.labelColor;
-
-              return (
-                <FloatingTabButton
-                  key={typeof tab.route === 'string' ? tab.route : `${tab.name}-${index}`}
-                  tab={tab}
-                  isActive={isActive}
-                  iconColor={iconColor}
-                  labelColor={labelColor}
-                  onPress={() => handleTabPress(tab.route)}
-                />
-              );
-            })}
-          </View>
+          <FloatingTabIndicator
+            animatedValue={animatedValue}
+            indicatorColor={surfaceColors.indicatorColor}
+            indicatorEnd={indicatorEnd}
+            maxIndex={Math.max(tabs.length - 1, 0)}
+            indicatorStart={indicatorStart}
+            tabWidthPercent={tabWidthPercent}
+          />
+          <FloatingTabButtons
+            activeTabIndex={activeTabIndex}
+            iconColor={surfaceColors.iconColor}
+            labelColor={surfaceColors.labelColor}
+            tabs={tabs}
+            onPressTab={handleTabPress}
+          />
         </BlurView>
       </View>
     </SafeAreaView>
@@ -175,19 +156,5 @@ const styles = StyleSheet.create({
   },
   background: {
     ...StyleSheet.absoluteFillObject,
-  },
-  indicator: {
-    position: 'absolute',
-    top: 4,
-    left: 2,
-    bottom: 4,
-    borderRadius: 27,
-    width: `${(100 / 2) - 1}%`,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    height: 60,
-    alignItems: 'center',
-    paddingHorizontal: 4,
   },
 });

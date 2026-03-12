@@ -445,6 +445,11 @@ The latest shared tab-bar cleanup pass added four more important outcomes:
 - aligned the tab bar with the repo `useTheme()` hook instead of mixing in a separate navigation-theme source
 - added targeted regression coverage for tab-bar helper behavior in `tests/floatingTabBar.test.ts`
 
+The latest shared chrome cleanup pass added three more important outcomes:
+- split the remaining FloatingTabBar support into `components/tabbar/FloatingTabIndicator.tsx` and `components/tabbar/FloatingTabButtons.tsx`, leaving `components/FloatingTabBar.tsx` as thinner shell orchestration
+- moved Tonight event-card view-model shaping into `utils/tonightContent.ts` and split the list surface into `TonightEventListState.tsx` plus `TonightEventCards.tsx`
+- added targeted regression coverage in `tests/tonightContent.test.ts` so the Tonight list view-model layer stays stable while the final consistency sweep cleans the remaining touched copy
+
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
 - decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
