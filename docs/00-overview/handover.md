@@ -405,6 +405,11 @@ The latest Venue action cleanup pass added three more important outcomes:
 - split the action surface into `VenuePrimaryActionGroup.tsx` and `VenueDeliveryActionGroup.tsx`, leaving `VenueActionButtons.tsx` as dispatch orchestration over helper-owned action data
 - added targeted regression coverage in `tests/venueActions.test.ts` so action ordering and saved-state icon behavior stay stable
 
+The latest persistence consistency cleanup pass added three more important outcomes:
+- moved saved-event and saved-series storage reads/writes fully behind `utils/savedEventsStorage.ts` and `utils/savedSeriesStorage.ts`
+- kept both `saved_events` and `savedEvents` event keys in sync during the transition so rebuilt surfaces stop depending on whichever legacy key happened to be used earlier
+- removed the remaining duplicated AsyncStorage read/write logic from `utils/eventDetailData.ts`, `utils/savedData.ts`, and `utils/seriesDetailData.ts`, leaving persistence ownership in the storage helpers
+
 The latest Event detail cleanup pass added four more important outcomes:
 - moved Event detail Supabase reads and saved-event persistence out of the route and into `utils/eventDetailData.ts`
 - moved Event detail localized title/description, price/date/ticket formatting, and emoji metadata into `utils/eventDetailScreen.ts`

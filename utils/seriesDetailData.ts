@@ -1,14 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { supabase } from '@/integrations/supabase/client';
 import {
   hasSavedSeriesId,
-  parseSavedSeriesIds,
+  loadSavedSeriesIdsFromStorage,
+  saveSavedSeriesIdsToStorage,
   toggleSavedSeriesIdInList,
 } from '@/utils/savedSeriesStorage';
 import { SeriesDetailEvent, SeriesDetailSeries } from '@/utils/seriesDetailScreen';
-
-const SAVED_SERIES_KEY = 'savedSeries';
 
 export async function loadSeriesDetail(seriesId: string): Promise<SeriesDetailSeries | null> {
   const { data, error } = await supabase
@@ -40,18 +37,16 @@ export async function loadSeriesEvents(seriesId: string): Promise<SeriesDetailEv
 }
 
 export async function loadSeriesSavedState(seriesId: string): Promise<boolean> {
-  const rawIds = await AsyncStorage.getItem(SAVED_SERIES_KEY);
-  const ids = parseSavedSeriesIds(rawIds);
+  const ids = await loadSavedSeriesIdsFromStorage();
 
   return hasSavedSeriesId(ids, seriesId);
 }
 
 export async function toggleSeriesSavedState(seriesId: string): Promise<boolean> {
-  const rawIds = await AsyncStorage.getItem(SAVED_SERIES_KEY);
-  const ids = parseSavedSeriesIds(rawIds);
+  const ids = await loadSavedSeriesIdsFromStorage();
   const nextIds = toggleSavedSeriesIdInList(ids, seriesId);
 
-  await AsyncStorage.setItem(SAVED_SERIES_KEY, JSON.stringify(nextIds));
+  await saveSavedSeriesIdsToStorage(nextIds);
 
   return hasSavedSeriesId(nextIds, seriesId);
 }

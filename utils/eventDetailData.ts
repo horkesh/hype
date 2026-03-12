@@ -1,14 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { supabase } from '@/integrations/supabase/client';
 import {
   hasSavedEventId,
-  parseSavedEventIds,
+  loadSavedEventIdsFromStorage,
+  saveSavedEventIdsToStorage,
   toggleSavedEventIdInList,
 } from '@/utils/savedEventsStorage';
 import { EventDetailEvent } from '@/utils/eventDetailScreen';
-
-const SAVED_EVENTS_KEY = 'savedEvents';
 
 export async function loadEventDetail(eventId: string): Promise<EventDetailEvent | null> {
   const { data, error } = await supabase
@@ -42,18 +39,16 @@ export async function loadEventDetail(eventId: string): Promise<EventDetailEvent
 }
 
 export async function loadEventSavedState(eventId: string): Promise<boolean> {
-  const rawIds = await AsyncStorage.getItem(SAVED_EVENTS_KEY);
-  const ids = parseSavedEventIds(rawIds);
+  const ids = await loadSavedEventIdsFromStorage();
 
   return hasSavedEventId(ids, eventId);
 }
 
 export async function toggleEventSavedState(eventId: string): Promise<boolean> {
-  const rawIds = await AsyncStorage.getItem(SAVED_EVENTS_KEY);
-  const ids = parseSavedEventIds(rawIds);
+  const ids = await loadSavedEventIdsFromStorage();
   const nextIds = toggleSavedEventIdInList(ids, eventId);
 
-  await AsyncStorage.setItem(SAVED_EVENTS_KEY, JSON.stringify(nextIds));
+  await saveSavedEventIdsToStorage(nextIds);
 
   return hasSavedEventId(nextIds, eventId);
 }

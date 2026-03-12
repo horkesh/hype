@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeVenueRows } from '@/utils/errorLogger';
 import {
@@ -7,10 +5,12 @@ import {
   getFavoriteVenueIdsForCurrentUser,
   removeVenueFavoriteForCurrentUser,
 } from '@/utils/favorites';
-import { parseSavedEventIds, removeSavedEventIdFromList } from '@/utils/savedEventsStorage';
+import {
+  loadSavedEventIdsFromStorage,
+  removeSavedEventIdFromList,
+  saveSavedEventIdsToStorage,
+} from '@/utils/savedEventsStorage';
 import { SavedBadge, SavedEvent, SavedVenue } from '@/utils/savedScreen';
-
-const SAVED_EVENTS_KEY = 'saved_events';
 
 export async function loadSavedVenues(
   language: string
@@ -41,8 +41,7 @@ export async function loadSavedVenues(
 }
 
 export async function loadSavedEvents(): Promise<SavedEvent[]> {
-  const rawIds = await AsyncStorage.getItem(SAVED_EVENTS_KEY);
-  const ids = parseSavedEventIds(rawIds);
+  const ids = await loadSavedEventIdsFromStorage();
 
   if (ids.length === 0) {
     return [];
@@ -79,11 +78,10 @@ export async function removeSavedVenue(venueId: string): Promise<void> {
 }
 
 export async function removeSavedEvent(eventId: string): Promise<string[]> {
-  const rawIds = await AsyncStorage.getItem(SAVED_EVENTS_KEY);
-  const ids = parseSavedEventIds(rawIds);
+  const ids = await loadSavedEventIdsFromStorage();
   const nextIds = removeSavedEventIdFromList(ids, eventId);
 
-  await AsyncStorage.setItem(SAVED_EVENTS_KEY, JSON.stringify(nextIds));
+  await saveSavedEventIdsToStorage(nextIds);
 
   return nextIds;
 }

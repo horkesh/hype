@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   hasSavedEventId,
+  LEGACY_SAVED_EVENT_KEYS,
   parseSavedEventIds,
   removeSavedEventIdFromList,
   toggleSavedEventIdInList,
@@ -23,4 +24,8 @@ test('saved event list helpers detect and toggle membership predictably', () => 
   assert.equal(hasSavedEventId(['a', 'b'], 'c'), false);
   assert.deepEqual(toggleSavedEventIdInList(['a', 'b'], 'b'), ['a']);
   assert.deepEqual(toggleSavedEventIdInList(['a', 'b'], 'c'), ['a', 'b', 'c']);
+});
+
+test('saved event storage keeps both legacy keys in sync', () => {
+  assert.deepEqual(LEGACY_SAVED_EVENT_KEYS, ['saved_events', 'savedEvents']);
 });

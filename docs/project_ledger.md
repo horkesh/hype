@@ -761,3 +761,11 @@ Copy this block when adding a new work entry.
 - Decisions: Once a shared chrome or list surface mostly just shapes data and switches between states, extract the state wrapper and card-list builder before chasing smaller stylistic cleanup so the shell becomes obviously orchestration-only.
 - Verification: `npx.cmd tsx --test tests/floatingTabBar.test.ts tests/tonightContent.test.ts tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Finish with the encoding, naming, and persistence consistency sweep across the rebuilt surfaces rather than opening another new structural lane.
+
+### 2026-03-12 21:20
+- Goal: Finish the consistency sweep by removing saved-state key drift and duplicated AsyncStorage logic from the rebuilt event/series persistence path.
+- Changes made: Expanded `utils/savedEventsStorage.ts` and `utils/savedSeriesStorage.ts` to own storage-key lists plus shared load/save behavior; updated `utils/eventDetailData.ts`, `utils/savedData.ts`, and `utils/seriesDetailData.ts` to call those storage helpers instead of reading/writing AsyncStorage directly; added regression coverage for the stabilized key lists in `tests/savedEventsStorage.test.ts` and `tests/savedSeriesStorage.test.ts`; and updated handover, the execution board, and the napkin in the same slice.
+- Files touched: `utils/savedEventsStorage.ts`, `utils/savedSeriesStorage.ts`, `utils/eventDetailData.ts`, `utils/savedData.ts`, `utils/seriesDetailData.ts`, `tests/savedEventsStorage.test.ts`, `tests/savedSeriesStorage.test.ts`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: When legacy storage keys still exist during a migration, keep the compatibility reads and mirrored writes inside the storage helper itself so route/data helpers never need to know which key version is current.
+- Verification: `npx.cmd tsx --test tests/savedEventsStorage.test.ts tests/savedSeriesStorage.test.ts tests/profileSettings.test.ts tests/venueActions.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Run the final aggregate verification pack and close the cleanup program with a docs-and-hardening commit.
