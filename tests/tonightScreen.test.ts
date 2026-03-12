@@ -5,6 +5,7 @@ import {
   buildTonightPlanShareText,
   buildTonightSegments,
   buildTonightVoteShareText,
+  getTonightActionLabels,
   getTonightPlannerLabels,
   getTonightVoteLabels,
   TONIGHT_MOODS,
@@ -32,6 +33,18 @@ test('Tonight share text uses cleaned Bosnian copy', () => {
 
   const voteText = buildTonightVoteShareText('bs', 'https://hype.ba/vote/demo');
   assert.match(voteText, /Glasaj za večeras!/);
+});
+
+test('Tonight action labels use correct Bosnian diacritics', () => {
+  const bs = getTonightActionLabels(true);
+  assert.match(bs.plannerButton, /Predlo\u017Ei/);
+  assert.match(bs.secondaryButton, /Predlo\u017Ei/);
+  assert.match(bs.planSaved, /sa\u010Duvan/);
+
+  const en = getTonightActionLabels(false);
+  assert.equal(en.plannerButton, 'Suggest a plan \u2728');
+  assert.equal(en.secondaryButton, 'Suggest to group \u{1F5F3}');
+  assert.equal(en.planSaved, 'Plan saved!');
 });
 
 test('Tonight labels expose clean planner and vote copy', () => {

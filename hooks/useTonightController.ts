@@ -9,6 +9,7 @@ import {
   buildTonightSegments,
   buildTonightVoteShareText,
   Event,
+  getTonightActionLabels,
   getTonightPlannerLabels,
   getTonightVoteLabels,
   MoodId,
@@ -67,6 +68,7 @@ export function useTonightController({
     [budget, groupSize, isBosnian]
   );
   const voteLabels = useMemo(() => getTonightVoteLabels(isBosnian), [isBosnian]);
+  const actionLabels = useMemo(() => getTonightActionLabels(isBosnian), [isBosnian]);
 
   const loadEventsForSegment = useCallback(async () => {
     setLoading(true);
@@ -140,9 +142,9 @@ export function useTonightController({
   }, [planIndex, selectedMood, venues]);
 
   const handleSavePlan = useCallback(() => {
-    Alert.alert(isBosnian ? 'Plan sacuvan!' : 'Plan saved!');
+    Alert.alert(actionLabels.planSaved);
     closePlanner();
-  }, [closePlanner, isBosnian]);
+  }, [actionLabels.planSaved, closePlanner]);
 
   const handleSharePlan = useCallback(async () => {
     if (!currentPlan) {
@@ -227,6 +229,7 @@ export function useTonightController({
   );
 
   return {
+    actionLabels,
     activeSegment,
     budget,
     closePlanner,

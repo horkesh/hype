@@ -52,11 +52,11 @@ export default function TonightScreen() {
       onShareVote={controller.handleShareVote}
       onToggleSelection={controller.toggleEventSelection}
       onVote={controller.handleVote}
-      plannerButtonText={isBosnian ? 'Predlozi mi plan \u2728' : 'Suggest a plan \u2728'}
+      plannerButtonText={controller.actionLabels.plannerButton}
       plannerLabels={controller.plannerLabels}
       refreshing={controller.refreshing}
       renderEventProps={controller.renderEventProps}
-      secondaryButtonText={isBosnian ? 'Predlozi ekipi \u{1F5F3}' : 'Suggest to group \u{1F5F3}'}
+      secondaryButtonText={controller.actionLabels.secondaryButton}
       selectedEvents={controller.selectedEvents}
       selectedMood={controller.selectedMood}
       segments={controller.segments}

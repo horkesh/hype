@@ -138,6 +138,20 @@ export function getTonightVoteLabels(isBosnian: boolean): TonightVoteLabels {
   };
 }
 
+export interface TonightActionLabels {
+  plannerButton: string;
+  secondaryButton: string;
+  planSaved: string;
+}
+
+export function getTonightActionLabels(isBosnian: boolean): TonightActionLabels {
+  return {
+    plannerButton: isBosnian ? 'Predlo\u017Ei mi plan \u2728' : 'Suggest a plan \u2728',
+    secondaryButton: isBosnian ? 'Predlo\u017Ei ekipi \u{1F5F3}' : 'Suggest to group \u{1F5F3}',
+    planSaved: isBosnian ? 'Plan sa\u010Duvan!' : 'Plan saved!',
+  };
+}
+
 export function isFreeEvent(price: number | null): boolean {
   return price === null || price === 0;
 }
