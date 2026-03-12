@@ -30,8 +30,8 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
-- continue the shared-screen simplification pass on the largest remaining routes, with Explore now partly collapsed and Tonight already moved onto shared helpers
-- treat Home support, Venue detail, Event detail, and Series detail as already on the extracted helper/render pattern; the next cleanup wave should target remaining mixed-support surfaces plus broader encoding cleanup
+- continue the shared-screen simplification pass on the largest remaining routes and support surfaces, with Explore and Tonight now on shared helpers and the cross-platform map surface simplified too
+- treat Home support, Venue detail, Event detail, Series detail, and the shared map surface as already on the extracted helper/render pattern; the next cleanup wave should target remaining mixed-support surfaces plus broader encoding cleanup
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -154,6 +154,10 @@ Most relevant changed surfaces:
 - `components/tonight/TonightPlannerSetup.tsx`
 - `components/tonight/TonightPlannerResults.tsx`
 - `components/tonight/TonightVoteModal.tsx`
+- `components/Map.tsx`
+- `components/Map.web.tsx`
+- `utils/mapEmbed.ts`
+- `tests/mapEmbed.test.ts`
 - `utils/tonightScreen.ts`
 - `utils/tonightData.ts`
 - `utils/tonightHelpers.ts`
@@ -225,7 +229,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, and Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, leaving the next cleanup wave to focus on remaining mixed-support surfaces and broader encoding cleanup
+- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures, Home support now using extracted data/render sections too, Venue detail plus Event detail plus Series detail following the same route-orchestration pattern, and the shared cross-platform map surface now using one helper-owned embed builder, leaving the next cleanup wave to focus on remaining mixed-support surfaces and broader encoding cleanup
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -369,6 +373,12 @@ The latest Explore support cleanup pass added four more important outcomes:
 - cleaned the shared Explore mood/category lookup emoji data in `utils/exploreScreen.ts` so rebuilt Explore support surfaces no longer depend on encoded lookup artifacts
 - added targeted regression coverage for Explore lookup data in `tests/exploreScreen.test.ts` alongside the refreshed helper coverage in `tests/exploreHelpers.test.ts`
 
+The latest map cleanup pass added four more important outcomes:
+- moved shared map HTML generation, popup escaping, and default-region config into `utils/mapEmbed.ts`
+- rewrote both `components/Map.tsx` and `components/Map.web.tsx` to use the same helper-owned embed builder instead of carrying duplicated marker and HTML generation logic
+- removed the unused native routing-machine payload from the map surface, because the current app only uses static planner markers and has no real route-calculation callers
+- added targeted regression coverage in `tests/mapEmbed.test.ts` so popup escaping and marker output stay stable across both platforms
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -380,6 +390,7 @@ Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
 - remaining mixed-support screens outside the rebuilt tab/detail surfaces
+- remaining oversized shared support components that still mix orchestration and bulky rendering
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming

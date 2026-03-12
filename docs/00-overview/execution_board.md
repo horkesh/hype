@@ -122,7 +122,8 @@ Status:
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
   - Home web/runtime verification is now green after the shared Home rebuild and web-safe image path changes
-  - current route-stability work has shifted toward simplification of the largest shared routes, support surfaces, and detail surfaces, with Home support plus Venue detail plus Event detail plus Series detail now moved onto extracted data/helper/render modules
+- current route-stability work has shifted toward simplification of the largest shared routes, support surfaces, and detail surfaces, with Home support plus Venue detail plus Event detail plus Series detail now moved onto extracted data/helper/render modules
+- the shared map surface now also uses one helper-owned embed path across native and web, so current cleanup focus is narrowing toward the remaining oversized support components and encoding cleanup
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -197,6 +198,7 @@ Status:
   - Venue detail now uses `utils/venueDetailData.ts`, `utils/venueDetailScreen.ts`, and focused `components/venue/` sections instead of one mixed fetch/save/render route
   - Event detail now uses `utils/eventDetailData.ts`, `utils/eventDetailScreen.ts`, focused `components/event/` sections, and shared saved-event storage helpers instead of one mixed fetch/save/render route
   - Series detail now uses `utils/seriesDetailData.ts`, `utils/seriesDetailScreen.ts`, focused `components/series/` sections, and shared saved-series storage helpers instead of one mixed fetch/save/render route
+  - the shared cross-platform map now uses `utils/mapEmbed.ts` so native and web share one embed/marker builder instead of carrying duplicated HTML-generation paths
 
 ## Backlog
 
@@ -377,7 +379,7 @@ Status:
 ### Wave 1
 
 1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup now the clearest target
-   the main tab, home-support, detail-screen, tab-bar chrome, and Explore support lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
+   the main tab, home-support, detail-screen, map, tab-bar chrome, and Explore support lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

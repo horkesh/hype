@@ -673,3 +673,11 @@ Copy this block when adding a new work entry.
 - Decisions: When support UI depends on shared lookup chips or emoji metadata, clean the lookup source and add lookup-focused regression coverage in the same slice instead of only patching the leaf components.
 - Verification: `npx.cmd tsx --test tests/exploreHelpers.test.ts tests/exploreScreen.test.ts tests/floatingTabBar.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue into the next remaining mixed-support surface instead of stopping at the Explore filter shell.
+
+### 2026-03-12 20:25
+- Goal: Simplify the shared cross-platform map surface so native and web stop carrying separate embed-building logic and unused routing-machine baggage.
+- Changes made: Added `utils/mapEmbed.ts` for shared default-region config, popup escaping, and Leaflet HTML generation; rewrote `components/Map.tsx` and `components/Map.web.tsx` to use that helper; removed the unused native routing-machine payload because the current app only renders static planner markers; added `tests/mapEmbed.test.ts`; and updated handover, the execution board, and the napkin so the mixed-support cleanup story now includes the map surface too.
+- Files touched: `components/Map.tsx`, `components/Map.web.tsx`, `utils/mapEmbed.ts`, `tests/mapEmbed.test.ts`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: When a cross-platform support surface still duplicates embed or markup generation across native and web, move that builder into one helper-owned module first and only keep the true platform-shell differences in the component files.
+- Verification: `npx.cmd tsx --test tests/mapEmbed.test.ts tests/exploreHelpers.test.ts tests/exploreScreen.test.ts tests/floatingTabBar.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue on the next oversized support component, with `components/home/HomeEventsSection.tsx` the clearest remaining target.
