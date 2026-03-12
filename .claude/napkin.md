@@ -63,6 +63,8 @@
    Do instead: keep image, card, and loading primitives explicitly web-safe first, then add native motion only when browser verification stays clean.
 9. **[2026-03-12] Large shared routes should end as orchestration files, not UI monoliths**
    Do instead: once a shared route holds search, filters, lists, modals, and navigation together, extract named render sections into `components/<surface>/` and leave the route responsible mainly for state, loading, and navigation.
+10. **[2026-03-12] Pull time/data logic out before splitting large tab modals and cards**
+   Do instead: for oversized discovery screens like `Tonight`, extract segment/date loaders and pure label/selection helpers into `utils/<surface>*.ts` first, then split the remaining render tree into `components/<surface>/`.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

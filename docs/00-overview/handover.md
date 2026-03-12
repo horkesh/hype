@@ -86,7 +86,14 @@ Most relevant changed surfaces:
 - `tests/appRoutes.test.ts`
 - `app/(tabs)/tonight.tsx`
 - `app/(tabs)/tonight.ios.tsx`
+- `components/tonight/TonightScreenContent.tsx`
+- `components/tonight/TonightEventCard.tsx`
+- `components/tonight/TonightPlannerModal.tsx`
+- `components/tonight/TonightVoteModal.tsx`
 - `utils/tonightScreen.ts`
+- `utils/tonightData.ts`
+- `utils/tonightHelpers.ts`
+- `tests/tonightHelpers.test.ts`
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
 - `components/explore/ExploreSearchSection.tsx`
@@ -153,7 +160,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight moved onto shared helpers, and Explore now on one shared implementation with extracted constants/filter/data helpers plus extracted render sections under `components/explore/`
+- shared-screen simplification across the largest tab routes, with Home/Saved/Profile already collapsed, Tonight now on one shared implementation with extracted data/helpers/render sections, and Explore now on one shared implementation with extracted constants/filter/data helpers plus extracted render sections under `components/explore/`
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -235,6 +242,12 @@ The latest Explore cleanup pass added three more important outcomes:
 - decomposed the shared Explore route into focused UI sections under `components/explore/` for search, controls, venue rendering, menu rendering, and the filter modal
 - fixed the Explore price-level display mojibake at the helper layer so the rebuilt route no longer emits broken `€` strings
 - added explicit regression coverage for Explore helper behavior in `tests/exploreHelpers.test.ts`
+
+The latest Tonight cleanup pass added four more important outcomes:
+- collapsed `app/(tabs)/tonight.ios.tsx` to a re-export so Tonight now has one real shared route implementation
+- moved Tonight event loading and venue loading into `utils/tonightData.ts`
+- moved Tonight segment, urgency, ticket, price, and vote-selection helpers into `utils/tonightHelpers.ts`
+- decomposed Tonight rendering into focused UI sections under `components/tonight/` and added helper regression coverage in `tests/tonightHelpers.test.ts`
 
 New regression coverage now exists for:
 - weather mood merging
