@@ -314,8 +314,8 @@ Important next planned work:
 - home-machine Pencil exploration for the first Hype Home visual direction, then convergence in Figma later
 
 Immediate resume sequence:
-1. the diacritic and encoding cleanup across helper surfaces is now effectively complete (no mojibake or missing diacritics found in utils, components, or contexts)
-2. `npm test` now runs 117 tests via Node test runner with tsx; web build passes
+1. the diacritic, encoding, and structural cleanup across the frontend is now effectively complete: no mojibake, no missing diacritics, no hardcoded route-level copy, no unused exports, no platform duplication beyond legitimate iOS files, and test data is aligned with corrected source code
+2. `npm test` now runs 117 tests via Node test runner with tsx; web build passes; all utility modules with testable pure logic have direct or indirect test coverage
 3. the next highest-value work is live runtime verification: sign in, test favorites save/unsave, test taste-profile persistence, and test auth refresh across Saved and Profile screens
 4. after verification, shift to frontend/backend alignment and ingestion work
 5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change

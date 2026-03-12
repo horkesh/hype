@@ -904,3 +904,18 @@ Copy this block when adding a new work entry.
 - Decisions: When Supabase returns a many-to-one join (like `venues(name)` on events), always type it as `{name} | null`, not `Array<{name}>`. The rest of the codebase was already correct; this was the only outlier.
 - Verification: `npm test` (117/117); web build still green
 - Follow-up: No remaining array-style venue join accessors found; the schema alignment audit shows adapters are covering the known field-name mismatches correctly.
+
+### 2026-03-12 (home machine session, final pass)
+- Goal: Run a comprehensive cleanup and coverage audit after the diacritic and schema alignment fixes.
+- Changes made:
+  - Normalized test data diacritics in Tonight test fixtures: replaced plain 'Vecera' with 'Ve\u010Dera' in `tests/tonightHelpers.test.ts`, `tests/tonightPlanner.test.ts`, and `tests/tonightScreen.test.ts` so test input matches the corrected source data
+  - Fixed `console.log` to `console.error` for the Home weather fetch failure handler in `utils/homeScreen.ts` for consistency with other error handlers
+  - Audited platform duplication (B11): all `.ios.tsx` files are either legitimate platform-specific implementations (`_layout.ios.tsx`, `IconSymbol.ios.tsx`) or already collapsed re-exports
+  - Audited remaining diacritic issues: no mojibake or missing diacritics remain in utils, components, or contexts; backend test files intentionally use ASCII "Pozoriste" for raw scraped data simulation
+  - Audited hardcoded strings in route files: all user-facing copy has been moved to helper modules
+  - Audited unused imports and exports: no dead code found
+  - Audited test coverage gaps: all utility modules with testable pure logic have dedicated or indirect test coverage; remaining untested files are Supabase/AsyncStorage runtime modules
+- Files touched: `tests/tonightHelpers.test.ts`, `tests/tonightPlanner.test.ts`, `tests/tonightScreen.test.ts`, `utils/homeScreen.ts`
+- Decisions: Backend test data using ASCII "Pozoriste" is intentional (simulates raw scraped content); only frontend test input data needed diacritic normalization.
+- Verification: `npm test` (117/117)
+- Follow-up: The codebase is structurally clean across routes, components, helpers, and tests. The next highest-value work is live runtime verification (favorites, taste profile, auth refresh) which requires human browser interaction, followed by any remaining frontend/backend alignment work.
