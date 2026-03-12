@@ -204,6 +204,7 @@ Status:
   - Explore results support now uses `utils/exploreLists.ts` plus focused venue/menu card and state sections, so both result tabs are orchestration-heavy instead of list-and-card monoliths
   - Tonight screen shell now uses `components/tonight/TonightModalStack.tsx` and `components/tonight/TonightVoteEventCard.tsx`, so the last large inline modal wiring path is out of `TonightScreenContent.tsx`
   - Home screen shell now uses `components/home/HomeContentSections.tsx` plus helper-owned weather/hero orchestration, and Tonight event cards now use focused image/badge/meta/action sections instead of one leaf monolith
+  - Series events support now uses focused date-group, event-card, and mood-badge sections under `components/series/`, so the last large series list surface is thinner too
 
 ## Backlog
 

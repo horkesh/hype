@@ -65,6 +65,9 @@ Most relevant changed surfaces:
 - `components/series/SeriesDetailHero.tsx`
 - `components/series/SeriesDetailActions.tsx`
 - `components/series/SeriesEventsSection.tsx`
+- `components/series/SeriesEventDateGroup.tsx`
+- `components/series/SeriesEventCard.tsx`
+- `components/series/SeriesEventMoodBadges.tsx`
 - `components/venue/VenueDetailHeader.tsx`
 - `components/venue/VenueHoursSection.tsx`
 - `components/venue/VenueActionButtons.tsx`
@@ -397,6 +400,11 @@ The latest Series detail cleanup pass added four more important outcomes:
 - moved Series detail localized title/description, countdown/date formatting, event grouping, and emoji metadata into `utils/seriesDetailScreen.ts`
 - decomposed Series detail rendering into focused UI sections under `components/series/` and switched it onto the shared `ImageWithPlaceholder` path
 - added shared `savedSeries` storage helpers plus targeted regression coverage in `tests/seriesDetailScreen.test.ts` and `tests/savedSeriesStorage.test.ts`
+
+The latest Series events cleanup pass added three more important outcomes:
+- split `components/series/SeriesEventsSection.tsx` into focused date-group, event-card, and mood-badge sections under `components/series/`
+- removed inline ticket-button and mood-badge wiring from the section so the top-level series-events surface is now mostly grouping orchestration
+- kept the existing series event formatting helpers in `utils/seriesDetailScreen.ts` while making the remaining list rendering more reusable and easier to scan
 
 The latest Home support cleanup pass added four more important outcomes:
 - moved Home Supabase reads and weather fetching out of `components/home/HomeScreen.tsx` and into `utils/homeData.ts`
