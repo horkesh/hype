@@ -554,3 +554,11 @@ Copy this block when adding a new work entry.
 - Decisions: Collapse Explore into one shared implementation instead of introducing another intermediate component layer, because the route-body logic was already effectively identical and only the outer shell differed.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Continue the remaining large-screen simplification by extracting Explore's duplicated constants/types next or moving to the next oversized shared tab surface if that yields a bigger stability win.
+
+### 2026-03-12 03:55
+- Goal: Shrink the shared Explore route further by moving local screen contracts and catalog constants out of the route file.
+- Changes made: Added `utils/exploreScreen.ts` with the Explore venue/menu/search types plus the mood and category lookup tables, then rewired `app/(tabs)/explore.tsx` to import those shared definitions instead of declaring them inline.
+- Files touched: `utils/exploreScreen.ts`, `app/(tabs)/explore.tsx`, `docs/project_ledger.md`
+- Decisions: Keep the current Explore logic in the route file for now, but move passive screen metadata and contracts into a utility module first so future Explore refactors work on behavior/layout rather than re-parsing embedded lookup data.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: Continue with Explore-specific behavior simplification next, especially the loader/filter/search sections, or switch to the next oversized shared screen if a bigger stability payoff appears.

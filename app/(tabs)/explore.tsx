@@ -20,70 +20,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/integrations/supabase/client';
 import { IconSymbol } from '@/components/IconSymbol';
 import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/errorLogger';
+import { DailySpecial, EXPLORE_CATEGORIES, EXPLORE_MOODS, SearchResult, Venue } from '@/utils/exploreScreen';
 import { resolveImageSource } from '@/utils/imageSource';
 import debounce from 'lodash.debounce';
 import Slider from '@react-native-community/slider';
 import { Stack, useRouter } from 'expo-router';
 
-interface Venue {
-  id: string;
-  name: string;
-  category: string;
-  neighborhood: string | null;
-  price_level: number;
-  moods: string[];
-  opening_hours: any;
-  cover_image_url: string | null;
-}
-
-interface Event {
-  id: string;
-  title_bs: string;
-  title_en: string | null;
-}
-
-interface DailySpecial {
-  id: string;
-  venue_id?: string;
-  venue_name: string;
-  menu_title: string;
-  price: number;
-  valid_times: string;
-  is_active: boolean;
-  description?: string | null;
-}
-
-interface SearchResult {
-  id: string;
-  name: string;
-  type: 'venue' | 'event';
-}
-
-const MOODS = [
-  { id: 'party', emoji: '🎉', labelKey: 'moodParty' },
-  { id: 'chill', emoji: '😎', labelKey: 'moodChill' },
-  { id: 'girls_night', emoji: '💃', labelKey: 'moodGirlsNight' },
-  { id: 'date_night', emoji: '💑', labelKey: 'moodDateNight' },
-  { id: 'music', emoji: '🎵', labelKey: 'moodMusic' },
-  { id: 'romance', emoji: '🍷', labelKey: 'moodRomance' },
-  { id: 'culture', emoji: '🎭', labelKey: 'moodCulture' },
-  { id: 'foodie', emoji: '🍽️', labelKey: 'moodFoodie' },
-  { id: 'brunch', emoji: '🍳', labelKey: 'moodBrunch' },
-  { id: 'after_work', emoji: '🍻', labelKey: 'moodAfterWork' },
-  { id: 'outdoor', emoji: '🌿', labelKey: 'moodOutdoor' },
-  { id: 'tourist', emoji: '🧳', labelKey: 'moodTourist' },
-];
-
-const CATEGORIES = [
-  { id: 'restaurant', emoji: '🍽️', labelKey: 'categoryRestaurants' },
-  { id: 'bar', emoji: '🍺', labelKey: 'categoryBars' },
-  { id: 'club', emoji: '🎵', labelKey: 'categoryClubs' },
-  { id: 'theater', emoji: '🎭', labelKey: 'categoryTheater' },
-  { id: 'cinema', emoji: '🎬', labelKey: 'categoryCinema' },
-  { id: 'exhibition', emoji: '🎨', labelKey: 'categoryExhibitions' },
-  { id: 'concert', emoji: '🎤', labelKey: 'categoryConcerts' },
-  { id: 'festival', emoji: '🎪', labelKey: 'categoryFestivals' },
-];
 
 export default function ExploreScreen() {
   const { t, language } = useApp();
@@ -438,7 +380,7 @@ export default function ExploreScreen() {
         {/* Mood Filter Chips */}
         <View style={styles.moodSection}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moodScroll}>
-            {MOODS.map((mood) => {
+            {EXPLORE_MOODS.map((mood) => {
               const isSelected = selectedMoods.includes(mood.id);
               return (
                 <TouchableOpacity
@@ -462,7 +404,7 @@ export default function ExploreScreen() {
         {/* Category Grid */}
         <View style={styles.categorySection}>
           <View style={styles.categoryGrid}>
-            {CATEGORIES.map((category) => {
+            {EXPLORE_CATEGORIES.map((category) => {
               const isSelected = selectedCategory === category.id;
               return (
                 <TouchableOpacity
@@ -566,7 +508,7 @@ export default function ExploreScreen() {
                       {venue.moods && venue.moods.length > 0 && (
                         <View style={styles.moodBadges}>
                           {venue.moods.slice(0, 3).map((mood, index) => {
-                            const moodData = MOODS.find((m) => m.id === mood);
+                            const moodData = EXPLORE_MOODS.find((m) => m.id === mood);
                             return moodData ? (
                               <View key={index} style={[styles.moodBadge, { backgroundColor: colors.background }]}>
                                 <Text style={styles.moodBadgeEmoji}>{moodData.emoji}</Text>
@@ -672,7 +614,7 @@ export default function ExploreScreen() {
               {/* Mood Multi-Select */}
               <Text style={[styles.filterSectionTitle, { color: colors.text }]}>Moods</Text>
               <View style={styles.filterMoodGrid}>
-                {MOODS.map((mood) => {
+                {EXPLORE_MOODS.map((mood) => {
                   const isSelected = filterMoods.includes(mood.id);
                   return (
                     <TouchableOpacity
@@ -695,7 +637,7 @@ export default function ExploreScreen() {
               {/* Category Multi-Select */}
               <Text style={[styles.filterSectionTitle, { color: colors.text }]}>{t('categories')}</Text>
               <View style={styles.filterCategoryGrid}>
-                {CATEGORIES.map((category) => {
+                {EXPLORE_CATEGORIES.map((category) => {
                   const isSelected = filterCategories.includes(category.id);
                   return (
                     <TouchableOpacity
