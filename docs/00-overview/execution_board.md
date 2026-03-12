@@ -122,7 +122,7 @@ Status:
 - Notes:
   - repeated callback initialization bugs have been found and fixed across several routes
   - Home web/runtime verification is now green after the shared Home rebuild and web-safe image path changes
-  - current route-stability work has shifted toward simplification of the largest shared routes and detail surfaces, with Venue detail and Event detail now moved onto extracted data/helper/render modules and Series detail next in line
+  - current route-stability work has shifted toward simplification of the largest shared routes and detail surfaces, with Venue detail, Event detail, and Series detail now moved onto extracted data/helper/render modules
 
 #### E2-P1. Frontend schema-alignment pass
 
@@ -195,6 +195,7 @@ Status:
   - Explore now has one shared route implementation with extracted route metadata, filter helpers, data loaders, and focused render components under `components/explore/`
   - Venue detail now uses `utils/venueDetailData.ts`, `utils/venueDetailScreen.ts`, and focused `components/venue/` sections instead of one mixed fetch/save/render route
   - Event detail now uses `utils/eventDetailData.ts`, `utils/eventDetailScreen.ts`, focused `components/event/` sections, and shared saved-event storage helpers instead of one mixed fetch/save/render route
+  - Series detail now uses `utils/seriesDetailData.ts`, `utils/seriesDetailScreen.ts`, focused `components/series/` sections, and shared saved-series storage helpers instead of one mixed fetch/save/render route
 
 ## Backlog
 
@@ -371,8 +372,8 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next oversized surfaces outside the rebuilt tab stack, with encoding cleanup and remaining mixed detail/admin routes now the clearest targets
-   current first target is Series detail now that Venue detail and Event detail are decomposed
+1. continue screen simplification and route stability on the next oversized surfaces outside the rebuilt tab stack, with encoding cleanup and remaining mixed admin/supporting routes now the clearest targets
+   the main detail-screen lane is now simplified, so the next wave should target remaining mixed-support surfaces plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

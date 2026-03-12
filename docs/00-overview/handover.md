@@ -31,7 +31,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
 - continue the shared-screen simplification pass on the largest remaining routes, with Explore now partly collapsed and Tonight already moved onto shared helpers
-- treat Venue detail and Event detail as already on the shared-route pattern; the next large non-tab cleanup target is Series detail
+- treat Venue detail, Event detail, and Series detail as already on the shared-route pattern; the next cleanup wave should target remaining mixed-support surfaces plus broader encoding cleanup
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
@@ -53,9 +53,13 @@ Most relevant changed surfaces:
 - `components/profile/ProfileSignOutModal.tsx`
 - `app/venue/[id].tsx`
 - `app/event/[id].tsx`
+- `app/series/[id].tsx`
 - `components/event/EventDetailHero.tsx`
 - `components/event/EventVenueAndBadges.tsx`
 - `components/event/EventPurchaseSection.tsx`
+- `components/series/SeriesDetailHero.tsx`
+- `components/series/SeriesDetailActions.tsx`
+- `components/series/SeriesEventsSection.tsx`
 - `components/venue/VenueDetailHeader.tsx`
 - `components/venue/VenueHoursSection.tsx`
 - `components/venue/VenueActionButtons.tsx`
@@ -67,10 +71,15 @@ Most relevant changed surfaces:
 - `utils/favoritesErrors.ts`
 - `utils/eventDetailData.ts`
 - `utils/eventDetailScreen.ts`
+- `utils/seriesDetailData.ts`
+- `utils/seriesDetailScreen.ts`
 - `utils/venueDetailData.ts`
 - `utils/venueDetailScreen.ts`
 - `tests/eventDetailScreen.test.ts`
+- `tests/seriesDetailScreen.test.ts`
 - `tests/venueDetailScreen.test.ts`
+- `utils/savedSeriesStorage.ts`
+- `tests/savedSeriesStorage.test.ts`
 - `utils/profileData.ts`
 - `utils/profileScreen.ts`
 - `utils/savedData.ts`
@@ -197,7 +206,7 @@ For design-direction pickup on the home machine:
 Main active work:
 - mobile runtime stabilization
 - frontend schema alignment against live Supabase
-- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures and Venue detail plus Event detail now following the same route-orchestration pattern, leaving the next cleanup wave to focus on Series detail and remaining encoding cleanup
+- shared-screen simplification across the largest tab routes, with Home, Explore, Tonight, Saved, and Profile now all moved onto shared helper/render structures and Venue detail plus Event detail plus Series detail now following the same route-orchestration pattern, leaving the next cleanup wave to focus on remaining mixed-support surfaces and broader encoding cleanup
 - transition off Natively
 - setup for future user-state migration away from AsyncStorage
 - ingestion architecture now also carries an explicit Instagram strategy: Apify first, self-hosted headless fallback later, official connected-account APIs long term
@@ -225,7 +234,7 @@ Immediate resume sequence:
 2. rerun the web app on the fixed working port
 3. spot-check Home, Explore, Tonight, Saved, and Profile after the latest simplification commits
 4. if the shared routes stay stable, continue reducing oversized route files by moving route-local orchestration and remaining bulky render sections into shared components or helper modules
-   with Venue detail and Event detail complete, the next best route target is `app/series/[id].tsx`
+   with Venue detail, Event detail, and Series detail complete, the next best targets are the remaining mixed-support screens and the still-unfixed encoding cleanup outside rebuilt surfaces
 5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change
 
 ## Important known realities
@@ -311,6 +320,12 @@ The latest Event detail cleanup pass added four more important outcomes:
 - decomposed Event detail rendering into focused UI sections under `components/event/` and switched it onto the shared `ImageWithPlaceholder` path
 - expanded `utils/savedEventsStorage.ts` so event-save parsing and toggling now live in one reusable helper layer, with targeted regression coverage in `tests/eventDetailScreen.test.ts` and `tests/savedEventsStorage.test.ts`
 
+The latest Series detail cleanup pass added four more important outcomes:
+- moved Series detail Supabase reads and saved-series persistence out of the route and into `utils/seriesDetailData.ts`
+- moved Series detail localized title/description, countdown/date formatting, event grouping, and emoji metadata into `utils/seriesDetailScreen.ts`
+- decomposed Series detail rendering into focused UI sections under `components/series/` and switched it onto the shared `ImageWithPlaceholder` path
+- added shared `savedSeries` storage helpers plus targeted regression coverage in `tests/seriesDetailScreen.test.ts` and `tests/savedSeriesStorage.test.ts`
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -321,7 +336,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- remaining oversized non-tab detail screens, especially Series detail
+- remaining mixed-support screens outside the rebuilt tab/detail surfaces
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming
