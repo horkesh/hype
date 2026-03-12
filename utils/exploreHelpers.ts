@@ -1,5 +1,25 @@
 import { DailySpecial, Venue } from '@/utils/exploreScreen';
 
+const MENU_PRICE_FILTERS = [
+  { id: 'up_to_8', labelKey: 'menuUpTo8' },
+  { id: '8_to_12', labelKey: 'menu8to12' },
+  { id: '12_plus', labelKey: 'menu12Plus' },
+] as const;
+
+export interface ExploreMenuFilterOption {
+  id: string;
+  label: string;
+}
+
+export function getExploreMenuFilters(
+  translate: (key: string) => string
+): ExploreMenuFilterOption[] {
+  return MENU_PRICE_FILTERS.map((filter) => ({
+    id: filter.id,
+    label: translate(filter.labelKey),
+  }));
+}
+
 export function filterDailySpecialsByPrice(
   dailySpecials: DailySpecial[],
   menuPriceFilter: string | null

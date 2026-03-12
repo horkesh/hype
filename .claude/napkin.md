@@ -71,6 +71,8 @@
    Do instead: when mojibake shows up in rebuilt surfaces, fix the string tables, config helpers, or shared formatting modules first, then update tests to assert the cleaned output instead of patching leaf components one by one.
 13. **[2026-03-12] Tab-route labels and empty states should live in helper modules, not the route file**
    Do instead: when a tab screen still hardcodes tab labels, empty-state copy, or route-target decisions inline, move that state copy into `utils/<surface>Screen.ts` and keep the route focused on loading, auth refresh, and navigation callbacks.
+14. **[2026-03-12] Large tab routes should split controller state from screen markup**
+   Do instead: when a shared tab route still mixes debounced search, filter state, loading effects, refresh behavior, and big JSX, move the state/effect layer into `hooks/use<Surface>Controller.ts` and the screen markup into `components/<surface>/<Surface>ScreenBody.tsx`.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

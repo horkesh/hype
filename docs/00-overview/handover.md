@@ -193,6 +193,7 @@ Most relevant changed surfaces:
 - `app/(tabs)/explore.tsx`
 - `app/(tabs)/explore.ios.tsx`
 - `components/explore/ExploreSearchSection.tsx`
+- `components/explore/ExploreScreenBody.tsx`
 - `components/explore/ExploreControls.tsx`
 - `components/explore/ExploreVenueList.tsx`
 - `components/explore/ExploreMenuList.tsx`
@@ -206,6 +207,7 @@ Most relevant changed surfaces:
 - `utils/exploreHelpers.ts`
 - `utils/exploreData.ts`
 - `utils/exploreLists.ts`
+- `hooks/useExploreController.ts`
 - `tests/exploreHelpers.test.ts`
 - `tests/exploreLists.test.ts`
 - `docs/04-product/design_direction_brief.md`
@@ -465,6 +467,12 @@ The latest Saved cleanup pass added three more important outcomes:
 - moved Saved tab labels and empty-state copy into `utils/savedScreen.ts`, cleaning another pocket of damaged user-facing text at the helper layer instead of inside the route
 - added `components/saved/SavedTabContent.tsx`, leaving `app/(tabs)/saved.tsx` focused on loading, auth refresh, and navigation callbacks instead of render branching
 - expanded `tests/savedScreen.test.ts` so localized tab labels and empty-state routing/copy are now covered directly
+
+The latest Explore controller cleanup pass added four more important outcomes:
+- moved Explore search, filter, refresh, and tab-loading state into `hooks/useExploreController.ts`, so the route no longer owns the full debounced-search and load-effect stack inline
+- added `components/explore/ExploreScreenBody.tsx`, leaving `app/(tabs)/explore.tsx` focused on shell selection and prop wiring instead of holding the full screen markup
+- moved menu-filter label shaping into `utils/exploreHelpers.ts` and added direct regression coverage for it in `tests/exploreHelpers.test.ts`
+- cleaned the touched Explore emoji test fixtures in `tests/exploreScreen.test.ts` and `tests/exploreLists.test.ts` so the Explore helper surface no longer carries damaged literal assertions
 
 The latest Explore support cleanup pass added four more important outcomes:
 - decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`

@@ -16,15 +16,15 @@ test('getExploreVenueMoodItems keeps known moods in order and drops unknown entr
       cover_image_url: null,
     },
     [
-      { id: 'coffee', emoji: '☕', labelKey: 'moodCoffee' },
-      { id: 'chill', emoji: '😌', labelKey: 'moodChill' },
-      { id: 'party', emoji: '🎉', labelKey: 'moodParty' },
+      { id: 'coffee', emoji: '\u2615', labelKey: 'moodCoffee' },
+      { id: 'chill', emoji: '\u{1F60C}', labelKey: 'moodChill' },
+      { id: 'party', emoji: '\u{1F389}', labelKey: 'moodParty' },
     ]
   );
 
   assert.deepEqual(moodItems, [
-    { id: 'coffee', emoji: '☕' },
-    { id: 'chill', emoji: '😌' },
+    { id: 'coffee', emoji: '\u2615' },
+    { id: 'chill', emoji: '\u{1F60C}' },
   ]);
 });
 

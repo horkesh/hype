@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   filterDailySpecialsByPrice,
   filterVenuesByClientRules,
+  getExploreMenuFilters,
   getPriceLevelDisplay,
   toggleSelection,
   toggleSingleSelection,
@@ -46,4 +47,14 @@ test('filterVenuesByClientRules applies price-level filtering before open-now fi
     filterVenuesByClientRules(venues, 2, false).map((venue) => venue.id),
     ['1']
   );
+});
+
+test('getExploreMenuFilters localizes the price buckets', () => {
+  const filters = getExploreMenuFilters((key) => `label:${key}`);
+
+  assert.deepEqual(filters, [
+    { id: 'up_to_8', label: 'label:menuUpTo8' },
+    { id: '8_to_12', label: 'label:menu8to12' },
+    { id: '12_plus', label: 'label:menu12Plus' },
+  ]);
 });
