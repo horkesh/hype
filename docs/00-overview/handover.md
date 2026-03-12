@@ -363,6 +363,12 @@ The latest shared tab-bar cleanup pass added four more important outcomes:
 - aligned the tab bar with the repo `useTheme()` hook instead of mixing in a separate navigation-theme source
 - added targeted regression coverage for tab-bar helper behavior in `tests/floatingTabBar.test.ts`
 
+The latest Explore support cleanup pass added four more important outcomes:
+- decomposed `components/explore/ExploreFilterModal.tsx` into focused filter sections for chips, price, open-now toggle, and actions under `components/explore/`
+- decomposed `components/explore/ExploreControls.tsx` into focused mood-strip, category-grid, and tab-switcher sections under `components/explore/`
+- cleaned the shared Explore mood/category lookup emoji data in `utils/exploreScreen.ts` so rebuilt Explore support surfaces no longer depend on encoded lookup artifacts
+- added targeted regression coverage for Explore lookup data in `tests/exploreScreen.test.ts` alongside the refreshed helper coverage in `tests/exploreHelpers.test.ts`
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -373,7 +379,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- remaining mixed-support screens outside the rebuilt tab/detail surfaces, especially larger filters
+- remaining mixed-support screens outside the rebuilt tab/detail surfaces
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming

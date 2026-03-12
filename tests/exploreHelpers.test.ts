@@ -10,7 +10,7 @@ import {
 } from '@/utils/exploreHelpers';
 
 test('getPriceLevelDisplay returns euro signs without mojibake', () => {
-  assert.equal(getPriceLevelDisplay(3), '€€€');
+  assert.equal(getPriceLevelDisplay(3), '\u20ac\u20ac\u20ac');
 });
 
 test('toggleSelection adds and removes values predictably', () => {

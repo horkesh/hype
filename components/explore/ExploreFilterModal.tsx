@@ -1,8 +1,11 @@
 import React from 'react';
 import { Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Slider from '@react-native-community/slider';
 
 import { IconSymbol } from '@/components/IconSymbol';
+import { ExploreFilterActions } from '@/components/explore/ExploreFilterActions';
+import { ExploreFilterChipGrid } from '@/components/explore/ExploreFilterChipGrid';
+import { ExploreFilterOpenNowRow } from '@/components/explore/ExploreFilterOpenNowRow';
+import { ExploreFilterPriceSection } from '@/components/explore/ExploreFilterPriceSection';
 import { ExploreLookupItem } from '@/utils/exploreScreen';
 
 interface ExploreFilterModalProps {
@@ -81,98 +84,59 @@ export function ExploreFilterModal({
           </View>
 
           <ScrollView style={styles.modalScroll}>
-            <Text style={[styles.filterSectionTitle, { color: textColor }]}>Moods</Text>
-            <View style={styles.filterGrid}>
-              {moods.map((mood) => {
-                const isSelected = filterMoods.includes(mood.id);
+            <ExploreFilterChipGrid
+              accentColor={accentColor}
+              backgroundColor={backgroundColor}
+              borderColor={borderColor}
+              items={moods}
+              selectedIds={filterMoods}
+              textColor={textColor}
+              title="Moods"
+              translate={translate}
+              onToggle={onToggleFilterMood}
+            />
 
-                return (
-                  <TouchableOpacity
-                    key={mood.id}
-                    style={[
-                      styles.filterChip,
-                      {
-                        backgroundColor: isSelected ? accentColor : backgroundColor,
-                        borderColor,
-                      },
-                    ]}
-                    onPress={() => onToggleFilterMood(mood.id)}
-                  >
-                    <Text style={styles.filterEmoji}>{mood.emoji}</Text>
-                    <Text style={[styles.filterLabel, { color: isSelected ? '#FFFFFF' : textColor }]}>
-                      {translate(mood.labelKey)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            <ExploreFilterChipGrid
+              accentColor={accentColor}
+              backgroundColor={backgroundColor}
+              borderColor={borderColor}
+              items={categories}
+              selectedIds={filterCategories}
+              textColor={textColor}
+              title={categoriesLabel}
+              translate={translate}
+              onToggle={onToggleFilterCategory}
+            />
 
-            <Text style={[styles.filterSectionTitle, { color: textColor }]}>{categoriesLabel}</Text>
-            <View style={styles.filterGrid}>
-              {categories.map((category) => {
-                const isSelected = filterCategories.includes(category.id);
+            <ExploreFilterPriceSection
+              accentColor={accentColor}
+              borderColor={borderColor}
+              priceLevel={filterPriceLevel}
+              priceLevelLabel={priceLevelLabel}
+              textColor={textColor}
+              valueLabel={getPriceLevelDisplay(filterPriceLevel)}
+              onSetPriceLevel={onSetFilterPriceLevel}
+            />
 
-                return (
-                  <TouchableOpacity
-                    key={category.id}
-                    style={[
-                      styles.filterChip,
-                      {
-                        backgroundColor: isSelected ? accentColor : backgroundColor,
-                        borderColor,
-                      },
-                    ]}
-                    onPress={() => onToggleFilterCategory(category.id)}
-                  >
-                    <Text style={styles.filterEmoji}>{category.emoji}</Text>
-                    <Text style={[styles.filterLabel, { color: isSelected ? '#FFFFFF' : textColor }]}>
-                      {translate(category.labelKey)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <Text style={[styles.filterSectionTitle, { color: textColor }]}>{priceLevelLabel}</Text>
-            <View style={styles.sliderContainer}>
-              <Text style={[styles.sliderValue, { color: accentColor }]}>
-                {getPriceLevelDisplay(filterPriceLevel)}
-              </Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={1}
-                maximumValue={4}
-                step={1}
-                value={filterPriceLevel}
-                onValueChange={onSetFilterPriceLevel}
-                minimumTrackTintColor={accentColor}
-                maximumTrackTintColor={borderColor}
-                thumbTintColor={accentColor}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.toggleRow, { borderColor }]}
-              onPress={() => onSetFilterOpenNow(!filterOpenNow)}
-            >
-              <Text style={[styles.toggleLabel, { color: textColor }]}>{openNowLabel}</Text>
-              <View style={[styles.toggle, { backgroundColor: filterOpenNow ? accentColor : borderColor }]}>
-                <View style={[styles.toggleThumb, filterOpenNow && styles.toggleThumbActive]} />
-              </View>
-            </TouchableOpacity>
+            <ExploreFilterOpenNowRow
+              accentColor={accentColor}
+              borderColor={borderColor}
+              isEnabled={filterOpenNow}
+              label={openNowLabel}
+              textColor={textColor}
+              onToggle={() => onSetFilterOpenNow(!filterOpenNow)}
+            />
           </ScrollView>
 
-          <View style={styles.modalActions}>
-            <TouchableOpacity style={[styles.resetButton, { borderColor }]} onPress={onReset}>
-              <Text style={[styles.resetButtonText, { color: textColor }]}>{resetLabel}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.applyButton, { backgroundColor: accentColor }]}
-              onPress={onApply}
-            >
-              <Text style={styles.applyButtonText}>{applyFiltersLabel}</Text>
-            </TouchableOpacity>
-          </View>
+          <ExploreFilterActions
+            accentColor={accentColor}
+            borderColor={borderColor}
+            resetLabel={resetLabel}
+            applyLabel={applyFiltersLabel}
+            textColor={textColor}
+            onReset={onReset}
+            onApply={onApply}
+          />
         </View>
       </View>
     </Modal>
@@ -204,100 +168,5 @@ const styles = StyleSheet.create({
   },
   modalScroll: {
     padding: 20,
-  },
-  filterSectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  filterGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: 4,
-  },
-  filterEmoji: {
-    fontSize: 14,
-  },
-  filterLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  sliderContainer: {
-    marginVertical: 8,
-  },
-  sliderValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    marginTop: 16,
-  },
-  toggleLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  toggle: {
-    width: 50,
-    height: 28,
-    borderRadius: 14,
-    padding: 2,
-    justifyContent: 'center',
-  },
-  toggleThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-  },
-  toggleThumbActive: {
-    alignSelf: 'flex-end',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    padding: 20,
-    gap: 12,
-  },
-  resetButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  applyButton: {
-    flex: 2,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
