@@ -30,7 +30,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
 - verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
 - verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
-- continue the shared-screen simplification pass on the largest remaining routes and support surfaces, with Explore and Tonight now on shared helpers and the cross-platform map surface simplified too
+- continue the shared-screen simplification pass on the largest remaining routes and support surfaces, with Explore and Tonight now on shared helpers, the Tonight planner stack now further split into helper-owned mood/stop defaults plus smaller modal sections, and the cross-platform map surface simplified too
 - treat Home support, Venue detail, Event detail, Series detail, and the shared map surface as already on the extracted helper/render pattern; the next cleanup wave should target remaining mixed-support surfaces plus broader encoding cleanup
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
@@ -354,6 +354,12 @@ The latest Tonight support cleanup pass added four more important outcomes:
 - made `components/tonight/TonightScreenContent.tsx` and `components/tonight/TonightPlannerModal.tsx` orchestration-heavy instead of mixed UI monoliths
 - moved planner map marker generation into deterministic helper logic in `utils/tonightHelpers.ts` so the mock planner map no longer jitters across renders
 - cleaned the touched Tonight mood, segment, and share copy and added targeted regression coverage in `tests/tonightScreen.test.ts`
+
+The latest Tonight planner cleanup pass added four more important outcomes:
+- moved planner mood-option shaping, group-size defaults, stop-row shaping, and shared planner map-region defaults into `utils/tonightPlanner.ts`
+- split planner modal/header/setup/results support into `TonightModalHeader`, `TonightPlannerMoodGrid`, `TonightPlannerGroupSizePicker`, `TonightPlanStopList`, and `TonightPlannerActionRow`
+- made `TonightPlannerSetup.tsx`, `TonightPlannerResults.tsx`, and `TonightPlannerModal.tsx` thinner orchestration shells over those extracted sections
+- added targeted regression coverage in `tests/tonightPlanner.test.ts` so the planner helper layer stays stable while the remaining mixed-support cleanup moves to Explore/Profile/Venue
 
 The latest Tonight vote cleanup pass added four more important outcomes:
 - split `components/tonight/TonightVoteModal.tsx` into focused vote-setup, vote-results, and vote-result-card sections under `components/tonight/`

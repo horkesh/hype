@@ -205,6 +205,7 @@ Status:
   - Tonight screen shell now uses `components/tonight/TonightModalStack.tsx` and `components/tonight/TonightVoteEventCard.tsx`, so the last large inline modal wiring path is out of `TonightScreenContent.tsx`
   - Home screen shell now uses `components/home/HomeContentSections.tsx` plus helper-owned weather/hero orchestration, and Tonight event cards now use focused image/badge/meta/action sections instead of one leaf monolith
   - Series events support now uses focused date-group, event-card, and mood-badge sections under `components/series/`, so the last large series list surface is thinner too
+  - Tonight planner support now uses `utils/tonightPlanner.ts` plus extracted modal header, mood-grid, group-size, stop-list, and action-row sections, so the remaining planner files are mostly orchestration instead of one bulky support stack
 
 ## Backlog
 
@@ -384,8 +385,8 @@ Status:
 
 ### Wave 1
 
-1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup now the clearest target
-   the main tab, home-support, detail-screen, map, tab-bar chrome, and Explore support lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
+1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with Explore/Profile/Venue support and encoding cleanup now the clearest targets
+   the main tab, home-support, detail-screen, map, tab-bar chrome, and Tonight planner lanes are simplified, so the next wave should focus on the remaining mixed-support surfaces plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

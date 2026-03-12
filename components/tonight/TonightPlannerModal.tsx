@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 
+import { TonightModalHeader } from '@/components/tonight/TonightModalHeader';
 import { TonightPlannerResults } from '@/components/tonight/TonightPlannerResults';
 import { TonightPlannerSetup } from '@/components/tonight/TonightPlannerSetup';
 import { buildTonightPlanMarkers } from '@/utils/tonightHelpers';
@@ -70,12 +71,12 @@ export function TonightPlannerModal({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { backgroundColor }]}>
-          <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: colorsText }]}>{plannerLabels.title}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={[styles.modalClose, { color: colorsText }]}>{closeLabel}</Text>
-            </TouchableOpacity>
-          </View>
+          <TonightModalHeader
+            closeLabel={closeLabel}
+            color={colorsText}
+            onClose={onClose}
+            title={plannerLabels.title}
+          />
 
           <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalScrollContent}>
             {activePlan ? (
@@ -123,22 +124,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     maxHeight: '90%',
     paddingBottom: 24,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  modalClose: {
-    fontSize: 28,
-    fontWeight: '300',
   },
   modalScroll: {
     paddingHorizontal: 20,

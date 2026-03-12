@@ -1,7 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Map } from '@/components/Map';
+import { TonightPlannerActionRow } from '@/components/tonight/TonightPlannerActionRow';
+import { TonightPlanStopList } from '@/components/tonight/TonightPlanStopList';
+import {
+  buildTonightPlannerStopRows,
+  TONIGHT_PLAN_REGION,
+} from '@/utils/tonightPlanner';
 import { AIPlan } from '@/utils/tonightScreen';
 
 interface TonightPlannerResultsProps {
@@ -35,18 +41,15 @@ export function TonightPlannerResults({
   onSavePlan,
   onSharePlan,
 }: TonightPlannerResultsProps) {
+  const stopRows = buildTonightPlannerStopRows(activePlan);
+
   return (
     <>
-      <View style={styles.planStops}>
-        {activePlan.stops.map((stop, index) => (
-          <View key={`${stop.venueName}-${stop.time}-${index}`} style={[styles.planStop, { backgroundColor: cardColor }]}>
-            <Text style={styles.planStopTime}>{stop.time}</Text>
-            <Text style={[styles.planStopVenue, { color: colorsText }]}>{stop.venueName}</Text>
-            <Text style={styles.planStopActivity}>{stop.activity}</Text>
-            <Text style={[styles.planStopPrice, { color: colorsText }]}>~{stop.price} KM</Text>
-          </View>
-        ))}
-      </View>
+      <TonightPlanStopList
+        cardColor={cardColor}
+        colorsText={colorsText}
+        rows={stopRows}
+      />
 
       <View style={[styles.planTotal, { backgroundColor: cardColor }]}>
         <Text style={[styles.planTotalLabel, { color: colorsText }]}>{plannerLabels.total}</Text>
@@ -55,72 +58,22 @@ export function TonightPlannerResults({
 
       {mapMarkers.length > 0 ? (
         <View style={styles.planMap}>
-          <Map
-            markers={mapMarkers}
-            initialRegion={{
-              latitude: 43.8563,
-              longitude: 18.4131,
-              latitudeDelta: 0.03,
-              longitudeDelta: 0.03,
-            }}
-          />
+          <Map markers={mapMarkers} initialRegion={TONIGHT_PLAN_REGION} />
         </View>
       ) : null}
 
-      <View style={styles.planActions}>
-        <TouchableOpacity
-          style={[styles.planActionButton, styles.secondaryAction, { backgroundColor: cardColor }]}
-          onPress={onNextPlan}
-        >
-          <Text style={styles.secondaryActionText}>{plannerLabels.nextPlan}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.planActionButton, styles.secondaryAction, { backgroundColor: cardColor }]}
-          onPress={onSavePlan}
-        >
-          <Text style={styles.secondaryActionText}>{plannerLabels.save}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.planActionButton, { backgroundColor: '#D4A056' }]}
-          onPress={onSharePlan}
-        >
-          <Text style={styles.primaryActionText}>{plannerLabels.share}</Text>
-        </TouchableOpacity>
-      </View>
+      <TonightPlannerActionRow
+        cardColor={cardColor}
+        labels={plannerLabels}
+        onNextPlan={onNextPlan}
+        onSavePlan={onSavePlan}
+        onSharePlan={onSharePlan}
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  planStops: {
-    gap: 12,
-  },
-  planStop: {
-    padding: 16,
-    borderRadius: 16,
-  },
-  planStopTime: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#D4A056',
-  },
-  planStopVenue: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  planStopActivity: {
-    fontSize: 14,
-    marginBottom: 4,
-    color: '#6B7280',
-  },
-  planStopPrice: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
   planTotal: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -143,30 +96,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginTop: 16,
-  },
-  planActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  planActionButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-  },
-  secondaryAction: {
-    borderWidth: 1,
-    borderColor: '#D4A056',
-  },
-  secondaryActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#D4A056',
-  },
-  primaryActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
 });

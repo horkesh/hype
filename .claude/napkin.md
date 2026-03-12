@@ -65,6 +65,8 @@
    Do instead: once a shared route holds search, filters, lists, modals, and navigation together, extract named render sections into `components/<surface>/` and leave the route responsible mainly for state, loading, and navigation.
 10. **[2026-03-12] Large support components, tab modals, planner chrome, app-wide navigation chrome, shared lookup-chip surfaces, and cross-platform embeds should follow the same orchestration pattern as routes**
    Do instead: for oversized support surfaces like `HomeScreen`, `Tonight` planner/content chrome, `FloatingTabBar`, reused filter/mood/category chip sets, or cross-platform map/embed surfaces, extract data, route heuristics, pure copy/selection/layout helpers, and shared markup builders into `utils/<surface>*.ts`, keep mock UI data deterministic instead of using `Math.random()` in render paths, clean shared lookup modules at the source, and split action bars, tabs, lists, modal sections, navigation buttons, chip groups, and thin platform shells into `components/<surface>/`.
+11. **[2026-03-12] Modal cleanup should extract the repeatable shell pieces before chasing prop noise**
+   Do instead: when planner or filter modals are still bulky, move shared header chrome, option grids, grouped action rows, and stop/result list markup into `components/<surface>/` plus tiny `utils/<surface>*.ts` view-model helpers so the modal file only chooses which section to show.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

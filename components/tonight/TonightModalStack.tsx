@@ -72,6 +72,41 @@ interface TonightModalStackProps {
   votes: Record<string, number>;
 }
 
+function renderTonightVoteEventCard({
+  cardColor,
+  colorsText,
+  eventMetaSeparator,
+  onEventPress,
+  onOpenTicket,
+  onToggleSelection,
+  renderEventProps,
+  textSecondaryColor,
+}: Pick<
+  TonightModalStackProps,
+  | 'cardColor'
+  | 'colorsText'
+  | 'eventMetaSeparator'
+  | 'onEventPress'
+  | 'onOpenTicket'
+  | 'onToggleSelection'
+  | 'renderEventProps'
+  | 'textSecondaryColor'
+>) {
+  return (event: Event) => (
+    <TonightVoteEventCard
+      cardColor={cardColor}
+      colorsText={colorsText}
+      event={event}
+      eventMetaSeparator={eventMetaSeparator}
+      onEventPress={onEventPress}
+      onOpenTicket={onOpenTicket}
+      onToggleSelection={onToggleSelection}
+      renderEventProps={renderEventProps}
+      textSecondaryColor={textSecondaryColor}
+    />
+  );
+}
+
 export function TonightModalStack({
   activePlan,
   budget,
@@ -108,6 +143,17 @@ export function TonightModalStack({
   voteLink,
   votes,
 }: TonightModalStackProps) {
+  const renderVoteEventCard = renderTonightVoteEventCard({
+    cardColor,
+    colorsText,
+    eventMetaSeparator,
+    onEventPress,
+    onOpenTicket,
+    onToggleSelection,
+    renderEventProps,
+    textSecondaryColor,
+  });
+
   return (
     <>
       <TonightPlannerModal
@@ -143,19 +189,7 @@ export function TonightModalStack({
         onCreateVote={onCreateVote}
         onShareVote={onShareVote}
         onVote={onVote}
-        renderEventCard={(event) => (
-          <TonightVoteEventCard
-            cardColor={cardColor}
-            colorsText={colorsText}
-            event={event}
-            eventMetaSeparator={eventMetaSeparator}
-            onEventPress={onEventPress}
-            onOpenTicket={onOpenTicket}
-            onToggleSelection={onToggleSelection}
-            renderEventProps={renderEventProps}
-            textSecondaryColor={textSecondaryColor}
-          />
-        )}
+        renderEventCard={renderVoteEventCard}
         selectedEvents={selectedEvents}
         textSecondaryColor={textSecondaryColor}
         visible={showVoteModal}
