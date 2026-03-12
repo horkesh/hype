@@ -134,16 +134,20 @@ Most relevant changed surfaces:
 - `components/home/HomeMoodSection.tsx`
 - `components/home/HomeFeaturedCafeSection.tsx`
 - `components/home/HomeEventsSection.tsx`
+- `components/home/HomeContentSections.tsx`
 - `components/home/HomeCardRail.tsx`
 - `components/home/HomeEventCard.tsx`
 - `components/home/HomeSeriesCard.tsx`
+- `utils/homeHeroState.ts`
 - `utils/homeData.ts`
 - `utils/homeScreenContent.ts`
 - `utils/homeEventsSection.ts`
+- `utils/homeScreen.ts`
 - `utils/homeWeather.ts`
 - `utils/imageSource.ts`
 - `components/ImageWithPlaceholder.tsx`
 - `tests/homeWeather.test.ts`
+- `tests/homeScreen.test.ts`
 - `tests/homeScreenContent.test.ts`
 - `tests/homeEventsSection.test.ts`
 - `tests/imageSource.test.ts`
@@ -152,6 +156,10 @@ Most relevant changed surfaces:
 - `app/(tabs)/tonight.ios.tsx`
 - `components/tonight/TonightScreenContent.tsx`
 - `components/tonight/TonightEventCard.tsx`
+- `components/tonight/TonightEventImage.tsx`
+- `components/tonight/TonightEventBadges.tsx`
+- `components/tonight/TonightEventMeta.tsx`
+- `components/tonight/TonightEventActions.tsx`
 - `components/tonight/TonightActionButtons.tsx`
 - `components/tonight/TonightSegmentTabs.tsx`
 - `components/tonight/TonightEventList.tsx`
@@ -355,6 +363,11 @@ The latest Tonight shell cleanup pass added three more important outcomes:
 - moved the vote-only event-card adapter into `components/tonight/TonightVoteEventCard.tsx` so the screen-content shell no longer owns a large inline render function
 - left `TonightScreenContent` focused on action chrome, segment tabs, event-list framing, and modal visibility wiring instead of mixing all screen-level sub-surfaces together
 
+The latest Tonight event-card cleanup pass added three more important outcomes:
+- split `components/tonight/TonightEventCard.tsx` into focused image, badge, meta, and action support sections under `components/tonight/`
+- removed the inline image fallback and button-row wiring from the card so the card shell now reads as one clear composition surface instead of a leaf monolith
+- kept the Tonight event interactions unchanged while making the remaining card-level support surfaces easier to reuse from list and vote flows
+
 The latest Saved cleanup pass added four more important outcomes:
 - moved Saved venue, event, and badge loading out of the route and into `utils/savedData.ts`
 - moved Saved screen types, formatting helpers, and event-id parsing into `utils/savedScreen.ts` and `utils/savedEventsStorage.ts`
@@ -396,6 +409,11 @@ The latest Home events cleanup pass added four more important outcomes:
 - moved Home event-card and series-card display copy into `utils/homeEventsSection.ts` so localized title, venue, price, and countdown behavior live in a testable helper layer
 - kept web/native rail behavior shared behind one thin component instead of repeating the same event and series layout branches inside the section
 - added targeted regression coverage in `tests/homeEventsSection.test.ts` so event-card and series-card display formatting stay stable while the remaining Home support cleanup continues
+
+The latest Home shell cleanup pass added three more important outcomes:
+- split `components/home/HomeScreen.tsx` into a thinner screen shell plus `components/home/HomeContentSections.tsx` for the visible Home sections
+- moved Home static-load orchestration and weather-driven hero decision logic behind `utils/homeScreen.ts` and test-safe `utils/homeHeroState.ts`
+- added targeted regression coverage in `tests/homeScreen.test.ts` so the weather-to-hero-message fallback and suggested-mood behavior stay stable
 
 The latest shared tab-bar cleanup pass added four more important outcomes:
 - moved FloatingTabBar route matching, indicator sizing, and theme-surface color decisions into `utils/floatingTabBar.ts`

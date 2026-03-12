@@ -4,20 +4,13 @@ import { useRouter } from 'expo-router';
 
 import { ContentState } from '@/components/ContentState';
 import { TabScreen } from '@/components/TabScreen';
-import { HomeEventsSection } from '@/components/home/HomeEventsSection';
-import { HomeFeaturedCafeSection } from '@/components/home/HomeFeaturedCafeSection';
-import { HomeHeroSection } from '@/components/home/HomeHeroSection';
-import { HomeMoodSection } from '@/components/home/HomeMoodSection';
+import { HomeContentSections } from '@/components/home/HomeContentSections';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import {
   HomeEventItem,
   HomeEventSeries,
   HomeVenue,
-  loadHomeEventSeries,
-  loadHomeRandomCafe,
-  loadHomeUpcomingEvents,
-  loadHomeWeather,
 } from '@/utils/homeData';
 import {
   getCafeDescription,
@@ -26,22 +19,11 @@ import {
   getHomeSectionLabels,
   getTimeOfDayHeroMessage,
 } from '@/utils/homeScreenContent';
-import { mergeSuggestedMood } from '@/utils/homeWeather';
-
-const WEATHER_MESSAGES = {
-  clear: {
-    bs: 'Savrsen dan za bastu! \u2600\ufe0f',
-    en: 'Perfect day for outdoor plans! \u2600\ufe0f',
-  },
-  rain: {
-    bs: 'Kisovito vrijeme, idealno za kafic \ud83c\udf27\ufe0f',
-    en: 'Rainy weather, perfect for a cafe \ud83c\udf27\ufe0f',
-  },
-  cold: {
-    bs: 'Hladno je, vrijeme za topli napitak \u2615',
-    en: 'Cold outside, time for a warm drink \u2615',
-  },
-} as const;
+import {
+  loadHomeEventsForMood,
+  loadHomeStaticContent,
+  mergeHomeSuggestedMood,
+} from '@/utils/homeScreen';
 
 export function HomeScreen(): React.ReactElement {
   const router = useRouter();
@@ -66,40 +48,12 @@ export function HomeScreen(): React.ReactElement {
     setLoadingStatic(true);
 
     try {
-      const [cafe, series, weather] = await Promise.all([
-        loadHomeRandomCafe(),
-        loadHomeEventSeries(),
-        loadHomeWeather().catch((error) => {
-          console.log('Home weather fetch failed, using fallback message', error);
-          return null;
-        }),
-      ]);
+      const content = await loadHomeStaticContent(language);
 
-      setRandomCafe(cafe);
-      setEventSeries(series);
-
-      const baseMessage = getTimeOfDayHeroMessage(language, new Date().getHours());
-      if (!weather) {
-        setHeroMessage(baseMessage);
-        return;
-      }
-
-      let nextMessage = baseMessage;
-      let suggestedMood: string | null = null;
-
-      if (weather.weatherCondition.includes('clear') && weather.temp > 20) {
-        nextMessage = WEATHER_MESSAGES.clear[language];
-        suggestedMood = 'outdoor';
-      } else if (weather.weatherCondition.includes('rain')) {
-        nextMessage = WEATHER_MESSAGES.rain[language];
-        suggestedMood = 'chill';
-      } else if (weather.temp < 10) {
-        nextMessage = WEATHER_MESSAGES.cold[language];
-        suggestedMood = 'chill';
-      }
-
-      setHeroMessage(nextMessage);
-      setSelectedMood((currentMood) => mergeSuggestedMood(currentMood, suggestedMood));
+      setRandomCafe(content.randomCafe);
+      setEventSeries(content.eventSeries);
+      setHeroMessage(content.heroMessage);
+      setSelectedMood((currentMood) => mergeHomeSuggestedMood(currentMood, content.suggestedMood));
     } finally {
       setLoadingStatic(false);
     }
@@ -109,7 +63,7 @@ export function HomeScreen(): React.ReactElement {
     setLoadingEvents(true);
 
     try {
-      setUpcomingEvents(await loadHomeUpcomingEvents(selectedMood));
+      setUpcomingEvents(await loadHomeEventsForMood(selectedMood));
     } finally {
       setLoadingEvents(false);
     }
@@ -143,48 +97,26 @@ export function HomeScreen(): React.ReactElement {
       refreshControl={isWeb ? undefined : { refreshing, onRefresh }}
       contentContainerStyle={styles.screenContent}
     >
-      <View style={styles.heroSection}>
-        <HomeHeroSection title={heroTitle} subtitle={heroSubtitle} />
-      </View>
-
-      <View style={styles.section}>
-        <HomeMoodSection
-          language={language}
-          selectedMood={selectedMood}
-          title={sectionLabels.moods}
-          onSelectMood={setSelectedMood}
-        />
-      </View>
-
-      {randomCafe ? (
-        <View style={styles.section}>
-          <HomeFeaturedCafeSection
-            cafe={randomCafe}
-            colors={colors}
-            title={sectionLabels.cafes}
-            description={cafeDescription}
-            isWeb={isWeb}
-            onPress={(venueId) => router.push(`/venue/${venueId}`)}
-          />
-        </View>
-      ) : null}
-
-      <View style={styles.section}>
-        <HomeEventsSection
-          language={language}
-          colors={colors}
-          loadingEvents={loadingEvents}
-          emptyEventsMessage={emptyEventsMessage}
-          eventsTitle={sectionLabels.events}
-          seeAllLabel={sectionLabels.seeAll}
-          seriesTitle={sectionLabels.series}
-          upcomingEvents={upcomingEvents}
-          eventSeries={eventSeries}
-          onSeeAll={() => router.push('/(tabs)/tonight')}
-          onEventPress={(eventId) => router.push(`/event/${eventId}`)}
-          onSeriesPress={(seriesId) => router.push(`/series/${seriesId}`)}
-        />
-      </View>
+      <HomeContentSections
+        cafeDescription={cafeDescription}
+        colors={colors}
+        emptyEventsMessage={emptyEventsMessage}
+        eventSeries={eventSeries}
+        heroSubtitle={heroSubtitle}
+        heroTitle={heroTitle}
+        isWeb={isWeb}
+        language={language}
+        loadingEvents={loadingEvents}
+        onEventPress={(eventId) => router.push(`/event/${eventId}`)}
+        onRandomCafePress={(venueId) => router.push(`/venue/${venueId}`)}
+        onSeeAll={() => router.push('/(tabs)/tonight')}
+        onSelectMood={setSelectedMood}
+        onSeriesPress={(seriesId) => router.push(`/series/${seriesId}`)}
+        randomCafe={randomCafe}
+        sectionLabels={sectionLabels}
+        selectedMood={selectedMood}
+        upcomingEvents={upcomingEvents}
+      />
 
       <ContentState loading={loadingStatic} empty={false}>
         <View style={styles.bottomSpacer} />
@@ -196,14 +128,6 @@ export function HomeScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   screenContent: {
     paddingBottom: 120,
-  },
-  heroSection: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-  },
-  section: {
-    marginBottom: 32,
   },
   bottomSpacer: {
     height: 24,
