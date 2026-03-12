@@ -538,3 +538,11 @@ Copy this block when adding a new work entry.
 - Decisions: Keep the two route files for now because they still differ in shell chrome (`HypeHeader` versus `Stack.Screen`), but move duplicated screen-state contracts and planner content into a shared helper first so future consolidation is smaller and safer.
 - Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
 - Follow-up: Finish the Tonight cleanup with a second pass focused only on user-facing copy normalization and then continue the same shared-helper extraction pattern into the next large duplicated tab screen.
+
+### 2026-03-12 03:20
+- Goal: Finish the first Tonight follow-up by normalizing the remaining user-facing planner copy left behind after the helper extraction.
+- Changes made: Cleaned the remaining Bosnian planner labels and alerts in both Tonight route files, replaced the placeholder modal close glyph with a stable `X`, and removed the last stale `MOODS.map` usage so both route files now consistently use `TONIGHT_MOODS`.
+- Files touched: `app/(tabs)/tonight.tsx`, `app/(tabs)/tonight.ios.tsx`, `docs/project_ledger.md`
+- Decisions: Keep the shared helper as the source of truth for mood definitions and leave this pass focused on copy/UI polish only, rather than broadening it into another structural refactor.
+- Verification: `npm.cmd run build:web`; `npx.cmd tsx --test tests/appRoutes.test.ts tests/favorites.test.ts tests/favoritesMigration.test.ts tests/homeWeather.test.ts tests/imageSource.test.ts tests/profileTaste.test.ts tests/supabaseErrors.test.ts`
+- Follow-up: Continue with the next large duplicated tab screen and use the same pattern of shared helper extraction first, then copy/surface cleanup as a second pass where needed.

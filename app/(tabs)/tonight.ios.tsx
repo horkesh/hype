@@ -196,7 +196,7 @@ export default function TonightScreen() {
 
   const handleSavePlan = () => {
     console.log('Saving plan:', currentPlan);
-    alert(language === 'bs' ? 'Plan sacuvan!' : 'Plan saved!');
+    alert(language === 'bs' ? 'Plan sačuvan!' : 'Plan saved!');
     setShowPlannerModal(false);
     setCurrentPlan(null);
   };
@@ -521,13 +521,13 @@ export default function TonightScreen() {
             <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>
-                {language === 'bs' ? 'AI Planer veceri' : 'AI Evening Planner'}
+                {language === 'bs' ? 'AI Planer večeri' : 'AI Evening Planner'}
                 </Text>
                 <TouchableOpacity onPress={() => {
                   setShowPlannerModal(false);
                   setCurrentPlan(null);
                 }}>
-                  <Text style={[styles.modalClose, { color: colors.text }]}>x</Text>
+                  <Text style={[styles.modalClose, { color: colors.text }]}>X</Text>
                 </TouchableOpacity>
               </View>
 
@@ -535,10 +535,10 @@ export default function TonightScreen() {
                 {!currentPlan ? (
                   <>
                     <Text style={[styles.sectionLabel, { color: colors.text }]}>
-                    {language === 'bs' ? 'Raspolozenje' : 'Mood'}
+                    {language === 'bs' ? 'Raspoloženje' : 'Mood'}
                     </Text>
                     <View style={styles.moodGrid}>
-                      {MOODS.map(mood => {
+                      {TONIGHT_MOODS.map(mood => {
                         const isSelected = selectedMood === mood.id;
                         const moodLabel = language === 'bs' ? mood.label_bs : mood.label_en;
                         
@@ -561,7 +561,7 @@ export default function TonightScreen() {
                     </View>
 
                     <Text style={[styles.sectionLabel, { color: colors.text }]}>
-                    {language === 'bs' ? `Budzet: ${budget} KM` : `Budget: ${budget} KM`}
+                    {language === 'bs' ? `Budžet: ${budget} KM` : `Budget: ${budget} KM`}
                     </Text>
                     <Slider
                       style={styles.slider}
@@ -717,7 +717,7 @@ export default function TonightScreen() {
                   setSelectedEvents([]);
                   setVoteLink(null);
                 }}>
-                  <Text style={[styles.modalClose, { color: colors.text }]}>x</Text>
+                  <Text style={[styles.modalClose, { color: colors.text }]}>X</Text>
                 </TouchableOpacity>
               </View>
 
