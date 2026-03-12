@@ -307,17 +307,17 @@ Main active work:
 - `events`, `event_series`, and `daily_specials` now also have repo-native reconciliation docs and query packs, because we know their live schema shape but still need real home-machine row-level inspection before promotion or UI-cleanup decisions should be treated as settled
 
 Important next planned work:
-- favorites migration to Supabase `favorites`
-- taste-profile migration to `profiles.taste_moods`
+- verify favorites migration to Supabase `favorites` with a real authenticated session
+- verify taste-profile migration to `profiles.taste_moods` with a real authenticated session
+- verify auth refresh behavior after sign-in and sign-out
 - home-machine live-data reconciliation for `venues`, `events`, `event_series`, and `daily_specials`
 - home-machine Pencil exploration for the first Hype Home visual direction, then convergence in Figma later
 
 Immediate resume sequence:
-1. use `npm.cmd` or `npx.cmd` from PowerShell on the home machine
-2. rerun the web app on the fixed working port
-3. spot-check Home, Explore, Tonight, Saved, and Profile after the latest simplification commits
-4. if the shared routes stay stable, continue reducing oversized route files by moving route-local orchestration and remaining bulky render sections into shared components or helper modules
-   with Home support and the main detail screens complete, the next best targets are the remaining mixed-support screens and the still-unfixed encoding cleanup outside rebuilt surfaces
+1. the diacritic and encoding cleanup across helper surfaces is now effectively complete (no mojibake or missing diacritics found in utils, components, or contexts)
+2. `npm test` now runs 117 tests via Node test runner with tsx; web build passes
+3. the next highest-value work is live runtime verification: sign in, test favorites save/unsave, test taste-profile persistence, and test auth refresh across Saved and Profile screens
+4. after verification, shift to frontend/backend alignment and ingestion work
 5. update `handover.md`, `execution_board.md`, and `project_ledger.md` in the same slice whenever route ownership or current blockers materially change
 
 ## Important known realities
