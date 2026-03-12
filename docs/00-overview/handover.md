@@ -36,6 +36,11 @@ If you are continuing work on the home machine, resume with this exact focus:
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 
 Most relevant changed surfaces:
+- `app/(tabs)/_layout.tsx`
+- `components/FloatingTabBar.tsx`
+- `components/tabbar/FloatingTabButton.tsx`
+- `utils/floatingTabBar.ts`
+- `tests/floatingTabBar.test.ts`
 - `app/(tabs)/saved.tsx`
 - `app/(tabs)/saved.ios.tsx`
 - `components/saved/SavedTabs.tsx`
@@ -352,6 +357,12 @@ The latest Home support cleanup pass added four more important outcomes:
 - decomposed Home rendering into focused `components/home/` sections for hero, moods, featured cafe, and event/series rails
 - refreshed regression coverage in `tests/homeScreenContent.test.ts` so cleaned copy and countdown behavior stay stable
 
+The latest shared tab-bar cleanup pass added four more important outcomes:
+- moved FloatingTabBar route matching, indicator sizing, and theme-surface color decisions into `utils/floatingTabBar.ts`
+- split tab-button rendering into `components/tabbar/FloatingTabButton.tsx` so `components/FloatingTabBar.tsx` is now mostly shared-chrome orchestration
+- aligned the tab bar with the repo `useTheme()` hook instead of mixing in a separate navigation-theme source
+- added targeted regression coverage for tab-bar helper behavior in `tests/floatingTabBar.test.ts`
+
 New regression coverage now exists for:
 - weather mood merging
 - image-source normalization
@@ -362,7 +373,7 @@ New regression coverage now exists for:
 Known cleanup targets include:
 - oversized screen files
 - remaining oversized shared route files whose behavior sections still need extraction
-- remaining mixed-support screens outside the rebuilt tab/detail surfaces, especially larger filters and navigation chrome
+- remaining mixed-support screens outside the rebuilt tab/detail surfaces, especially larger filters
 - mojibake and encoding-damaged strings
 - direct AsyncStorage use scattered across screens
 - inconsistent saved-state naming

@@ -657,3 +657,11 @@ Copy this block when adding a new work entry.
 - Decisions: Treat support-surface cleanup as incomplete until bulky tab chrome and planner modals are also decomposed, and keep mock UI data deterministic instead of generating render-time randomness inside shared components.
 - Verification: `npx.cmd tsx --test tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/exploreHelpers.test.ts tests/homeScreenContent.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
 - Follow-up: Continue the mixed-support wave on shared filters and navigation chrome, with encoding cleanup still tied to the exact surfaces being simplified.
+
+### 2026-03-12 19:40
+- Goal: Decompose the shared FloatingTabBar chrome so route matching, theme math, and button rendering no longer live in one app-wide component.
+- Changes made: Added `utils/floatingTabBar.ts` for active-route matching, indicator sizing, and tab-bar surface colors; added `components/tabbar/FloatingTabButton.tsx`; rewrote `components/FloatingTabBar.tsx` around those helpers/components; aligned it to the repo `useTheme()` hook instead of `@react-navigation/native` theme state; added `tests/floatingTabBar.test.ts`; and refreshed handover, the execution board, and the napkin so the mixed-support cleanup story now includes shared navigation chrome too.
+- Files touched: `components/FloatingTabBar.tsx`, `components/tabbar/FloatingTabButton.tsx`, `utils/floatingTabBar.ts`, `tests/floatingTabBar.test.ts`, `docs/00-overview/handover.md`, `docs/00-overview/execution_board.md`, `.claude/napkin.md`, `docs/project_ledger.md`
+- Decisions: Treat app-wide navigation chrome like any other rebuilt surface: keep the main component on orchestration, move route heuristics and layout math into pure helpers, and keep theme inputs consistent with the repo-wide theme hook.
+- Verification: `npx.cmd tsx --test tests/floatingTabBar.test.ts tests/tonightHelpers.test.ts tests/tonightScreen.test.ts tests/appRoutes.test.ts`; `npm.cmd run build:web`
+- Follow-up: Continue the mixed-support wave on `components/explore/ExploreFilterModal.tsx`, with encoding cleanup still tied to the exact surface being simplified.

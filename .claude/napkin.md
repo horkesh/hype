@@ -63,8 +63,8 @@
    Do instead: keep image, card, and loading primitives explicitly web-safe first, then add native motion only when browser verification stays clean.
 9. **[2026-03-12] Large shared routes should end as orchestration files, not UI monoliths**
    Do instead: once a shared route holds search, filters, lists, modals, and navigation together, extract named render sections into `components/<surface>/` and leave the route responsible mainly for state, loading, and navigation.
-10. **[2026-03-12] Large support components, tab modals, and planner chrome should follow the same orchestration pattern as routes**
-   Do instead: for oversized support surfaces like `HomeScreen` or `Tonight` planner/content chrome, extract data and pure copy/selection helpers into `utils/<surface>*.ts`, keep mock UI data deterministic instead of using `Math.random()` in render paths, and split action bars, tabs, lists, and modal sections into `components/<surface>/`.
+10. **[2026-03-12] Large support components, tab modals, planner chrome, and app-wide navigation chrome should follow the same orchestration pattern as routes**
+   Do instead: for oversized support surfaces like `HomeScreen`, `Tonight` planner/content chrome, or `FloatingTabBar`, extract data, route heuristics, and pure copy/selection/layout helpers into `utils/<surface>*.ts`, keep mock UI data deterministic instead of using `Math.random()` in render paths, and split action bars, tabs, lists, modal sections, and navigation buttons into `components/<surface>/`.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**

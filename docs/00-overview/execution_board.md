@@ -324,6 +324,7 @@ Status:
 - shared Profile route plus extracted auth/data/render surfaces under `utils/profileData.ts`, `utils/profileScreen.ts`, and `components/profile/`
 - shared Explore route plus extracted helper surfaces under `utils/exploreScreen.ts`, `utils/exploreHelpers.ts`, and `utils/exploreData.ts`
 - shared Explore render sections under `components/explore/` plus helper regression coverage in `tests/exploreHelpers.test.ts`
+- shared FloatingTabBar chrome now uses extracted tab-button rendering plus helper-owned route matching and indicator/theme math under `components/tabbar/` and `utils/floatingTabBar.ts`
 - Expo Router helper-route cleanup
 - regression tests for Home weather, image sources, and accidental `app/` helper files
 - regression tests for shared Home copy/date/countdown helpers
@@ -375,7 +376,7 @@ Status:
 ### Wave 1
 
 1. continue screen simplification and route stability on the next oversized mixed-support surfaces, with encoding cleanup now the clearest target
-   the main tab, home-support, and detail-screen lanes are simplified, so the next wave should focus on shared support components like large filters and navigation chrome plus broader mojibake cleanup
+   the main tab, home-support, detail-screen, and tab-bar chrome lanes are simplified, so the next wave should focus on shared support components like large filters plus broader mojibake cleanup
 2. keep reducing duplicated screen variants and direct persistence logic in UI files
 3. repair remaining mojibake outside the rebuilt Home path
 

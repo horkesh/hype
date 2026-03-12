@@ -2,17 +2,15 @@
 import React from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
   Platform,
   Dimensions,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { IconSymbol } from '@/components/IconSymbol';
+import { FloatingTabButton } from '@/components/tabbar/FloatingTabButton';
 import { BlurView } from 'expo-blur';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from '@/hooks/useTheme';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -21,6 +19,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Href } from 'expo-router';
+import {
+  getActiveTabIndex,
+  getTabBarSurfaceColors,
+  getTabIndicatorTranslateRange,
+  getTabIndicatorWidthPercent,
+} from '@/utils/floatingTabBar';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -38,62 +42,6 @@ interface FloatingTabBarProps {
   bottomMargin?: number;
 }
 
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-
-interface TabButtonProps {
-  tab: TabBarItem;
-  isActive: boolean;
-  iconColor: string;
-  onPress: () => void;
-  theme: any;
-}
-
-function TabButton({ tab, isActive, iconColor, onPress, theme }: TabButtonProps) {
-  const scale = useSharedValue(1);
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.85, { damping: 15, stiffness: 300 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-  };
-
-  const animatedTabStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
-  return (
-    <AnimatedTouchable
-      style={[styles.tab, animatedTabStyle]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      activeOpacity={0.7}
-    >
-      <View style={styles.tabContent}>
-        <IconSymbol
-          android_material_icon_name={tab.icon}
-          ios_icon_name={tab.icon}
-          size={24}
-          color={iconColor}
-        />
-        <Text
-          style={[
-            styles.tabLabel,
-            { color: theme.dark ? '#98989D' : '#8E8E93' },
-            isActive && { color: '#D4A056', fontWeight: '600' },
-          ]}
-        >
-          {tab.label}
-        </Text>
-      </View>
-    </AnimatedTouchable>
-  );
-}
-
 export default function FloatingTabBar({
   tabs,
   containerWidth = screenWidth / 2.5,
@@ -102,36 +50,12 @@ export default function FloatingTabBar({
 }: FloatingTabBarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const theme = useTheme();
+  const { isDark } = useTheme();
   const animatedValue = useSharedValue(0);
   const pathnameString = typeof pathname === 'string' ? pathname : '';
 
   const activeTabIndex = React.useMemo(() => {
-    let bestMatch = -1;
-    let bestMatchScore = 0;
-
-    tabs.forEach((tab, index) => {
-      let score = 0;
-
-      const routePath = typeof tab.route === 'string' ? tab.route : tab.route.pathname;
-
-      if (pathnameString === routePath) {
-        score = 100;
-      } else if (pathnameString.startsWith(routePath)) {
-        score = 80;
-      } else if (pathnameString.includes(tab.name)) {
-        score = 60;
-      } else if (routePath.includes('/(tabs)/') && pathnameString.includes(routePath.split('/(tabs)/')[1])) {
-        score = 40;
-      }
-
-      if (score > bestMatchScore) {
-        bestMatchScore = score;
-        bestMatch = index;
-      }
-    });
-
-    return bestMatch >= 0 ? bestMatch : 0;
+    return getActiveTabIndex(pathnameString, tabs);
   }, [pathnameString, tabs]);
 
   React.useEffect(() => {
@@ -148,17 +72,18 @@ export default function FloatingTabBar({
     router.push(route);
   };
 
-  const tabWidthPercent = ((100 / tabs.length) - 1).toFixed(2);
+  const tabWidthPercent = getTabIndicatorWidthPercent(tabs.length);
+  const [indicatorStart, indicatorEnd] = getTabIndicatorTranslateRange(containerWidth, tabs.length);
+  const surfaceColors = getTabBarSurfaceColors(isDark);
 
   const indicatorStyle = useAnimatedStyle(() => {
-    const tabWidth = (containerWidth - 8) / tabs.length;
     return {
       transform: [
         {
           translateX: interpolate(
             animatedValue.value,
             [0, tabs.length - 1],
-            [0, tabWidth * (tabs.length - 1)]
+            [indicatorStart, indicatorEnd]
           ),
         },
       ],
@@ -169,22 +94,16 @@ export default function FloatingTabBar({
     blurContainer: {
       ...styles.blurContainer,
       borderWidth: 1.2,
-      borderColor: 'rgba(255, 255, 255, 1)',
+      borderColor: surfaceColors.borderColor,
       ...Platform.select({
         ios: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.8)'
-            : 'rgba(255, 255, 255, 0.6)',
+          backgroundColor: isDark ? 'rgba(28, 28, 30, 0.8)' : surfaceColors.backgroundColor,
         },
         android: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.95)'
-            : 'rgba(255, 255, 255, 0.6)',
+          backgroundColor: surfaceColors.backgroundColor,
         },
         web: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.95)'
-            : 'rgba(255, 255, 255, 0.6)',
+          backgroundColor: surfaceColors.backgroundColor,
           backdropFilter: 'blur(10px)',
         },
       }),
@@ -194,9 +113,7 @@ export default function FloatingTabBar({
     },
     indicator: {
       ...styles.indicator,
-      backgroundColor: theme.dark
-        ? 'rgba(255, 255, 255, 0.08)'
-        : 'rgba(0, 0, 0, 0.04)',
+      backgroundColor: surfaceColors.indicatorColor,
       width: `${tabWidthPercent}%` as `${number}%`,
     },
   };
@@ -219,18 +136,18 @@ export default function FloatingTabBar({
           <View style={styles.tabsContainer}>
             {tabs.map((tab, index) => {
               const isActive = activeTabIndex === index;
-              const iconColor = isActive ? '#D4A056' : (theme.dark ? '#98989D' : '#8E8E93');
+              const iconColor = isActive ? '#D4A056' : surfaceColors.iconColor;
+              const labelColor = isActive ? '#D4A056' : surfaceColors.labelColor;
 
               return (
-                <React.Fragment key={index}>
-                  <TabButton
-                    tab={tab}
-                    isActive={isActive}
-                    iconColor={iconColor}
-                    onPress={() => handleTabPress(tab.route)}
-                    theme={theme}
-                  />
-                </React.Fragment>
+                <FloatingTabButton
+                  key={typeof tab.route === 'string' ? tab.route : `${tab.name}-${index}`}
+                  tab={tab}
+                  isActive={isActive}
+                  iconColor={iconColor}
+                  labelColor={labelColor}
+                  onPress={() => handleTabPress(tab.route)}
+                />
               );
             })}
           </View>
@@ -272,22 +189,5 @@ const styles = StyleSheet.create({
     height: 60,
     alignItems: 'center',
     paddingHorizontal: 4,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  tabContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
-  tabLabel: {
-    fontSize: 9,
-    fontWeight: '500',
-    marginTop: 2,
-    fontFamily: 'DMSans_500Medium',
   },
 });
