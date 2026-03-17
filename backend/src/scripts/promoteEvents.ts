@@ -74,12 +74,12 @@ function log(msg: string) {
 // ---------------------------------------------------------------------------
 
 const CATEGORY_RULES: Array<{ pattern: RegExp; category: string }> = [
-  { pattern: /stand[-\s]?up|komedija|comedy/i, category: 'comedy' },
+  { pattern: /stand[-\s]?up|komedija|comedy/i, category: 'other' },
   { pattern: /koncert|concert|dj\b|live\s+music/i, category: 'music' },
-  { pattern: /balet|ballet/i, category: 'dance' },
-  { pattern: /opera/i, category: 'opera' },
-  { pattern: /drama|predstava|teatar|theatre|theater/i, category: 'theatre' },
-  { pattern: /izložba|exhibition|galerija/i, category: 'art' },
+  { pattern: /balet|ballet/i, category: 'other' },
+  { pattern: /opera/i, category: 'other' },
+  { pattern: /drama|predstava|teatar|theatre|theater/i, category: 'other' },
+  { pattern: /izložba|exhibition|galerija/i, category: 'other' },
 ];
 
 function inferCategory(title: string | null): string {
@@ -143,6 +143,35 @@ function parseDateRaw(dateRaw: string | null): string | null {
     const [, d, m] = slashDate;
     const year = new Date().getFullYear();
     return buildDatetime(year, Number(m), Number(d));
+  }
+
+  // Bosnian month names: "17 Mart 2026 20:00" or "23 Mart 2026"
+  const bosnianMonths: Record<string, number> = {
+    januar: 1, februar: 2, mart: 3, april: 4, maj: 5, juni: 6,
+    juli: 7, august: 8, septembar: 9, oktobar: 10, novembar: 11, decembar: 12,
+  };
+  const bsMatch = s.match(/^(\d{1,2})\s+([a-zA-Zčćšžđ]+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/);
+  if (bsMatch) {
+    const [, d, monthName, y, hh, mm] = bsMatch;
+    const month = bosnianMonths[monthName.toLowerCase()];
+    if (month) {
+      return buildDatetime(Number(y), month, Number(d), Number(hh ?? 0), Number(mm ?? 0));
+    }
+  }
+
+  // English month abbrevs: "Sat Mar 22 2026" or "Mar 22, 2026"
+  const enMonths: Record<string, number> = {
+    jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+    jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+  };
+  const enMatch = s.match(/(?:\w+\s+)?([A-Za-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (enMatch) {
+    const [, monthStr, d, y, hh, mm] = enMatch;
+    const month = enMonths[monthStr.toLowerCase().slice(0, 3)];
+    if (month) {
+      const year = y ? Number(y) : new Date().getFullYear();
+      return buildDatetime(year, month, Number(d), Number(hh ?? 0), Number(mm ?? 0));
+    }
   }
 
   return null;
