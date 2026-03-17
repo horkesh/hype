@@ -15,10 +15,10 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ success: true, data: { enriched: 0, message: 'No venues need enrichment' } }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
     }
-    let enriched = 0;
-    for (const venue of venues) {
-      const prompt = `Write a 2-3 sentence description for this Sarajevo venue. Be engaging, warm, and specific.\n\nVenue: ${venue.name}\nCategory: ${venue.category}\nNeighborhood: ${venue.neighborhood ?? 'Sarajevo'}\nMoods: ${venue.moods?.join(', ') ?? 'general'}\n\nReturn JSON: { "description_bs": "Bosnian description", "description_en": "English description" }`;
-      try {
+    // Run AI calls concurrently to avoid N+1 sequential blocking
+    const results = await Promise.allSettled(
+      venues.map(async (venue) => {
+        const prompt = `Write a 2-3 sentence description for this Sarajevo venue. Be engaging, warm, and specific.\n\nVenue: ${venue.name}\nCategory: ${venue.category}\nNeighborhood: ${venue.neighborhood ?? 'Sarajevo'}\nMoods: ${venue.moods?.join(', ') ?? 'general'}\n\nReturn JSON: { "description_bs": "Bosnian description", "description_en": "English description" }`;
         const result = await callClaude({
           model: 'claude-haiku-4-5-20251001',
           messages: [{ role: 'user', content: prompt }],
@@ -29,8 +29,12 @@ Deno.serve(async (req: Request) => {
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const parsed = JSON.parse(clean);
         await supabase.from('venues').update({ description_bs: parsed.description_bs, description_en: parsed.description_en }).eq('id', venue.id);
-        enriched++;
-      } catch (err) { console.error(`Failed to enrich ${venue.name}:`, err); }
+        return venue.name;
+      }),
+    );
+    const enriched = results.filter((r) => r.status === 'fulfilled').length;
+    for (const r of results) {
+      if (r.status === 'rejected') console.error('Failed to enrich venue:', r.reason);
     }
     return new Response(JSON.stringify({ success: true, data: { enriched, total: venues.length } }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });

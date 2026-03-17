@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { GlassBadge } from '@/components/glass/GlassBadge';
@@ -30,8 +30,17 @@ export function TonightPlanStream({
   const [plan, setPlan] = useState<EveningPlan | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Debounce progress updates to avoid 5-20 re-renders/sec during SSE streaming
+  const latestTextRef = useRef('');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleProgress = useCallback((text: string) => {
-    setRawText(text);
+    latestTextRef.current = text;
+    if (!timerRef.current) {
+      timerRef.current = setTimeout(() => {
+        setRawText(latestTextRef.current);
+        timerRef.current = null;
+      }, 150);
+    }
   }, []);
 
   useEffect(() => {
@@ -63,6 +72,7 @@ export function TonightPlanStream({
 
     return () => {
       cancelled = true;
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
     // Fire once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

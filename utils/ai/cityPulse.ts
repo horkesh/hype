@@ -9,6 +9,10 @@ interface CityPulse {
 let cachedPulse: { data: CityPulse; fetchedAt: number } | null = null;
 const CACHE_TTL = 3 * 60 * 60 * 1000;
 
+export function clearCityPulseCache(): void {
+  cachedPulse = null;
+}
+
 export async function fetchCityPulse(): Promise<CityPulse | null> {
   if (cachedPulse && Date.now() - cachedPulse.fetchedAt < CACHE_TTL) {
     return cachedPulse.data;
