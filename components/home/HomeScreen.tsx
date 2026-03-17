@@ -10,14 +10,10 @@ import { useTheme } from '@/hooks/useTheme';
 import {
   HomeEventItem,
   HomeEventSeries,
-  HomeVenue,
 } from '@/utils/homeData';
 import {
-  getCafeDescription,
-  getDefaultHeroSubtitle,
   getEmptyEventsMessage,
   getHomeSectionLabels,
-  getTimeOfDayHeroMessage,
 } from '@/utils/homeScreenContent';
 import {
   loadHomeEventsForMood,
@@ -30,10 +26,7 @@ export function HomeScreen(): React.ReactElement {
   const { colors } = useTheme();
   const { language } = useApp();
   const isWeb = Platform.OS === 'web';
-
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [heroMessage, setHeroMessage] = useState('');
-  const [randomCafe, setRandomCafe] = useState<HomeVenue | null>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<HomeEventItem[]>([]);
   const [eventSeries, setEventSeries] = useState<HomeEventSeries[]>([]);
   const [loadingStatic, setLoadingStatic] = useState(true);
@@ -41,7 +34,6 @@ export function HomeScreen(): React.ReactElement {
   const [refreshing, setRefreshing] = useState(false);
 
   const sectionLabels = getHomeSectionLabels(language);
-  const heroSubtitle = getDefaultHeroSubtitle(language);
   const emptyEventsMessage = getEmptyEventsMessage(language);
 
   const loadStaticContent = useCallback(async (): Promise<void> => {
@@ -50,9 +42,7 @@ export function HomeScreen(): React.ReactElement {
     try {
       const content = await loadHomeStaticContent(language);
 
-      setRandomCafe(content.randomCafe);
       setEventSeries(content.eventSeries);
-      setHeroMessage(content.heroMessage);
       setSelectedMood((currentMood) => mergeHomeSuggestedMood(currentMood, content.suggestedMood));
     } finally {
       setLoadingStatic(false);
@@ -85,34 +75,21 @@ export function HomeScreen(): React.ReactElement {
     });
   }, [loadEventContent, loadStaticContent]);
 
-  const heroTitle = heroMessage || getTimeOfDayHeroMessage(language, new Date().getHours());
-  const cafeDescription = getCafeDescription(
-    language,
-    randomCafe?.description_bs ?? null,
-    randomCafe?.description_en ?? null
-  );
-
   return (
     <TabScreen
       refreshControl={isWeb ? undefined : { refreshing, onRefresh }}
       contentContainerStyle={styles.screenContent}
     >
       <HomeContentSections
-        cafeDescription={cafeDescription}
         colors={colors}
         emptyEventsMessage={emptyEventsMessage}
         eventSeries={eventSeries}
-        heroSubtitle={heroSubtitle}
-        heroTitle={heroTitle}
-        isWeb={isWeb}
         language={language}
         loadingEvents={loadingEvents}
         onEventPress={(eventId) => router.push(`/event/${eventId}`)}
-        onRandomCafePress={(venueId) => router.push(`/venue/${venueId}`)}
         onSeeAll={() => router.push('/(tabs)/tonight')}
         onSelectMood={setSelectedMood}
         onSeriesPress={(seriesId) => router.push(`/series/${seriesId}`)}
-        randomCafe={randomCafe}
         sectionLabels={sectionLabels}
         selectedMood={selectedMood}
         upcomingEvents={upcomingEvents}
