@@ -1,6 +1,38 @@
 import type { RawEventCandidate } from './ingestionFetch.js';
 import type { IngestionSourceSummary } from './ingestionSources.js';
 
+// Non-Sarajevo cities to reject from national sources like KupiKartu
+const NON_SARAJEVO_CITIES = [
+  'zenica', 'tuzla', 'banja luka', 'banjaluka', 'mostar', 'kakanj',
+  'bihać', 'bihac', 'travnik', 'brčko', 'brcko', 'prijedor', 'doboj',
+  'cazin', 'živinice', 'zivinice', 'lukavac', 'goražde', 'gorazde',
+  'visoko', 'konjic', 'bugojno', 'gradačac', 'gradacac', 'gračanica',
+  'gracanica', 'srebrenik', 'ključ', 'kljuc', 'neum', 'stolac',
+  'trebinje', 'bijeljina', 'dvorana borik',
+];
+
+function isLikelySarajevo(titleRaw: string, venueNameRaw: string | null): boolean {
+  const text = `${titleRaw} ${venueNameRaw ?? ''}`.toLowerCase();
+  // Reject if contains a non-Sarajevo city name
+  for (const city of NON_SARAJEVO_CITIES) {
+    if (text.includes(city)) return false;
+  }
+  // Accept if explicitly mentions Sarajevo or a known Sarajevo venue/area
+  if (text.includes('sarajevo') || text.includes('baščaršija') || text.includes('bascarsija')) return true;
+  // Accept if venue is a known Sarajevo venue (check common ones)
+  const sarajevoVenues = [
+    'cinemas sloga', 'dom mladih', 'skenderija', 'kamerni teatar',
+    'narodno pozorište', 'bkc', 'vijećnica', 'vijecnica', 'zetra',
+    'hotel europe', 'olympic hall', 'pozorište mladih', 'sartr',
+    'sloga', 'hacienda', 'underground',
+  ];
+  for (const venue of sarajevoVenues) {
+    if (text.includes(venue)) return true;
+  }
+  // No city signal either way — accept (better to include than miss)
+  return true;
+}
+
 function stripHtml(value: string): string {
   return value
     .replace(/<[^>]+>/g, ' ')
@@ -215,6 +247,11 @@ function extractKupikartuCandidates(
     const dateRaw = extractKupikartuDate(match[2] ?? '');
     const venueNameRaw = extractKupikartuVenue(match[2] ?? '');
     const imageUrl = extractImageSrc(match[2] ?? '', source.sourceUrl);
+
+    // Filter: only Sarajevo events from national sources
+    if (!isLikelySarajevo(titleRaw, venueNameRaw)) {
+      continue;
+    }
 
     seen.add(resolvedUrl);
     candidates.push({
