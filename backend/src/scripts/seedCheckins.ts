@@ -22,7 +22,7 @@ interface Venue {
 
 interface CheckinRow {
   id?: string;
-  user_id: string;
+  user_id?: string | null;
   venue_id: string;
   created_at: string;
 }
@@ -82,7 +82,7 @@ async function main() {
 
     for (let j = 0; j < count; j++) {
       rows.push({
-        user_id: crypto.randomUUID(),
+        user_id: null, // Anonymous demo check-ins
         venue_id: venue.id,
         created_at: randomRecentTimestamp(3),
       });
@@ -100,11 +100,10 @@ async function main() {
 
   // 4. Batch insert (Supabase REST accepts an array body)
   console.log(`\nInserting ${rows.length} check-ins...`);
-  await requestSupabaseAdminJson<unknown>(
+  await requestSupabaseAdminNoContent(
     '/rest/v1/checkins',
     {
       method: 'POST',
-      headers: { Prefer: 'return=minimal' },
       body: JSON.stringify(rows),
     },
   );
