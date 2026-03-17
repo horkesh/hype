@@ -20,6 +20,12 @@
 6. **[2026-03-11] Verify taste-profile persistence on home before assuming profile bootstrap is complete**
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
+## Pending Execution
+1. **[2026-03-17] Presentation restyle plan is ready but NOT yet executing**
+   Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
+   Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
+   Do instead: when the user says "execute" or "go", invoke `superpowers:subagent-driven-development` against the plan. The plan has 6 chunks, 40+ tasks, with `[frontend]`, `[backend]`, `[edge-fn]`, `[assets]`, `[review]` subagent ownership. Run `/simplify` after every wave. Read napkin before work, update ledger after each wave.
+
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**
    Do instead: update the execution board whenever backlog state, active work, blockers, or next-wave sequencing changes.

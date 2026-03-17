@@ -24,7 +24,7 @@ This is the living source of truth for active development. We should read it at 
 - Root UI shell lives in `app/_layout.tsx`.
 - Main tab navigation lives in `app/(tabs)/_layout.tsx`.
 - Backend is a separate TypeScript service under `backend/src/index.ts`.
-- Supabase client code currently exists in both `integrations/supabase/client.ts` and `app/integrations/supabase/client.ts`.
+- Frontend Supabase client usage is currently centered on `integrations/supabase/client.ts`.
 
 ## Active workstreams
 
@@ -37,10 +37,10 @@ This is the living source of truth for active development. We should read it at 
 
 ## Known issues and observations
 
-- Supabase anon credentials are hardcoded in client files. This is acceptable for public anon keys, but configuration should still move to environment-driven setup for safer maintenance.
-- Supabase client setup appears duplicated in two locations, which creates drift risk.
-- Some translated strings in `contexts/AppContext.tsx` appear to have encoding artifacts.
-- Backend route modules are not yet registered, so the backend looks scaffolded more than feature-complete.
+- Public app config now flows through `app.config.ts` and `utils/publicConfig.ts`, so runtime verification should confirm the expected `EXPO_PUBLIC_*` values are actually present on the home machine.
+- The main remaining frontend risk is live auth and persistence behavior across `favorites`, `profiles.taste_moods`, and auth refresh, not broad route structure.
+- Some older ledger notes may describe earlier duplication or encoding issues that have since been cleaned up; prefer the newer handover and execution-board entries when they conflict with this snapshot.
+- Backend route modules are registered for the ingestion surface, so current backend risk is runtime env and source verification rather than missing route wiring.
 
 ## Dos and don'ts
 
@@ -919,3 +919,43 @@ Copy this block when adding a new work entry.
 - Decisions: Backend test data using ASCII "Pozoriste" is intentional (simulates raw scraped content); only frontend test input data needed diacritic normalization.
 - Verification: `npm test` (117/117)
 - Follow-up: The codebase is structurally clean across routes, components, helpers, and tests. The next highest-value work is live runtime verification (favorites, taste profile, auth refresh) which requires human browser interaction, followed by any remaining frontend/backend alignment work.
+
+### 2026-03-13
+- Goal: Refresh repo-state documentation after a cold-start audit and turn the verification notes into a tighter execution script.
+- Changes made: Updated the ledger snapshot to reflect the current single Supabase client surface and env-driven public config path; refreshed the known-issues section so it points at live auth/persistence verification instead of stale duplication notes; tightened the home-machine verification checklist so it uses the current frontend/backend command surfaces and records the current favorites/taste/auth risks more explicitly.
+- Files touched: `docs/project_ledger.md`, `docs/05-dev-ops/home_machine_verification_checklist.md`
+- Decisions: Treat the remaining high-risk area as runtime auth/persistence behavior across favorites, taste profile, and auth refresh; use the home-machine checklist as the concrete execution script for that work.
+- Follow-up: Run the checklist on the home machine with a real authenticated session, then update handover/execution board only if the runtime results change blocker status or sequencing.
+
+### 2026-03-13 23:52
+- Goal: Harden the two highest-risk auth/persistence seams before the next home-machine verification pass.
+- Changes made: Added `utils/favoritesSync.ts` so remote favorite upserts now check and throw Supabase write errors before legacy local ids are mirrored; rewired `utils/favorites.ts` to use that helper for migration sync and single-venue saves; added `utils/profileTastePersistence.ts` so taste-profile writes now upsert the `profiles` row by `id` instead of relying on update-only behavior; rewired `utils/profileTaste.ts` to use that helper; added focused regression coverage in `tests/favoritesSync.test.ts` and `tests/profileTastePersistence.test.ts`; refreshed handover so the next runtime verification pass knows these two seams were hardened before manual testing.
+- Files touched: `utils/favorites.ts`, `utils/favoritesSync.ts`, `utils/profileTaste.ts`, `utils/profileTastePersistence.ts`, `tests/favoritesSync.test.ts`, `tests/profileTastePersistence.test.ts`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions: Keep Supabase write-shape logic in tiny testable helpers so Node-side tests can verify persistence behavior without importing the Expo runtime; prefer profile-row upsert over update-only writes so signed-in users do not see false-success mood changes when the row is missing.
+- Verification: `npx.cmd tsx --test tests/favoritesSync.test.ts tests/profileTastePersistence.test.ts tests/favorites.test.ts tests/favoritesStorage.test.ts tests/favoritesMigration.test.ts tests/profileTaste.test.ts tests/profileSettings.test.ts`; `npm.cmd test` (`122/122` passing)
+- Follow-up: Run the home-machine verification checklist against a real authenticated session to confirm favorites save/unsave, taste-profile persistence, and auth refresh now behave cleanly in the live app.
+
+### 2026-03-17
+- Goal: Design and plan a full presentation restyle of the Hype app for a tourism board presentation, plus real AI integration.
+- Changes made:
+  - Brainstormed and designed the full restyle through collaborative dialogue, covering visual design language (glass/glow UI replacing all emoji), 7 screen redesigns, 6 new AI features, and asset generation strategy
+  - Created 4 HTML visual mockup documents in `docs/visual-mockups/`: icon style audit, emoji replacement guide, architecture validation vs industry, and screen-by-screen designs
+  - Converted screen designs mockup to PDF via Puppeteer
+  - Wrote and reviewed the design spec (900+ lines) covering architecture, visual design, screen-by-screen design, new features, data requirements, asset plan, implementation order (Waves 0-6), error handling, presentation strategy, and coding lessons from AWWV/Chronicles
+  - Spec passed automated review (14 issues found and fixed in first pass)
+  - Wrote and reviewed the implementation plan (2000+ lines) covering 6 chunks, 40+ tasks with full code, database migrations, 8 edge functions, all client helpers
+  - Plan passed automated review (15 issues found and fixed)
+  - Studied coding lessons from sibling repos (AWWV and Chronicles) and documented 30 directly applicable patterns in spec Section 10
+  - Integrated `/simplify` checkpoints after every wave, napkin/ledger discipline, and clear subagent ownership (`[frontend]`, `[backend]`, `[edge-fn]`, `[assets]`, `[review]`) into the plan
+  - Updated napkin with pending execution entry, execution board with new E8 epic, and handover with restyle context
+- Files touched: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`, `docs/superpowers/plans/2026-03-17-presentation-restyle.md`, `docs/visual-mockups/01-icon-styles.html`, `docs/visual-mockups/02-emoji-replacement.html`, `docs/visual-mockups/03-architecture-validation.html`, `docs/visual-mockups/04-screen-designs.html`, `docs/visual-mockups/04-screen-designs.pdf`, `.claude/napkin.md`, `docs/00-overview/execution_board.md`, `docs/00-overview/handover.md`, `docs/project_ledger.md`
+- Decisions:
+  - Glass containers via `expo-blur` BlurView (iOS) with rgba fallback (Android), not CSS `backdrop-filter`
+  - Flippable editorial cards via `react-native-reanimated` v3, not Animated API
+  - SSE streaming for Tonight Planner via direct `fetch()` to Edge Function URL, not `supabase.functions.invoke` (which doesn't support streaming)
+  - Multi-provider AI: GPT-4.1 mini/nano for search/planning, Gemini Flash for vision/pulse, Claude Haiku for prose parsing
+  - All AI server-side via Supabase Edge Functions — API keys never touch the client
+  - 20s AbortController timeout on all edge functions, status 200 always (even errors)
+  - Deno edge functions use `npm:` prefix for npm packages
+- Verification: Spec and plan both passed automated review via subagent dispatches
+- Follow-up: Plan execution is pending user approval. When ready, invoke `superpowers:subagent-driven-development` against the plan.

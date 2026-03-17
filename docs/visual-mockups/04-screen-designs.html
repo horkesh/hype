@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hype — Screen-by-Screen Design</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body { font-family: 'DM Sans', sans-serif; background: #0f0f1a; color: #FAFAF8; }
+
+  /* Phone frame */
+  .screen-section {
+    padding: 60px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .screen-section:nth-child(even) { background: #13132a; }
+
+  .screen-header {
+    max-width: 1200px;
+    margin: 0 auto 40px;
+  }
+  .screen-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #D4A056;
+    margin-bottom: 8px;
+  }
+  .screen-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .screen-desc {
+    font-size: 16px;
+    color: #a1a1aa;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+
+  .phone-row {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .phone-frame {
+    width: 375px;
+    min-height: 700px;
+    background: #1A1A2E;
+    border-radius: 40px;
+    border: 3px solid #2A2A3E;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+
+  .phone-notch {
+    width: 160px;
+    height: 28px;
+    background: #0f0f1a;
+    border-radius: 0 0 20px 20px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+
+  .phone-content {
+    padding: 0;
+    position: relative;
+    margin-top: -8px;
+  }
+
+  .annotations {
+    flex: 1;
+    min-width: 300px;
+    padding-top: 20px;
+  }
+
+  .annotation {
+    background: #2A2A3E;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border-left: 3px solid #D4A056;
+  }
+  .annotation h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #D4A056;
+    margin-bottom: 6px;
+  }
+  .annotation p {
+    font-size: 13px;
+    color: #a1a1aa;
+    line-height: 1.5;
+  }
+  .annotation .ai-badge {
+    display: inline-block;
+    background: rgba(168,85,247,0.2);
+    color: #A855F7;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+  .annotation .new-badge {
+    display: inline-block;
+    background: rgba(76,175,80,0.2);
+    color: #4CAF50;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+
+  /* ============ HOME SCREEN ============ */
+  .home-hero {
+    height: 280px;
+    background: linear-gradient(180deg, #8B6914 0%, #1A1A2E 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%25" stop-color="%23D4A056" stop-opacity="0.4"/><stop offset="100%25" stop-color="%231A1A2E" stop-opacity="0.9"/></linearGradient></defs><rect fill="url(%23sky)" width="400" height="300"/><path d="M0,200 Q50,180 80,190 L80,220 Q90,200 120,210 L120,230 Q140,200 160,220 L160,250 Q170,220 200,240 L200,300 L0,300Z" fill="%231A1A2E" opacity="0.5"/><circle cx="300" cy="60" r="3" fill="%23FAFAF8" opacity="0.6"/><circle cx="320" cy="45" r="2" fill="%23FAFAF8" opacity="0.4"/><circle cx="280" cy="80" r="2" fill="%23FAFAF8" opacity="0.3"/><path d="M150,160 L155,180 L165,180 L158,190 L160,200 L150,193 L140,200 L142,190 L135,180 L145,180Z" fill="%23D4A056" opacity="0.15"/></svg>') center/cover;
+    opacity: 0.7;
+  }
+
+  .hero-greeting {
+    font-size: 28px;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    margin-bottom: 4px;
+  }
+
+  .hero-pulse {
+    font-size: 14px;
+    color: rgba(250,250,248,0.85);
+    position: relative;
+    z-index: 1;
+    line-height: 1.5;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    margin-bottom: 12px;
+  }
+
+  .surprise-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212,160,86,0.3);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(212,160,86,0.15);
+  }
+  .surprise-card span {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .surprise-cta {
+    background: #D4A056;
+    color: #1A1A2E;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+  }
+
+  /* Mood chips */
+  .mood-row {
+    padding: 16px 20px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+  }
+  .mood-chip {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06);
+  }
+  .mood-chip.selected {
+    background: rgba(212,160,86,0.25);
+    border-color: rgba(212,160,86,0.5);
+    box-shadow: 0 2px 12px rgba(212,160,86,0.2);
+    color: #D4A056;
+    font-weight: 700;
+  }
+  .mood-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .mi-party { background: rgba(239,68,68,0.2); box-shadow: 0 0 8px rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.3); }
+  .mi-chill { background: rgba(59,130,246,0.2); box-shadow: 0 0 8px rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.3); }
+  .mi-date { background: rgba(251,146,60,0.2); box-shadow: 0 0 8px rgba(251,146,60,0.2); border: 1px solid rgba(251,146,60,0.3); }
+  .mi-music { background: rgba(168,85,247,0.2); box-shadow: 0 0 8px rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.3); }
+  .mi-food { background: rgba(234,179,8,0.2); box-shadow: 0 0 8px rgba(234,179,8,0.2); border: 1px solid rgba(234,179,8,0.3); }
+  .mi-culture { background: rgba(99,102,241,0.2); box-shadow: 0 0 8px rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.3); }
+
+  /* Section headers */
+  .section-header {
+    padding: 20px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .section-header a {
+    font-size: 13px;
+    color: #D4A056;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* Kafu card */
+  .kafu-card {
+    margin: 0 20px 16px;
+    background: linear-gradient(135deg, rgba(139,105,20,0.4), rgba(42,42,62,0.8));
+    border-radius: 24px;
+    padding: 24px;
+    border: 1px solid rgba(212,160,86,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  .kafu-card::after {
+    content: '☕';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    opacity: 0.15;
+  }
+  .kafu-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .kafu-sub {
+    font-size: 13px;
+    color: #a1a1aa;
+    margin-bottom: 14px;
+  }
+  .kafu-btn {
+    background: #D4A056;
+    color: #1A1A2E;
+    border: none;
+    border-radius: 14px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+  }
+
+  /* Event cards */
+  .card-rail {
+    padding: 0 20px 20px;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+  }
+  .event-card {
+    flex-shrink: 0;
+    width: 260px;
+    height: 180px;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3a2a1a, #2A2A3E);
+  }
+  .event-card-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  }
+  .event-card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+  }
+  .event-card-badges {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 4px;
+  }
+  .event-card-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .event-card-cat {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .event-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .event-card-meta {
+    font-size: 12px;
+    color: rgba(250,250,248,0.7);
+  }
+  .event-card-time {
+    display: inline-block;
+    background: rgba(239,68,68,0.3);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #FCA5A5;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .flip-icon {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Hidden gems rail */
+  .gem-card {
+    flex-shrink: 0;
+    width: 200px;
+    height: 160px;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a2a1a, #2A2A3E);
+  }
+  .gem-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(212,160,86,0.25);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212,160,86,0.4);
+    color: #D4A056;
+    letter-spacing: 0.5px;
+  }
+  .gem-card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  }
+  .gem-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .gem-card-tip {
+    font-size: 11px;
+    color: rgba(250,250,248,0.6);
+    font-style: italic;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    position: sticky;
+    bottom: 0;
+    padding: 8px 0 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .tab-bar-inner {
+    display: flex;
+    gap: 0;
+    background: rgba(28,28,30,0.95);
+    backdrop-filter: blur(20px);
+    border: 1.2px solid rgba(255,255,255,0.12);
+    border-radius: 35px;
+    padding: 6px 8px;
+  }
+  .tab-item {
+    width: 52px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    font-size: 18px;
+    color: #8E8E93;
+    position: relative;
+  }
+  .tab-item.active {
+    color: #D4A056;
+  }
+  .tab-item.active::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 22px;
+  }
+
+  /* ============ EXPLORE SCREEN ============ */
+  .explore-search {
+    margin: 16px 20px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-icon { color: #71717a; font-size: 16px; }
+  .search-text { color: #71717a; font-size: 15px; flex: 1; }
+  .camera-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(212,160,86,0.15);
+    border: 1px solid rgba(212,160,86,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .ai-response {
+    margin: 0 20px 16px;
+    background: rgba(168,85,247,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .ai-response-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .ai-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #A855F7, #D4A056);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .ai-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #A855F7;
+  }
+  .ai-response-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(250,250,248,0.9);
+  }
+  .ai-attribution {
+    font-size: 11px;
+    color: #71717a;
+    margin-top: 8px;
+  }
+
+  /* Venue cards (explore) */
+  .venue-card {
+    margin: 0 20px 16px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #2A2A3E;
+  }
+  .venue-card-image {
+    height: 180px;
+    background: linear-gradient(135deg, #3a2a1a, #2a3a2a);
+    position: relative;
+  }
+  .venue-card-image .event-card-gradient {
+    height: 50%;
+  }
+  .venue-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+  }
+  .venue-card-name {
+    font-size: 20px;
+    font-weight: 700;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+  .venue-card-info {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .venue-card-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .venue-cat-pill {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(212,160,86,0.15);
+    border: 1px solid rgba(212,160,86,0.3);
+    color: #D4A056;
+  }
+  .venue-hood {
+    font-size: 13px;
+    color: #a1a1aa;
+  }
+  .open-badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(76,175,80,0.2);
+    border: 1px solid rgba(76,175,80,0.3);
+    color: #4CAF50;
+  }
+
+  /* ============ TONIGHT SCREEN ============ */
+  .tonight-hero {
+    height: 160px;
+    background: linear-gradient(180deg, #2a1a3a 0%, #1A1A2E 100%);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+  }
+  .tonight-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(168,85,247,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(212,160,86,0.1) 0%, transparent 40%);
+  }
+  .tonight-title {
+    font-size: 24px;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+  .tonight-sub {
+    font-size: 14px;
+    color: #a1a1aa;
+    position: relative;
+    z-index: 1;
+  }
+
+  .time-tabs {
+    padding: 16px 20px;
+    display: flex;
+    gap: 8px;
+  }
+  .time-tab {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #71717a;
+  }
+  .time-tab.active {
+    background: rgba(212,160,86,0.15);
+    border-color: rgba(212,160,86,0.3);
+    color: #D4A056;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(212,160,86,0.15);
+  }
+
+  .planner-card {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(212,160,86,0.1));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 24px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .planner-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(212,160,86,0.5), transparent);
+  }
+  .planner-sparkle {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .planner-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .planner-desc {
+    font-size: 13px;
+    color: #a1a1aa;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .planner-btn {
+    background: linear-gradient(135deg, #A855F7, #D4A056);
+    color: #FAFAF8;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(168,85,247,0.3);
+  }
+
+  /* Planner result */
+  .plan-stop {
+    margin: 0 20px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .plan-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .plan-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: #D4A056;
+    margin-bottom: 4px;
+  }
+  .plan-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #D4A056;
+    box-shadow: 0 0 8px rgba(212,160,86,0.4);
+  }
+  .plan-line {
+    width: 2px;
+    flex: 1;
+    min-height: 40px;
+    background: rgba(212,160,86,0.2);
+    margin-top: 4px;
+  }
+  .plan-card {
+    flex: 1;
+    background: #2A2A3E;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .plan-card-img {
+    height: 100px;
+    background: linear-gradient(135deg, #3a2a1a, #2a2a4a);
+    position: relative;
+  }
+  .plan-card-body {
+    padding: 12px 14px;
+  }
+  .plan-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .plan-card-desc {
+    font-size: 12px;
+    color: #a1a1aa;
+    line-height: 1.4;
+  }
+  .plan-walk {
+    font-size: 11px;
+    color: #71717a;
+    text-align: center;
+    padding: 4px 0;
+  }
+
+  /* ============ VENUE DETAIL ============ */
+  .detail-hero {
+    height: 260px;
+    background: linear-gradient(135deg, #3a2a1a, #2a3a2a);
+    position: relative;
+  }
+  .detail-hero-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(transparent, #1A1A2E);
+  }
+  .detail-hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+  }
+  .detail-name {
+    font-size: 28px;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    margin-bottom: 8px;
+  }
+  .detail-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .action-row {
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .action-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 11px;
+    color: #a1a1aa;
+  }
+  .action-btn .action-icon {
+    font-size: 18px;
+    color: #FAFAF8;
+  }
+
+  .insider-tip {
+    margin: 0 20px 16px;
+    background: rgba(212,160,86,0.08);
+    border: 1px solid rgba(212,160,86,0.2);
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .insider-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #D4A056;
+    margin-bottom: 8px;
+  }
+  .insider-text {
+    font-size: 14px;
+    color: rgba(250,250,248,0.8);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .detail-tabs {
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .detail-tab {
+    padding: 10px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #71717a;
+  }
+  .detail-tab.active {
+    background: rgba(212,160,86,0.15);
+    border-color: rgba(212,160,86,0.3);
+    color: #D4A056;
+    font-weight: 700;
+  }
+
+  .description-box {
+    margin: 0 20px 20px;
+    padding: 16px;
+    background: #2A2A3E;
+    border-radius: 20px;
+  }
+  .description-box p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(250,250,248,0.8);
+  }
+  .ai-enriched {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #A855F7;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME SCREEN ============ -->
+<div class="screen-section">
+  <div class="screen-header">
+    <div class="screen-label">Screen 1</div>
+    <div class="screen-title">Home — Početna</div>
+    <div class="screen-desc">The emotional anchor. Cinematic hero with AI city pulse, surprise me, mood chips, coffee randomizer, hidden gems, and tonight's events.</div>
+  </div>
+  <div class="phone-row">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-content">
+        <!-- Hero -->
+        <div class="home-hero">
+          <div class="hero-greeting">Šta radimo večeras?</div>
+          <div class="hero-pulse">Baščaršija je živa večeras — 3 koncerta, savršeno vrijeme za baštu. Jazz u BKC-u u 21h.</div>
+          <div class="surprise-card">
+            <span>✨ Iznenadi me</span>
+            <button class="surprise-cta">Hajde!</button>
+          </div>
+        </div>
+
+        <!-- Mood chips -->
+        <div class="mood-row">
+          <div class="mood-chip selected"><div class="mood-icon mi-party"></div> Party</div>
+          <div class="mood-chip"><div class="mood-icon mi-chill"></div> Chill</div>
+          <div class="mood-chip"><div class="mood-icon mi-date"></div> Date Night</div>
+          <div class="mood-chip"><div class="mood-icon mi-music"></div> Muzika</div>
+          <div class="mood-chip"><div class="mood-icon mi-food"></div> Foodie</div>
+          <div class="mood-chip"><div class="mood-icon mi-culture"></div> Kultura</div>
+        </div>
+
+        <!-- Gdje na kafu -->
+        <div class="kafu-card">
+          <div class="kafu-title">Gdje na kafu?</div>
+          <div class="kafu-sub">Otkrij savršenu kafanu u Sarajevu</div>
+          <button class="kafu-btn">Hajde! ☕</button>
+        </div>
+
+        <!-- Hidden Gems -->
+        <div class="section-header">
+          <h3>Skriveni dragulji</h3>
+          <a href="#">Vidi sve →</a>
+        </div>
+        <div class="card-rail">
+          <div class="gem-card">
+            <div class="gem-badge">HIDDEN GEM</div>
+            <div class="gem-card-content">
+              <div class="gem-card-title">Zlatna Ribica</div>
+              <div class="gem-card-tip">"Traži skriveni vrt iza zgrade"</div>
+            </div>
+          </div>
+          <div class="gem-card">
+            <div class="gem-badge">HIDDEN GEM</div>
+            <div class="gem-card-content">
+              <div class="gem-card-title">Dibek</div>
+              <div class="gem-card-tip">"Najstarija kafa u gradu"</div>
+            </div>
+          </div>
+          <div class="gem-card">
+            <div class="gem-badge">HIDDEN GEM</div>
+            <div class="gem-card-content">
+              <div class="gem-card-title">Blind Tiger</div>
+              <div class="gem-card-tip">"Pokucaj na vrata bez oznake"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tonight events -->
+        <div class="section-header">
+          <h3>Večeras u Sarajevu</h3>
+          <a href="#">Vidi sve →</a>
+        </div>
+        <div class="card-rail">
+          <div class="event-card">
+            <div class="event-card-cat">Koncert</div>
+            <div class="event-card-badges">
+              <div class="event-card-badge mi-music" style="font-size:10px;">♪</div>
+              <div class="event-card-badge mi-party" style="font-size:10px;">★</div>
+            </div>
+            <div class="event-card-gradient"></div>
+            <div class="event-card-content">
+              <div class="event-card-time">Večeras!</div>
+              <div class="event-card-title">Jazz Night @ BKC</div>
+              <div class="event-card-meta">BKC Sarajevo · 21:00 · 10 KM</div>
+            </div>
+            <div class="flip-icon">ℹ</div>
+          </div>
+          <div class="event-card" style="background: linear-gradient(135deg, #2a1a3a, #2A2A3E);">
+            <div class="event-card-cat">DJ Night</div>
+            <div class="event-card-badges">
+              <div class="event-card-badge mi-party" style="font-size:10px;">★</div>
+            </div>
+            <div class="event-card-gradient"></div>
+            <div class="event-card-content">
+              <div class="event-card-time">Večeras!</div>
+              <div class="event-card-title">Drumcode Night</div>
+              <div class="event-card-meta">Underground · 23:00 · 15 KM</div>
+            </div>
+            <div class="flip-icon">ℹ</div>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <div class="tab-bar-inner">
+            <div class="tab-item active">⌂</div>
+            <div class="tab-item">◎</div>
+            <div class="tab-item">☽</div>
+            <div class="tab-item">♡</div>
+            <div class="tab-item">○</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <h4>Hero Section <span class="ai-badge">AI POWERED</span></h4>
+        <p>Cinematic Sarajevo photo matched to time of day. AI-generated city pulse blurb refreshed every 3 hours via <code>generate-pulse</code> edge function. "Surprise Me" glass card generates a micro-plan on tap.</p>
+      </div>
+      <div class="annotation">
+        <h4>Glass Mood Chips <span class="new-badge">REDESIGNED</span></h4>
+        <p>Emoji replaced with glass icon containers. Each mood has a signature color glow. Same component reused on Explore, Tonight, and Profile screens.</p>
+      </div>
+      <div class="annotation">
+        <h4>"Gdje na kafu?" <span class="new-badge">NEW</span></h4>
+        <p>Coffee randomizer. Tap → random cafe card. "Daj drugo" to re-roll. Very Sarajevo, very charming. Tourism board will love this.</p>
+      </div>
+      <div class="annotation">
+        <h4>Hidden Gems <span class="new-badge">NEW</span></h4>
+        <p>91 venues flagged as hidden gems with insider tips. Data already exists in schema. Glass badge + italic tip quote on each card. Tourism boards love "off the beaten path" content.</p>
+      </div>
+      <div class="annotation">
+        <h4>Flippable Event Cards <span class="new-badge">REDESIGNED</span></h4>
+        <p>Editorial cards: 70% image, title overlay with gradient, glass mood badges. Flip icon (ℹ) reveals details. 24px rounded corners throughout.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EXPLORE SCREEN ============ -->
+<div class="screen-section">
+  <div class="screen-header">
+    <div class="screen-label">Screen 2</div>
+    <div class="screen-title">Explore — Istraži</div>
+    <div class="screen-desc">Smart search doubles as AI concierge. Glass filter chips. Editorial venue cards. Camera button for live translation.</div>
+  </div>
+  <div class="phone-row">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-content">
+        <!-- Search bar -->
+        <div class="explore-search">
+          <span class="search-icon">⌕</span>
+          <span class="search-text">Where can I get good ćevapi?</span>
+          <div class="camera-icon">📷</div>
+        </div>
+
+        <!-- AI response -->
+        <div class="ai-response">
+          <div class="ai-response-header">
+            <div class="ai-avatar">✦</div>
+            <span class="ai-label">Hype AI</span>
+          </div>
+          <div class="ai-response-text">
+            For the best ćevapi in Sarajevo, head to Baščaršija. <strong>Željo</strong> is the classic — always packed, always worth it. For a less crowded alternative, try <strong>Petica</strong> on Bravadžiluk. Both serve them with fresh somun and raw onion.
+          </div>
+          <div class="ai-attribution">Based on 12 venues in Baščaršija</div>
+        </div>
+
+        <!-- Mood chips -->
+        <div class="mood-row">
+          <div class="mood-chip"><div class="mood-icon mi-food"></div> Foodie</div>
+          <div class="mood-chip"><div class="mood-icon mi-chill"></div> Chill</div>
+          <div class="mood-chip"><div class="mood-icon mi-date"></div> Date</div>
+          <div class="mood-chip"><div class="mood-icon mi-culture"></div> Kultura</div>
+        </div>
+
+        <!-- Venue card -->
+        <div class="venue-card">
+          <div class="venue-card-image">
+            <div class="event-card-gradient"></div>
+            <div class="event-card-badges" style="top:12px;right:12px;">
+              <div class="event-card-badge mi-food" style="font-size:10px;">✦</div>
+              <div class="event-card-badge" style="font-size:10px;background:rgba(59,130,246,0.2);border-color:rgba(59,130,246,0.3);">✦</div>
+            </div>
+            <div class="venue-card-overlay">
+              <div class="venue-card-name">Željo</div>
+            </div>
+          </div>
+          <div class="venue-card-info">
+            <div class="venue-card-left">
+              <span class="venue-cat-pill">Restaurant</span>
+              <span class="venue-hood">Baščaršija</span>
+            </div>
+            <span class="open-badge">Otvoreno</span>
+          </div>
+        </div>
+
+        <div class="venue-card">
+          <div class="venue-card-image" style="background: linear-gradient(135deg, #2a2a1a, #3a2a2a);">
+            <div class="event-card-gradient"></div>
+            <div class="venue-card-overlay">
+              <div class="venue-card-name">Park Princeva</div>
+            </div>
+          </div>
+          <div class="venue-card-info">
+            <div class="venue-card-left">
+              <span class="venue-cat-pill">Restaurant</span>
+              <span class="venue-hood">Stari Grad</span>
+            </div>
+            <span class="open-badge">Otvoreno</span>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab-bar-inner">
+            <div class="tab-item">⌂</div>
+            <div class="tab-item active">◎</div>
+            <div class="tab-item">☽</div>
+            <div class="tab-item">♡</div>
+            <div class="tab-item">○</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <h4>Smart Search Bar <span class="ai-badge">AI CONCIERGE</span></h4>
+        <p>Same input field, two modes. Names → autocomplete search. Natural language → AI conversational response with venue recommendations. GPT-4.1 nano classifies intent, then generates response if needed.</p>
+      </div>
+      <div class="annotation">
+        <h4>Camera Translation <span class="ai-badge">AI POWERED</span> <span class="new-badge">NEW</span></h4>
+        <p>Camera icon opens viewfinder. Point at Bosnian menu → Gemini 2.5 Flash handles OCR + translation + cultural context in one call. No separate OCR library needed.</p>
+      </div>
+      <div class="annotation">
+        <h4>AI Response Card</h4>
+        <p>Glass card with purple tint (AI accent color). Shows avatar, "Hype AI" label, conversational response, and data attribution. Disappears when user clears search. Venue cards below match the AI recommendation.</p>
+      </div>
+      <div class="annotation">
+        <h4>Editorial Venue Cards <span class="new-badge">REDESIGNED</span></h4>
+        <p>Large image with title overlay. Glass mood badges. Open/closed badge. Category pill. 24px rounded corners. Same flippable component used everywhere.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TONIGHT SCREEN ============ -->
+<div class="screen-section">
+  <div class="screen-header">
+    <div class="screen-label">Screen 3</div>
+    <div class="screen-title">Tonight — Večeras</div>
+    <div class="screen-desc">The AI showstopper. Real evening planner powered by GPT-4.1 mini with SSE streaming. Moody atmosphere. Time-segmented events.</div>
+  </div>
+  <div class="phone-row">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-content">
+        <!-- Tonight hero -->
+        <div class="tonight-hero">
+          <div class="tonight-title" style="position:relative;z-index:1;">Večeras u Sarajevu</div>
+          <div class="tonight-sub" style="position:relative;z-index:1;">Srijeda, 17. mart · 8 događaja</div>
+        </div>
+
+        <!-- Time tabs -->
+        <div class="time-tabs">
+          <div class="time-tab">☀ Jutro</div>
+          <div class="time-tab">🍽 Ručak</div>
+          <div class="time-tab active">🌆 Večer</div>
+          <div class="time-tab">🌙 Noć</div>
+        </div>
+
+        <!-- AI Planner card -->
+        <div class="planner-card">
+          <div class="planner-sparkle">✦</div>
+          <div class="planner-title">Predloži mi plan</div>
+          <div class="planner-desc">AI kreira personalizirani plan večeri na osnovu tvojih preferencija, stvarnih lokacija i događaja.</div>
+          <button class="planner-btn">✨ Generiši plan</button>
+        </div>
+
+        <!-- Plan result (streamed) -->
+        <div style="padding:0 0 8px 0;">
+          <div class="plan-stop">
+            <div class="plan-timeline">
+              <div class="plan-time">19:00</div>
+              <div class="plan-dot"></div>
+              <div class="plan-line"></div>
+            </div>
+            <div class="plan-card">
+              <div class="plan-card-img"></div>
+              <div class="plan-card-body">
+                <div class="plan-card-name">Dveri</div>
+                <div class="plan-card-desc">Start with traditional Bosnian cuisine in a romantic courtyard setting.</div>
+              </div>
+            </div>
+          </div>
+          <div class="plan-walk">🚶 8 min walk</div>
+          <div class="plan-stop">
+            <div class="plan-timeline">
+              <div class="plan-time">21:00</div>
+              <div class="plan-dot"></div>
+              <div class="plan-line"></div>
+            </div>
+            <div class="plan-card">
+              <div class="plan-card-img" style="background:linear-gradient(135deg,#2a1a3a,#3a2a3a);"></div>
+              <div class="plan-card-body">
+                <div class="plan-card-name">BKC — Jazz Night</div>
+                <div class="plan-card-desc">Catch the live jazz set. Doors at 20:30, the band starts at 21:00.</div>
+              </div>
+            </div>
+          </div>
+          <div class="plan-walk">🚶 5 min walk</div>
+          <div class="plan-stop">
+            <div class="plan-timeline">
+              <div class="plan-time">23:00</div>
+              <div class="plan-dot"></div>
+            </div>
+            <div class="plan-card">
+              <div class="plan-card-img" style="background:linear-gradient(135deg,#1a2a2a,#2a2a3a);"></div>
+              <div class="plan-card-body">
+                <div class="plan-card-name">Ministry of Ćejf</div>
+                <div class="plan-card-desc">Wind down with craft cocktails in Baščaršija's coziest spot.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab-bar-inner">
+            <div class="tab-item">⌂</div>
+            <div class="tab-item">◎</div>
+            <div class="tab-item active">☽</div>
+            <div class="tab-item">♡</div>
+            <div class="tab-item">○</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <h4>AI Evening Planner <span class="ai-badge">SHOWSTOPPER</span></h4>
+        <p>The demo moment. User picks mood + group size + budget → GPT-4.1 mini generates a real itinerary from live Supabase data. <strong>SSE streaming</strong> — the plan appears word by word. Airbnb pattern.</p>
+      </div>
+      <div class="annotation">
+        <h4>Structured Plan Output</h4>
+        <p>Timeline layout with venue cards per stop. Walking time between stops. Each venue card is flippable. "Save Plan" and "Regenerate" buttons at the bottom. Real venue data, real event data.</p>
+      </div>
+      <div class="annotation">
+        <h4>Moody Atmosphere <span class="new-badge">REDESIGNED</span></h4>
+        <p>Purple-amber gradient hero. Radial glow effects. Glass time segment tabs. The whole screen feels like nightlife, not a spreadsheet.</p>
+      </div>
+      <div class="annotation">
+        <h4>Glass Time Segments</h4>
+        <p>Auto-highlighted current time segment. Events filtered per segment. Glass pill treatment with amber glow on active tab.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VENUE DETAIL ============ -->
+<div class="screen-section">
+  <div class="screen-header">
+    <div class="screen-label">Screen 4</div>
+    <div class="screen-title">Venue Detail</div>
+    <div class="screen-desc">Full venue experience. Real photos from Google Maps. AI-enriched descriptions. Hidden gem badge. Glass action buttons. Insider tips.</div>
+  </div>
+  <div class="phone-row">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-content">
+        <!-- Hero -->
+        <div class="detail-hero">
+          <div class="detail-hero-gradient"></div>
+          <div class="detail-hero-content">
+            <div class="detail-pills" style="margin-bottom:8px;">
+              <span class="venue-cat-pill">Bar</span>
+              <span class="open-badge">Otvoreno</span>
+              <span style="padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.3);color:#EAB308;">€€</span>
+            </div>
+            <div class="detail-name">Zlatna Ribica</div>
+            <div class="detail-pills">
+              <div class="event-card-badge mi-chill" style="width:26px;height:26px;border-radius:9px;font-size:10px;">~</div>
+              <div class="event-card-badge mi-culture" style="width:26px;height:26px;border-radius:9px;font-size:10px;">✦</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action row -->
+        <div class="action-row">
+          <div class="action-btn"><span class="action-icon">📍</span>Navigate</div>
+          <div class="action-btn"><span class="action-icon">📞</span>Call</div>
+          <div class="action-btn"><span class="action-icon">🌐</span>Web</div>
+          <div class="action-btn"><span class="action-icon">📸</span>Instagram</div>
+          <div class="action-btn" style="border-color:rgba(212,160,86,0.3);"><span class="action-icon" style="color:#D4A056;">♡</span><span style="color:#D4A056;">Save</span></div>
+        </div>
+
+        <!-- Hidden gem tip -->
+        <div class="insider-tip">
+          <div class="insider-badge">✦ Skriveni dragulj</div>
+          <div class="insider-text">"Traži skriveni vrt iza zgrade — malo ko zna za njega, a najbolji je za ljetne večeri."</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="detail-tabs">
+          <div class="detail-tab active">Info</div>
+          <div class="detail-tab">Događaji</div>
+          <div class="detail-tab">Ponude</div>
+        </div>
+
+        <!-- Description -->
+        <div class="description-box">
+          <p>Zlatna Ribica is one of Sarajevo's most atmospheric bars — a quirky, antique-filled space in the heart of Baščaršija where every corner tells a story. The eclectic decor, warm lighting, and intimate vibe make it perfect for a quiet drink with friends or a culturally-rich evening out.</p>
+          <div class="ai-enriched">✦ AI-enriched description</div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab-bar-inner">
+            <div class="tab-item">⌂</div>
+            <div class="tab-item">◎</div>
+            <div class="tab-item">☽</div>
+            <div class="tab-item">♡</div>
+            <div class="tab-item">○</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotations">
+      <div class="annotation">
+        <h4>Real Photos <span class="new-badge">GOOGLE MAPS</span></h4>
+        <p>Venue photos scraped from Google Maps Places API using <code>google_place_id</code>. Fallback to Gemini-generated category photography if no photos available. ~$5 for all 250 venues.</p>
+      </div>
+      <div class="annotation">
+        <h4>Glass Action Row <span class="new-badge">REDESIGNED</span></h4>
+        <p>Glass pill buttons with icons. Save button highlighted in amber. Delivery buttons (Korpa, Glovo) appear only if available.</p>
+      </div>
+      <div class="annotation">
+        <h4>Hidden Gem + Insider Tip</h4>
+        <p>Glass badge with amber glow. Insider tip in a styled callout card. 91 venues already flagged in the schema. Tourism gold.</p>
+      </div>
+      <div class="annotation">
+        <h4>AI-Enriched Description <span class="ai-badge">AI POWERED</span></h4>
+        <p>Claude Haiku 4.5 generates engaging bilingual descriptions for all venues. Batch job — ~$5 one-time cost. Subtle "AI-enriched" attribution tag.</p>
+      </div>
+      <div class="annotation">
+        <h4>Check-in Button <span class="new-badge">NEW</span></h4>
+        <p>"I'm here" button (not shown yet — appears when GPS confirms proximity). Stores in <code>checkins</code> table. Shows count: "🔥 12 people here now". Foundation for future City Pulse.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

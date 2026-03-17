@@ -11,6 +11,7 @@ import {
   mergeFavoriteVenueIds,
   persistStoredFavoriteVenueIds,
 } from '@/utils/favoritesStorage';
+import { syncRemoteFavoriteVenueIds } from '@/utils/favoritesSync';
 import { isAuthSessionMissingError } from '@/utils/supabaseErrors';
 
 export {
@@ -92,32 +93,18 @@ export async function getFavoriteVenueIdsForCurrentUser(): Promise<string[]> {
   const mergedIds = mergeFavoriteVenueIds(remoteIds, legacyIds);
 
   if (shouldSeedRemoteFavorites(legacyIds, remoteIds)) {
-    await supabase
-      .from('favorites')
-      .upsert(
-        legacyIds.map((venueId) => ({
-          user_id: userId,
-          venue_id: venueId,
-        })),
-        {
-          onConflict: 'user_id,venue_id',
-        },
-      );
+    await syncRemoteFavoriteVenueIds(
+      async (rows, options) => supabase.from('favorites').upsert(rows, options),
+      userId,
+      legacyIds,
+    );
   } else {
     const missingRemoteIds = buildMissingRemoteFavoriteVenueIds(legacyIds, remoteIds);
-    if (missingRemoteIds.length > 0) {
-      await supabase
-        .from('favorites')
-        .upsert(
-          missingRemoteIds.map((venueId) => ({
-            user_id: userId,
-            venue_id: venueId,
-          })),
-          {
-            onConflict: 'user_id,venue_id',
-          },
-        );
-    }
+    await syncRemoteFavoriteVenueIds(
+      async (rows, options) => supabase.from('favorites').upsert(rows, options),
+      userId,
+      missingRemoteIds,
+    );
   }
 
   await persistLegacyFavoriteVenueIds(mergedIds);
@@ -133,21 +120,11 @@ export async function isVenueFavoritedByCurrentUser(venueId: string): Promise<bo
 export async function addVenueFavoriteForCurrentUser(venueId: string): Promise<void> {
   const userId = await requireCurrentUserId();
 
-  const { error } = await supabase
-    .from('favorites')
-    .upsert(
-      {
-        user_id: userId,
-        venue_id: venueId,
-      },
-      {
-        onConflict: 'user_id,venue_id',
-      },
-    );
-
-  if (error) {
-    throw error;
-  }
+  await syncRemoteFavoriteVenueIds(
+    async (rows, options) => supabase.from('favorites').upsert(rows, options),
+    userId,
+    [venueId],
+  );
 
   const legacyIds = await getLegacyFavoriteVenueIds();
   await persistLegacyFavoriteVenueIds(mergeFavoriteVenueIds([venueId], legacyIds));

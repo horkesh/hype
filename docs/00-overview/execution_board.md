@@ -226,6 +226,29 @@ Status:
 - Explore result and modal branching now lives in `ExploreResultsSection.tsx` and `ExploreModalStack.tsx`, leaving `ExploreScreenBody.tsx` focused on top-level composition over search, controls, results, and modal sections
 - source-layer Bosnian helper copy is now cleaned further in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts`, with adjacent Node-side assertions updated to enforce the corrected output
 
+### Planned next — Presentation Restyle
+
+#### E8. Tourism board presentation restyle + AI integration
+
+- Status: `Planned`
+- Goal:
+  - restyle the Hype app for a tourism board presentation: replace all emoji usage with glass/glow UI, add real AI integration (planner, search, city pulse, surprise me, translation), generate proper image assets
+- Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
+- Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
+- Architecture:
+  - glass containers via `expo-blur` (iOS) / rgba fallback (Android)
+  - flippable editorial cards via `react-native-reanimated` v3
+  - 8 Supabase Edge Functions as AI proxy layer (GPT-4.1 mini/nano, Gemini Flash, Claude Haiku)
+  - SSE streaming for Tonight Planner via direct `fetch()` to Edge Function URL
+  - multi-provider tiered model routing (cheapest model per task)
+- Waves: 0 (foundation + data pipeline) → 1 (design tokens + glass components) → 2 (Home screen) → 3 (Explore + Tonight) → 4 (detail screens + Saved + Profile) → 5 (AI edge functions) → 6 (integration + polish)
+- Subagent owners: `[frontend]`, `[backend]`, `[edge-fn]`, `[assets]`, `[review]`
+- Notes:
+  - `/simplify` runs after every wave
+  - napkin/ledger discipline at every checkpoint
+  - coding lessons from AWWV and Chronicles repos documented in spec Section 10
+  - execution has NOT started — user said "not yet"
+
 ## Backlog
 
 ### High priority

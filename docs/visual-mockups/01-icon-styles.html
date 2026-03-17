@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hype — Icon Style Comparison</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #1A1A2E;
+    color: #FAFAF8;
+    padding: 40px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #D4A056;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #a1a1aa;
+    margin-bottom: 48px;
+  }
+
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    max-width: 1200px;
+  }
+
+  .option {
+    background: #2A2A3E;
+    border-radius: 20px;
+    padding: 32px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .option:hover {
+    border-color: #D4A056;
+  }
+
+  .option-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #D4A056;
+    margin-bottom: 8px;
+  }
+
+  .option-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .option-desc {
+    font-size: 14px;
+    color: #a1a1aa;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .icon-label {
+    font-size: 11px;
+    color: #a1a1aa;
+    text-align: center;
+  }
+
+  /* Option A: Flat geometric */
+  .flat .icon-circle {
+    position: relative;
+    overflow: hidden;
+  }
+  .flat .ic-party { background: linear-gradient(135deg, #EF4444, #DC2626); }
+  .flat .ic-chill { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+  .flat .ic-date { background: linear-gradient(135deg, #FB923C, #EA580C); }
+  .flat .ic-music { background: linear-gradient(135deg, #A855F7, #7C3AED); }
+  .flat .ic-food { background: linear-gradient(135deg, #EAB308, #CA8A04); }
+  .flat .ic-culture { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+
+  .flat .icon-circle::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+  }
+  .flat .ic-party::after { top: 8px; left: 8px; width: 16px; height: 16px; border-radius: 2px; transform: rotate(45deg); }
+  .flat .ic-chill::after { top: 12px; left: 16px; width: 24px; height: 12px; border-radius: 12px; }
+  .flat .ic-date::after { top: 10px; left: 14px; width: 20px; height: 20px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+  .flat .ic-music::after { top: 8px; left: 18px; width: 18px; height: 18px; border-radius: 50%; }
+  .flat .ic-food::after { top: 10px; left: 10px; width: 32px; height: 14px; border-radius: 50%; }
+  .flat .ic-culture::after { top: 6px; left: 14px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 24px solid rgba(255,255,255,0.25); background: none; }
+
+  /* Option B: Warm hand-drawn */
+  .handdrawn .icon-circle {
+    border: 2.5px solid;
+    background: transparent;
+    position: relative;
+  }
+  .handdrawn .ic-party { border-color: #EF4444; color: #EF4444; background: rgba(239,68,68,0.1); }
+  .handdrawn .ic-chill { border-color: #3B82F6; color: #3B82F6; background: rgba(59,130,246,0.1); }
+  .handdrawn .ic-date { border-color: #FB923C; color: #FB923C; background: rgba(251,146,60,0.1); }
+  .handdrawn .ic-music { border-color: #A855F7; color: #A855F7; background: rgba(168,85,247,0.1); }
+  .handdrawn .ic-food { border-color: #EAB308; color: #EAB308; background: rgba(234,179,8,0.1); }
+  .handdrawn .ic-culture { border-color: #6366F1; color: #6366F1; background: rgba(99,102,241,0.1); }
+
+  .handdrawn .icon-circle {
+    border-radius: 18px;
+    transform: rotate(-2deg);
+  }
+  .handdrawn .icon-circle:nth-child(odd) { transform: rotate(1deg); }
+
+  .handdrawn .icon-inner {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  /* Option C: Glassmorphism */
+  .glass .icon-circle {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass .icon-circle::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .glass .ic-party { box-shadow: 0 4px 16px rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.3); }
+  .glass .ic-chill { box-shadow: 0 4px 16px rgba(59,130,246,0.25); border-color: rgba(59,130,246,0.3); }
+  .glass .ic-date { box-shadow: 0 4px 16px rgba(251,146,60,0.25); border-color: rgba(251,146,60,0.3); }
+  .glass .ic-music { box-shadow: 0 4px 16px rgba(168,85,247,0.25); border-color: rgba(168,85,247,0.3); }
+  .glass .ic-food { box-shadow: 0 4px 16px rgba(234,179,8,0.25); border-color: rgba(234,179,8,0.3); }
+  .glass .ic-culture { box-shadow: 0 4px 16px rgba(99,102,241,0.25); border-color: rgba(99,102,241,0.3); }
+
+  .glass .icon-inner {
+    font-size: 22px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+
+  /* Chip preview row */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .chip-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  /* Flat chips */
+  .flat .chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .flat .chip.selected {
+    background: #D4A056;
+    border-color: #D4A056;
+    color: #1A1A2E;
+  }
+  .flat .chip-icon { background: rgba(255,255,255,0.2); }
+  .flat .chip.selected .chip-icon { background: rgba(0,0,0,0.15); }
+
+  /* Handdrawn chips */
+  .handdrawn .chip {
+    background: transparent;
+    border: 2px dashed rgba(255,255,255,0.2);
+  }
+  .handdrawn .chip.selected {
+    background: rgba(212,160,86,0.15);
+    border: 2px solid #D4A056;
+    color: #D4A056;
+  }
+
+  /* Glass chips */
+  .glass .chip {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .glass .chip.selected {
+    background: rgba(212,160,86,0.2);
+    border-color: rgba(212,160,86,0.5);
+    box-shadow: 0 2px 12px rgba(212,160,86,0.2);
+  }
+
+  .section-label {
+    font-size: 12px;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+
+  .prompt-box {
+    background: #1A1A2E;
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #a1a1aa;
+    line-height: 1.6;
+  }
+
+  .prompt-box strong {
+    color: #D4A056;
+  }
+
+  .note {
+    background: rgba(212,160,86,0.1);
+    border-left: 3px solid #D4A056;
+    padding: 16px;
+    border-radius: 0 12px 12px 0;
+    margin-top: 48px;
+    max-width: 1200px;
+  }
+
+  .note p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #a1a1aa;
+  }
+
+  .note strong { color: #FAFAF8; }
+</style>
+</head>
+<body>
+
+<h1>Icon Style Direction</h1>
+<p class="subtitle">Three approaches for replacing emoji-based mood and category icons across Hype</p>
+
+<div class="comparison">
+
+  <!-- Option A: Flat Geometric -->
+  <div class="option flat">
+    <div class="option-label">Option A</div>
+    <div class="option-title">Flat Geometric</div>
+    <div class="option-desc">Clean, minimal filled icons with simple geometric shapes. Modern SaaS feel. Very legible at small sizes but potentially less warm.</div>
+
+    <div class="icon-grid">
+      <div class="icon-cell">
+        <div class="icon-circle ic-party"></div>
+        <span class="icon-label">Party</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-chill"></div>
+        <span class="icon-label">Chill</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-date"></div>
+        <span class="icon-label">Date Night</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-music"></div>
+        <span class="icon-label">Music</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-food"></div>
+        <span class="icon-label">Foodie</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-culture"></div>
+        <span class="icon-label">Culture</span>
+      </div>
+    </div>
+
+    <div class="section-label">As mood chips</div>
+    <div class="chip-row">
+      <div class="chip selected"><div class="chip-icon"></div> Party</div>
+      <div class="chip"><div class="chip-icon"></div> Chill</div>
+      <div class="chip"><div class="chip-icon"></div> Date Night</div>
+    </div>
+
+    <div class="prompt-box">
+      <strong>Gemini prompt style:</strong><br>
+      "Flat geometric icon, single color on transparent background, minimal, [subject], rounded shapes, consistent 2px stroke weight, 512x512"
+    </div>
+  </div>
+
+  <!-- Option B: Warm Illustrated -->
+  <div class="option handdrawn">
+    <div class="option-label">Option B</div>
+    <div class="option-title">Warm Illustrated</div>
+    <div class="option-desc">Slightly organic, hand-drawn feeling. Warm and approachable, matches Sarajevo's character. More personality but harder to keep perfectly consistent.</div>
+
+    <div class="icon-grid">
+      <div class="icon-cell">
+        <div class="icon-circle ic-party"><span class="icon-inner">&#10038;</span></div>
+        <span class="icon-label">Party</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-chill"><span class="icon-inner">&#9788;</span></div>
+        <span class="icon-label">Chill</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-date"><span class="icon-inner">&#9829;</span></div>
+        <span class="icon-label">Date Night</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-music"><span class="icon-inner">&#9835;</span></div>
+        <span class="icon-label">Music</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-food"><span class="icon-inner">&#10050;</span></div>
+        <span class="icon-label">Foodie</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-culture"><span class="icon-inner">&#9733;</span></div>
+        <span class="icon-label">Culture</span>
+      </div>
+    </div>
+
+    <div class="section-label">As mood chips</div>
+    <div class="chip-row">
+      <div class="chip selected">&#10038; Party</div>
+      <div class="chip">&#9788; Chill</div>
+      <div class="chip">&#9829; Date Night</div>
+    </div>
+
+    <div class="prompt-box">
+      <strong>Gemini prompt style:</strong><br>
+      "Hand-drawn illustrated icon, warm earthy tones, slightly textured brushstroke style, [subject], cream paper texture background, cozy European cafe aesthetic, 512x512"
+    </div>
+  </div>
+
+  <!-- Option C: Glassmorphism -->
+  <div class="option glass">
+    <div class="option-label">Option C</div>
+    <div class="option-title">Soft Glow / Glass</div>
+    <div class="option-desc">Frosted glass containers with subtle color glow per mood. Premium, nightlife-adjacent feel. Matches the existing tab bar glassmorphism. The most "app-store polished" option.</div>
+
+    <div class="icon-grid">
+      <div class="icon-cell">
+        <div class="icon-circle ic-party"><span class="icon-inner">&#10038;</span></div>
+        <span class="icon-label">Party</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-chill"><span class="icon-inner">&#9788;</span></div>
+        <span class="icon-label">Chill</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-date"><span class="icon-inner">&#9829;</span></div>
+        <span class="icon-label">Date Night</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-music"><span class="icon-inner">&#9835;</span></div>
+        <span class="icon-label">Music</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-food"><span class="icon-inner">&#10050;</span></div>
+        <span class="icon-label">Foodie</span>
+      </div>
+      <div class="icon-cell">
+        <div class="icon-circle ic-culture"><span class="icon-inner">&#9733;</span></div>
+        <span class="icon-label">Culture</span>
+      </div>
+    </div>
+
+    <div class="section-label">As mood chips</div>
+    <div class="chip-row">
+      <div class="chip selected">&#10038; Party</div>
+      <div class="chip">&#9788; Chill</div>
+      <div class="chip">&#9829; Date Night</div>
+    </div>
+
+    <div class="prompt-box">
+      <strong>Gemini prompt style:</strong><br>
+      "Soft glowing icon, frosted glass effect, subtle colored ambient light, [subject], dark background, premium mobile app aesthetic, 512x512"
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  <p><strong>Note:</strong> These show the UI treatment direction, not the actual generated icons. Once you pick a direction, I'll write precise Gemini prompts for all 12 moods + 8 categories. The generated icons will replace the current emoji usage in mood chips, category badges, card badges, and small UI indicators across the app.</p>
+</div>
+
+</body>
+</html>
