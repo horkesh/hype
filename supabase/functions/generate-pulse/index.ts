@@ -72,7 +72,10 @@ Venues open now:
 ${venueSummary}
 
 Never use: "vibrant", "bustling", "immerse", "tapestry", "heartbeat of the city".
-Good example: "Baščaršija is winding down but Barhana just started their DJ set. Grab a table before it fills up."
+Good EN example: "Baščaršija is winding down but Barhana just started their DJ set. Grab a table before it fills up."
+Good BS example: "Baščaršija se polako smiruje, ali u Barhani je tek počeo DJ set. Uhvati stol dok ima mjesta."
+
+CRITICAL for pulse_bs: Write in BOSNIAN using LATIN SCRIPT only. Never Cyrillic. Use Sarajevo Bosnian — "uvijek" not "uvek", "kafa" not "kava", "vrijedi" not "vredi". Sound like a Sarajlija texting.
 
 Respond with ONLY valid JSON (no markdown):
 {
