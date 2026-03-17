@@ -8,6 +8,7 @@ import { HomeHiddenGems } from '@/components/home/HomeHiddenGems';
 import { HomeKafuSection } from '@/components/home/HomeKafuSection';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
+import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
 import { HomeEventItem, HomeEventSeries } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeHeroState';
 
@@ -65,6 +66,10 @@ export function HomeContentSections({
           title={sectionLabels.moods}
           onSelectMood={onSelectMood}
         />
+      </View>
+
+      <View style={styles.section}>
+        <HomeTrendingSection language={language} />
       </View>
 
       <View style={styles.section}>
