@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import debounce from 'lodash.debounce';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { loadExploreDailySpecials, loadExploreVenues, searchExplore } from '@/utils/exploreData';
 import {
@@ -13,6 +13,7 @@ import {
   toggleSelection,
   toggleSingleSelection,
 } from '@/utils/exploreHelpers';
+import { smartSearch } from '@/utils/ai/smartSearch';
 
 type ExploreTabKey = 'list' | 'menu';
 
@@ -48,10 +49,23 @@ export function useExploreController({
   const [filterOpenNow, setFilterOpenNow] = useState(false);
   const [menuPriceFilter, setMenuPriceFilter] = useState<string | null>(null);
 
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiVenueCount, setAiVenueCount] = useState<number | undefined>(undefined);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const aiAbortRef = useRef(0);
+
   const menuFilters = useMemo(
     () => getExploreMenuFilters(translate),
     [translate]
   );
+
+  const isNaturalLanguageQuery = useCallback((query: string) => {
+    if (query.length <= 10) return false;
+    const nlKeywords = ['?', 'where', 'best', 'good', 'najbol', 'gdje', 'recommend', 'suggest', 'find me', 'looking for'];
+    const lowerQuery = query.toLowerCase();
+    return nlKeywords.some((kw) => lowerQuery.includes(kw));
+  }, []);
 
   const debouncedSearch = useMemo(
     () =>
@@ -60,6 +74,9 @@ export function useExploreController({
           setSearchResults([]);
           setShowSearchResults(false);
           setSearchLoading(false);
+          setAiResponse(null);
+          setAiLoading(false);
+          setAiVenueCount(undefined);
           return;
         }
 
@@ -74,8 +91,40 @@ export function useExploreController({
         } finally {
           setSearchLoading(false);
         }
+
+        // Trigger AI smart search for natural language queries
+        if (isNaturalLanguageQuery(query)) {
+          const requestId = ++aiAbortRef.current;
+          setAiLoading(true);
+          setAiResponse(null);
+          try {
+            const aiResult = await smartSearch(query, language);
+            if (requestId !== aiAbortRef.current) return; // stale
+            if (aiResult) {
+              if (aiResult.mode === 'conversation' && aiResult.response) {
+                setAiResponse(aiResult.response);
+                setAiVenueCount(aiResult.matchedVenues?.length);
+              } else if (aiResult.mode === 'search' && aiResult.filters) {
+                // Apply AI-returned filters
+                if (aiResult.filters.category) setSelectedCategory(aiResult.filters.category);
+                if (aiResult.filters.mood) setSelectedMoods([aiResult.filters.mood]);
+                if (aiResult.filters.priceLevel != null) setFilterPriceLevel(aiResult.filters.priceLevel);
+                if (aiResult.filters.isOpen != null) setFilterOpenNow(aiResult.filters.isOpen);
+                setAiResponse(null);
+              }
+            }
+          } catch {
+            /* AI search failed silently */
+          } finally {
+            if (requestId === aiAbortRef.current) setAiLoading(false);
+          }
+        } else {
+          setAiResponse(null);
+          setAiLoading(false);
+          setAiVenueCount(undefined);
+        }
       }, 300),
-    [language]
+    [language, isNaturalLanguageQuery]
   );
 
   useEffect(() => {
@@ -203,6 +252,9 @@ export function useExploreController({
 
   return {
     activeTab,
+    aiLoading,
+    aiResponse,
+    aiVenueCount,
     applyFilters,
     dailySpecials,
     filterCategories,
@@ -231,6 +283,8 @@ export function useExploreController({
     showFilterModal,
     showSearchResults,
     setShowSearchResults,
+    showTranslation,
+    setShowTranslation,
     toggleFilterCategory,
     toggleFilterMood,
     toggleMenuPriceFilter,

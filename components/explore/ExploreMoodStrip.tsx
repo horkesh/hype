@@ -1,6 +1,8 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
+import { GlassMoodChip } from '@/components/glass/GlassMoodChip';
+import type { MoodId } from '@/styles/glassTokens';
 import { ExploreLookupItem } from '@/utils/exploreScreen';
 
 interface ExploreMoodStripProps {
@@ -15,12 +17,8 @@ interface ExploreMoodStripProps {
 }
 
 export function ExploreMoodStrip({
-  accentColor,
-  borderColor,
-  cardColor,
   moods,
   selectedMoodIds,
-  textColor,
   translate,
   onToggleMood,
 }: ExploreMoodStripProps) {
@@ -30,19 +28,13 @@ export function ExploreMoodStrip({
         const isSelected = selectedMoodIds.includes(mood.id);
 
         return (
-          <TouchableOpacity
+          <GlassMoodChip
             key={mood.id}
-            style={[
-              styles.chip,
-              { backgroundColor: isSelected ? accentColor : cardColor, borderColor },
-            ]}
+            moodId={mood.id as MoodId}
+            label={translate(mood.labelKey)}
+            isSelected={isSelected}
             onPress={() => onToggleMood(mood.id)}
-          >
-            <Text style={styles.emoji}>{mood.emoji}</Text>
-            <Text style={[styles.label, { color: isSelected ? '#FFFFFF' : textColor }]}>
-              {translate(mood.labelKey)}
-            </Text>
-          </TouchableOpacity>
+          />
         );
       })}
     </ScrollView>
@@ -53,21 +45,5 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 16,
     gap: 8,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    gap: 6,
-  },
-  emoji: {
-    fontSize: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
