@@ -1,6 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassContainer } from '@/components/glass/GlassContainer';
+import { useTheme } from '@/hooks/useTheme';
 import { TimeSegment, TimeSegmentConfig } from '@/utils/tonightScreen';
 
 interface TonightSegmentTabsProps {
@@ -13,11 +15,12 @@ interface TonightSegmentTabsProps {
 
 export function TonightSegmentTabs({
   activeSegment,
-  cardColor,
   colorsText,
   segments,
   onSelectSegment,
 }: TonightSegmentTabsProps) {
+  const { isDark } = useTheme();
+
   return (
     <View style={styles.segmentTabs}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -27,17 +30,27 @@ export function TonightSegmentTabs({
           return (
             <TouchableOpacity
               key={segment.key}
-              style={[
-                styles.segmentTab,
-                { backgroundColor: isActive ? '#D4A056' : cardColor },
-              ]}
               onPress={() => onSelectSegment(segment.key)}
               activeOpacity={0.7}
             >
-              <Text style={styles.segmentEmoji}>{segment.emoji}</Text>
-              <Text style={[styles.segmentLabel, { color: isActive ? '#FFFFFF' : colorsText }]}>
-                {segment.label}
-              </Text>
+              <GlassContainer
+                borderRadius={24}
+                glowColor={isActive ? '#D4A056' : undefined}
+                style={[
+                  styles.segmentTab,
+                  isActive && styles.segmentTabActive,
+                ]}
+              >
+                <Text style={styles.segmentEmoji}>{segment.emoji}</Text>
+                <Text
+                  style={[
+                    styles.segmentLabel,
+                    { color: isActive ? '#FFFFFF' : colorsText },
+                  ]}
+                >
+                  {segment.label}
+                </Text>
+              </GlassContainer>
             </TouchableOpacity>
           );
         })}
@@ -50,19 +63,21 @@ const styles = StyleSheet.create({
   segmentTabs: {
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: 'rgba(0,0,0,0.06)',
   },
   content: {
     paddingHorizontal: 16,
-    gap: 12,
+    gap: 10,
   },
   segmentTab: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 24,
     gap: 8,
+  },
+  segmentTabActive: {
+    backgroundColor: 'rgba(212,160,86,0.85)',
   },
   segmentEmoji: {
     fontSize: 18,
@@ -70,5 +85,6 @@ const styles = StyleSheet.create({
   segmentLabel: {
     fontSize: 15,
     fontWeight: '600',
+    fontFamily: 'DMSans_600SemiBold',
   },
 });

@@ -10,26 +10,37 @@ Use it when:
 
 ## Current project state
 
-Hype is in a `stabilize + align` phase.
+Hype is in a `presentation-ready` phase following a major restyle.
 
 That means:
-- the app already has meaningful route and product coverage
-- the live Supabase backend is more mature than the current frontend
-- the main work right now is reliability, alignment, and simplification
+- the app has been restyled with a glass/glow design system for a tourism board presentation
+- 8 AI-powered Supabase Edge Functions are deployed and live (GPT-4.1, Gemini Flash, Claude Haiku)
+- the frontend uses glass containers, flippable cards, animated mood chips, and AI integrations across all screens
+- the restyle lives on `feat/presentation-restyle` branch (20 commits, 57 tests) — not yet merged to main
 
-The project should not be treated as feature-complete.
+The project should be treated as demo-capable but not production-hardened.
 
-It should also not be treated as an empty prototype anymore.
+Key new capabilities:
+- AI city pulse (Gemini) on Home hero
+- AI smart search concierge (GPT-4.1 nano) on Explore
+- AI evening planner with SSE streaming (GPT-4.1 mini) on Tonight
+- Surprise Me micro-plans (GPT-4.1 mini) on Home
+- Live camera translation (Gemini Flash vision) on Explore
+- Venue description enrichment (Claude Haiku) via backend script
+- Instagram caption parsing (Claude Haiku) via edge function
 
 ## Resume here first
 
-If you are continuing work on the home machine, resume with this exact focus:
-- use `docs/05-dev-ops/home_machine_verification_checklist.md` as the concrete execution script for the verification pass
-- confirm whether `C:\Users\haris.daul\.codex-machine.toml` exists on the home machine and, if not, create it from `../machine-home.example.toml` in the workspace root before assuming home-machine capabilities
-- confirm `backend/.env` exists and that `SUPABASE_SERVICE_ROLE_KEY` is filled in before trying backend ingestion or live reconciliation work
-- verify the new Supabase favorites flow with a real authenticated session: sign in, save and unsave a venue from the venue detail screen, then confirm the Saved venues tab reflects the change
-- verify the new taste-profile flow with a real authenticated session: sign in, change selected moods in Profile, reload, and confirm the selection persists from `profiles.taste_moods`
-- verify auth refresh behavior: after signing in or out from Profile, confirm Saved and Profile update without forcing a full app restart
+If you are continuing work after the presentation restyle, resume with this exact focus:
+- confirm you are on the `feat/presentation-restyle` branch (or that it has been merged to main)
+- run `npx expo start --web` and walk through every screen to verify glass UI renders correctly
+- the 8 edge functions are deployed and tested — if AI features show errors, check Supabase Dashboard → Edge Functions → Logs
+- API secrets (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY, GOOGLE_MAPS_API_KEY) are set in Supabase
+- DB tables `city_pulse`, `ai_plans`, `checkins` exist; venue columns `description_bs/en`, `is_hidden_gem`, `photos`, `google_place_id` exist
+- hero image assets are still placeholder gradients — real photos needed before the tourism board demo
+- prior verification items (favorites flow, taste-profile, auth refresh) are still pending on the home machine
+- note that taste-profile saves now upsert the `profiles` row on write, so a missing profile row should no longer masquerade as a successful mood change that disappears after reload
+- note that favorites remote-sync writes now throw before legacy local state is mirrored, so save/unsave verification should treat any remaining mismatch as a real runtime/backend issue instead of a hidden local fallback
 - treat the bounded frontend cleanup program as complete: the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, shared chrome, runtime helper surfaces, and Saved/Explore support shells are now on the helper-plus-components pattern
 - keep the remaining Tonight follow-up on the new deterministic mock-plan path, with `utils/tonightMockPlans.ts` now owning planner sample generation so `utils/tonightScreen.ts` can stay focused on shared types, labels, and share text
 - keep the favorites migration on the helper-owned storage path too, with `utils/favoritesStorage.ts` now owning legacy key reads, mirrored writes, and remote-missing calculations so `utils/favorites.ts` can stay focused on auth plus Supabase orchestration
@@ -37,6 +48,7 @@ If you are continuing work on the home machine, resume with this exact focus:
 - keep the Saved support cleanup on the helper-owned content path too, with `utils/savedContent.ts` now owning venue/event/badge card shaping so `components/saved/SavedTabContent.tsx` can stay focused on loading, empty-state branching, and delegating to list/grid sections
 - keep the Explore support cleanup on the composition path too, with `ExploreScreenBody.tsx` now delegating result and modal branching into `ExploreResultsSection.tsx` and `ExploreModalStack.tsx` instead of owning both lanes inline
 - treat future frontend cleanup as narrow and evidence-driven: source-layer copy fixes, regression prevention, and any newly discovered outliers should be handled as isolated slices instead of another broad structural sweep
+- **presentation restyle is planned but NOT executing yet**: spec at `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`, plan at `docs/superpowers/plans/2026-03-17-presentation-restyle.md`. When user says "execute", use `superpowers:subagent-driven-development`. The plan replaces all emoji with glass/glow UI, adds 8 real AI edge functions, generates image assets, and adds SSE streaming. 6 waves, 40+ tasks, `/simplify` after each wave. Coding lessons from AWWV and Chronicles in spec Section 10 must be followed.
 - keep handover, execution board, and project ledger in sync as route simplification changes file ownership or the current stabilization story
 - keep the Hype map on the dependency-free web embed path unless a future requirement justifies reintroducing a heavier web map library
 

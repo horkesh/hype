@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassBadge } from '@/components/glass/GlassBadge';
+import { GlassContainer } from '@/components/glass/GlassContainer';
+
 interface EventVenueAndBadgesProps {
   venueName: string;
   venueEnabled: boolean;
@@ -45,20 +48,19 @@ export function EventVenueAndBadges({
       ) : null}
 
       <View style={styles.badgesSection}>
-        <View style={[styles.categoryBadge, { backgroundColor: colors.card }]}>
-          <Text style={styles.categoryEmoji}>{categoryEmoji}</Text>
-          <Text style={[styles.categoryText, { color: colors.text }]}>{category}</Text>
-        </View>
+        <GlassBadge label={`${categoryEmoji} ${category}`} variant="accent" size="md" />
 
         {moods.length > 0 ? (
-          <View style={styles.moodBadges}>
-            {moods.map((mood) => (
-              <View key={mood} style={[styles.moodBadge, { backgroundColor: colors.card }]}>
-                <Text style={styles.moodEmoji}>{getMoodEmoji(mood)}</Text>
-                <Text style={[styles.moodText, { color: colors.text }]}>{mood}</Text>
-              </View>
-            ))}
-          </View>
+          <GlassContainer borderRadius={16} style={styles.moodBadgesContainer}>
+            <View style={styles.moodBadges}>
+              {moods.map((mood) => (
+                <View key={mood} style={styles.moodBadge}>
+                  <Text style={styles.moodEmoji}>{getMoodEmoji(mood)}</Text>
+                  <Text style={[styles.moodText, { color: colors.text }]}>{mood}</Text>
+                </View>
+              ))}
+            </View>
+          </GlassContainer>
         ) : null}
       </View>
     </>
@@ -80,22 +82,9 @@ const styles = StyleSheet.create({
   badgesSection: {
     marginBottom: 20,
   },
-  categoryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    marginBottom: 12,
-  },
-  categoryEmoji: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  categoryText: {
-    fontSize: 15,
-    fontWeight: '600',
+  moodBadgesContainer: {
+    padding: 10,
+    marginTop: 12,
   },
   moodBadges: {
     flexDirection: 'row',
@@ -105,9 +94,6 @@ const styles = StyleSheet.create({
   moodBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
   },
   moodEmoji: {
     fontSize: 14,

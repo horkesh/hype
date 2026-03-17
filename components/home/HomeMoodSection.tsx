@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { MoodChip } from '@/components/MoodChip';
+import { GlassMoodChip } from '@/components/glass/GlassMoodChip';
 import { SectionHeader } from '@/components/SectionHeader';
 import { HOME_MOODS, HomeLanguage } from '@/utils/homeScreenContent';
+import type { MoodId } from '@/styles/glassTokens';
 
 interface HomeMoodSectionProps {
   language: HomeLanguage;
@@ -28,13 +29,12 @@ export function HomeMoodSection({
             const isSelected = selectedMood === mood.id;
 
             return (
-              <MoodChip
+              <GlassMoodChip
                 key={mood.id}
-                emoji={mood.emoji}
+                moodId={mood.id as MoodId}
                 label={moodLabel}
                 isSelected={isSelected}
                 onPress={() => onSelectMood(isSelected ? null : mood.id)}
-                moodId={mood.id}
               />
             );
           })}

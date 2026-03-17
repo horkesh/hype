@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassContainer } from '@/components/glass/GlassContainer';
 import { VenuePrimaryAction } from '@/utils/venueActions';
 
 interface VenuePrimaryActionGroupProps {
@@ -21,11 +22,13 @@ export function VenuePrimaryActionGroup({
       {actions.map((action) => (
         <TouchableOpacity
           key={action.id}
-          style={[styles.button, { backgroundColor: cardColor }]}
           onPress={() => onPressAction(action.id)}
+          activeOpacity={0.8}
         >
-          <Text style={styles.emoji}>{action.emoji}</Text>
-          <Text style={[styles.label, { color: textColor }]}>{action.label}</Text>
+          <GlassContainer borderRadius={20} style={styles.button}>
+            <Text style={styles.emoji}>{action.emoji}</Text>
+            <Text style={[styles.label, { color: textColor }]}>{action.label}</Text>
+          </GlassContainer>
         </TouchableOpacity>
       ))}
     </View>
@@ -45,7 +48,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
     gap: 6,
   },
   emoji: {

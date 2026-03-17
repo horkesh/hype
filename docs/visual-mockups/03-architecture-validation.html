@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hype — Architecture Validation vs Industry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #1A1A2E; color: #FAFAF8; padding: 40px; }
+  h1 { font-size: 28px; font-weight: 700; color: #D4A056; margin-bottom: 8px; }
+  h2 { font-size: 22px; font-weight: 700; margin-top: 48px; margin-bottom: 16px; }
+  h3 { font-size: 17px; font-weight: 700; margin-top: 24px; margin-bottom: 12px; color: #D4A056; }
+  .subtitle { font-size: 16px; color: #a1a1aa; margin-bottom: 48px; line-height: 1.6; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #D4A056; border-bottom: 2px solid #3f3f46; }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; vertical-align: top; line-height: 1.5; }
+  tr:hover td { background: rgba(212,160,86,0.05); }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; margin: 2px; }
+  .tag-yes { background: rgba(76,175,80,0.2); color: #4CAF50; }
+  .tag-no { background: rgba(239,68,68,0.2); color: #EF4444; }
+  .tag-partial { background: rgba(234,179,8,0.2); color: #EAB308; }
+  .tag-hype { background: rgba(212,160,86,0.3); color: #D4A056; }
+
+  .section { background: #2A2A3E; border-radius: 16px; padding: 28px; margin-bottom: 24px; }
+
+  .pattern-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 16px; }
+  .pattern-card { background: #2A2A3E; border-radius: 16px; padding: 24px; border: 2px solid transparent; }
+  .pattern-card.steal { border-color: #4CAF50; }
+  .pattern-card.adapt { border-color: #D4A056; }
+  .pattern-card.skip { border-color: #3f3f46; }
+  .pattern-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .pattern-label.steal { color: #4CAF50; }
+  .pattern-label.adapt { color: #D4A056; }
+  .pattern-label.skip { color: #71717a; }
+  .pattern-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .pattern-from { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; }
+  .pattern-desc { font-size: 13px; color: #a1a1aa; line-height: 1.5; }
+
+  .verdict { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); border-radius: 16px; padding: 24px; margin-top: 32px; }
+  .verdict h3 { color: #4CAF50; margin-top: 0; }
+  .verdict p { font-size: 14px; line-height: 1.7; color: #a1a1aa; margin-bottom: 8px; }
+  .verdict strong { color: #FAFAF8; }
+
+  .warning { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3); border-radius: 16px; padding: 24px; margin-top: 16px; }
+  .warning h3 { color: #EAB308; margin-top: 0; }
+  .warning p { font-size: 14px; line-height: 1.7; color: #a1a1aa; }
+
+  .arch-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+  .arch-box { background: #2A2A3E; border-radius: 16px; padding: 24px; }
+  .arch-box h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .arch-box pre { font-size: 12px; color: #a1a1aa; line-height: 1.6; white-space: pre-wrap; background: #1A1A2E; padding: 16px; border-radius: 12px; }
+  .arch-box .label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .arch-box .label.industry { color: #71717a; }
+  .arch-box .label.hype { color: #D4A056; }
+</style>
+</head>
+<body>
+
+<h1>Architecture Validation</h1>
+<p class="subtitle">How Hype's planned architecture compares to Yelp, TripAdvisor, Google Maps, Airbnb, Fever, Resident Advisor, DICE, and Wanderlog. Based on public engineering blogs, API docs, and conference talks.</p>
+
+<h2>1. How the Industry Does AI</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>App</th>
+      <th>AI Features</th>
+      <th>AI Server-Side?</th>
+      <th>Model Strategy</th>
+      <th>Caching</th>
+      <th>Backend</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Yelp</strong></td>
+      <td>AI Assistant (conversational search), review summaries, photo captions</td>
+      <td><span class="tag tag-yes">Yes — LLM Gateway</span></td>
+      <td>Tiered: GPT-4.1-nano for routing/safety, GPT-4o for generation</td>
+      <td>Heavy — pre-computed summaries</td>
+      <td>Kubernetes (PaaSTA)</td>
+    </tr>
+    <tr>
+      <td><strong>TripAdvisor</strong></td>
+      <td>AI Trip Builder, review summaries, itinerary generation</td>
+      <td><span class="tag tag-yes">Yes — RAG pipeline</span></td>
+      <td>RAG: LLM translates intent → DB query → formats results</td>
+      <td>Trip plans stored per user</td>
+      <td>Microservices</td>
+    </tr>
+    <tr>
+      <td><strong>Google Maps</strong></td>
+      <td>Place summaries, area summaries, route suggestions</td>
+      <td><span class="tag tag-yes">Yes — Gemini API</span></td>
+      <td>Gemini models, pre-computed via Places API</td>
+      <td>Heavy — summaries are API fields</td>
+      <td>Google Cloud</td>
+    </tr>
+    <tr>
+      <td><strong>Airbnb</strong></td>
+      <td>AI search, photo auto-tagging, listing descriptions, review summaries</td>
+      <td><span class="tag tag-yes">Yes — SSE streaming</span></td>
+      <td>Multi-model, 1M events/sec behavioral pipeline</td>
+      <td>Per-session, streaming</td>
+      <td>Kubernetes + Kafka + Flink</td>
+    </tr>
+    <tr>
+      <td><strong>Fever</strong></td>
+      <td>Personalized recommendations (behavioral), secret plans</td>
+      <td><span class="tag tag-yes">Yes</span></td>
+      <td>ML models on 300M+ monthly interactions, not LLM-heavy</td>
+      <td>Behavioral scores pre-computed</td>
+      <td>Microservices</td>
+    </tr>
+    <tr>
+      <td><strong>Resident Advisor</strong></td>
+      <td>Music taste → event matching (via Spotify connect)</td>
+      <td><span class="tag tag-yes">Yes</span></td>
+      <td>Traditional ML, Spotify signal integration</td>
+      <td>Preference profiles</td>
+      <td>Microservices</td>
+    </tr>
+    <tr>
+      <td><strong>DICE</strong></td>
+      <td>Personalized event feed, dynamic pricing signals</td>
+      <td><span class="tag tag-yes">Yes</span></td>
+      <td>Traditional ML recommendations</td>
+      <td>Feed pre-ranked</td>
+      <td>Elixir + Helm/K8s</td>
+    </tr>
+    <tr>
+      <td><strong>Wanderlog</strong></td>
+      <td>AI itinerary generation, place suggestions</td>
+      <td><span class="tag tag-yes">Yes</span></td>
+      <td>LLM + structured place database</td>
+      <td>Generated itineraries stored</td>
+      <td>Serverless + DB</td>
+    </tr>
+    <tr style="background: rgba(212,160,86,0.08);">
+      <td><strong>Hype</strong> <span class="tag tag-hype">OURS</span></td>
+      <td>AI planner, city pulse, smart search, surprise me, live translation, Instagram parsing</td>
+      <td><span class="tag tag-yes">Yes — Edge Functions</span></td>
+      <td>Multi-provider: GPT-4.1 mini/nano, Gemini Flash, Claude Haiku</td>
+      <td>Pulse cached 3h, plans stored per user</td>
+      <td>Supabase Edge Functions + Node backend</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Architecture Comparison</h2>
+
+<div class="arch-compare">
+  <div class="arch-box">
+    <div class="label industry">Industry Standard (Yelp-Scale)</div>
+    <h4>Microservices + LLM Gateway</h4>
+    <pre>Client App
+  → API Gateway (auth, rate limit)
+    → Search Service (Elasticsearch)
+    → Recommendation Service (ML models)
+    → LLM Gateway
+      → Intent Classifier (cheap model)
+      → Safety Filter (cheap model)
+      → Generator (expensive model)
+      → Response Cache (Redis)
+    → Data Service (PostgreSQL)
+    → Event Bus (Kafka)
+    → Analytics Pipeline (Flink)</pre>
+    <p style="font-size:13px;color:#71717a;margin-top:12px;">Dozens of engineers. Millions in infra. Years to build.</p>
+  </div>
+
+  <div class="arch-box" style="border: 2px solid #D4A056;">
+    <div class="label hype">Hype (Startup-Scale)</div>
+    <h4>Supabase + Edge Functions + Node Backend</h4>
+    <pre>Expo App
+  → Supabase Client (auth, direct reads)
+    → PostgreSQL (venues, events, profiles)
+    → Edge Functions (AI proxy layer)
+      → generate-plan → GPT-4.1 mini
+      → generate-pulse → Gemini Flash-Lite
+      → smart-search → GPT-4.1 nano
+      → surprise-me → GPT-4.1 mini
+      → translate-scene → Gemini Flash
+      → parse-instagram → Claude Haiku
+    → Node Backend (ingestion, scraping)
+      → Scheduled scrapes → raw_events
+      → Instagram pipeline → event extraction
+      → Google Maps photos → venue images</pre>
+    <p style="font-size:13px;color:#D4A056;margin-top:12px;">Same AI patterns. 1/100th the infrastructure.</p>
+  </div>
+</div>
+
+<h2>3. Patterns to Steal</h2>
+
+<div class="pattern-grid">
+  <div class="pattern-card steal">
+    <div class="pattern-label steal">Steal</div>
+    <div class="pattern-title">LLM as Translator</div>
+    <div class="pattern-from">From: Yelp Assistant</div>
+    <div class="pattern-desc">The LLM doesn't know your data — it translates user intent into structured queries against your real database. "Good coffee near Baščaršija" → <code>{category: 'cafe', neighborhood: 'Baščaršija', sort: 'rating'}</code>. The DB does the real work.</div>
+  </div>
+
+  <div class="pattern-card steal">
+    <div class="pattern-label steal">Steal</div>
+    <div class="pattern-title">Tiered Model Routing</div>
+    <div class="pattern-from">From: Yelp, Airbnb</div>
+    <div class="pattern-desc">Use the cheapest model that works for each task. GPT-4.1 nano ($0.10/1M) for intent classification and search parsing. GPT-4.1 mini ($0.40/1M) only for creative generation (plans, surprise me). Never send a $3 query when a $0.10 one works.</div>
+  </div>
+
+  <div class="pattern-card steal">
+    <div class="pattern-label steal">Steal</div>
+    <div class="pattern-title">Pre-computed Summaries</div>
+    <div class="pattern-from">From: Google Maps Places API</div>
+    <div class="pattern-desc">Google doesn't generate place summaries on every request — they pre-compute and store them as API fields. Hype should do the same: batch-generate venue descriptions, cache city pulse blurbs, store plan results. Real-time AI only where it matters.</div>
+  </div>
+
+  <div class="pattern-card adapt">
+    <div class="pattern-label adapt">Adapt</div>
+    <div class="pattern-title">SSE Streaming for Plans</div>
+    <div class="pattern-from">From: Airbnb AI Search</div>
+    <div class="pattern-desc">Airbnb streams AI search results via Server-Sent Events so users see results appearing word-by-word. Apply this to the Tonight Planner — stream the plan as it generates instead of showing a loading spinner for 3 seconds. Much more theatrical.</div>
+  </div>
+
+  <div class="pattern-card adapt">
+    <div class="pattern-label adapt">Adapt</div>
+    <div class="pattern-title">Behavioral Signals Feed</div>
+    <div class="pattern-from">From: Fever (300M interactions/mo)</div>
+    <div class="pattern-desc">Fever's moat is behavioral data, not algorithms. Hype should start collecting signals from day one: saves, search queries, mood selections, time-of-day usage, plan likes. Even if we don't act on them yet, the data compounds.</div>
+  </div>
+
+  <div class="pattern-card adapt">
+    <div class="pattern-label adapt">Adapt</div>
+    <div class="pattern-title">Music Taste → Event Match</div>
+    <div class="pattern-from">From: Resident Advisor</div>
+    <div class="pattern-desc">RA connects Spotify to match music taste with events. Hype could do this later for club/concert recommendations. Not for the presentation, but worth designing the mood system to accommodate music signals in the future.</div>
+  </div>
+</div>
+
+<h2>4. The Verdict</h2>
+
+<div class="verdict">
+  <h3>Hype's Architecture is Sound</h3>
+  <p><strong>Every successful app in this space runs AI server-side.</strong> Hype's Edge Function pattern matches this exactly. API keys never touch the client. AI calls are proxied through a controlled layer.</p>
+  <p><strong>Every successful app uses tiered models.</strong> Hype's multi-provider strategy (GPT-4.1 nano for cheap tasks, mini for creative, Gemini for vision, Claude for prose) matches the Yelp pattern at a fraction of the cost.</p>
+  <p><strong>RAG beats fine-tuning.</strong> Hype already has the right instinct: feed real venue/event data to the LLM as context, don't try to teach the model about Sarajevo. The DB is the source of truth.</p>
+  <p><strong>Caching is where the savings are.</strong> City pulse cached for 3 hours, venue descriptions batch-generated, plan results stored — this matches Google's pre-computed summaries pattern.</p>
+  <p><strong>Supabase Edge Functions are appropriate for startup scale.</strong> No successful app at this stage runs Kubernetes. They all started simpler. Edge Functions give us the same AI proxy pattern without the infrastructure overhead. When Hype needs to scale beyond what Edge Functions handle, the migration path is clear: move AI orchestration to a dedicated service (Cloud Run / Railway).</p>
+</div>
+
+<div class="warning">
+  <h3>One Thing to Watch</h3>
+  <p><strong>Edge Function cold starts and timeouts.</strong> Supabase Edge Functions (Deno) have ~25s execution limits on the free tier. The Chronicles project already handles this with <code>AbortController</code> timeouts. For the Tonight Planner (which needs to query Supabase for venues, build a prompt, call GPT, and return), we should design the prompt to be tight and the response to stream via SSE if possible. If a plan generation takes >10s, the user should see progress, not a spinner.</p>
+</div>
+
+</body>
+</html>

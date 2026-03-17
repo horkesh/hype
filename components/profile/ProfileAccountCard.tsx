@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassContainer } from '@/components/glass/GlassContainer';
 import { ProfileDemoBadge } from '@/utils/profileScreen';
 
 interface ProfileAccountCardProps {
@@ -31,7 +32,7 @@ export function ProfileAccountCard({
   textSecondaryColor,
 }: ProfileAccountCardProps) {
   return (
-    <View style={[styles.card, { backgroundColor: cardColor }]}>
+    <GlassContainer borderRadius={16} style={styles.card}>
       <Text style={[styles.emailText, { color: textColor }]}>{email}</Text>
 
       <View style={styles.badgesSection}>
@@ -41,9 +42,13 @@ export function ProfileAccountCard({
         </View>
         <View style={styles.topBadgesRow}>
           {badges.slice(0, 3).map((badge, index) => (
-            <View key={`${badge.name_en}-${index}`} style={[styles.topBadge, { backgroundColor }]}>
+            <GlassContainer
+              key={`${badge.name_en}-${index}`}
+              borderRadius={24}
+              style={styles.topBadge}
+            >
               <Text style={styles.topBadgeIcon}>{badge.icon}</Text>
-            </View>
+            </GlassContainer>
           ))}
         </View>
       </View>
@@ -54,20 +59,14 @@ export function ProfileAccountCard({
       >
         <Text style={[styles.signOutButtonText, { color: accentColor }]}>{signOutLabel}</Text>
       </TouchableOpacity>
-    </View>
+    </GlassContainer>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   emailText: {
     fontSize: 16,
@@ -101,14 +100,8 @@ const styles = StyleSheet.create({
   topBadge: {
     width: 48,
     height: 48,
-    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   topBadgeIcon: {
     fontSize: 24,

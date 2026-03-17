@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
+import { GlassBadge } from '@/components/glass/GlassBadge';
+import { GlassContainer } from '@/components/glass/GlassContainer';
 import { VenueDetailVenue, VENUE_MOODS, getVenuePriceLevelDisplay } from '@/utils/venueDetailScreen';
 
 interface VenueDetailHeaderProps {
@@ -28,35 +30,33 @@ export function VenueDetailHeader({ venue, colors, t }: VenueDetailHeaderProps) 
         <Text style={[styles.venueName, { color: colors.text }]}>{venue.name}</Text>
 
         <View style={styles.badgeRow}>
-          <View style={[styles.categoryBadge, { backgroundColor: colors.accent }]}>
-            <Text style={styles.categoryBadgeText}>{venue.category}</Text>
-          </View>
-          <Text style={[styles.priceLevel, { color: colors.accent }]}>
-            {getVenuePriceLevelDisplay(venue.price_level)}
-          </Text>
+          <GlassBadge label={venue.category} variant="accent" size="md" />
+          <GlassBadge label={getVenuePriceLevelDisplay(venue.price_level)} variant="default" size="md" />
         </View>
 
         {venue.moods && venue.moods.length > 0 ? (
-          <View style={styles.moodBadges}>
-            {venue.moods.map((moodId) => {
-              const mood = VENUE_MOODS.find((entry) => entry.id === moodId);
-              if (!mood) {
-                return null;
-              }
+          <GlassContainer style={styles.moodBadgesContainer} borderRadius={16}>
+            <View style={styles.moodBadges}>
+              {venue.moods.map((moodId) => {
+                const mood = VENUE_MOODS.find((entry) => entry.id === moodId);
+                if (!mood) {
+                  return null;
+                }
 
-              return (
-                <View
-                  key={moodId}
-                  style={[styles.moodBadge, { backgroundColor: colors.card }]}
-                >
-                  <Text style={styles.moodBadgeEmoji}>{mood.emoji}</Text>
-                  <Text style={[styles.moodBadgeText, { color: colors.text }]}>
-                    {t(mood.labelKey)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
+                return (
+                  <View
+                    key={moodId}
+                    style={styles.moodBadge}
+                  >
+                    <Text style={styles.moodBadgeEmoji}>{mood.emoji}</Text>
+                    <Text style={[styles.moodBadgeText, { color: colors.text }]}>
+                      {t(mood.labelKey)}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </GlassContainer>
         ) : null}
       </View>
     </>
@@ -81,19 +81,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  categoryBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  categoryBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  priceLevel: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  moodBadgesContainer: {
+    padding: 12,
   },
   moodBadges: {
     flexDirection: 'row',
@@ -103,9 +92,6 @@ const styles = StyleSheet.create({
   moodBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
     gap: 4,
   },
   moodBadgeEmoji: {

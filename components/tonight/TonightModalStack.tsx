@@ -15,10 +15,12 @@ interface TonightModalStackProps {
   generatingPlan: boolean;
   groupSize: number;
   isBosnian: boolean;
+  language: string;
   onClosePlanner: () => void;
   onCloseVote: () => void;
   onCreateVote: () => void;
   onEventPress: (eventId: string) => void;
+  onGenerateAIPlan?: () => void;
   onGeneratePlan: () => void;
   onNextPlan: () => void;
   onOpenTicket: (url: string) => void;
@@ -68,6 +70,7 @@ interface TonightModalStackProps {
     votePrompt: string;
     voteWord: string;
   };
+  useAIPlanner?: boolean;
   voteLink: string | null;
   votes: Record<string, number>;
 }
@@ -117,10 +120,12 @@ export function TonightModalStack({
   generatingPlan,
   groupSize,
   isBosnian,
+  language,
   onClosePlanner,
   onCloseVote,
   onCreateVote,
   onEventPress,
+  onGenerateAIPlan,
   onGeneratePlan,
   onNextPlan,
   onOpenTicket,
@@ -139,6 +144,7 @@ export function TonightModalStack({
   showPlannerModal,
   showVoteModal,
   textSecondaryColor,
+  useAIPlanner,
   voteLabels,
   voteLink,
   votes,
@@ -166,7 +172,9 @@ export function TonightModalStack({
         generatingPlan={generatingPlan}
         groupSize={groupSize}
         isBosnian={isBosnian}
+        language={language}
         onClose={onClosePlanner}
+        onGenerateAIPlan={onGenerateAIPlan}
         onGeneratePlan={onGeneratePlan}
         onNextPlan={onNextPlan}
         onSavePlan={onSavePlan}
@@ -176,6 +184,7 @@ export function TonightModalStack({
         onSharePlan={onSharePlan}
         plannerLabels={plannerLabels}
         selectedMood={selectedMood}
+        useAIPlanner={useAIPlanner}
         visible={showPlannerModal}
       />
 

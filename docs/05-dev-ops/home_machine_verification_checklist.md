@@ -101,6 +101,61 @@ Run the checks in this order:
 
 Do not skip earlier failures silently. Record them before continuing.
 
+## Fast Run Sheet
+
+Use this as the shortest practical sequence when the goal is favorites, taste-profile, and auth-refresh verification first.
+
+### Frontend boot
+
+```powershell
+cd "C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app"
+npm.cmd install
+npx.cmd expo start --web --port 8081
+```
+
+### Backend boot
+
+In a second PowerShell window:
+
+```powershell
+cd "C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app\backend"
+npm.cmd install
+npm.cmd run dev
+```
+
+If backend env is not being picked up automatically, stop and fix that first instead of treating the ingestion checks as meaningful.
+
+### Browser flow
+
+1. Open Home and confirm initial load is stable.
+2. Open Profile and sign in.
+3. Change moods in Profile and reload.
+4. Open a venue detail screen, save it, then confirm Saved > Venues updates immediately.
+5. Unsave the same venue and confirm Saved > Venues updates immediately.
+6. Sign out and confirm Profile and Saved both update without a full restart.
+
+### Backend smoke calls
+
+In a third PowerShell window after the backend is running:
+
+```powershell
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/ingestion/health"
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/ingestion/sources"
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/ingestion/parse-preview?limit=10"
+```
+
+Then run one dry run and one live run against a safe active source:
+
+```powershell
+$body = @{ mode = "manual"; dryRun = $true; notes = "home-machine verification" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:3000/ingestion/run/<source-id>" -ContentType "application/json" -Body $body
+```
+
+```powershell
+$body = @{ mode = "manual"; dryRun = $false; notes = "home-machine verification" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:3000/ingestion/run/<source-id>" -ContentType "application/json" -Body $body
+```
+
 ## 1. Expo/Web Runtime Verification
 
 ### Where to run it
@@ -174,12 +229,14 @@ Capture all of:
 5. return to the same venue
 6. unsave it
 7. confirm it disappears from the Saved tab
+8. reload the app and confirm the same venue still shows unsaved
 
 ### Expected success state
 
 - venue save succeeds without app restart
 - Saved venues tab reflects the change
 - unsave removes the same venue cleanly
+- reload still reflects the Supabase-backed state
 - no AsyncStorage-style drift or stale state is visible in the UI
 
 ### If it fails, capture this exact evidence
@@ -218,12 +275,14 @@ Capture all of:
 3. change selected moods
 4. leave the screen and return, or reload the app
 5. confirm the same selection persists
+6. if moods reset unexpectedly, check whether the account has a matching `profiles` row before changing code
 
 ### Expected success state
 
 - Profile accepts mood changes
 - selected moods persist after reload
 - state reflects `profiles.taste_moods`, not temporary local fallback behavior
+- no sign-in success state exists where mood writes appear to work in UI but disappear after reload
 
 ### If it fails, capture this exact evidence
 
@@ -261,6 +320,7 @@ Capture all of:
 3. confirm Saved/Profile update without a full restart
 4. sign out
 5. confirm Saved/Profile update again without a full restart
+6. if state stays stale, note whether manual tab switching fixes it before a full reload does
 
 ### Expected success state
 
@@ -320,9 +380,14 @@ Change into the backend package:
 cd "C:\Users\haris.daul\OneDrive - United Nations Development Programme\Documents\Personal\Hype\Hype app\backend"
 ```
 
-Start the backend using the repo's normal runtime command.
+Start the backend with the current package script surface:
 
-If the current package script surface is not yet documented clearly enough, first inspect `package.json` and then use the backend start command recorded there.
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+If `backend/.env` is present but the process still reports `not_configured`, stop and capture that env-loading failure before continuing.
 
 Once the backend is running, call:
 

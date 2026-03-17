@@ -19,6 +19,9 @@ export default function ExploreScreen() {
     <ExploreScreenBody
       accentColor={colors.accent}
       activeTab={controller.activeTab}
+      aiLoading={controller.aiLoading}
+      aiResponse={controller.aiResponse}
+      aiVenueCount={controller.aiVenueCount}
       backgroundColor={colors.background}
       borderColor={colors.border}
       cardColor={colors.card}
@@ -36,8 +39,10 @@ export default function ExploreScreen() {
       moods={EXPLORE_MOODS}
       noResultsLabel={t('noResults')}
       onApplyFilters={controller.applyFilters}
+      onCameraPress={() => controller.setShowTranslation(true)}
       onChangeSearchQuery={controller.setSearchQuery}
       onCloseFilters={() => controller.setShowFilterModal(false)}
+      onCloseTranslation={() => controller.setShowTranslation(false)}
       onOpenFilters={() => controller.setShowFilterModal(true)}
       onRefresh={controller.onRefresh}
       onResetFilters={controller.resetFilters}
@@ -66,6 +71,7 @@ export default function ExploreScreen() {
       selectedMoods={controller.selectedMoods}
       showFilterModal={controller.showFilterModal}
       showSearchResults={controller.showSearchResults}
+      showTranslation={controller.showTranslation}
       textColor={colors.text}
       textSecondaryColor={colors.textSecondary}
       translate={t}

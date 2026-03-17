@@ -1,11 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TonightModalHeader } from '@/components/tonight/TonightModalHeader';
+import { TonightPlanStream } from '@/components/tonight/TonightPlanStream';
 import { TonightPlannerResults } from '@/components/tonight/TonightPlannerResults';
 import { TonightPlannerSetup } from '@/components/tonight/TonightPlannerSetup';
 import { buildTonightPlanMarkers } from '@/utils/tonightHelpers';
 import { AIPlan, MoodId } from '@/utils/tonightScreen';
+
+type PlannerPhase = 'setup' | 'ai-streaming' | 'mock-results';
+
+function moodToBudgetTier(budget: number): 'casual' | 'mid' | 'premium' {
+  if (budget <= 50) return 'casual';
+  if (budget <= 100) return 'mid';
+  return 'premium';
+}
 
 interface TonightPlannerModalProps {
   activePlan: AIPlan | null;
@@ -17,8 +26,10 @@ interface TonightPlannerModalProps {
   generatingPlan: boolean;
   groupSize: number;
   isBosnian: boolean;
+  language: string;
   onClose: () => void;
   onGeneratePlan: () => void;
+  onGenerateAIPlan?: () => void;
   onNextPlan: () => void;
   onSavePlan: () => void;
   onSharePlan: () => void;
@@ -37,6 +48,7 @@ interface TonightPlannerModalProps {
     total: string;
   };
   selectedMood: MoodId | null;
+  useAIPlanner?: boolean;
   visible: boolean;
 }
 
@@ -50,8 +62,10 @@ export function TonightPlannerModal({
   generatingPlan,
   groupSize,
   isBosnian,
+  language,
   onClose,
   onGeneratePlan,
+  onGenerateAIPlan,
   onNextPlan,
   onSavePlan,
   onSelectGroupSize,
@@ -60,26 +74,54 @@ export function TonightPlannerModal({
   onSharePlan,
   plannerLabels,
   selectedMood,
+  useAIPlanner = false,
   visible,
 }: TonightPlannerModalProps) {
+  const [phase, setPhase] = useState<PlannerPhase>('setup');
+
   const mapMarkers = useMemo(
     () => (activePlan ? buildTonightPlanMarkers(activePlan) : []),
     [activePlan]
   );
 
+  const handleGenerate = useCallback(() => {
+    if (useAIPlanner && selectedMood) {
+      setPhase('ai-streaming');
+      onGenerateAIPlan?.();
+    } else {
+      onGeneratePlan();
+    }
+  }, [useAIPlanner, selectedMood, onGeneratePlan, onGenerateAIPlan]);
+
+  const handleClose = useCallback(() => {
+    setPhase('setup');
+    onClose();
+  }, [onClose]);
+
+  // Determine which view to render
+  const showMockResults = activePlan && phase !== 'ai-streaming';
+  const showAIStream = phase === 'ai-streaming';
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { backgroundColor }]}>
           <TonightModalHeader
             closeLabel={closeLabel}
             color={colorsText}
-            onClose={onClose}
+            onClose={handleClose}
             title={plannerLabels.title}
           />
 
           <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalScrollContent}>
-            {activePlan ? (
+            {showAIStream ? (
+              <TonightPlanStream
+                moods={selectedMood ? [selectedMood] : []}
+                groupSize={groupSize}
+                budget={moodToBudgetTier(budget)}
+                language={language}
+              />
+            ) : showMockResults ? (
               <TonightPlannerResults
                 activePlan={activePlan}
                 cardColor={cardColor}
@@ -100,7 +142,7 @@ export function TonightPlannerModal({
                 isBosnian={isBosnian}
                 plannerLabels={plannerLabels}
                 selectedMood={selectedMood}
-                onGeneratePlan={onGeneratePlan}
+                onGeneratePlan={handleGenerate}
                 onSelectGroupSize={onSelectGroupSize}
                 onSelectMood={onSelectMood}
                 onSetBudget={onSetBudget}

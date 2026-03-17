@@ -226,6 +226,37 @@ Status:
 - Explore result and modal branching now lives in `ExploreResultsSection.tsx` and `ExploreModalStack.tsx`, leaving `ExploreScreenBody.tsx` focused on top-level composition over search, controls, results, and modal sections
 - source-layer Bosnian helper copy is now cleaned further in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts`, with adjacent Node-side assertions updated to enforce the corrected output
 
+### Planned next — Presentation Restyle
+
+#### E8. Tourism board presentation restyle + AI integration
+
+- Status: `Done`
+- Goal:
+  - restyle the Hype app for a tourism board presentation: replace all emoji usage with glass/glow UI, add real AI integration (planner, search, city pulse, surprise me, translation), generate proper image assets
+- Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
+- Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
+- Branch: `feat/presentation-restyle` (16 commits, 57 tests)
+- Architecture:
+  - glass containers via rgba backgrounds (expo-blur deferred to polish phase)
+  - flippable editorial cards via `react-native-reanimated` v3
+  - 8 Supabase Edge Functions as AI proxy layer (GPT-4.1 mini/nano, Gemini Flash, Claude Haiku)
+  - SSE streaming for Tonight Planner via direct `fetch()` to Edge Function URL
+  - multi-provider tiered model routing (cheapest model per task)
+- What was delivered:
+  - glass design token system + 6 reusable glass components
+  - 8 edge functions + 5 client AI helpers + 3 backend scripts
+  - Home: photo hero, AI city pulse, surprise me, kafu randomizer, hidden gems rail
+  - Explore: AI smart search concierge, live camera translation, glass chips
+  - Tonight: real AI planner with SSE streaming, glass tabs
+  - All detail screens + Saved + Profile: glass badges, containers, mood chips, action buttons
+- Completed post-implementation:
+  - all 8 edge functions deployed to Supabase
+  - DB migrations applied (city_pulse table created, existing tables confirmed)
+  - AI API secrets set (OpenAI, Anthropic, Google AI, Google Maps)
+  - all 5 core edge functions tested live and confirmed working
+  - `/simplify` pass completed: parallelized enrichment N+1, debounced SSE re-renders, added pulse cache cleanup
+- Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough, branch merge
+
 ## Backlog
 
 ### High priority

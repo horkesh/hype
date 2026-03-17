@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hype — AI Provider Cost Analysis</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #1A1A2E; color: #FAFAF8; padding: 40px; }
+
+  h1 { font-size: 28px; font-weight: 700; color: #D4A056; margin-bottom: 8px; }
+  h2 { font-size: 22px; font-weight: 700; margin-top: 48px; margin-bottom: 16px; }
+  h3 { font-size: 17px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: #D4A056; }
+  .subtitle { font-size: 16px; color: #a1a1aa; margin-bottom: 48px; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #D4A056; border-bottom: 2px solid #3f3f46; }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+  tr:hover td { background: rgba(212,160,86,0.05); }
+
+  .provider-tag { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+  .tag-anthropic { background: rgba(204,120,50,0.2); color: #CC7832; }
+  .tag-openai { background: rgba(16,163,127,0.2); color: #10A37F; }
+  .tag-google { background: rgba(66,133,244,0.2); color: #4285F4; }
+
+  .price { font-family: 'DM Sans', monospace; font-weight: 700; }
+  .price-low { color: #4CAF50; }
+  .price-mid { color: #EAB308; }
+  .price-high { color: #FB923C; }
+  .price-very-high { color: #EF4444; }
+
+  .free-badge { background: #4CAF50; color: #1A1A2E; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .rec-badge { background: #D4A056; color: #1A1A2E; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+  .section { background: #2A2A3E; border-radius: 16px; padding: 28px; margin-bottom: 24px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 24px; }
+  .tier-card { background: #2A2A3E; border-radius: 16px; padding: 24px; border: 2px solid transparent; }
+  .tier-card.recommended { border-color: #D4A056; }
+  .tier-name { font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .tier-users { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .tier-sessions { font-size: 14px; color: #a1a1aa; margin-bottom: 16px; }
+  .tier-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+  .tier-line:last-child { border-bottom: none; }
+  .tier-total { display: flex; justify-content: space-between; padding: 12px 0; margin-top: 8px; border-top: 2px solid #D4A056; font-size: 15px; font-weight: 700; }
+
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .feature-card { background: #2A2A3E; border-radius: 12px; padding: 20px; }
+  .feature-name { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .feature-desc { font-size: 13px; color: #a1a1aa; line-height: 1.5; margin-bottom: 12px; }
+  .feature-tokens { font-size: 12px; color: #71717a; }
+
+  .rec-box { background: rgba(212,160,86,0.1); border: 1px solid rgba(212,160,86,0.3); border-radius: 16px; padding: 24px; margin-top: 24px; }
+  .rec-box h3 { margin-top: 0; }
+  .rec-box p { font-size: 14px; line-height: 1.6; color: #a1a1aa; margin-bottom: 8px; }
+  .rec-box strong { color: #FAFAF8; }
+
+  .note { font-size: 13px; color: #71717a; line-height: 1.6; margin-top: 16px; }
+  .note strong { color: #a1a1aa; }
+
+  .vs-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+  .vs-bar { height: 8px; border-radius: 4px; min-width: 2px; }
+</style>
+</head>
+<body>
+
+<h1>AI Provider Cost Analysis</h1>
+<p class="subtitle">Comparing Anthropic Claude, OpenAI GPT, and Google Gemini for Hype's AI features — March 2026 pricing</p>
+
+<!-- SECTION 1: Per-token pricing -->
+<h2>1. Model Pricing Comparison</h2>
+<p style="font-size:14px;color:#a1a1aa;margin-bottom:20px;">Only showing models relevant to Hype's use case (short prompts, structured output, creative text). Excluding reasoning-heavy models (o3, o1) and flagship models overkill for this task.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Provider</th>
+      <th>Input / 1M tokens</th>
+      <th>Output / 1M tokens</th>
+      <th>Context</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>GPT-4.1 nano</strong></td>
+      <td><span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-low">$0.10</td>
+      <td class="price price-low">$0.40</td>
+      <td>200K</td>
+      <td>Cheapest usable model</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Flash-Lite</strong></td>
+      <td><span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-low">$0.10</td>
+      <td class="price price-low">$0.40</td>
+      <td>1M</td>
+      <td><span class="free-badge">FREE TIER</span> 1,000 RPD</td>
+    </tr>
+    <tr>
+      <td><strong>GPT-5 nano</strong></td>
+      <td><span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-low">$0.05</td>
+      <td class="price price-low">$0.40</td>
+      <td>—</td>
+      <td>Newest, cheapest</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Flash</strong></td>
+      <td><span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-low">$0.30</td>
+      <td class="price price-mid">$2.50</td>
+      <td>1M</td>
+      <td><span class="free-badge">FREE TIER</span> 250 RPD</td>
+    </tr>
+    <tr>
+      <td><strong>GPT-4.1 mini</strong></td>
+      <td><span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-low">$0.40</td>
+      <td class="price price-mid">$1.60</td>
+      <td>1M</td>
+      <td>Strong instruction following</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Haiku 4.5</strong></td>
+      <td><span class="provider-tag tag-anthropic">Anthropic</span></td>
+      <td class="price price-mid">$1.00</td>
+      <td class="price price-high">$5.00</td>
+      <td>200K</td>
+      <td>Best personality/voice quality</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Pro</strong></td>
+      <td><span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-mid">$1.25</td>
+      <td class="price price-high">$10.00</td>
+      <td>1M</td>
+      <td><span class="free-badge">FREE TIER</span> 100 RPD</td>
+    </tr>
+    <tr>
+      <td><strong>GPT-4.1</strong></td>
+      <td><span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-mid">$2.00</td>
+      <td class="price price-high">$8.00</td>
+      <td>1M</td>
+      <td>Full flagship quality</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Sonnet 4.6</strong></td>
+      <td><span class="provider-tag tag-anthropic">Anthropic</span></td>
+      <td class="price price-mid">$3.00</td>
+      <td class="price price-very-high">$15.00</td>
+      <td>1M</td>
+      <td>Premium creative quality</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- SECTION 2: Hype features and their token budgets -->
+<h2>2. Hype AI Features — Token Budgets</h2>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <div class="feature-name">Tonight AI Planner <span class="rec-badge">SHOWSTOPPER</span></div>
+    <div class="feature-desc">User picks mood + group size + stops. System prompt includes 20-50 venue summaries from Supabase. Claude returns a structured evening itinerary with 3-5 stops, descriptions, and timing.</div>
+    <div class="feature-tokens">
+      <strong>Input:</strong> ~2,500 tokens (system prompt + venue context + user preferences)<br>
+      <strong>Output:</strong> ~1,200 tokens (structured plan with descriptions)<br>
+      <strong>Calls per use:</strong> 1-2 (generate + optional regenerate)
+    </div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-name">AI City Pulse <span class="rec-badge">HIGH IMPACT</span></div>
+    <div class="feature-desc">Home hero shows a dynamic, AI-written summary of what's happening in Sarajevo right now. Based on today's events, weather, time of day. Refreshes every few hours or on pull-to-refresh.</div>
+    <div class="feature-tokens">
+      <strong>Input:</strong> ~1,500 tokens (today's events + weather + time context)<br>
+      <strong>Output:</strong> ~200 tokens (2-3 sentence blurb)<br>
+      <strong>Calls per use:</strong> 1 (cached for several hours)
+    </div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-name">Natural Language Search</div>
+    <div class="feature-desc">"Good coffee near Baščaršija" → structured search filters. Interprets intent, maps to categories/neighborhoods/moods, returns Supabase query parameters.</div>
+    <div class="feature-tokens">
+      <strong>Input:</strong> ~800 tokens (system prompt + user query + available filters)<br>
+      <strong>Output:</strong> ~150 tokens (structured JSON filters)<br>
+      <strong>Calls per use:</strong> 1 per search
+    </div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-name">Venue/Event Descriptions</div>
+    <div class="feature-desc">Enrich thin database descriptions with engaging, tourism-ready copy. Batch job, not real-time. Run offline, store results.</div>
+    <div class="feature-tokens">
+      <strong>Input:</strong> ~500 tokens (venue data + style prompt)<br>
+      <strong>Output:</strong> ~300 tokens (description)<br>
+      <strong>Calls per use:</strong> Batch — one-time per entity
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: Cost per user session -->
+<h2>3. Cost Per User Session</h2>
+<p style="font-size:14px;color:#a1a1aa;margin-bottom:20px;">Assumes a typical session: 1 planner call, 1 city pulse (shared/cached), 2 NL searches. Total: ~4 calls, ~7,300 input tokens, ~2,750 output tokens.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Per Session</th>
+      <th>1K Sessions</th>
+      <th>10K Sessions</th>
+      <th>100K Sessions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>GPT-5 nano</strong> <span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-low">$0.0015</td>
+      <td class="price price-low">$1.46</td>
+      <td class="price price-low">$14.65</td>
+      <td class="price price-low">$146.50</td>
+    </tr>
+    <tr>
+      <td><strong>GPT-4.1 nano</strong> <span class="provider-tag tag-openai">OpenAI</span></td>
+      <td class="price price-low">$0.0018</td>
+      <td class="price price-low">$1.83</td>
+      <td class="price price-low">$18.30</td>
+      <td class="price price-low">$183.00</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Flash-Lite</strong> <span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-low">$0.0018</td>
+      <td class="price price-low">$1.83</td>
+      <td class="price price-low">$18.30</td>
+      <td class="price price-low">$183.00</td>
+    </tr>
+    <tr style="background:rgba(212,160,86,0.08);">
+      <td><strong>GPT-4.1 mini</strong> <span class="provider-tag tag-openai">OpenAI</span> <span class="rec-badge">REC</span></td>
+      <td class="price price-low">$0.0073</td>
+      <td class="price price-low">$7.32</td>
+      <td class="price price-mid">$73.20</td>
+      <td class="price price-mid">$732.00</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Flash</strong> <span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-mid">$0.0091</td>
+      <td class="price price-mid">$9.07</td>
+      <td class="price price-mid">$90.68</td>
+      <td class="price price-mid">$906.75</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Haiku 4.5</strong> <span class="provider-tag tag-anthropic">Anthropic</span></td>
+      <td class="price price-mid">$0.0211</td>
+      <td class="price price-mid">$21.05</td>
+      <td class="price price-high">$210.50</td>
+      <td class="price price-high">$2,105.00</td>
+    </tr>
+    <tr>
+      <td><strong>Gemini 2.5 Pro</strong> <span class="provider-tag tag-google">Google</span></td>
+      <td class="price price-high">$0.0366</td>
+      <td class="price price-high">$36.63</td>
+      <td class="price price-high">$366.25</td>
+      <td class="price price-very-high">$3,662.50</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Sonnet 4.6</strong> <span class="provider-tag tag-anthropic">Anthropic</span></td>
+      <td class="price price-high">$0.0631</td>
+      <td class="price price-high">$63.12</td>
+      <td class="price price-very-high">$631.25</td>
+      <td class="price price-very-high">$6,312.50</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- SECTION 4: User tiers -->
+<h2>4. Monthly Cost by User Scale</h2>
+<p style="font-size:14px;color:#a1a1aa;margin-bottom:8px;">Assumes 1 session/user/day on average. City pulse cached (shared across users, ~8 calls/day total).</p>
+
+<div class="tier-grid">
+  <div class="tier-card">
+    <div class="tier-name" style="color:#4CAF50;">Pilot</div>
+    <div class="tier-users">100 users</div>
+    <div class="tier-sessions">~3,000 sessions/month</div>
+    <div class="tier-line"><span>GPT-5 nano</span><span class="price price-low">$4.40</span></div>
+    <div class="tier-line"><span>GPT-4.1 mini</span><span class="price price-low">$21.96</span></div>
+    <div class="tier-line"><span>Claude Haiku 4.5</span><span class="price price-mid">$63.15</span></div>
+    <div class="tier-line"><span>Gemini 2.5 Flash</span><span class="price price-low">$27.20</span></div>
+    <div class="tier-line"><span>Gemini Free Tier</span><span class="price price-low">$0.00 *</span></div>
+    <div class="note">* Gemini free tier can handle ~200 sessions/day — covers the full pilot.</div>
+  </div>
+
+  <div class="tier-card recommended">
+    <div class="tier-name" style="color:#D4A056;">Growth <span class="rec-badge">TARGET</span></div>
+    <div class="tier-users">1,000 users</div>
+    <div class="tier-sessions">~30,000 sessions/month</div>
+    <div class="tier-line"><span>GPT-5 nano</span><span class="price price-low">$43.95</span></div>
+    <div class="tier-line"><span>GPT-4.1 mini</span><span class="price price-mid">$219.60</span></div>
+    <div class="tier-line"><span>Claude Haiku 4.5</span><span class="price price-high">$631.50</span></div>
+    <div class="tier-line"><span>Gemini 2.5 Flash</span><span class="price price-mid">$272.03</span></div>
+    <div class="tier-total"><span>Best value</span><span class="price price-low">GPT-5 nano: $44/mo</span></div>
+  </div>
+
+  <div class="tier-card">
+    <div class="tier-name" style="color:#FB923C;">Scale</div>
+    <div class="tier-users">10,000 users</div>
+    <div class="tier-sessions">~300,000 sessions/month</div>
+    <div class="tier-line"><span>GPT-5 nano</span><span class="price price-mid">$439.50</span></div>
+    <div class="tier-line"><span>GPT-4.1 mini</span><span class="price price-high">$2,196.00</span></div>
+    <div class="tier-line"><span>Claude Haiku 4.5</span><span class="price price-very-high">$6,315.00</span></div>
+    <div class="tier-line"><span>Gemini 2.5 Flash</span><span class="price price-high">$2,720.25</span></div>
+    <div class="tier-total"><span>Best value</span><span class="price price-mid">GPT-5 nano: $440/mo</span></div>
+  </div>
+</div>
+
+<!-- SECTION 5: Recommendation -->
+<div class="rec-box">
+  <h3>Recommended Strategy: Multi-Provider Mix</h3>
+  <p>Don't lock into one provider. Use the <strong>best model for each feature</strong> based on quality needs and cost:</p>
+  <table style="margin-top:12px;">
+    <thead>
+      <tr><th>Feature</th><th>Recommended Model</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tonight AI Planner</strong></td>
+        <td><span class="provider-tag tag-openai">GPT-4.1 mini</span></td>
+        <td>Best instruction-following for structured itineraries. Strong creative output. $0.007/plan.</td>
+      </tr>
+      <tr>
+        <td><strong>City Pulse (Home hero)</strong></td>
+        <td><span class="provider-tag tag-google">Gemini 2.5 Flash-Lite</span></td>
+        <td>Cached result shared across all users. Cheapest option works fine. Near-free at scale.</td>
+      </tr>
+      <tr>
+        <td><strong>NL Search</strong></td>
+        <td><span class="provider-tag tag-openai">GPT-4.1 nano</span></td>
+        <td>Structured JSON output from short queries. Fastest, cheapest option that's reliable.</td>
+      </tr>
+      <tr>
+        <td><strong>Batch Descriptions</strong></td>
+        <td><span class="provider-tag tag-anthropic">Claude Haiku 4.5</span></td>
+        <td>Best prose voice for tourism copy. One-time batch cost, not per-session. Use batch API for 50% off.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:16px;"><strong>Blended session cost with this mix: ~$0.004/session ($4/1K sessions, $120/month at 1K users)</strong></p>
+
+  <p style="margin-top:12px;"><strong>For the presentation demo:</strong> Use <span class="provider-tag tag-google">Gemini 2.5 Flash</span> free tier for everything — zero cost, 250 requests/day is more than enough for a demo. Swap to the optimized mix when real users arrive.</p>
+</div>
+
+<div class="note" style="margin-top:32px;">
+  <strong>Key insight for the tourism board:</strong> AI features cost pennies per user. At 1,000 monthly active users, the entire AI layer costs less than a single coffee in Sarajevo per day. This is not a cost problem — it's a capability unlock. The board should focus on what it enables (personalized discovery, intelligent recommendations, dynamic content) not what it costs.
+</div>
+
+</body>
+</html>

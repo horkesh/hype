@@ -4,6 +4,7 @@ import {
   ProfileTasteAuthRequiredError,
   isProfileTasteAuthRequiredError,
 } from '@/utils/profileTasteErrors';
+import { persistProfileTasteMoods } from '@/utils/profileTastePersistence';
 import { isAuthSessionMissingError } from '@/utils/supabaseErrors';
 
 export {
@@ -65,14 +66,9 @@ export async function getTasteMoodsForCurrentUser(): Promise<string[]> {
 export async function saveTasteMoodsForCurrentUser(moods: string[]): Promise<void> {
   const userId = await requireCurrentUserId();
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      taste_moods: moods,
-    })
-    .eq('id', userId);
-
-  if (error) {
-    throw error;
-  }
+  await persistProfileTasteMoods(
+    async (row, options) => supabase.from('profiles').upsert(row, options),
+    userId,
+    moods,
+  );
 }

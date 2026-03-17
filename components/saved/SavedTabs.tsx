@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassContainer } from '@/components/glass/GlassContainer';
 import { SavedTabKey, SavedTabLabel } from '@/utils/savedScreen';
 
 interface SavedTabsProps {
@@ -27,19 +28,24 @@ export function SavedTabs({
           <TouchableOpacity
             key={tab.key}
             onPress={() => onSelectTab(tab.key)}
-            style={[
-              styles.tab,
-              isActive && { borderBottomColor: accentColor, borderBottomWidth: 2 },
-            ]}
+            activeOpacity={0.8}
+            style={styles.tabTouchable}
           >
-            <Text
-              style={[
-                styles.tabText,
-                { color: isActive ? accentColor : textSecondaryColor },
-              ]}
+            <GlassContainer
+              borderRadius={20}
+              glowColor={isActive ? accentColor : undefined}
+              style={styles.tab}
             >
-              {tab.label}
-            </Text>
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isActive ? accentColor : textSecondaryColor },
+                  isActive && styles.tabTextActive,
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </GlassContainer>
           </TouchableOpacity>
         );
       })}
@@ -52,14 +58,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingTop: 12,
+    gap: 10,
+  },
+  tabTouchable: {
+    flex: 1,
   },
   tab: {
-    flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     alignItems: 'center',
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  tabTextActive: {
+    fontWeight: '700',
   },
 });

@@ -15,6 +15,7 @@ interface ExploreSearchSectionProps {
   accentColor: string;
   borderColor: string;
   cardColor: string;
+  onCameraPress?: () => void;
   onChangeText: (value: string) => void;
   onFocus: () => void;
   onResultPress: (result: SearchResult) => void;
@@ -47,6 +48,7 @@ export function ExploreSearchSection({
   accentColor,
   borderColor,
   cardColor,
+  onCameraPress,
   onChangeText,
   onFocus,
   onResultPress,
@@ -76,6 +78,16 @@ export function ExploreSearchSection({
           onFocus={onFocus}
         />
         {searchLoading ? <ActivityIndicator size="small" color={accentColor} /> : null}
+        {onCameraPress ? (
+          <TouchableOpacity onPress={onCameraPress} style={styles.cameraButton}>
+            <IconSymbol
+              ios_icon_name="camera"
+              android_material_icon_name="photo_camera"
+              size={20}
+              color={accentColor}
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       {showResults && results.length > 0 ? (
@@ -128,6 +140,9 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+  },
+  cameraButton: {
+    padding: 4,
   },
   searchResults: {
     position: 'absolute',

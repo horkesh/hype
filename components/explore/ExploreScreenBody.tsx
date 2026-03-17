@@ -2,9 +2,11 @@ import React from 'react';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { ExploreControls } from '@/components/explore/ExploreControls';
+import { ExploreLiveTranslation } from '@/components/explore/ExploreLiveTranslation';
 import { ExploreModalStack } from '@/components/explore/ExploreModalStack';
 import { ExploreResultsSection } from '@/components/explore/ExploreResultsSection';
 import { ExploreSearchSection } from '@/components/explore/ExploreSearchSection';
+import { ExploreSmartSearch } from '@/components/explore/ExploreSmartSearch';
 import { DailySpecial, ExploreLookupItem, SearchResult, Venue } from '@/utils/exploreScreen';
 import { ExploreMenuFilterOption, getPriceLevelDisplay } from '@/utils/exploreHelpers';
 
@@ -13,6 +15,9 @@ type ExploreTabKey = 'list' | 'menu';
 interface ExploreScreenBodyProps {
   accentColor: string;
   activeTab: ExploreTabKey;
+  aiLoading: boolean;
+  aiResponse: string | null;
+  aiVenueCount?: number;
   backgroundColor: string;
   borderColor: string;
   cardColor: string;
@@ -30,7 +35,9 @@ interface ExploreScreenBodyProps {
   moods: ExploreLookupItem[];
   noResultsLabel: string;
   onApplyFilters: () => void;
+  onCameraPress: () => void;
   onChangeSearchQuery: (value: string) => void;
+  onCloseTranslation: () => void;
   onCloseFilters: () => void;
   onOpenFilters: () => void;
   onRefresh: () => void;
@@ -60,6 +67,7 @@ interface ExploreScreenBodyProps {
   selectedMoods: string[];
   showFilterModal: boolean;
   showSearchResults: boolean;
+  showTranslation: boolean;
   textColor: string;
   textSecondaryColor: string;
   translate: (key: string) => string;
@@ -70,6 +78,9 @@ interface ExploreScreenBodyProps {
 export function ExploreScreenBody({
   accentColor,
   activeTab,
+  aiLoading,
+  aiResponse,
+  aiVenueCount,
   backgroundColor,
   borderColor,
   cardColor,
@@ -87,8 +98,10 @@ export function ExploreScreenBody({
   moods,
   noResultsLabel,
   onApplyFilters,
+  onCameraPress,
   onChangeSearchQuery,
   onCloseFilters,
+  onCloseTranslation,
   onOpenFilters,
   onRefresh,
   onResetFilters,
@@ -117,6 +130,7 @@ export function ExploreScreenBody({
   selectedMoods,
   showFilterModal,
   showSearchResults,
+  showTranslation,
   textColor,
   textSecondaryColor,
   translate,
@@ -141,6 +155,7 @@ export function ExploreScreenBody({
           accentColor={accentColor}
           borderColor={borderColor}
           cardColor={cardColor}
+          onCameraPress={onCameraPress}
           onChangeText={onChangeSearchQuery}
           onFocus={onSearchFocus}
           onResultPress={onResultPress}
@@ -151,6 +166,12 @@ export function ExploreScreenBody({
           textColor={textColor}
           textSecondaryColor={textSecondaryColor}
           value={searchQuery}
+        />
+
+        <ExploreSmartSearch
+          response={aiResponse}
+          isLoading={aiLoading}
+          venueCount={aiVenueCount}
         />
 
         <ExploreControls
@@ -223,6 +244,11 @@ export function ExploreScreenBody({
         title={translate('filters')}
         translate={translate}
         visible={showFilterModal}
+      />
+
+      <ExploreLiveTranslation
+        visible={showTranslation}
+        onClose={onCloseTranslation}
       />
     </>
   );

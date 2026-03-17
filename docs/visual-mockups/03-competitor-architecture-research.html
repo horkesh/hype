@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitor Architecture Research - City Discovery & Nightlife Apps</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    line-height: 1.6;
+    padding: 40px;
+  }
+
+  .page-break { page-break-before: always; }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 40px;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin: 32px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #222;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ccc;
+    margin: 20px 0 8px 0;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #aaa;
+    margin: 12px 0 6px 0;
+  }
+  p, li {
+    font-size: 13px;
+    color: #bbb;
+    margin-bottom: 8px;
+  }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+
+  .card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card-header .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-green { background: #0a2e1a; color: #34d399; }
+  .badge-blue { background: #0a1a2e; color: #60a5fa; }
+  .badge-purple { background: #1a0a2e; color: #a78bfa; }
+  .badge-orange { background: #2e1a0a; color: #fb923c; }
+  .badge-red { background: #2e0a0a; color: #f87171; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .metric-box {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .metric-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12px;
+  }
+  th {
+    background: #1a1a1a;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #222;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #bbb;
+    vertical-align: top;
+  }
+  tr:hover td { background: #111; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    margin: 2px;
+  }
+  .tag-server { background: #1a0a2e; color: #a78bfa; }
+  .tag-edge { background: #0a2e1a; color: #34d399; }
+  .tag-micro { background: #0a1a2e; color: #60a5fa; }
+  .tag-event { background: #2e1a0a; color: #fb923c; }
+  .tag-rag { background: #2e0a1a; color: #f472b6; }
+
+  .verdict {
+    background: linear-gradient(135deg, #0a2e1a 0%, #0a1a2e 100%);
+    border: 1px solid #1a3a2a;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .verdict h3 { color: #34d399; }
+
+  .warning {
+    background: #1a1200;
+    border: 1px solid #332a00;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .warning p { color: #fbbf24; }
+
+  .flow-diagram {
+    background: #080808;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #60a5fa;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #333, transparent);
+    margin: 40px 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Competitor Architecture Research</h1>
+<p class="subtitle">City Discovery, Nightlife & AI Travel Apps -- Architectural Patterns & Decisions | March 2026</p>
+
+<!-- ========================================== -->
+<!-- SECTION 1: INDIVIDUAL APP ANALYSIS -->
+<!-- ========================================== -->
+
+<h2>1. Individual App Architecture Analysis</h2>
+
+<!-- YELP -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Yelp</h3>
+    <span class="badge badge-purple">Search + AI Assistant</span>
+    <span class="badge badge-blue">SOA / Microservices</span>
+  </div>
+
+  <h4>Infrastructure</h4>
+  <ul>
+    <li><strong>Architecture:</strong> Service-Oriented Architecture (SOA) since 2011. 150+ production microservices by 2014, now significantly more. Runs on custom PaaS called "PaaSTA" (open-source), originally on Apache Mesos, now migrated to <strong>Kubernetes</strong>.</li>
+    <li><strong>Language:</strong> Primarily Python (Pyramid web framework + gevent for async). Docker containerized.</li>
+    <li><strong>NOT serverless.</strong> Traditional containerized microservices on Kubernetes. No edge functions.</li>
+  </ul>
+
+  <h4>Yelp Assistant (AI Feature) -- Architecture Deep Dive</h4>
+  <ul>
+    <li><strong>Pattern:</strong> Multi-stage RAG (Retrieval-Augmented Generation) -- NOT a monolithic chatbot.</li>
+    <li><strong>Key components:</strong> Interaction Service (WebSocket/SSE), Orchestrator (stateful brain), LLM Gateway (unified model interface), Tool APIs (Search, Reservations, Reviews).</li>
+    <li><strong>Model strategy:</strong> Tiered models -- fine-tuned GPT-4.1-nano for classification tasks (Trust & Safety, intent routing, content source selection), GPT-4o reserved only for final answer generation.</li>
+    <li><strong>LLM as Translator:</strong> The LLM converts natural language into structured API calls to Yelp's existing search engine. It does NOT try to answer questions from its own knowledge.</li>
+    <li><strong>Intent Classification:</strong> Early in pipeline -- simple queries like "Hi" skip the full RAG pipeline entirely.</li>
+  </ul>
+
+  <h4>Data & Caching Strategy</h4>
+  <ul>
+    <li><strong>Hybrid freshness:</strong> Streaming ingestion for high-velocity data (reviews, business attributes) -- updates within 10 minutes. Weekly batch pipeline for slow-moving data (menus, website text).</li>
+    <li><strong>Storage split:</strong> Unstructured content (reviews, photos) in Lucene search indices. Structured facts (hours, amenities) in Cassandra (Entity-Attribute-Value layout).</li>
+    <li><strong>Content Fetching API:</strong> Abstraction layer in front of all retrieval stores. Parallelizes backend reads. Enforces latency budgets. p95 latency under 100ms.</li>
+  </ul>
+
+  <h4>Performance</h4>
+  <div class="grid-3">
+    <div class="metric-box">
+      <div class="metric-label">Question Analysis</div>
+      <div class="metric-value">~1.4s</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Retrieval</div>
+      <div class="metric-value">~30ms</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Full Answer</div>
+      <div class="metric-value">~3.5s</div>
+    </div>
+  </div>
+  <p style="margin-top:12px"><strong>Optimization:</strong> SSE streaming (token-by-token) via FastAPI. Async parallelism for independent tasks. Early stopping on T&S failures. Reduced from 10s prototype to under 3.5s production.</p>
+</div>
+
+<!-- TRIPADVISOR -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">TripAdvisor</h3>
+    <span class="badge badge-green">AI Trip Builder</span>
+    <span class="badge badge-purple">RAG + Prompt Engineering</span>
+  </div>
+
+  <h4>AI Trip Builder Architecture</h4>
+  <ul>
+    <li><strong>Data foundation:</strong> 1+ billion reviews across hotels, restaurants, attractions, activities. Emphasis on "quality first-party data" with high accuracy, taxonomy, and metadata.</li>
+    <li><strong>AI approach:</strong> RAG (Retrieval-Augmented Generation) + prompt engineering. Flexible data architecture feeds LLMs structured data, text, images, and documents.</li>
+    <li><strong>Model strategy:</strong> Tested many LLM options (open-source and proprietary). Did NOT commit to a single model -- comparative testing strategy. Specific production model not publicly disclosed.</li>
+    <li><strong>Quality control:</strong> Human-in-the-loop -- text outputs reviewed for brand compliance and traveler needs validation.</li>
+    <li><strong>Cost management:</strong> Design requirements explicitly balance cost, accuracy, and latency as adoption scales.</li>
+    <li><strong>All AI calls are server-side.</strong> No client-side LLM inference.</li>
+  </ul>
+
+  <h4>Business Impact</h4>
+  <div class="grid-2">
+    <div class="metric-box">
+      <div class="metric-label">AI-Engaged User Revenue</div>
+      <div class="metric-value">2-3x higher</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Reviews Dataset</div>
+      <div class="metric-value">1B+ reviews</div>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE MAPS -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Google Maps</h3>
+    <span class="badge badge-blue">AI Place Summaries</span>
+    <span class="badge badge-green">Gemini-Powered</span>
+  </div>
+
+  <h4>AI Summaries Architecture</h4>
+  <ul>
+    <li><strong>Model:</strong> Gemini -- analyzes place information from 300M+ contributors and 250M+ businesses/places.</li>
+    <li><strong>Summary types:</strong> Place summaries (100-char short / 400-char long), Review summaries (digest of reviewer sentiment), Area summaries (nearby points of interest + general area description).</li>
+    <li><strong>Processing:</strong> NLP to understand queries, data analysis scanning descriptions/photos/reviews/ratings, then recommendation generation. All server-side via Places API.</li>
+    <li><strong>Caching:</strong> Developers are explicitly PERMITTED to cache Places API responses (including AI summaries). Google likely pre-computes and caches summaries server-side given the 250M+ business scale.</li>
+    <li><strong>Exposed as API:</strong> Places API (New) exposes AI summaries as a field -- developers can integrate into their own apps. This is a key pattern: Google does the heavy AI lifting, apps consume via API.</li>
+  </ul>
+
+  <h4>Key Insight for Hype</h4>
+  <div class="warning">
+    <p>Google Maps Places API already provides AI-generated place summaries via Gemini. Rather than generating your own AI summaries from scratch, you could consume Google's API and layer your own nightlife-specific intelligence on top. This dramatically reduces AI compute costs.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- AIRBNB -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Airbnb</h3>
+    <span class="badge badge-orange">Event-Driven Personalization</span>
+    <span class="badge badge-blue">Lambda Architecture</span>
+  </div>
+
+  <h4>User Signals Platform (USP) -- Deep Dive</h4>
+  <ul>
+    <li><strong>Architecture:</strong> Lambda Architecture -- combines real-time streaming with offline batch processing.</li>
+    <li><strong>Core stack:</strong> Apache Kafka (event bus) + Apache Flink (stream processing) + KV store (append-only with versioned timestamps).</li>
+    <li><strong>Why Flink over Spark:</strong> Flink is natively event-driven (processes each event on arrival). Spark Streaming uses micro-batches which caused unacceptable delays for in-session personalization.</li>
+    <li><strong>Scale:</strong> 1M+ events/second, 100+ Flink jobs, 70K queries/second served to downstream services.</li>
+    <li><strong>Signal types:</strong> Simple (direct Kafka-to-signal mapping) and Join Signals (real-time stateful joins using RocksDB). Defined via YAML configuration.</li>
+    <li><strong>Resilience:</strong> Hot standby Task Managers pre-provisioned for immediate failover (seconds, not minutes).</li>
+  </ul>
+
+  <h4>AI Strategy (2025-2026)</h4>
+  <ul>
+    <li><strong>Natural language search:</strong> Conversational AI powered by NLP -- "cozy apartment for two in Lisbon with ocean view" returns relevant results.</li>
+    <li><strong>Vision:</strong> AI-native app that "knows you" -- helps guests plan trips, hosts run businesses, company operate efficiently.</li>
+    <li><strong>Leadership:</strong> Ahmad Al-Dahle (ex-Meta, led Llama development) hired as top tech exec in early 2026.</li>
+    <li><strong>Research areas:</strong> NLP, optimization, measurement science. Active at KDD and CIKM conferences.</li>
+  </ul>
+
+  <h4>Performance at Scale</h4>
+  <div class="grid-3">
+    <div class="metric-box">
+      <div class="metric-label">Events/Second</div>
+      <div class="metric-value">1M+</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Flink Jobs</div>
+      <div class="metric-value">100+</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Query QPS</div>
+      <div class="metric-value">70K</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEVER -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Fever</h3>
+    <span class="badge badge-red">Experience Discovery</span>
+    <span class="badge badge-orange">Behavioral Data Mining</span>
+  </div>
+
+  <h4>Personalization Approach</h4>
+  <ul>
+    <li><strong>Proprietary algorithm:</strong> Learns from user behavior to create personalized event/experience recommendations. Goal: "act like a best friend" showing events you would not want to miss.</li>
+    <li><strong>Demand prediction:</strong> Uses anonymized behavioral data-mining to algorithmically predict untapped demand for events that do not yet exist. This is their core competitive advantage.</li>
+    <li><strong>Secret Media Network:</strong> 200+ hyper-local digital channels (e.g., "Secret London") with 300M+ monthly interactions. This content network feeds behavioral signals back into recommendations.</li>
+    <li><strong>Architecture details:</strong> Limited public information. Responsive web + native iOS/Android apps. No engineering blog or public technical disclosures found.</li>
+  </ul>
+
+  <h4>Key Insight for Hype</h4>
+  <div class="warning">
+    <p>Fever's competitive moat is NOT their tech stack -- it is their behavioral data flywheel. Content drives engagement, engagement produces signals, signals improve recommendations, better recommendations drive more engagement. The architecture is secondary to the data strategy.</p>
+  </div>
+</div>
+
+<!-- RESIDENT ADVISOR -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Resident Advisor (RA)</h3>
+    <span class="badge badge-purple">Nightlife Discovery</span>
+    <span class="badge badge-blue">Music-Driven Personalization</span>
+  </div>
+
+  <h4>Discovery & Personalization</h4>
+  <ul>
+    <li><strong>Music sync:</strong> Users sync artists from Spotify and Apple Music. App alerts for new shows by followed artists in their area.</li>
+    <li><strong>Geolocation:</strong> Precise geolocation to find nearest events. Listings in 120+ countries.</li>
+    <li><strong>Filtering:</strong> Location, genre, day party, club night, festival. Combines curated "RA Picks" with personalized recommendations.</li>
+    <li><strong>Ticketing:</strong> In-app purchase with Apple Pay (two-tap). Direct ticket sales for thousands of events.</li>
+    <li><strong>AI features:</strong> None publicly disclosed. Personalization appears to be rule-based (artist follows + location + genre preferences) rather than ML-driven.</li>
+    <li><strong>Architecture:</strong> No public engineering disclosures. Likely traditional web backend serving API to native apps.</li>
+  </ul>
+</div>
+
+<!-- DICE -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">DICE</h3>
+    <span class="badge badge-green">Event Ticketing</span>
+    <span class="badge badge-blue">Elixir + Kubernetes</span>
+  </div>
+
+  <h4>Technical Stack (Confirmed)</h4>
+  <ul>
+    <li><strong>Backend language:</strong> Elixir (migrated from Go). Most developers came from Ruby backgrounds. Elixir chosen as "sweet spot" for their use case.</li>
+    <li><strong>Infrastructure:</strong> Kubernetes. Deployed via Helm charts + custom deploy tool using a Kubernetes operator.</li>
+    <li><strong>Architecture:</strong> Microservices on Kubernetes. No serverless or edge functions.</li>
+    <li><strong>AI features:</strong> None publicly disclosed. Focus is on ticketing reliability and anti-fraud (queue management, no scalping).</li>
+  </ul>
+</div>
+
+<!-- WANDERLOG -->
+<div class="card">
+  <div class="card-header">
+    <h3 style="margin:0">Wanderlog</h3>
+    <span class="badge badge-green">AI Travel Planning</span>
+    <span class="badge badge-blue">Node.js Stack</span>
+  </div>
+
+  <h4>Technical Stack (From Job Postings)</h4>
+  <ul>
+    <li><strong>Frontend:</strong> React (web), React Native (mobile). TypeScript throughout.</li>
+    <li><strong>Backend:</strong> Node.js + Express. Traditional server, not serverless.</li>
+    <li><strong>Data:</strong> Redis, Elasticsearch, Python for specific tasks.</li>
+    <li><strong>AI features:</strong> AI-powered itinerary suggestions, place recommendations. Details on model/approach not publicly disclosed.</li>
+  </ul>
+</div>
+
+<div class="section-divider"></div>
+<div class="page-break"></div>
+
+<!-- ========================================== -->
+<!-- SECTION 2: COMPARISON TABLE -->
+<!-- ========================================== -->
+
+<h2>2. Architecture Comparison Matrix</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>App</th>
+      <th>Architecture</th>
+      <th>AI Approach</th>
+      <th>AI Calls</th>
+      <th>Caching</th>
+      <th>Real-Time Data</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Yelp</strong></td>
+      <td><span class="tag tag-micro">Microservices</span><span class="tag tag-server">Kubernetes</span></td>
+      <td><span class="tag tag-rag">RAG</span> Tiered models (nano for classification, GPT-4o for generation)</td>
+      <td>Server-side only. LLM Gateway abstracts model calls.</td>
+      <td>Content Fetching API with latency budgets. Lucene indices. Cassandra for structured data.</td>
+      <td>Streaming ingestion for reviews (10 min freshness). SSE for AI responses.</td>
+    </tr>
+    <tr>
+      <td><strong>TripAdvisor</strong></td>
+      <td><span class="tag tag-micro">Microservices</span><span class="tag tag-server">Traditional</span></td>
+      <td><span class="tag tag-rag">RAG</span> + prompt engineering. Multiple models tested.</td>
+      <td>Server-side only. Human review on outputs.</td>
+      <td>Likely aggressive caching given 1B+ review dataset and cost optimization focus.</td>
+      <td>Not real-time focused. Trip planning is async by nature.</td>
+    </tr>
+    <tr>
+      <td><strong>Google Maps</strong></td>
+      <td><span class="tag tag-micro">Massive distributed</span><span class="tag tag-server">Google infra</span></td>
+      <td>Gemini model on 250M+ businesses. Pre-computed summaries.</td>
+      <td>Server-side only. Exposed as API field in Places API.</td>
+      <td>Pre-computed + cacheable by consumers. Two lengths (100/400 char).</td>
+      <td>Business hours, ratings updated in near real-time. Summaries likely batch-refreshed.</td>
+    </tr>
+    <tr>
+      <td><strong>Airbnb</strong></td>
+      <td><span class="tag tag-event">Event-Driven</span><span class="tag tag-micro">Lambda Arch</span></td>
+      <td>Flink-based ML signals. NLP search (2026). Deep learning ranking.</td>
+      <td>Server-side only. Flink processes events, ML models score server-side.</td>
+      <td>Append-only KV store with versioned timestamps. No in-place updates.</td>
+      <td>1M events/sec via Kafka+Flink. Sub-second e2e latency.</td>
+    </tr>
+    <tr>
+      <td><strong>Fever</strong></td>
+      <td><span class="tag tag-server">Traditional</span> (undisclosed)</td>
+      <td>Proprietary behavioral algorithm. Demand prediction from data mining.</td>
+      <td>Server-side (assumed). No client-side AI.</td>
+      <td>Unknown. Behavioral data flywheel is the moat.</td>
+      <td>Event availability and sales data. Details undisclosed.</td>
+    </tr>
+    <tr>
+      <td><strong>RA</strong></td>
+      <td><span class="tag tag-server">Traditional</span> (undisclosed)</td>
+      <td>Rule-based personalization (artist follows + location + genre). No ML disclosed.</td>
+      <td>N/A -- no AI features exposed.</td>
+      <td>Standard API caching (assumed).</td>
+      <td>Event listings, ticket availability. Spotify/Apple Music sync.</td>
+    </tr>
+    <tr>
+      <td><strong>DICE</strong></td>
+      <td><span class="tag tag-micro">Microservices</span><span class="tag tag-server">Elixir + K8s</span></td>
+      <td>No AI features disclosed. Focus on ticketing reliability.</td>
+      <td>N/A</td>
+      <td>Standard (assumed). Elixir has built-in caching patterns.</td>
+      <td>Real-time ticket availability and queue management.</td>
+    </tr>
+    <tr>
+      <td><strong>Wanderlog</strong></td>
+      <td><span class="tag tag-server">Node.js</span><span class="tag tag-micro">Express</span></td>
+      <td>AI itinerary suggestions. Model/approach undisclosed.</td>
+      <td>Server-side (assumed).</td>
+      <td>Redis + Elasticsearch.</td>
+      <td>Not heavily real-time. Travel planning is async.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="section-divider"></div>
+
+<!-- ========================================== -->
+<!-- SECTION 3: PATTERNS EXTRACTED -->
+<!-- ========================================== -->
+
+<h2>3. Universal Patterns Across All Apps</h2>
+
+<div class="card">
+  <h3>Pattern 1: ALL AI Calls Are Server-Side</h3>
+  <p>Every single app studied runs AI inference server-side. No app sends LLM API keys to the client or makes AI calls from the frontend. The reasons are consistent:</p>
+  <ul>
+    <li>API key security (never expose OpenAI/Gemini keys to client)</li>
+    <li>Cost control (server can enforce rate limits, caching, and early stopping)</li>
+    <li>Quality control (server can validate, filter, and post-process AI outputs before sending to client)</li>
+    <li>Latency optimization (server can parallelize retrieval + AI calls, stream results via SSE)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>Pattern 2: RAG Over Fine-Tuning</h3>
+  <p>Both Yelp and TripAdvisor use RAG rather than fine-tuning models on their data. The pattern is:</p>
+  <ul>
+    <li>Keep your proprietary data in your own search indices / databases</li>
+    <li>Use the LLM as a translator (natural language to structured queries) and generator (structured data to natural language answers)</li>
+    <li>Never try to teach the LLM your facts -- retrieve them at query time</li>
+  </ul>
+  <p>This is directly applicable to a city discovery app: store venue/event data in Supabase, use the LLM to translate user queries and generate responses.</p>
+</div>
+
+<div class="card">
+  <h3>Pattern 3: Tiered Model Strategy</h3>
+  <p>Yelp's approach is the clearest example: cheap/fast models for classification and routing, expensive models only for final generation. This controls costs while maintaining quality.</p>
+  <ul>
+    <li><strong>Cheap tier (GPT-4.1-nano or similar):</strong> Intent classification, safety checks, content source selection, keyword generation</li>
+    <li><strong>Expensive tier (GPT-4o or similar):</strong> Only for final answer generation where nuance matters</li>
+    <li><strong>No model tier:</strong> Simple queries bypass the AI pipeline entirely (intent routing)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>Pattern 4: NO Successful App Uses Edge Functions as Primary Backend</h3>
+  <p>Every app at scale uses traditional containerized microservices (Kubernetes) or managed services. The pattern is clear:</p>
+  <ul>
+    <li>Yelp: Kubernetes (PaaSTA)</li>
+    <li>Airbnb: Kubernetes + Kafka + Flink</li>
+    <li>DICE: Kubernetes (Helm + custom operator)</li>
+    <li>Wanderlog: Node.js/Express (traditional server)</li>
+    <li>Google Maps: Custom Google infrastructure</li>
+  </ul>
+  <p>However, these are all mature companies at massive scale. This does NOT mean edge functions are wrong for a startup.</p>
+</div>
+
+<div class="card">
+  <h3>Pattern 5: Event-Driven for Real-Time Personalization</h3>
+  <p>Airbnb's architecture is the gold standard: every user interaction is an event processed in real-time to update personalization signals. The pattern:</p>
+  <ul>
+    <li>User action generates event (click, search, view, bookmark)</li>
+    <li>Event flows through message bus (Kafka)</li>
+    <li>Stream processor (Flink) transforms events into signals</li>
+    <li>Signals stored in fast KV store for query-time personalization</li>
+  </ul>
+  <p>For a Supabase-based app, this maps to: Supabase Realtime (event bus) + Edge Functions (lightweight processing) + Supabase DB (signal storage).</p>
+</div>
+
+<div class="section-divider"></div>
+<div class="page-break"></div>
+
+<!-- ========================================== -->
+<!-- SECTION 4: SUPABASE EDGE FUNCTIONS VERDICT -->
+<!-- ========================================== -->
+
+<h2>4. Verdict: Is Supabase Edge Functions Viable for Hype?</h2>
+
+<div class="verdict">
+  <h3>Yes -- with important caveats</h3>
+  <p style="color:#a7f3d0; font-size:14px; margin-top:8px;">Supabase Edge Functions is a reasonable architecture for an early-stage city discovery app. No successful competitor started with the architecture they have today. The key is knowing when you will outgrow it.</p>
+</div>
+
+<div class="card">
+  <h3>What Edge Functions Are Good For (Your Use Case)</h3>
+  <div class="grid-2">
+    <div>
+      <h4>Ideal Edge Function Tasks</h4>
+      <ul>
+        <li>AI API proxy (call OpenAI/Gemini server-side, stream results to client via SSE)</li>
+        <li>Intent classification and routing (cheap model calls)</li>
+        <li>Geolocation-based content serving</li>
+        <li>Auth token validation and user context injection</li>
+        <li>Webhook handlers for event/venue data updates</li>
+        <li>A/B testing and feature flags</li>
+        <li>Rate limiting AI calls per user</li>
+      </ul>
+    </div>
+    <div>
+      <h4>NOT Suitable for Edge Functions</h4>
+      <ul>
+        <li>Complex multi-step RAG pipelines (need persistent orchestration state)</li>
+        <li>ML model training or heavy inference</li>
+        <li>Transactional writes (payment processing)</li>
+        <li>Long-running background jobs (data ingestion pipelines)</li>
+        <li>Stateful event stream processing (Kafka/Flink equivalent)</li>
+        <li>Large file processing</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Recommended Architecture for Hype (Startup Phase)</h3>
+  <div class="flow-diagram">
+Client (React Native)
+  |
+  |-- Auth requests ---------> Supabase Auth
+  |
+  |-- Data queries ----------> Supabase PostgREST (direct DB access)
+  |
+  |-- AI requests -----------> Supabase Edge Function (AI Proxy)
+  |                               |
+  |                               |-- Intent classify (cheap model)
+  |                               |-- Route to: search / recommend / chat
+  |                               |-- Retrieve context from Supabase DB
+  |                               |-- Call OpenAI/Gemini (expensive model)
+  |                               |-- Stream response via SSE
+  |                               |-- Cache result in Supabase DB
+  |
+  |-- Real-time updates -----> Supabase Realtime (WebSocket)
+  |                               |
+  |                               |-- Event availability changes
+  |                               |-- New events near user
+  |                               |-- Friend activity updates
+  |
+  |-- Place summaries -------> Google Maps Places API (Gemini summaries)
+                                   (consume, don't rebuild)
+  </div>
+</div>
+
+<div class="card">
+  <h3>When You Will Need to Migrate Away</h3>
+  <p>Based on competitor patterns, you will outgrow pure Edge Functions when:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Trigger</th>
+        <th>Symptom</th>
+        <th>Migration Target</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AI pipeline complexity grows</td>
+        <td>Need multi-step orchestration with state (like Yelp's Orchestrator)</td>
+        <td>Dedicated AI service (FastAPI on Cloud Run / Railway)</td>
+      </tr>
+      <tr>
+        <td>Real-time personalization at scale</td>
+        <td>Need to process user signals in real-time across sessions</td>
+        <td>Event streaming (Kafka/Redpanda + lightweight processor)</td>
+      </tr>
+      <tr>
+        <td>Edge function cold starts hurt UX</td>
+        <td>p95 latency exceeds acceptable thresholds for AI calls</td>
+        <td>Always-on container (Cloud Run min instances / Fly.io)</td>
+      </tr>
+      <tr>
+        <td>Cost at scale</td>
+        <td>Edge function invocations become more expensive than containers</td>
+        <td>Kubernetes or managed containers</td>
+      </tr>
+      <tr>
+        <td>Background processing needs</td>
+        <td>Need to run data pipelines, batch AI jobs, digest generation</td>
+        <td>Cloud Functions / Cloud Run Jobs / dedicated worker</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ========================================== -->
+<!-- SECTION 5: ACTIONABLE RECOMMENDATIONS -->
+<!-- ========================================== -->
+
+<h2>5. Actionable Recommendations for Hype</h2>
+
+<div class="card">
+  <h3>Steal These Patterns</h3>
+  <ol style="padding-left: 20px;">
+    <li style="margin-bottom: 12px;">
+      <strong>Yelp's "LLM as Translator" pattern:</strong> Do not feed raw venue data to the LLM. Have the LLM translate user intent into structured Supabase queries, retrieve results, then have the LLM format the response. This keeps costs low and results accurate.
+    </li>
+    <li style="margin-bottom: 12px;">
+      <strong>Yelp's tiered model strategy:</strong> Use a cheap model (GPT-4.1-nano / GPT-4o-mini) for intent classification and a premium model only for final generation. Most requests should never hit the expensive model.
+    </li>
+    <li style="margin-bottom: 12px;">
+      <strong>Google Maps' pre-computed summaries:</strong> Consume Google Places API for venue descriptions instead of generating your own. Layer nightlife-specific context (vibe, crowd, music) on top from your own data.
+    </li>
+    <li style="margin-bottom: 12px;">
+      <strong>Fever's behavioral data flywheel:</strong> Start collecting user interaction signals from day one. Every tap, view, bookmark, and share is a signal. Store these in Supabase and use them for recommendations even before you have ML models -- simple collaborative filtering works.
+    </li>
+    <li style="margin-bottom: 12px;">
+      <strong>RA's music sync integration:</strong> Spotify/Apple Music artist sync for nightlife personalization is proven and loved by users. This gives you strong preference signals without asking users to fill out profiles.
+    </li>
+    <li style="margin-bottom: 12px;">
+      <strong>Airbnb's SSE streaming:</strong> Stream AI responses token-by-token to the client. This makes 3-second AI responses feel instant because the user sees text appearing immediately.
+    </li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>Avoid These Anti-Patterns</h3>
+  <ul>
+    <li><strong>Do NOT build a monolithic AI chatbot.</strong> Yelp explicitly warns against this -- use intent routing + specialized tools.</li>
+    <li><strong>Do NOT fine-tune models on your data</strong> at this stage. RAG is cheaper, more flexible, and your data changes constantly (events are ephemeral).</li>
+    <li><strong>Do NOT make AI calls from the client.</strong> Zero successful apps do this. Always proxy through your backend/edge functions.</li>
+    <li><strong>Do NOT try to generate venue descriptions from scratch.</strong> Google already does this with Gemini at a quality level you cannot match. Augment, do not replace.</li>
+    <li><strong>Do NOT over-engineer the real-time system.</strong> You do not need Kafka+Flink at startup scale. Supabase Realtime + Edge Functions can handle early-stage event-driven features.</li>
+  </ul>
+</div>
+
+<div class="card" style="border-color: #1a3a2a;">
+  <h3 style="color: #34d399;">Bottom Line</h3>
+  <p style="font-size: 14px; color: #d1d5db;">
+    Supabase Edge Functions is a valid starting architecture. Every competitor started simpler than where they are today. The critical insight from this research is that <strong>architecture matters less than data strategy</strong> at the startup phase. Fever's moat is behavioral data, not infrastructure. Yelp's AI advantage is their billion reviews, not their Kubernetes cluster. Google Maps' AI summaries work because of 300M contributors, not because of Gemini.
+  </p>
+  <p style="font-size: 14px; color: #d1d5db; margin-top: 12px;">
+    <strong>Your priority order should be:</strong> (1) Collect user behavior signals, (2) Build a great recommendation feedback loop, (3) Use AI to enhance -- not replace -- the discovery experience, (4) Worry about infrastructure scale when you have scale problems.
+  </p>
+</div>
+
+<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #222;">
+  <p style="font-size: 11px; color: #555;">
+    Research compiled March 2026. Sources: Yelp Engineering Blog, ByteByteGo, Airbnb Tech Blog, Google Maps Platform Docs, Domino AI, TechCrunch, Crunchbase, Supabase Docs, Hacker News, DEV Community. All architectural details verified against primary engineering sources where available.
+  </p>
+</div>
+
+</body>
+</html>
