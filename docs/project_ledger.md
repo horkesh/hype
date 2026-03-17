@@ -1162,3 +1162,36 @@ Full execution of the presentation restyle plan across 6 chunks, 16 commits on `
 - Apify for Instagram scraping ($5/mo free tier)
 - City filter on national sources (KupiKartu rejection list)
 - `requestSupabaseAdminNoContent` for bulk inserts (not `fetchSupabaseAdminJson` with `?select=`)
+
+### 2026-03-17 — Overnight Execution (Event Pipeline + Admin + Walkthrough)
+
+#### Event promotion
+- Built `promoteEvents.ts`: venue matching (exact/partial/fuzzy), Bosnian date parsing, category inference, dedup
+- Fixed category enum: events DB only accepts `other` and `music`, not `comedy`/`theatre`/`dance`
+- Added Bosnian month names to date parser: "17 Mart 2026 20:00" now parses correctly
+- Result: 47 events promoted to canonical events table
+- 46 raw_events skipped (no parseable date — mostly AllEvents entries and KupiKartu navigation false positives)
+
+#### KupiKartu detail enrichment
+- Built `enrichKupikartuDetails.ts`: scrapes detail pages for descriptions, dates, full-size images
+- 47/47 KupiKartu events enriched
+
+#### Admin events tab
+- Added Events/Venues tab navigation to admin app
+- EventEditor: table of events with filters (category, status, upcoming), inline editing
+- RawEventReview: card grid of unpromoted raw_events with Promote/Dismiss buttons
+- Build passes cleanly
+
+#### Visual walkthrough
+- `expo export -p web` builds successfully (2.76 MB JS bundle)
+- Vercel deployment status: Ready (production)
+- No TypeScript or import errors
+
+#### Session end state
+- 1,226 venues with BS-first descriptions, photos, Google data
+- 47 canonical events (from 93 raw) — Tonight and Home now have real event content
+- Admin editor has Venues + Events tabs
+- Event scraping pipeline working (traditional + Instagram)
+- All 8 edge functions deployed
+- Vercel builds green
+- 179 tests passing
