@@ -18,33 +18,70 @@ import { requireSupabaseAdminConfig, requestSupabaseAdminJson } from '../lib/sup
 // ---------------------------------------------------------------------------
 
 const APIFY_TOKEN = process.env.APIFY_API_TOKEN;
-const ACTOR_ID = 'apify/instagram-post-scraper';
+const ACTOR_ID = 'apify~instagram-scraper';
 const MAX_POSTS_PER_ACCOUNT = 10;
 const POLL_INTERVAL_MS = 5_000;
 const MAX_POLL_ATTEMPTS = 60; // 5 min max wait
 
-const SARAJEVO_ACCOUNTS = [
-  'barhana_sarajevo',
-  'hacienda_sarajevo',
-  'sloga_club',
+// Curated event-likely venues (clubs, theatres, cultural spaces, music venues)
+const CURATED_EVENT_ACCOUNTS = [
+  'cinemassloga',
   'jazzbina_sarajevo',
-  'bkc_sarajevo',
-  'narodnopozoriste',
+  'bkcsarajevo',
+  'narodnopozoristesarajevo',
   'kamerniteatar55',
-  'meetbosnia',
-  'sarajevskizimskifestival',
-  'underground_club_sa',
   'dom_mladih_skenderija',
   'cinestarcinemas_bih',
   'sarajevo_tourism',
-  'cityoffilm_sarajevo',
-  'clubjez',
+  'undergroundclubsarajevo',
   'pivnica_hs',
-  'tito_cafe_sarajevo',
-  'pink_houdini_sa',
-  'blind_tiger_sarajevo',
-  'das_ist_walter_sa',
+  'pink.houdini',
+  'blindtigersarajevo',
+  'dasistwalter.pub',
+  'hacienda.sarajevo',
+  'mashlounge',
+  'celtic_pub_sarajevo',
+  'sarajevofilmfestival',
+  'sarajevskizimskifestival',
+  'meetingpoint_sa',
+  'pozoristemladi_sarajevo',
+  'sartr_teatar',
+  'vijecnicasarajevo',
+  'sevdaharthaus',
+  'warchildhoodmuseum',
+  'galerija1107',
+  'zetraolympichall',
+  'route66bikerbar',
 ];
+
+async function loadHandlesFromDb(): Promise<string[]> {
+  const { supabaseUrl, supabaseServiceRoleKey } = requireSupabaseAdminConfig();
+  const res = await fetch(`${supabaseUrl}/rest/v1/venues?select=website&website=ilike.*instagram*`, {
+    headers: { apikey: supabaseServiceRoleKey, Authorization: `Bearer ${supabaseServiceRoleKey}` },
+  });
+  const venues: Array<{ website: string }> = await res.json();
+  const handles: string[] = [];
+  for (const v of venues) {
+    const match = v.website?.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+    if (match && match[1].length > 2) handles.push(match[1].toLowerCase());
+  }
+  return handles;
+}
+
+async function buildAccountList(): Promise<string[]> {
+  console.log('Loading Instagram handles from venue database...');
+  const dbHandles = await loadHandlesFromDb();
+  console.log(`  Found ${dbHandles.length} handles in DB`);
+
+  // Merge: curated + DB, dedupe
+  const all = new Set([...CURATED_EVENT_ACCOUNTS, ...dbHandles]);
+  const accounts = [...all].sort();
+  console.log(`  Total unique accounts: ${accounts.length}`);
+  return accounts;
+}
+
+// Will be populated at runtime
+let SARAJEVO_ACCOUNTS: string[] = [];
 
 // ---------------------------------------------------------------------------
 // Types
@@ -116,6 +153,7 @@ async function scrapeInstagramAccount(username: string): Promise<InstagramPost[]
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         directUrls: [`https://www.instagram.com/${username}/`],
+        resultsType: 'posts',
         resultsLimit: MAX_POSTS_PER_ACCOUNT,
       }),
     },
@@ -308,6 +346,9 @@ async function main() {
     console.error('Get a token at https://console.apify.com/account/integrations');
     process.exit(1);
   }
+
+  // Build account list from DB + curated list
+  SARAJEVO_ACCOUNTS = await buildAccountList();
 
   // Seed Instagram sources into scrape_sources table
   await seedInstagramSources();
