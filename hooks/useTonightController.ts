@@ -57,6 +57,8 @@ export function useTonightController({
   const [currentPlan, setCurrentPlan] = useState<AIPlan | null>(null);
   const [planIndex, setPlanIndex] = useState(0);
 
+  const [useAIPlanner, setUseAIPlanner] = useState(true);
+
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [voteLink, setVoteLink] = useState<string | null>(null);
@@ -130,6 +132,11 @@ export function useTonightController({
     setPlanIndex(0);
     setGeneratingPlan(false);
   }, [selectedMood, venues]);
+
+  const handleGenerateAIPlan = useCallback(() => {
+    // AI plan generation is handled by TonightPlanStream component.
+    // This callback signals intent; the streaming component fires on mount.
+  }, []);
 
   const handleNextPlan = useCallback(() => {
     if (!selectedMood) {
@@ -240,6 +247,7 @@ export function useTonightController({
     groupSize,
     handleCreateVote,
     handleEventTap,
+    handleGenerateAIPlan,
     handleGeneratePlan,
     handleNextPlan,
     handleOpenVoteModal,
@@ -264,6 +272,7 @@ export function useTonightController({
     showPlannerModal,
     showVoteModal,
     toggleEventSelection,
+    useAIPlanner,
     voteLabels,
     voteLink,
     votes,

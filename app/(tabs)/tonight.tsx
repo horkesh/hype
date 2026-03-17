@@ -32,11 +32,13 @@ export default function TonightScreen() {
       generatingPlan={controller.generatingPlan}
       groupSize={controller.groupSize}
       isBosnian={isBosnian}
+      language={language}
       loading={controller.loading}
       onClosePlanner={controller.closePlanner}
       onCloseVote={controller.closeVote}
       onCreateVote={controller.handleCreateVote}
       onEventPress={controller.handleEventTap}
+      onGenerateAIPlan={controller.handleGenerateAIPlan}
       onGeneratePlan={controller.handleGeneratePlan}
       onNextPlan={controller.handleNextPlan}
       onOpenPlanner={() => controller.setShowPlannerModal(true)}
@@ -63,6 +65,7 @@ export default function TonightScreen() {
       showPlannerModal={controller.showPlannerModal}
       showVoteModal={controller.showVoteModal}
       textSecondaryColor={colors.textSecondary}
+      useAIPlanner={controller.useAIPlanner}
       voteLabels={controller.voteLabels}
       voteLink={controller.voteLink}
       votes={controller.votes}

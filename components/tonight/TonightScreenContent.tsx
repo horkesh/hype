@@ -18,11 +18,13 @@ interface TonightScreenContentProps {
   generatingPlan: boolean;
   groupSize: number;
   isBosnian: boolean;
+  language: string;
   loading: boolean;
   onClosePlanner: () => void;
   onCloseVote: () => void;
   onCreateVote: () => void;
   onEventPress: (eventId: string) => void;
+  onGenerateAIPlan?: () => void;
   onGeneratePlan: () => void;
   onNextPlan: () => void;
   onOpenPlanner: () => void;
@@ -68,6 +70,7 @@ interface TonightScreenContentProps {
   showPlannerModal: boolean;
   showVoteModal: boolean;
   textSecondaryColor: string;
+  useAIPlanner?: boolean;
   voteLabels: {
     close: string;
     createVote: string;
@@ -96,11 +99,13 @@ export function TonightScreenContent({
   generatingPlan,
   groupSize,
   isBosnian,
+  language,
   loading,
   onClosePlanner,
   onCloseVote,
   onCreateVote,
   onEventPress,
+  onGenerateAIPlan,
   onGeneratePlan,
   onNextPlan,
   onOpenPlanner,
@@ -127,6 +132,7 @@ export function TonightScreenContent({
   showPlannerModal,
   showVoteModal,
   textSecondaryColor,
+  useAIPlanner,
   voteLabels,
   voteLink,
   votes,
@@ -176,10 +182,12 @@ export function TonightScreenContent({
         generatingPlan={generatingPlan}
         groupSize={groupSize}
         isBosnian={isBosnian}
+        language={language}
         onClosePlanner={onClosePlanner}
         onCloseVote={onCloseVote}
         onCreateVote={onCreateVote}
         onEventPress={onEventPress}
+        onGenerateAIPlan={onGenerateAIPlan}
         onGeneratePlan={onGeneratePlan}
         onNextPlan={onNextPlan}
         onOpenTicket={onOpenTicket}
@@ -198,6 +206,7 @@ export function TonightScreenContent({
         showPlannerModal={showPlannerModal}
         showVoteModal={showVoteModal}
         textSecondaryColor={textSecondaryColor}
+        useAIPlanner={useAIPlanner}
         voteLabels={voteLabels}
         voteLink={voteLink}
         votes={votes}
