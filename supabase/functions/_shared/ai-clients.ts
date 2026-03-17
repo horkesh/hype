@@ -73,7 +73,7 @@ export async function callGemini(params: {
 
 // Claude
 export async function callClaude(params: {
-  model: 'claude-haiku-4-5-20251001';
+  model: string;
   messages: Array<{ role: string; content: string }>;
   max_tokens?: number;
   system?: string;
@@ -82,7 +82,9 @@ export async function callClaude(params: {
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 20_000);
+  // Sonnet needs more time than Haiku
+  const timeout = params.model.includes('sonnet') ? 45_000 : 20_000;
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
