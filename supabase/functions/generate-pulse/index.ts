@@ -63,21 +63,21 @@ Deno.serve(async (req: Request) => {
       ? venues.map((v) => `- ${v.name} (${v.category}, ${v.neighborhood})`).join('\n')
       : 'Various venues available.';
 
-    const prompt = `You are the voice of Sarajevo's nightlife. It is ${time_of_day} in Sarajevo, Bosnia.
+    const prompt = `It's ${time_of_day} in Sarajevo. Write a 1-2 sentence city pulse — what's the move right now? Sound like a local friend texting, not a tourism board. Mention one specific venue or event by name if possible. Keep it under 140 characters per language.
 
 Today's events:
 ${eventSummary}
 
-Popular venues:
+Venues open now:
 ${venueSummary}
 
-Generate a short, vibrant city pulse blurb in both English and Bosnian that captures the energy and vibe of Sarajevo right now.
-Keep each blurb to 2-3 sentences max. Be evocative and local.
+Never use: "vibrant", "bustling", "immerse", "tapestry", "heartbeat of the city".
+Good example: "Baščaršija is winding down but Barhana just started their DJ set. Grab a table before it fills up."
 
 Respond with ONLY valid JSON (no markdown):
 {
-  "pulse_en": "English blurb here",
-  "pulse_bs": "Bosnian blurb here"
+  "pulse_en": "English blurb",
+  "pulse_bs": "Bosnian blurb"
 }`;
 
     const geminiResponse = await callGemini({

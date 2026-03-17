@@ -18,11 +18,11 @@ Deno.serve(async (req: Request) => {
     // Run AI calls concurrently to avoid N+1 sequential blocking
     const results = await Promise.allSettled(
       venues.map(async (venue) => {
-        const prompt = `Write a 2-3 sentence description for this Sarajevo venue. Be engaging, warm, and specific.\n\nVenue: ${venue.name}\nCategory: ${venue.category}\nNeighborhood: ${venue.neighborhood ?? 'Sarajevo'}\nMoods: ${venue.moods?.join(', ') ?? 'general'}\n\nReturn JSON: { "description_bs": "Bosnian description", "description_en": "English description" }`;
+        const prompt = `Write a 1-2 sentence description for this Sarajevo venue. Sound like a local friend recommending a spot — direct, specific, no filler. Mention one concrete thing that makes it worth going (a dish, a view, a vibe, a detail). Never use words like "beloved", "vibrant", "culinary journey", "hidden gem", "true food enthusiasts", or "immerse yourself".\n\nGood examples:\n- "Most famous ćevabdžinica in BiH. Ćevapi in somun since 1962. An institution."\n- "Mexican restaurant by day, club by night. Cocktails, nachos, party atmosphere in Baščaršija."\n- "Vegan/vegetarian restaurant with chef's table experience. Reservation required — Saša is host, chef, and server."\n\nVenue: ${venue.name}\nCategory: ${venue.category}\nNeighborhood: ${venue.neighborhood ?? 'Sarajevo'}\nMoods: ${venue.moods?.join(', ') ?? 'general'}\n\nReturn JSON: { "description_bs": "Bosnian description", "description_en": "English description" }`;
         const result = await callClaude({
           model: 'claude-haiku-4-5-20251001',
           messages: [{ role: 'user', content: prompt }],
-          system: 'You write bilingual venue descriptions for a Sarajevo city guide app. Return valid JSON only.',
+          system: 'You write short, punchy venue descriptions for a Sarajevo city guide. Sound like a local, not a tourism board. No generic praise. Return valid JSON only.',
           max_tokens: 512,
         });
         const text = result.content?.[0]?.text ?? '';
