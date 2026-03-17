@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
+import { GlassBadge } from '@/components/glass/GlassBadge';
 
 interface EventDetailHeroProps {
   imageSource: string | null;
@@ -30,7 +31,9 @@ export function EventDetailHero({
 
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-        <Text style={[styles.metaText, { color: colors.textSecondary }]}>{formattedDateTime}</Text>
+        <View style={styles.dateBadgeRow}>
+          <GlassBadge label={formattedDateTime} variant="default" size="md" />
+        </View>
       </View>
     </>
   );
@@ -50,7 +53,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
   },
-  metaText: {
-    fontSize: 16,
+  dateBadgeRow: {
+    flexDirection: 'row',
   },
 });

@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassBadge } from '@/components/glass/GlassBadge';
+import { GlassContainer } from '@/components/glass/GlassContainer';
+
 interface EventPurchaseSectionProps {
   isFree: boolean;
   freeEntryLabel: string;
@@ -28,11 +31,11 @@ export function EventPurchaseSection({
 }: EventPurchaseSectionProps) {
   if (isFree) {
     return (
-      <View style={[styles.freeEntryBadge, { backgroundColor: '#10B981' }]}>
+      <GlassContainer borderRadius={28} glowColor="#10B981" style={styles.freeEntryBadge}>
         <Text style={styles.freeEntryText}>
           {'\u2705'} {freeEntryLabel}
         </Text>
-      </View>
+      </GlassContainer>
     );
   }
 
@@ -40,19 +43,19 @@ export function EventPurchaseSection({
     <>
       <View style={styles.priceSection}>
         <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>{priceLabel}</Text>
-        <View style={[styles.priceBadge, { backgroundColor: colors.card }]}>
-          <Text style={[styles.priceText, { color: colors.text }]}>{priceDisplay}</Text>
-        </View>
+        <GlassBadge label={priceDisplay} variant="accent" size="md" />
       </View>
 
       {showTicketButton ? (
         <TouchableOpacity
-          style={[styles.ticketButton, { backgroundColor: '#D4A056' }]}
           onPress={onTicketPress}
+          activeOpacity={0.8}
         >
-          <Text style={styles.ticketButtonText}>
-            {'\ud83c\udf9f\ufe0f'} {ticketButtonText}
-          </Text>
+          <GlassContainer borderRadius={28} glowColor="#D4A056" style={styles.ticketButton}>
+            <Text style={styles.ticketButtonText}>
+              {'\ud83c\udf9f\ufe0f'} {ticketButtonText}
+            </Text>
+          </GlassContainer>
         </TouchableOpacity>
       ) : null}
     </>
@@ -67,20 +70,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
-  priceBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   freeEntryBadge: {
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 28,
     alignItems: 'center',
     marginBottom: 24,
   },
@@ -92,7 +84,6 @@ const styles = StyleSheet.create({
   ticketButton: {
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 28,
     alignItems: 'center',
     marginBottom: 24,
   },

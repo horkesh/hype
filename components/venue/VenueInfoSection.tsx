@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { IconSymbol } from '@/components/IconSymbol';
+import { GlassBadge } from '@/components/glass/GlassBadge';
+import { GlassContainer } from '@/components/glass/GlassContainer';
 import { VenueDetailVenue } from '@/utils/venueDetailScreen';
 
 interface VenueInfoSectionProps {
@@ -28,13 +30,10 @@ export function VenueInfoSection({
 
       {venue.is_hidden_gem && venue.insider_tip ? (
         <View style={styles.hiddenGemSection}>
-          <View style={[styles.hiddenGemBadge, { backgroundColor: '#FFF3E0' }]}>
-            <Text style={styles.hiddenGemEmoji}>{'\ud83d\udd75\ufe0f'}</Text>
-            <Text style={styles.hiddenGemText}>{hiddenGemLabel}</Text>
-          </View>
-          <View style={styles.insiderTipCard}>
+          <GlassBadge label={`\ud83d\udd75\ufe0f ${hiddenGemLabel}`} variant="accent" size="md" />
+          <GlassContainer borderRadius={16} style={styles.insiderTipCard}>
             <Text style={[styles.insiderTip, { color: colors.text }]}>{venue.insider_tip}</Text>
-          </View>
+          </GlassContainer>
         </View>
       ) : null}
 
@@ -81,28 +80,8 @@ const styles = StyleSheet.create({
   hiddenGemSection: {
     gap: 8,
   },
-  hiddenGemBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 6,
-  },
-  hiddenGemEmoji: {
-    fontSize: 16,
-  },
-  hiddenGemText: {
-    color: '#F57C00',
-    fontSize: 14,
-    fontWeight: '600',
-  },
   insiderTipCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#FFA726',
-    paddingLeft: 12,
-    paddingVertical: 8,
+    padding: 12,
   },
   insiderTip: {
     fontSize: 14,

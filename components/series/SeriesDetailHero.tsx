@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
+import { GlassBadge } from '@/components/glass/GlassBadge';
 
 interface SeriesDetailHeroProps {
   imageSource: string | null;
@@ -40,13 +41,9 @@ export function SeriesDetailHero({
 
         <Text style={[styles.dateRange, { color: colors.textSecondary }]}>{dateRange}</Text>
 
-        <View style={[styles.categoryBadge, { backgroundColor: colors.card }]}>
-          <Text style={styles.categoryEmoji}>{categoryEmoji}</Text>
-          <Text style={[styles.categoryText, { color: colors.text }]}>{category}</Text>
-        </View>
-
-        <View style={[styles.countdownBadge, { backgroundColor: '#D4A056' }]}>
-          <Text style={styles.countdownText}>{countdownStatus}</Text>
+        <View style={styles.badgeRow}>
+          <GlassBadge label={`${categoryEmoji} ${category}`} variant="default" size="md" />
+          <GlassBadge label={countdownStatus} variant="warning" size="md" />
         </View>
       </View>
     </>
@@ -70,32 +67,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
   },
-  categoryBadge: {
+  badgeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    marginBottom: 12,
-  },
-  categoryEmoji: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  categoryText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  countdownBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  countdownText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    flexWrap: 'wrap',
+    gap: 8,
   },
 });

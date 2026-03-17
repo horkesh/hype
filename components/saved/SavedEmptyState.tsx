@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { GlassContainer } from '@/components/glass/GlassContainer';
+
 interface SavedEmptyStateProps {
   buttonText: string;
   emoji: string;
@@ -24,12 +26,16 @@ export function SavedEmptyState({
 }: SavedEmptyStateProps) {
   return (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyEmoji}>{emoji}</Text>
-      <Text style={[styles.emptyTitle, { color: textColor }]}>{title}</Text>
-      <Text style={[styles.emptySubtitle, { color: textSecondaryColor }]}>{subtitle}</Text>
-      <TouchableOpacity onPress={onPress} style={[styles.emptyButton, { backgroundColor: accentColor }]}>
-        <Text style={styles.emptyButtonText}>{buttonText}</Text>
-      </TouchableOpacity>
+      <GlassContainer borderRadius={24} style={styles.emptyCard}>
+        <Text style={styles.emptyEmoji}>{emoji}</Text>
+        <Text style={[styles.emptyTitle, { color: textColor }]}>{title}</Text>
+        <Text style={[styles.emptySubtitle, { color: textSecondaryColor }]}>{subtitle}</Text>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+          <GlassContainer borderRadius={24} glowColor={accentColor} style={styles.emptyButton}>
+            <Text style={styles.emptyButtonText}>{buttonText}</Text>
+          </GlassContainer>
+        </TouchableOpacity>
+      </GlassContainer>
     </View>
   );
 }
@@ -39,8 +45,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: 24,
     paddingVertical: 80,
+  },
+  emptyCard: {
+    alignItems: 'center',
+    padding: 32,
   },
   emptyEmoji: {
     fontSize: 64,
@@ -60,7 +70,6 @@ const styles = StyleSheet.create({
   emptyButton: {
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 24,
   },
   emptyButtonText: {
     fontSize: 16,
