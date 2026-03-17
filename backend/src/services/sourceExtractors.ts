@@ -239,14 +239,18 @@ function extractKupikartuCandidates(
       continue;
     }
 
-    const titleRaw = normalizeKupikartuTitle(stripHtml(match[2] ?? ''));
+    // Extract from stripped text for title/date/venue (raw HTML has nested tags that break regex)
+    const rawInnerHtml = match[2] ?? '';
+    const strippedContent = stripHtml(rawInnerHtml);
+    const titleRaw = normalizeKupikartuTitle(strippedContent);
     if (!titleRaw) {
       continue;
     }
 
-    const dateRaw = extractKupikartuDate(match[2] ?? '');
-    const venueNameRaw = extractKupikartuVenue(match[2] ?? '');
-    const imageUrl = extractImageSrc(match[2] ?? '', source.sourceUrl);
+    // Date and venue from stripped text, image from raw HTML (needs <img> tag)
+    const dateRaw = extractKupikartuDate(strippedContent);
+    const venueNameRaw = extractKupikartuVenue(strippedContent);
+    const imageUrl = extractImageSrc(rawInnerHtml, source.sourceUrl);
 
     // Filter: only Sarajevo events from national sources
     if (!isLikelySarajevo(titleRaw, venueNameRaw)) {

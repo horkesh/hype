@@ -1,4 +1,4 @@
-import { fetchSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
+import { fetchSupabaseAdminJson, requestSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
 import type { RawEventCandidate } from './ingestionFetch.js';
 import type { IngestionSourceSummary } from './ingestionSources.js';
 
@@ -61,13 +61,10 @@ export async function insertRawEventCandidates(
     }));
 
   if (rowsToInsert.length > 0) {
-    await fetchSupabaseAdminJson<RawEventInsertRow[]>(
-      '/rest/v1/raw_events?select=id,source_url',
+    await requestSupabaseAdminNoContent(
+      '/rest/v1/raw_events',
       {
         method: 'POST',
-        headers: {
-          Prefer: 'return=representation',
-        },
         body: JSON.stringify(rowsToInsert),
       },
     );

@@ -216,6 +216,7 @@ async function parseCaption(
   caption: string,
   accountName: string,
   postUrl: string,
+  imageUrl?: string,
 ): Promise<ParseInstagramResult> {
   const { supabaseUrl, supabaseServiceRoleKey } = requireSupabaseAdminConfig();
 
@@ -230,6 +231,7 @@ async function parseCaption(
       caption,
       account_name: accountName,
       post_url: postUrl,
+      image_url: imageUrl,
     }),
   });
 
@@ -321,7 +323,7 @@ async function processAccount(username: string): Promise<{ events: number; posts
     const postUrl = post.url ?? `https://www.instagram.com/p/${post.shortCode ?? 'unknown'}/`;
 
     try {
-      const result = await parseCaption(caption, username, postUrl);
+      const result = await parseCaption(caption, username, postUrl, post.displayUrl);
 
       if (!result.success) {
         log(`    [parse error] ${result.error}`);

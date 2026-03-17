@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
   try {
-    const { caption, account_name, post_url } = await req.json();
+    const { caption, account_name, post_url, image_url } = await req.json();
     if (!caption) {
       return new Response(JSON.stringify({ success: false, error: 'Missing caption' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
@@ -28,6 +28,7 @@ Deno.serve(async (req: Request) => {
         date_raw: [parsed.date, parsed.time].filter(Boolean).join(' ') || null,
         venue_raw: parsed.venue_name,
         venue_name_raw: parsed.venue_name,
+        image_url: image_url ?? null,
         source_name: `instagram:@${account_name ?? 'unknown'}`,
         source_url: post_url ?? null,
         raw_json: {
