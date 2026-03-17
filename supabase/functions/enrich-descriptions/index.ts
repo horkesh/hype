@@ -29,20 +29,23 @@ Deno.serve(async (req: Request) => {
         }
         if (venue.address) googleContext.push(`Address: ${venue.address}`);
 
-        const prompt = `Write a 1-2 sentence description for this Sarajevo venue. Sound like a local friend recommending a spot — direct, specific, no filler. Mention one concrete thing that makes it worth going (a dish, a view, a vibe, a detail). Never use words like "beloved", "vibrant", "culinary journey", "hidden gem", "true food enthusiasts", or "immerse yourself".
+        const prompt = `Write a 1-2 sentence description for this Sarajevo venue.
 
-Good examples:
-- "Most famous ćevabdžinica in BiH. Ćevapi in somun since 1962. An institution."
-- "Mexican restaurant by day, club by night. Cocktails, nachos, party atmosphere in Baščaršija."
-- "Vegan/vegetarian restaurant with chef's table experience. Reservation required — Saša is host, chef, and server."
+STEP 1: Write description_bs FIRST in Bosnian. The source data below is mostly Bosnian — work with it naturally. Sound like a Sarajlija recommending the spot to a friend. Direct, specific, one concrete detail.
+STEP 2: Then translate your Bosnian text into natural English for description_en.
+
+Good BS examples:
+- "Najpoznatija ćevabdžinica u BiH. Ćevapi u somunu od 1962. Institucija."
+- "Meksički restoran danju, klub noću. Kokteli, nachos, party atmosfera na Baščaršiji."
+- "Veganski restoran sa chef's table iskustvom. Rezervacija obavezna — Saša je domaćin, kuhar i konobar."
 
 Venue: ${venue.name}
 Category: ${venue.category}
 Neighborhood: ${venue.neighborhood ?? 'Sarajevo'}
 Moods: ${venue.moods?.join(', ') ?? 'general'}
-${googleContext.length > 0 ? '\nReal visitor data (use this for accuracy — DO NOT copy it verbatim, just extract facts):\n' + googleContext.join('\n') : ''}
+${googleContext.length > 0 ? '\nPodaci od posjetilaca (koristi za tačnost — NE kopiraj doslovno, samo izvuci činjenice):\n' + googleContext.join('\n') : ''}
 
-Return JSON: { "description_bs": "Bosnian description", "description_en": "English description" }`;
+Return JSON: { "description_bs": "Bosnian FIRST", "description_en": "English translation of your BS text" }`;
         const systemPrompt = `You write short, punchy venue descriptions for a Sarajevo city guide. Return valid JSON only.
 
 ABSOLUTE RULES for description_bs (Bosnian):
