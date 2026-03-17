@@ -230,24 +230,26 @@ Status:
 
 #### E8. Tourism board presentation restyle + AI integration
 
-- Status: `Planned`
+- Status: `Done`
 - Goal:
   - restyle the Hype app for a tourism board presentation: replace all emoji usage with glass/glow UI, add real AI integration (planner, search, city pulse, surprise me, translation), generate proper image assets
 - Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
 - Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
+- Branch: `feat/presentation-restyle` (16 commits, 57 tests)
 - Architecture:
-  - glass containers via `expo-blur` (iOS) / rgba fallback (Android)
+  - glass containers via rgba backgrounds (expo-blur deferred to polish phase)
   - flippable editorial cards via `react-native-reanimated` v3
   - 8 Supabase Edge Functions as AI proxy layer (GPT-4.1 mini/nano, Gemini Flash, Claude Haiku)
   - SSE streaming for Tonight Planner via direct `fetch()` to Edge Function URL
   - multi-provider tiered model routing (cheapest model per task)
-- Waves: 0 (foundation + data pipeline) → 1 (design tokens + glass components) → 2 (Home screen) → 3 (Explore + Tonight) → 4 (detail screens + Saved + Profile) → 5 (AI edge functions) → 6 (integration + polish)
-- Subagent owners: `[frontend]`, `[backend]`, `[edge-fn]`, `[assets]`, `[review]`
-- Notes:
-  - `/simplify` runs after every wave
-  - napkin/ledger discipline at every checkpoint
-  - coding lessons from AWWV and Chronicles repos documented in spec Section 10
-  - execution has NOT started — user said "not yet"
+- What was delivered:
+  - glass design token system + 6 reusable glass components
+  - 8 edge functions + 5 client AI helpers + 3 backend scripts
+  - Home: photo hero, AI city pulse, surprise me, kafu randomizer, hidden gems rail
+  - Explore: AI smart search concierge, live camera translation, glass chips
+  - Tonight: real AI planner with SSE streaming, glass tabs
+  - All detail screens + Saved + Profile: glass badges, containers, mood chips, action buttons
+- Remaining: edge function deployment, AI API key setup, hero image assets, final /simplify pass, end-to-end demo walkthrough
 
 ## Backlog
 

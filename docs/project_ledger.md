@@ -959,3 +959,71 @@ Copy this block when adding a new work entry.
   - Deno edge functions use `npm:` prefix for npm packages
 - Verification: Spec and plan both passed automated review via subagent dispatches
 - Follow-up: Plan execution is pending user approval. When ready, invoke `superpowers:subagent-driven-development` against the plan.
+
+### 2026-03-17 — Presentation Restyle Execution (E8)
+
+Full execution of the presentation restyle plan across 6 chunks, 16 commits on `feat/presentation-restyle` branch.
+
+#### Chunk 1: Foundation (Design Tokens + Glass Components)
+- Created `styles/glassTokens.ts` (12 mood colors, dark/light glass, shadows) and `styles/designTokens.ts` (radii, typography, spacing)
+- Built shared glass components: `GlassContainer`, `GlassBadge` (6 variants), `GlassMoodChip` (animated spring press), `GlassCategoryChip`
+- Built `FlippableCard` (reanimated v3 3D flip), `VenueCardFront`/`Back`, `EventCardFront`/`Back`, `SeriesCard`
+- Created edge function shared utilities: AI client factories for OpenAI/Gemini/Claude, CORS helper, Supabase admin client
+- Created `utils/ai/edgeFunctionClient.ts` with standard invoke + SSE streaming modes
+
+#### Chunk 2: Wave 0 (Data Pipeline + Edge Functions)
+- Created 8 Supabase Edge Functions:
+  - `generate-pulse` (Gemini Flash-Lite) — bilingual city pulse blurb, 3h cache
+  - `smart-search` (GPT-4.1 nano) — NL query classifier + structured filter extraction
+  - `surprise-me` (GPT-4.1 mini) — 2-3 stop micro-plan generator
+  - `generate-plan` (GPT-4.1 mini, SSE) — full evening planner with streaming
+  - `translate-scene` (Gemini Flash vision) — camera OCR + translation
+  - `enrich-descriptions` (Claude Haiku) — bilingual venue description enrichment
+  - `parse-instagram` (Claude Haiku) — Instagram caption → event extraction
+  - `analyze-venue-photo` (Gemini Flash) — venue photo classifier
+- Created 5 client-side AI helpers: cityPulse, smartSearch, surpriseMe, planGenerator, translate
+- Created 3 backend scripts: scrapeGooglePhotos, enrichDescriptions, seedInstagram
+- Created `utils/ai/planPersistence.ts` for save/load plans to `ai_plans` table
+
+#### Chunk 3: Wave 1 (Home Screen Restyle)
+- `HomeHeroPhoto` — time-based photo hero with gradient fallback + bilingual greeting
+- `HomeCityPulse` — AI-generated city blurb via Gemini, displayed in glass card with skeleton loading
+- `HomeSurpriseMe` — AI micro-plan generator, spring-animated expand/collapse overlay
+- `HomeKafuSection` — "Gdje na kafu?" randomizer fetching cafes from Supabase
+- `HomeHiddenGems` — horizontal rail of flippable editorial venue cards (is_hidden_gem filter)
+- `HomeMoodSection` now uses `GlassMoodChip` instead of emoji-based `MoodChip`
+- Wired all new sections into `HomeContentSections.tsx`, cleaned up `HomeScreen.tsx`
+
+#### Chunk 4: Wave 2 (Explore Screen Restyle)
+- `ExploreSmartSearch` — AI concierge card below search bar, triggers on NL queries
+- `ExploreLiveTranslation` — camera modal with Gemini Flash OCR translation
+- `GlassCategoryChip` — neutral glass treatment for category selection
+- `ExploreMoodStrip` now uses `GlassMoodChip`
+- Smart search integrated into `useExploreController` with NL detection heuristic
+- Camera icon added to search bar for translation access
+- Installed `expo-camera` dependency
+
+#### Chunk 5: Wave 3 (Tonight Screen + AI Planner)
+- `TonightPlanStream` — SSE streaming plan renderer with shimmer → timeline → error states
+- Wired real AI planner into `TonightPlannerModal` (setup → ai-streaming → mock-results phases)
+- `useTonightController` gains `useAIPlanner` state with mock fallback
+- `TonightSegmentTabs` restyled with glass pill treatment and gold glow on active tab
+
+#### Chunk 6: Waves 4-6 (Detail Screens + Saved + Profile)
+- Venue detail: GlassBadge for category/price/status, glass action button pills, hidden gem badge + insider tip in GlassContainer
+- Event detail: GlassBadge for date/time, GlassContainer ticket CTA with gold glow, glass mood badges
+- Series detail: GlassBadge for category + countdown
+- Saved: glass tab pills with glow on active, glass empty states with accent CTA
+- Profile: GlassContainer profile card + badge circles, GlassMoodChip taste selector, glass settings cards
+
+#### Test coverage
+- 57 new tests across 8 test files, all passing
+- Structural + source-content tests for all new components and helpers
+
+#### Architecture decisions
+- Skip `expo-blur` BlurView initially — rgba glass gives 90% of the effect, BlurView has Android/web issues
+- Edge functions always return status 200 (even errors) with `{ success, data/error }` envelope
+- 20s AbortController timeout covers entire SSE stream, not just initial fetch
+- Client-side module cache for city pulse (3h TTL)
+- Mock planner kept as fallback when AI is unreachable
+- `VARIANT_COLORS` extracted to `badgeVariants.ts` for Node-testability

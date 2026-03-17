@@ -21,10 +21,11 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-17] Presentation restyle plan is ready but NOT yet executing**
-   Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
-   Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
-   Do instead: when the user says "execute" or "go", invoke `superpowers:subagent-driven-development` against the plan. The plan has 6 chunks, 40+ tasks, with `[frontend]`, `[backend]`, `[edge-fn]`, `[assets]`, `[review]` subagent ownership. Run `/simplify` after every wave. Read napkin before work, update ledger after each wave.
+1. **[2026-03-17] Presentation restyle — implementation complete, deployment pending**
+   Branch: `feat/presentation-restyle` (16 commits, 57 tests)
+   Do instead: before merging, deploy edge functions to Supabase (`supabase functions deploy`), set API secrets (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY, GOOGLE_MAPS_API_KEY), run DB migrations for `city_pulse`, `ai_plans`, `checkins`, venue description columns. Then run `/simplify` and do end-to-end demo walkthrough.
+2. **[2026-03-17] Edge function glass components use rgba, not expo-blur**
+   Do instead: if iOS blur polish is needed later, add `BlurView` from `expo-blur` inside `GlassContainer` as an enhancement, but keep the rgba fallback for Android and web.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**
