@@ -249,7 +249,13 @@ Status:
   - Explore: AI smart search concierge, live camera translation, glass chips
   - Tonight: real AI planner with SSE streaming, glass tabs
   - All detail screens + Saved + Profile: glass badges, containers, mood chips, action buttons
-- Remaining: edge function deployment, AI API key setup, hero image assets, final /simplify pass, end-to-end demo walkthrough
+- Completed post-implementation:
+  - all 8 edge functions deployed to Supabase
+  - DB migrations applied (city_pulse table created, existing tables confirmed)
+  - AI API secrets set (OpenAI, Anthropic, Google AI, Google Maps)
+  - all 5 core edge functions tested live and confirmed working
+  - `/simplify` pass completed: parallelized enrichment N+1, debounced SSE re-renders, added pulse cache cleanup
+- Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough, branch merge
 
 ## Backlog
 

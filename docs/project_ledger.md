@@ -1027,3 +1027,30 @@ Full execution of the presentation restyle plan across 6 chunks, 16 commits on `
 - Client-side module cache for city pulse (3h TTL)
 - Mock planner kept as fallback when AI is unreachable
 - `VARIANT_COLORS` extracted to `badgeVariants.ts` for Node-testability
+
+### 2026-03-17 — Deployment, Testing, and Simplify Pass
+
+#### Deployment
+- Linked Supabase CLI to project `kyfoqltmkqwtnrdlacqv`
+- Applied DB migration: `city_pulse` table created, `ai_plans`/`checkins`/venue columns confirmed pre-existing
+- Deployed all 8 edge functions via `supabase functions deploy --no-verify-jwt`
+- User set API secrets: OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY, GOOGLE_MAPS_API_KEY
+
+#### Live testing
+- `generate-pulse` (Gemini Flash-Lite): confirmed working — bilingual city pulse generated
+- `smart-search` (GPT-4.1 nano): confirmed working — detected NL query, returned conversation mode with venue recommendations
+- `surprise-me` (GPT-4.1 mini): confirmed working — 3-stop micro-plan with real venue names from DB
+- `generate-plan` (GPT-4.1 mini SSE): confirmed working — streaming chunks arriving with structured evening plan
+- `enrich-descriptions` (Claude Haiku): confirmed working — enriched 2 venues with bilingual descriptions
+
+#### Simplify pass findings and fixes
+- **Fixed (critical):** enrich-descriptions N+1 — sequential `callClaude()` loop replaced with `Promise.allSettled()` (5x faster)
+- **Fixed (critical):** TonightPlanStream SSE re-renders — raw `setState` per chunk replaced with 150ms debounced ref+timer
+- **Fixed (moderate):** cityPulse cache — added `clearCityPulseCache()` export for explicit invalidation
+- **Noted (deferred):** GlassMoodChip/GlassCategoryChip duplication — real but merging touches 4+ callers, low risk
+- **Noted (acceptable):** hardcoded `#D4A056` in StyleSheet blocks — brand gold matches `colors.accent`, theme not available in static styles
+
+#### Remaining
+- Hero image assets (gradient fallbacks active)
+- End-to-end in-app demo walkthrough
+- Branch merge to main
