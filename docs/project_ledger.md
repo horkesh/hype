@@ -1050,7 +1050,115 @@ Full execution of the presentation restyle plan across 6 chunks, 16 commits on `
 - **Noted (deferred):** GlassMoodChip/GlassCategoryChip duplication — real but merging touches 4+ callers, low risk
 - **Noted (acceptable):** hardcoded `#D4A056` in StyleSheet blocks — brand gold matches `colors.accent`, theme not available in static styles
 
-#### Remaining
+#### Remaining (at time of writing)
 - Hero image assets (gradient fallbacks active)
 - End-to-end in-app demo walkthrough
 - Branch merge to main
+
+### 2026-03-17 — Branch Merge + Venue Data Quality Pipeline
+
+#### Branch merge
+- `feat/presentation-restyle` merged to main via `--no-ff`, pushed to origin
+- 179/179 tests passing at merge time
+- Vercel build initially failed: `expo-camera` not in committed `package.json`
+- Fixed: committed `expo-camera` dependency, Vercel rebuilt successfully
+
+#### Google Maps photo scraping
+- Ran `scrapeGooglePhotos.ts` across all venues with `google_place_id`
+- Result: 958/1000 venues got cover photos from Google Maps Places API (96%)
+- ~42 venues had no photos available on Google
+- Later discovered total venue count is 1,226 (not 1,000 — Supabase REST default limit was truncating)
+
+#### Venue category verification
+- Built `verifyCategoriesVsGoogle.ts`: cross-checks our categories against Google Maps `types`
+- Checked all 1,174 venues with `google_place_id`
+- Found 171 mismatches, 162 auto-fixable (mostly bakeries miscategorized as cafes)
+- Auto-fixed with `--fix` flag, cleared descriptions for re-enrichment
+
+#### Google Places data enrichment
+- Built `enrichFromGoogle.ts`: pulls ratings, reviews, editorial summaries, hours, phone, website
+- 960/1,060 venues got Google reviews and editorial data
+- Added DB columns: `google_rating`, `google_ratings_count`, `google_price_level`, `google_editorial_summary`, `google_top_reviews`, `website`, `phone`, `address`, `opening_hours_json`
+
+#### AI description enrichment — iterative prompt improvement
+- Initial run with Claude Haiku: generic AI slop ("beloved destination for true food enthusiasts")
+- Rewrote prompt: banned slop words, added concrete examples, local tone
+- Cleared 126 worst descriptions for re-enrichment
+- Haiku produced Cyrillic leaks ("послије"), Croatian words ("tijekom"), wrong declension ("Markaleima")
+- Tried Claude Sonnet: 404 — user's API key doesn't have access to Sonnet models
+- Switched to GPT-4.1 mini: much better Bosnian, occasional English leaks
+- Added ijekavica rules: "umjetnost" not "umetnost", "djevojka" not "devojka"
+- User feedback: "kafa not kahva, lako not lahko"
+- Added diacritics mandate: "savršen" not "savrsen"
+- Final breakthrough: **BS-first approach** — write Bosnian first (since source data is mostly Bosnian), then translate to English
+  - Result: dramatically more natural Bosnian ("baš kao kod babe", "Romantični kutak na Baščaršiji")
+- Final run: all 1,226 venues enriched with BS-first GPT-4.1 mini prompt
+- Grounded in Google reviews and editorial data
+
+#### Key decision: BS-first enrichment
+- Source reviews are mostly Bosnian → generating BS first and translating to EN produces much more natural Bosnian
+- This is now the default approach for all bilingual content generation
+
+#### Live crowd signals
+- Built `seedCheckins.ts`: seeds 350+ demo check-ins across top 50 venues
+- Built `utils/crowdSignals.ts`: fetchCrowdSignals() + fetchTrendingVenues()
+- Built `HomeTrendingSection.tsx`: "Trending Now" horizontal rail with "X here now" badges
+- Wired into Home screen between mood chips and kafu section
+- Migration: `checkins.user_id` made nullable for demo seeding
+
+#### Admin venue editor
+- Built standalone Vite + React app in `admin/` directory
+- Supabase auth, searchable venue table, inline description editing
+- Green/red dots for EN/BS/photo/reviews coverage
+- Google context panel (editorial + reviews) alongside edit fields
+- RLS policy: authenticated users can update venues
+- Dark theme matching Hype brand
+
+#### Backend documentation
+- Created `docs/03-architecture/backend_overview.md`
+- Covers all three server layers, data quality pipeline, edge functions, admin tools
+- Includes table schemas, script inventory, cost estimates
+
+### 2026-03-17 — Event Scraping Pipeline
+
+#### Traditional web scrapers
+- Seeded 3 scrape sources: Pozorista.ba, AllEvents.in Sarajevo, KupiKartu.ba
+- Built `runScraper.ts`: standalone script calling existing ingestion services directly
+- Fixed critical bug: `insertRawEventCandidates` used `?select=id,source_url` on POST URL, causing PostgREST to return existing rows instead of inserting. Changed to `requestSupabaseAdminNoContent`.
+- Result: 93 raw events scraped (11 Pozorista + 30 AllEvents + 52 KupiKartu)
+
+#### Sarajevo city filter
+- KupiKartu is national — was scraping events from Zenica, Tuzla, Banja Luka
+- Added city rejection list + known Sarajevo venue matching to extractor
+- Cleaned 8 non-Sarajevo events
+
+#### KupiKartu extraction quality
+- Venue extraction: `@VenueName` pattern now correctly extracted from stripped text
+- Date extraction: `DD/MM` and `DD.MM.YYYY` patterns working
+- Image extraction: extracting from raw HTML (not stripped text) to preserve `<img>` tags
+- Stats: of 93 raw events, 36 have dates (39%), 32 have venues (34%), 12 have images (13%)
+
+#### Instagram event pipeline (Apify)
+- Built `scrapeInstagram.ts`: Apify-based Instagram scraper
+- Account list built from DB (35 handles from venue `website` field) + 27 curated event venues = 62 accounts
+- Fixed actor ID: `apify~instagram-scraper` (tilde, not slash), added `resultsType: 'posts'`
+- Fixed `parse-instagram` edge function: was using wrong column names (`title` instead of `title_raw`, etc.)
+- End-to-end test: Apify → captions → Claude Haiku event detection → raw_events with correct schema
+- Successfully detected "Happy Hour" event from @caffe.bueno
+- Ran 6 accounts before Apify free tier limit — waiting for user to top up credits
+- Instagram images: `displayUrl` now passed to edge function and stored in `image_url`
+
+#### Execution board updates
+- Added B14-B18 to backlog:
+  - B14: Live crowd signals + trending (done)
+  - B15: Live event countdowns
+  - B16: Weather-reactive recommendations
+  - B17: "Right Now" mode on Explore
+  - B18: Data quality pipeline automation
+
+#### Architecture decisions
+- BS-first bilingual content: write Bosnian from source data, translate to English
+- GPT-4.1 mini for descriptions (Haiku too error-prone for Bosnian, Sonnet unavailable)
+- Apify for Instagram scraping ($5/mo free tier)
+- City filter on national sources (KupiKartu rejection list)
+- `requestSupabaseAdminNoContent` for bulk inserts (not `fetchSupabaseAdminJson` with `?select=`)

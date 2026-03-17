@@ -31,14 +31,27 @@ Key new capabilities:
 
 ## Resume here first
 
-If you are continuing work after the presentation restyle, resume with this exact focus:
-- confirm you are on the `feat/presentation-restyle` branch (or that it has been merged to main)
-- run `npx expo start --web` and walk through every screen to verify glass UI renders correctly
-- the 8 edge functions are deployed and tested — if AI features show errors, check Supabase Dashboard → Edge Functions → Logs
-- API secrets (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY, GOOGLE_MAPS_API_KEY) are set in Supabase
-- DB tables `city_pulse`, `ai_plans`, `checkins` exist; venue columns `description_bs/en`, `is_hidden_gem`, `photos`, `google_place_id` exist
-- hero image assets are still placeholder gradients — real photos needed before the tourism board demo
-- prior verification items (favorites flow, taste-profile, auth refresh) are still pending on the home machine
+If you are continuing work, resume with this exact focus:
+- restyle is merged to main, all edge functions deployed, API secrets set
+- 1,226 venues with BS-first descriptions, 958 with photos, categories verified against Google
+- 93 raw events scraped (Pozorista + AllEvents + KupiKartu), need promotion to canonical `events` table
+- Instagram pipeline built and tested but needs Apify credits topped up for full run
+- admin venue editor at `admin/` — needs Vercel deploy (separate project, root dir = `admin/`)
+- demo check-ins seeded (368 across top 50 venues), Trending Now rail on Home
+- hero image assets still placeholder gradients
+- in-app visual walkthrough not yet done
+- prior verification items (favorites flow, taste-profile, auth refresh) still pending on home machine
+
+## Key scripts (all run from repo root)
+```
+node --env-file=backend/.env --import tsx backend/src/scripts/runScraper.ts [sourceId]
+node --env-file=backend/.env --import tsx backend/src/scripts/scrapeInstagram.ts
+node --env-file=backend/.env --import tsx backend/src/scripts/enrichDescriptions.ts
+node --env-file=backend/.env --import tsx backend/src/scripts/scrapeGooglePhotos.ts
+node --env-file=backend/.env --import tsx backend/src/scripts/enrichFromGoogle.ts
+node --env-file=backend/.env --import tsx backend/src/scripts/verifyCategoriesVsGoogle.ts [--fix]
+node --env-file=backend/.env --import tsx backend/src/scripts/seedCheckins.ts
+```
 - note that taste-profile saves now upsert the `profiles` row on write, so a missing profile row should no longer masquerade as a successful mood change that disappears after reload
 - note that favorites remote-sync writes now throw before legacy local state is mirrored, so save/unsave verification should treat any remaining mismatch as a real runtime/backend issue instead of a hidden local fallback
 - treat the bounded frontend cleanup program as complete: the main tab stack, detail screens, shared map surface, planner support, filter support, profile settings, venue actions, shared chrome, runtime helper surfaces, and Saved/Explore support shells are now on the helper-plus-components pattern

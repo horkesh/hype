@@ -21,14 +21,26 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-17] Presentation restyle — deployed, needs in-app demo walkthrough + merge**
-   Branch: `feat/presentation-restyle` (20 commits, 57 tests)
-   Edge functions: all 8 deployed and tested live. API secrets set. DB migrations applied. `/simplify` completed.
-   Do instead: run the app (`npx expo start --web`), walk through every screen to confirm glass UI renders correctly, then merge the branch to main.
-2. **[2026-03-17] Edge function glass components use rgba, not expo-blur**
-   Do instead: if iOS blur polish is needed later, add `BlurView` from `expo-blur` inside `GlassContainer` as an enhancement, but keep the rgba fallback for Android and web.
-3. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
-   Do instead: in a follow-up cleanup pass, consider merging into a single parameterized `GlassChip` component. Low urgency — both work correctly and are only used in 2-3 callers each.
+1. **[2026-03-17] Event promotion pipeline — promote 93 raw_events to canonical events table**
+   Do instead: match venue names to venues table, transform raw_events schema to events schema, insert. This makes Tonight and Home show real events.
+2. **[2026-03-17] KupiKartu detail enrichment — scrape detail pages for full descriptions + images**
+   Do instead: for each KupiKartu raw_event with a source_url, fetch the detail page, extract full description, proper date/time, and 700x300 image.
+3. **[2026-03-17] Apify Instagram — waiting for user to top up credits**
+   Do instead: once credits are available, run `scrapeInstagram.ts` to scrape 62 accounts.
+4. **[2026-03-17] In-app demo walkthrough still pending**
+   Do instead: run `npx expo start --web` and walk through every screen to verify glass UI renders.
+5. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
+   Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
+
+## Data Pipeline Lessons
+1. **[2026-03-17] BS-first bilingual content generation**
+   Do instead: always write Bosnian first from Bosnian source data, then translate to English. Never generate EN first and back-translate.
+2. **[2026-03-17] Supabase REST default limit is 1000 rows**
+   Do instead: always use `Prefer: count=exact` header and check `content-range` to verify you're seeing all rows. Our DB has 1,226 venues.
+3. **[2026-03-17] PostgREST POST with ?select= returns existing rows instead of inserting**
+   Do instead: use `requestSupabaseAdminNoContent` for bulk inserts, not `fetchSupabaseAdminJson` with `?select=` param.
+4. **[2026-03-17] National sources need Sarajevo city filter**
+   Do instead: for sources like KupiKartu that cover all of BiH, add a city rejection list + known Sarajevo venue matching before inserting candidates.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

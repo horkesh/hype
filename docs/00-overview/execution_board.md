@@ -235,7 +235,7 @@ Status:
   - restyle the Hype app for a tourism board presentation: replace all emoji usage with glass/glow UI, add real AI integration (planner, search, city pulse, surprise me, translation), generate proper image assets
 - Spec: `docs/superpowers/specs/2026-03-17-presentation-restyle-design.md`
 - Plan: `docs/superpowers/plans/2026-03-17-presentation-restyle.md`
-- Branch: `feat/presentation-restyle` (16 commits, 57 tests)
+- Branch: `feat/presentation-restyle` (merged to main)
 - Architecture:
   - glass containers via rgba backgrounds (expo-blur deferred to polish phase)
   - flippable editorial cards via `react-native-reanimated` v3
@@ -255,7 +255,37 @@ Status:
   - AI API secrets set (OpenAI, Anthropic, Google AI, Google Maps)
   - all 5 core edge functions tested live and confirmed working
   - `/simplify` pass completed: parallelized enrichment N+1, debounced SSE re-renders, added pulse cache cleanup
-- Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough, branch merge
+- Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough
+
+#### E9. Venue data quality pipeline
+
+- Status: `Done`
+- Goal:
+  - verify venue categories, scrape photos, enrich with Google data, generate grounded AI descriptions
+- What was delivered:
+  - 1,226/1,226 venues with BS-first AI descriptions (GPT-4.1 mini, grounded in Google reviews)
+  - 958 venues with Google Maps cover photos (96%)
+  - 162 miscategorized venues auto-corrected against Google Maps types
+  - 960 venues with Google reviews/editorial data
+  - Admin venue editor (Vite + React, `admin/` directory)
+- Key scripts: `verifyCategoriesVsGoogle.ts`, `enrichFromGoogle.ts`, `enrichDescriptions.ts`, `scrapeGooglePhotos.ts`
+
+#### E10. Event scraping pipeline
+
+- Status: `In Progress`
+- Goal:
+  - populate events from web scrapers and Instagram
+- What's done:
+  - 3 web scrapers working (Pozorista, AllEvents, KupiKartu) → 93 raw events
+  - Sarajevo city filter on KupiKartu
+  - Instagram pipeline built (Apify → Claude Haiku → raw_events), tested end-to-end
+  - `parse-instagram` edge function schema fixed
+  - `runScraper.ts` standalone script working
+- What's next:
+  - Promote raw_events → canonical events table (venue matching + transformation)
+  - KupiKartu detail page enrichment (full descriptions, full-size images)
+  - Top up Apify credits for full Instagram run
+  - Add events tab to admin editor
 
 ## Backlog
 
@@ -331,6 +361,49 @@ Status:
 - Status: `Backlog`
 - Goal:
   - define admin workflow and implementation surface for review queues and moderation
+
+#### B14. Live crowd signals + trending venues
+
+- Status: `Planned`
+- Goal:
+  - seed realistic check-in data and show live "Who's Here" counts on venue cards
+  - add "Trending Now" rail on Home showing venues with check-in spikes in the last 2 hours
+- Notes:
+  - `checkins` table already exists
+  - `GlassBadge` urgency variants already available for flame/count display
+
+#### B15. Live event countdowns
+
+- Status: `Backlog`
+- Goal:
+  - events happening in the next 3 hours show a live "starts in X min" countdown badge on Tonight and Home
+- Notes:
+  - `GlassBadge` + `EventCardFront` urgency prop already support this pattern
+  - needs a timer hook and filtered Supabase query
+
+#### B16. Weather-reactive recommendations
+
+- Status: `Backlog`
+- Goal:
+  - wire live weather data into the city pulse prompt so Gemini gives weather-aware recommendations ("rain coming — grab a window seat at X")
+- Notes:
+  - Home already has weather integration via OpenWeather API
+  - generate-pulse edge function already deployed, just needs weather param
+
+#### B17. "Right Now" mode on Explore
+
+- Status: `Backlog`
+- Goal:
+  - toggle that filters Explore to only venues currently open (using `opening_hours_json` from Google), sorted by trending or distance
+- Notes:
+  - `opening_hours_json` now populated for most venues via Google Places enrichment
+
+#### B18. Data quality pipeline automation
+
+- Status: `Backlog`
+- Goal:
+  - automate the verify-categories + Google-enrichment + AI-description pipeline so new venues get the same treatment automatically
+  - scripts exist: `verifyCategoriesVsGoogle.ts`, `enrichFromGoogle.ts`, `enrichDescriptions.ts`, `scrapeGooglePhotos.ts`
 
 #### B9. Public web and city pulse expansion
 
