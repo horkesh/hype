@@ -23,10 +23,21 @@ Deno.serve(async (req: Request) => {
     if (parsed.is_event && parsed.title) {
       const supabase = getSupabaseAdmin();
       await supabase.from('raw_events').insert({
-        title: parsed.title, date: parsed.date, time: parsed.time,
-        venue_name: parsed.venue_name, price: parsed.price,
-        description_bs: parsed.description_bs, description_en: parsed.description_en,
-        source: `instagram:@${account_name}`, source_url: post_url, status: 'pending',
+        title_raw: parsed.title,
+        description_raw: [parsed.description_bs, parsed.description_en].filter(Boolean).join(' / ') || caption.slice(0, 500),
+        date_raw: [parsed.date, parsed.time].filter(Boolean).join(' ') || null,
+        venue_raw: parsed.venue_name,
+        venue_name_raw: parsed.venue_name,
+        source_name: `instagram:@${account_name ?? 'unknown'}`,
+        source_url: post_url ?? null,
+        raw_json: {
+          instagram_account: account_name,
+          caption: caption.slice(0, 2000),
+          parsed_event: parsed,
+          extracted_by: 'parse-instagram-edge-function',
+        },
+        parsed: true,
+        parsed_at: new Date().toISOString(),
       });
     }
     return new Response(JSON.stringify({ success: true, data: parsed }),
