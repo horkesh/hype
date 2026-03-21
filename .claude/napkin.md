@@ -51,6 +51,8 @@
    Do instead: use `DMSerifDisplay_400Regular` for heroTitle, sectionHeader, and cardTitle in `designTokens.ts`. Keep `DMSans_*` for body, caption, labels, and badges. Never mix serif into small body text.
 10. **[2026-03-21] Glass and overlays use warm amber tints, not cold white/black**
    Do instead: glass background is `rgba(212,160,86,0.04)`, glass border is `rgba(212,160,86,0.10)`, image overlays use `rgba(20,10,0,0.7)` not `rgba(0,0,0,0.7)`. This gives the warm cinematic feel matching the reference screenshots.
+11. **[2026-03-21] App is now "Look", not "Hype" — header shows "Look - Sarajevo"**
+   Do instead: use "Look" in all user-facing text, share links, about text, and system prompts. Never reintroduce "Hype" as the brand name. The "- Sarajevo" suffix supports future multi-city expansion.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

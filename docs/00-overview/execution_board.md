@@ -286,6 +286,17 @@ Status:
   - no content overlap — content flows above the bar naturally
   - all 5 tabs verified on web
 
+#### E15. Rebrand Hype → Look - Sarajevo
+
+- Status: `Done`
+- Goal:
+  - rebrand from "Hype" to "Look" across the entire codebase
+  - "Look - Sarajevo" header format supports future city expansions
+- What was delivered:
+  - 20 files updated: header, app config, translations, backend user-agents, edge functions, admin, tests
+  - header shows "Look" in serif gold + "- Sarajevo" in gray sans-serif
+  - 177/178 tests passing
+
 #### E14. Warm cinematic visual style
 
 - Status: `Done`

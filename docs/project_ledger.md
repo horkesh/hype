@@ -1485,3 +1485,34 @@ Match the app's visual style to the warm, cinematic travel-magazine aesthetic of
 - Apply same info row pattern to venue detail page
 - Consider warming the Explore search bar and filter modals
 - Clean up unused FloatingTabBar components
+
+### 2026-03-21 — Rebrand: Hype → Look - Sarajevo
+
+#### Goal
+Full rebrand from "Hype" to "Look" across the entire codebase, with "Look - Sarajevo" header format to support future city expansions.
+
+#### What was changed (20 files)
+- **Header**: "Look" in DM Serif Display gold + "- Sarajevo" in DM Sans gray, baseline-aligned
+- **App config**: name → Look, slug → look, scheme → look
+- **Translations**: "Dobrodošli u Look" / "Welcome to Look", share texts, about version
+- **Backend**: 4 user-agent strings → `LookIngestionBot/0.1 (+https://look.ba)`
+- **Edge functions**: smart-search system prompt ("Look, a Sarajevo city discovery app")
+- **Admin**: login, venue editor, event editor page titles
+- **Tests**: share text and vote link assertions updated
+- **Internal**: theme constant `LookDarkTheme`, brand comments in Colors.ts and commonStyles.ts
+- **Vote links**: `hype.ba/vote/` → `look.ba/vote/`
+- **Profile badge**: "Hype OG" → "Look OG"
+
+#### What was NOT changed
+- `components/HypeHeader.tsx` filename — kept for now, can rename in follow-up
+- Test fixtures using `@hype` as mock Instagram handle — not a brand reference
+- Doc filenames and folder names (repo is still called "Hype app")
+
+#### Verification
+- Browser: "Look - Sarajevo" renders correctly in header
+- Tests: 177/178 passing (1 pre-existing failure unrelated)
+
+#### Follow-up
+- Rename `HypeHeader.tsx` → `AppHeader.tsx` or `LookHeader.tsx`
+- Update repo/folder name if needed
+- Register `look.ba` domain
