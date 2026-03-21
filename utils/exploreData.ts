@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { normalizeDailySpecialRows, normalizeVenueRows } from '@/utils/dataAdapters';
 import { filterDailySpecialsByPrice, filterVenuesByClientRules } from '@/utils/exploreHelpers';
 import { DailySpecial, SearchResult, Venue } from '@/utils/exploreScreen';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface LoadExploreVenuesOptions {
   filterCategories: string[];
@@ -123,7 +124,7 @@ export async function loadExploreVenues(options: LoadExploreVenuesOptions): Prom
   const activeCategories = getActiveCategories(filterCategories, selectedCategory);
 
   if (activeMoods.length > 0) {
-    query = query.contains('moods', activeMoods);
+    query = query.contains('moods', activeMoods.map(moodToDbValue));
   }
 
   if (activeCategories.length > 0) {

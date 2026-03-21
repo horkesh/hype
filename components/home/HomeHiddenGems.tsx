@@ -6,6 +6,7 @@ import { VenueCardFront } from '@/components/cards/VenueCardFront';
 import { VenueCardBack } from '@/components/cards/VenueCardBack';
 import { useRouter } from 'expo-router';
 import { SectionHeader } from '@/components/SectionHeader';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface HomeHiddenGemsProps {
   language: string;
@@ -24,7 +25,7 @@ export function HomeHiddenGems({ language, selectedMood }: HomeHiddenGemsProps) 
       .eq('is_hidden_gem', true)
       .limit(6);
     if (selectedMood) {
-      query = query.contains('moods', [selectedMood]);
+      query = query.contains('moods', [moodToDbValue(selectedMood)]);
     }
     query.then(({ data }) => {
       if (mounted && data) setGems(data);

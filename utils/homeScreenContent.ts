@@ -1,5 +1,22 @@
 export type HomeLanguage = 'bs' | 'en';
 
+/**
+ * Maps app-facing mood chip IDs to the mood values stored in the database.
+ * The app uses Bosnian-flavored names (muzika, romantika, kultura, turista)
+ * while the DB uses English keys (live_music, romantic, culture, tourist).
+ */
+const MOOD_TO_DB: Record<string, string> = {
+  muzika: 'live_music',
+  romantika: 'romantic',
+  kultura: 'culture',
+  turista: 'tourist',
+};
+
+/** Translate a UI mood chip ID to its database column value. */
+export function moodToDbValue(moodId: string): string {
+  return MOOD_TO_DB[moodId] ?? moodId;
+}
+
 const BS_MONTHS = ['jan', 'feb', 'mart', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'] as const;
 
 interface HomeMoodOption {

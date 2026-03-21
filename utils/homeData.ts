@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { publicConfig } from '@/utils/publicConfig';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 
 export interface HomeVenue {
   id: string;
@@ -73,7 +74,7 @@ export async function loadHomeUpcomingEvents(
     .limit(10);
 
   if (selectedMood) {
-    query = query.contains('moods', [selectedMood]);
+    query = query.contains('moods', [moodToDbValue(selectedMood)]);
   }
 
   const { data } = await query;

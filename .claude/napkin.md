@@ -53,6 +53,8 @@
    Do instead: glass background is `rgba(212,160,86,0.04)`, glass border is `rgba(212,160,86,0.10)`, image overlays use `rgba(20,10,0,0.7)` not `rgba(0,0,0,0.7)`. This gives the warm cinematic feel matching the reference screenshots.
 11. **[2026-03-21] App is now "Look", not "Hype" — header shows "Look - Sarajevo"**
    Do instead: use "Look" in all user-facing text, share links, about text, and system prompts. Never reintroduce "Hype" as the brand name. The "- Sarajevo" suffix supports future multi-city expansion.
+12. **[2026-03-21] Mood chip IDs differ from DB mood values — always use `moodToDbValue()`**
+   Do instead: when querying venues or events by mood, always pass the chip ID through `moodToDbValue()` from `utils/homeScreenContent.ts`. The app uses Bosnian-flavored names (muzika, romantika, kultura, turista) while the DB uses English keys (live_music, romantic, culture, tourist).
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

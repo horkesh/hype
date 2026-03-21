@@ -10,6 +10,7 @@ import {
   getHomeSectionLabels,
   getSeriesCountdownLabel,
   getTimeOfDayHeroMessage,
+  moodToDbValue,
 } from '@/utils/homeScreenContent';
 
 test('home labels reflect the selected language', () => {
@@ -71,6 +72,24 @@ test('cafe description prefers language-specific text with fallback', () => {
     getCafeDescription('en', 'Bosanski opis', null),
     'Bosanski opis'
   );
+});
+
+test('moodToDbValue maps Bosnian chip IDs to DB mood values', () => {
+  // Mismatched IDs get translated
+  assert.equal(moodToDbValue('muzika'), 'live_music');
+  assert.equal(moodToDbValue('romantika'), 'romantic');
+  assert.equal(moodToDbValue('kultura'), 'culture');
+  assert.equal(moodToDbValue('turista'), 'tourist');
+
+  // Already-matching IDs pass through unchanged
+  assert.equal(moodToDbValue('party'), 'party');
+  assert.equal(moodToDbValue('chill'), 'chill');
+  assert.equal(moodToDbValue('foodie'), 'foodie');
+  assert.equal(moodToDbValue('date_night'), 'date_night');
+  assert.equal(moodToDbValue('after_work'), 'after_work');
+  assert.equal(moodToDbValue('outdoor'), 'outdoor');
+  assert.equal(moodToDbValue('girls_night'), 'girls_night');
+  assert.equal(moodToDbValue('brunch'), 'brunch');
 });
 
 test('home copy helpers return stable copy collections', () => {

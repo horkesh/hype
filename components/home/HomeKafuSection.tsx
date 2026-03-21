@@ -4,6 +4,7 @@ import { GlassContainer } from '@/components/glass/GlassContainer';
 import { supabase } from '@/integrations/supabase/client';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface HomeKafuSectionProps {
   language: string;
@@ -25,7 +26,7 @@ export function HomeKafuSection({ language, selectedMood }: HomeKafuSectionProps
         .select('id, name, neighborhood, cover_image_url, description_en, description_bs, moods')
         .eq('category', 'cafe');
       if (selectedMood) {
-        query = query.contains('moods', [selectedMood]);
+        query = query.contains('moods', [moodToDbValue(selectedMood)]);
       }
       const { data } = await query.range(offset % 20, (offset % 20) + 1);
       if (data && data.length > 0) {

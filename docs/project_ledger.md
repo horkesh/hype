@@ -1516,3 +1516,32 @@ Full rebrand from "Hype" to "Look" across the entire codebase, with "Look - Sara
 - Rename `HypeHeader.tsx` → `AppHeader.tsx` or `LookHeader.tsx`
 - Update repo/folder name if needed
 - Register `look.ba` domain
+
+### 2026-03-21 — Fix mood chip → venue filtering (ID mismatch)
+
+#### Problem
+4 of 12 mood chip IDs in the app didn't match the mood values stored in the venues DB column:
+- `muzika` (app) → `live_music` (DB) — 17 venues
+- `romantika` (app) → `romantic` (DB) — 40 venues
+- `kultura` (app) → `culture` (DB) — 127 venues
+- `turista` (app) → `tourist` (DB) — 74 venues
+
+Tapping these 4 moods returned zero results even though hundreds of matching venues existed.
+
+#### Solution
+Added `moodToDbValue()` mapping function in `utils/homeScreenContent.ts` that translates app chip IDs to DB mood values. Applied to all 5 query points:
+- `utils/homeData.ts` — events query
+- `components/home/HomeHiddenGems.tsx` — hidden gems query
+- `components/home/HomeKafuSection.tsx` — kafu query
+- `components/home/HomeTrendingSection.tsx` — trending client-side filter
+- `utils/exploreData.ts` — explore venue query
+
+#### Verification
+- 178/178 tests passing (+ 1 pre-existing unrelated failure)
+- New test covers all 12 mood ID mappings
+
+#### Files touched
+- `utils/homeScreenContent.ts` (new: `moodToDbValue()`)
+- `utils/homeData.ts`, `utils/exploreData.ts` (import + use mapping)
+- `components/home/HomeHiddenGems.tsx`, `HomeKafuSection.tsx`, `HomeTrendingSection.tsx` (import + use mapping)
+- `tests/homeScreenContent.test.ts` (new mood mapping test)

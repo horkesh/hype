@@ -7,6 +7,7 @@ import { VenueCardBack } from '@/components/cards/VenueCardBack';
 import { GlassBadge } from '@/components/glass/GlassBadge';
 import { SectionHeader } from '@/components/SectionHeader';
 import { useRouter } from 'expo-router';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface HomeTrendingSectionProps {
   language: string;
@@ -20,8 +21,9 @@ export function HomeTrendingSection({ language, selectedMood }: HomeTrendingSect
   useEffect(() => {
     let mounted = true;
     fetchTrendingVenues(6).then((data) => {
-      const filtered = selectedMood
-        ? data.filter((v: any) => v.moods?.includes(selectedMood))
+      const dbMood = selectedMood ? moodToDbValue(selectedMood) : null;
+      const filtered = dbMood
+        ? data.filter((v: any) => v.moods?.includes(dbMood))
         : data;
       if (mounted) setVenues(filtered);
     });
