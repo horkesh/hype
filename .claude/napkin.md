@@ -43,6 +43,10 @@
    Do instead: use explicit Bosnian month/day name arrays for date formatting instead of relying on browser Intl support for `bs-BA` locale, which produces broken output like "M03" in many browsers.
 6. **[2026-03-20] App is dark-mode-only — no light mode, no theme toggle**
    Do instead: use `colors` from `useTheme()` or `commonStyles.ts` for all color values. Never add `isDark` conditionals, `useColorScheme`, or light-mode color branches. The theme is always dark (`#121212` bg, `#D4A056` accent). Glass tokens are flat (no `.light`/`.dark` nesting).
+7. **[2026-03-21] AI image generation uses multi-model fallback**
+   Do instead: when calling Gemini for image generation, try Imagen `:predict` endpoint first (fastest), then fall back to Gemini `:generateContent` with `responseModalities: ['IMAGE']`. Model availability varies by API key tier.
+8. **[2026-03-21] Tab bar is standard full-width bottom — not floating pill**
+   Do instead: use Expo Router `Tabs` navigator with `tabBarStyle` for the main navigation. Do not reintroduce `FloatingTabBar` or absolute-positioned overlays.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

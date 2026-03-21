@@ -1393,3 +1393,47 @@ Promote the remaining 46 unpromoted raw_events and clean up false positives.
 - Re-run scrapers periodically to pick up new events
 - Top up Apify credits for Instagram pipeline
 - Consider automating past-event deactivation on a schedule
+
+### 2026-03-21 — Standard Bottom Tab Bar + AI Hero Images
+
+#### Tab bar redesign
+- Replaced `FloatingTabBar` (floating pill, absolute-positioned, overlapping content) with Expo Router's built-in `Tabs` navigator
+- Full-width dark bar (`#1A1A1A`) with gold active tab (`#D4A056`), gray inactive (`#98989D`)
+- Industry standard pattern (Spotify, Airbnb, Yelp all use this)
+- No more content overlap — content scrolls naturally above the bar
+
+#### AI-generated hero images
+- Created `generate-hero-image` edge function with multi-model fallback:
+  - Imagen 4.0 Fast → Imagen 3.0 → Gemini Flash (tries fastest first)
+  - Context-aware prompts from time of day, weather, and holiday calendar
+  - Generated images uploaded to Supabase Storage (`hero-images` bucket)
+  - Server-side cache in `city_pulse.hero_image_url` (3h TTL)
+- Created `utils/ai/heroImage.ts` client helper with 3h client-side cache
+- Updated `HomeHeroPhoto` to accept `heroImageUrl` prop (gradient fallback preserved)
+- Updated `HomeContentSections` to fetch hero image on mount
+- Performance: first load ~8s (generation), cached ~0.5s
+
+#### DB changes
+- Added `hero_image_url TEXT` column to `city_pulse` table
+- Created `hero-images` public storage bucket with read policy
+
+#### Files touched
+- `app/(tabs)/_layout.tsx` (rewritten: Stack+FloatingTabBar → Tabs)
+- `supabase/functions/generate-hero-image/index.ts` (new)
+- `utils/ai/heroImage.ts` (new)
+- `components/home/HomeHeroPhoto.tsx` (added heroImageUrl prop)
+- `components/home/HomeContentSections.tsx` (added hero image fetch)
+- `docs/00-overview/execution_board.md`
+- `.claude/napkin.md`
+- `docs/project_ledger.md`
+
+#### Decisions
+- Bottom tab bar is the industry standard — UX research shows 21% faster navigation, 40% faster task completion vs hamburger menus
+- Gemini Imagen API uses `:predict` endpoint (not `:generateContent`) with different request format
+- Multi-model fallback necessary because model availability varies by API key tier
+- 3h cache TTL balances freshness with API cost (~$0.02-0.04 per image generation)
+
+#### Follow-up
+- Clean up unused `FloatingTabBar.tsx`, `components/tabbar/*`, `utils/floatingTabBar.ts`
+- Consider generating different hero images for different weather conditions more aggressively
+- Monitor Supabase Storage usage and add cleanup for old hero images

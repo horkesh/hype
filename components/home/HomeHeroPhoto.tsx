@@ -34,17 +34,22 @@ function getGreeting(timeOfDay: string, language: string): string {
 
 interface HomeHeroPhotoProps {
   language: string;
+  heroImageUrl?: string | null;
   children?: React.ReactNode;
 }
 
-export function HomeHeroPhoto({ language, children }: HomeHeroPhotoProps) {
+export function HomeHeroPhoto({ language, heroImageUrl, children }: HomeHeroPhotoProps) {
   const timeOfDay = getTimeOfDay();
   const greeting = getGreeting(timeOfDay, language);
   const heroImage = HERO_IMAGES[timeOfDay];
 
+  const hasImage = heroImageUrl || heroImage;
+
   return (
     <View style={styles.container}>
-      {heroImage ? (
+      {heroImageUrl ? (
+        <Image source={{ uri: heroImageUrl }} style={styles.backgroundImage} resizeMode="cover" />
+      ) : heroImage ? (
         <Image source={heroImage} style={styles.backgroundImage} />
       ) : (
         <LinearGradient

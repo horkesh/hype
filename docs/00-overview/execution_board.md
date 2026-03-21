@@ -255,7 +255,36 @@ Status:
   - AI API secrets set (OpenAI, Anthropic, Google AI, Google Maps)
   - all 5 core edge functions tested live and confirmed working
   - `/simplify` pass completed: parallelized enrichment N+1, debounced SSE re-renders, added pulse cache cleanup
-- Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough
+- Remaining: end-to-end in-app demo walkthrough
+
+#### E12. AI-generated hero images
+
+- Status: `Done`
+- Goal:
+  - replace the static gradient hero with AI-generated Sarajevo photographs that match the current context
+- Architecture:
+  - `generate-hero-image` edge function with multi-model fallback (Imagen 4.0 Fast → Imagen 3.0 → Gemini Flash)
+  - context-aware prompts: time of day, weather conditions, holiday calendar
+  - generated images uploaded to Supabase Storage (`hero-images` bucket)
+  - server-side cache in `city_pulse.hero_image_url` (3h TTL)
+  - client-side cache in `utils/ai/heroImage.ts` (3h TTL)
+- What was delivered:
+  - 1 edge function + 1 client helper
+  - `HomeHeroPhoto` accepts dynamic `heroImageUrl` prop
+  - `HomeContentSections` fetches hero image on mount alongside weather
+  - first load: ~8s (image generation), cached loads: ~0.5s
+  - gradient fallback preserved for loading/error states
+
+#### E13. Standard bottom tab bar
+
+- Status: `Done`
+- Goal:
+  - replace floating pill tab bar with industry-standard full-width bottom tab bar
+- What was delivered:
+  - switched from `Stack` + `FloatingTabBar` overlay to Expo Router `Tabs` navigator
+  - dark bar (`#1A1A1A`), gold active (`#D4A056`), gray inactive (`#98989D`)
+  - no content overlap — content flows above the bar naturally
+  - all 5 tabs verified on web
 
 #### E11. Dark mode only conversion
 

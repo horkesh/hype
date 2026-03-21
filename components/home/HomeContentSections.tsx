@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { HomeCityPulse } from '@/components/home/HomeCityPulse';
@@ -9,8 +9,9 @@ import { HomeKafuSection } from '@/components/home/HomeKafuSection';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
-import { HomeEventItem, HomeEventSeries } from '@/utils/homeData';
+import { HomeEventItem, HomeEventSeries, loadHomeWeather } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeHeroState';
+import { fetchHeroImage } from '@/utils/ai/heroImage';
 
 interface HomeContentSectionsProps {
   colors: {
@@ -52,9 +53,21 @@ export function HomeContentSections({
   selectedMood,
   upcomingEvents,
 }: HomeContentSectionsProps) {
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const weather = await loadHomeWeather().catch(() => null);
+      const url = await fetchHeroImage({ weather }).catch(() => null);
+      if (mounted && url) setHeroImageUrl(url);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <>
-      <HomeHeroPhoto language={language}>
+      <HomeHeroPhoto language={language} heroImageUrl={heroImageUrl}>
         <HomeCityPulse language={language} />
         <HomeSurpriseMe language={language} />
       </HomeHeroPhoto>

@@ -1,0 +1,297 @@
+import { corsHeaders, corsResponse } from '../_shared/cors.ts';
+import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+
+const CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
+
+// ─── Time & context helpers ──────────────────────────────────────────────────
+
+function getTimeOfDay(hour: number): string {
+  if (hour < 6) return 'night';
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  if (hour < 21) return 'evening';
+  return 'night';
+}
+
+const HOLIDAYS: Record<string, string> = {
+  '03-20': 'Bajram (Eid al-Fitr) first day — festive celebrations',
+  '03-21': 'Bajram second day — family gatherings, festive mood',
+  '03-22': 'Bajram third day — relaxed festive atmosphere',
+  '05-27': 'Kurban Bajram first day — major holiday celebrations',
+  '05-28': 'Kurban Bajram second day',
+  '01-01': 'New Year celebrations',
+  '03-01': 'Independence Day',
+  '05-01': 'Labour Day — outdoor gatherings, picnics',
+  '12-25': 'Catholic Christmas',
+  '01-07': 'Orthodox Christmas',
+  '12-31': 'New Year Eve — festive night atmosphere',
+};
+
+function getTodayHoliday(now: Date): string | null {
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return HOLIDAYS[`${mm}-${dd}`] ?? null;
+}
+
+// ─── Prompt builder ──────────────────────────────────────────────────────────
+
+function buildImagePrompt(
+  timeOfDay: string,
+  weather: { temp: number; condition: string } | null,
+  holiday: string | null,
+): string {
+  const scenes: Record<string, string> = {
+    morning: 'Baščaršija cobblestone street with a Turkish coffee set on a copper tray in foreground, warm golden morning light filtering through narrow streets',
+    afternoon: 'Old town panorama with terrace cafe umbrellas and blue sky, view over red rooftops and minarets',
+    evening: 'Skyline with minarets and mosque domes, golden hour sunset with amber and pink sky over the valley',
+    night: 'Old town lantern-lit street with warm glowing windows and atmospheric street lights, intimate nighttime mood',
+  };
+
+  const lighting: Record<string, string> = {
+    morning: 'soft warm morning sunlight, golden tones',
+    afternoon: 'bright natural daylight, vivid colors',
+    evening: 'golden hour amber and pink light, long shadows',
+    night: 'warm street lamp glow, dramatic shadows, ambient lighting',
+  };
+
+  let scene = scenes[timeOfDay] || scenes.evening;
+  let light = lighting[timeOfDay] || lighting.evening;
+
+  // Weather modifications
+  if (weather) {
+    const cond = weather.condition.toLowerCase();
+    if (cond.includes('rain') || cond.includes('drizzle')) {
+      scene += ', rain-slicked cobblestones with reflections';
+      light += ', moody atmospheric wet surfaces';
+    } else if (cond.includes('snow')) {
+      scene += ', light dusting of snow on rooftops and cobblestones';
+      light += ', soft diffused winter light';
+    } else if (cond.includes('cloud') || cond.includes('overcast')) {
+      light = light.replace('golden', 'soft diffused');
+    }
+    if (weather.temp < 0) {
+      scene += ', frost on windowpanes, cozy indoor glow visible';
+    } else if (weather.temp > 30) {
+      scene += ', shade-seeking cafe patrons, sunlit terraces';
+    }
+  }
+
+  // Holiday modifications
+  if (holiday) {
+    if (holiday.toLowerCase().includes('bajram') || holiday.toLowerCase().includes('eid')) {
+      scene = 'Festive Baščaršija with warm lights, traditional Sarajevo old town atmosphere during holiday celebration, decorative warmth';
+      light = 'warm festive golden lighting, celebratory atmosphere';
+    } else if (holiday.toLowerCase().includes('christmas') || holiday.toLowerCase().includes('božić')) {
+      scene += ', subtle festive decorations, warm holiday atmosphere';
+    } else if (holiday.toLowerCase().includes('new year')) {
+      scene = 'Sarajevo old town at night with festive lights, celebration atmosphere, warm glow';
+      light = 'dramatic festive night lighting with warm tones';
+    }
+  }
+
+  return `Cinematic photograph, ${scene}, Sarajevo Bosnia, ${light}, shallow depth of field, professional travel photography, 16:9 aspect ratio, no text, no people in focus, no watermarks, 1920x1080`;
+}
+
+// ─── Gemini Image Generation ─────────────────────────────────────────────────
+
+async function generateImage(prompt: string): Promise<{ base64: string; mimeType: string }> {
+  const apiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  if (!apiKey) throw new Error('GOOGLE_AI_API_KEY not set');
+
+  // Try Imagen API first (fastest, purpose-built for image generation)
+  const imagenResult = await tryImagen(apiKey, prompt);
+  if (imagenResult) return imagenResult;
+
+  // Fallback: try Gemini native image generation models
+  const geminiModels = [
+    'gemini-2.0-flash-exp',
+    'gemini-2.5-flash-preview-05-20',
+  ];
+
+  for (const model of geminiModels) {
+    const result = await tryGeminiImage(apiKey, model, prompt);
+    if (result) return result;
+  }
+
+  throw new Error('All image generation models failed');
+}
+
+/** Try Imagen `:predict` endpoint */
+async function tryImagen(apiKey: string, prompt: string): Promise<{ base64: string; mimeType: string } | null> {
+  const models = ['imagen-4.0-fast-generate-001', 'imagen-3.0-generate-002'];
+
+  for (const model of models) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60_000);
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:predict?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: { sampleCount: 1, aspectRatio: '16:9' },
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        console.log(`Imagen ${model}: ${res.status}`);
+        continue;
+      }
+
+      const data = await res.json();
+      const prediction = data.predictions?.[0];
+      if (prediction?.bytesBase64Encoded) {
+        console.log(`Image generated with ${model}`);
+        return { base64: prediction.bytesBase64Encoded, mimeType: prediction.mimeType || 'image/png' };
+      }
+    } catch (e) {
+      console.log(`Imagen ${model} error:`, e.message);
+    }
+  }
+
+  return null;
+}
+
+/** Try Gemini `:generateContent` with responseModalities IMAGE */
+async function tryGeminiImage(apiKey: string, model: string, prompt: string): Promise<{ base64: string; mimeType: string } | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60_000);
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ['IMAGE'],
+        },
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      console.log(`Gemini ${model}: ${res.status}`);
+      return null;
+    }
+
+    const data = await res.json();
+    const parts = data.candidates?.[0]?.content?.parts;
+    if (!parts) return null;
+
+    for (const part of parts) {
+      if (part.inline_data?.data) {
+        console.log(`Image generated with ${model}`);
+        return { base64: part.inline_data.data, mimeType: part.inline_data.mime_type || 'image/png' };
+      }
+    }
+  } catch (e) {
+    console.log(`Gemini ${model} error:`, e.message);
+  }
+
+  return null;
+}
+
+// ─── Main handler ────────────────────────────────────────────────────────────
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return corsResponse();
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const weather = body.weather ?? null;
+
+    const now = new Date();
+    // Sarajevo is UTC+1 (CET) / UTC+2 (CEST)
+    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    const timeOfDay = getTimeOfDay(sarajevoHour);
+    const holiday = getTodayHoliday(now);
+
+    const supabase = getSupabaseAdmin();
+
+    // Check cache: look for a recent city_pulse row with a hero_image_url
+    const cacheThreshold = new Date(now.getTime() - CACHE_TTL_MS).toISOString();
+    const { data: cached } = await supabase
+      .from('city_pulse')
+      .select('hero_image_url')
+      .gte('created_at', cacheThreshold)
+      .not('hero_image_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (cached?.hero_image_url) {
+      return new Response(
+        JSON.stringify({ success: true, data: { image_url: cached.hero_image_url, cached: true } }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // Generate new image
+    const prompt = buildImagePrompt(timeOfDay, weather, holiday);
+    console.log('Generating hero image with prompt:', prompt.slice(0, 100) + '...');
+
+    const { base64, mimeType } = await generateImage(prompt);
+
+    // Upload to Supabase Storage
+    const ext = mimeType.includes('jpeg') || mimeType.includes('jpg') ? 'jpg' : 'png';
+    const filename = `hero_${now.getTime()}.${ext}`;
+
+    // Decode base64 to Uint8Array
+    const binaryStr = atob(base64);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from('hero-images')
+      .upload(filename, bytes, {
+        contentType: mimeType,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw new Error(`Storage upload failed: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('hero-images')
+      .getPublicUrl(filename);
+
+    const imageUrl = urlData.publicUrl;
+
+    // Cache in city_pulse table (update the most recent row, or insert)
+    const { data: recentPulse } = await supabase
+      .from('city_pulse')
+      .select('id')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (recentPulse) {
+      await supabase
+        .from('city_pulse')
+        .update({ hero_image_url: imageUrl })
+        .eq('id', recentPulse.id);
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, data: { image_url: imageUrl, cached: false } }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  } catch (err) {
+    console.error('generate-hero-image error:', err);
+    return new Response(
+      JSON.stringify({ success: false, error: err.message }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+});
