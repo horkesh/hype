@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { fetchCityPulse } from '@/utils/ai/cityPulse';
+import { loadHomeWeather } from '@/utils/homeData';
 import { GlassContainer } from '@/components/glass/GlassContainer';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { GlassBadge } from '@/components/glass/GlassBadge';
@@ -15,10 +16,14 @@ export function HomeCityPulse({ language }: HomeCityPulseProps) {
 
   useEffect(() => {
     let mounted = true;
-    fetchCityPulse()
-      .then((data) => { if (mounted) setPulse(data); })
-      .catch(() => {})
-      .finally(() => { if (mounted) setLoading(false); });
+    (async () => {
+      const weather = await loadHomeWeather().catch(() => null);
+      const data = await fetchCityPulse({ weather }).catch(() => null);
+      if (mounted) {
+        setPulse(data);
+        setLoading(false);
+      }
+    })();
     return () => { mounted = false; };
   }, []);
 
@@ -49,5 +54,5 @@ const styles = StyleSheet.create({
   container: { padding: 12, marginBottom: 8 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 6 },
   aiLabel: { fontSize: 10, fontWeight: '700', color: '#D4A056', fontFamily: 'DMSans_700Bold' },
-  pulseText: { fontSize: 14, color: '#FAFAF8', lineHeight: 20, fontFamily: 'DMSans_400Regular' },
+  pulseText: { fontSize: 14, color: '#F5F5F5', lineHeight: 20, fontFamily: 'DMSans_400Regular' },
 });

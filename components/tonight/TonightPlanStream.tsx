@@ -24,7 +24,7 @@ export function TonightPlanStream({
   language,
   onPlanReady,
 }: TonightPlanStreamProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const [phase, setPhase] = useState<StreamPhase>('streaming');
   const [rawText, setRawText] = useState('');
   const [plan, setPlan] = useState<EveningPlan | null>(null);
@@ -109,7 +109,7 @@ export function TonightPlanStream({
         {rawText.length > 0 && (
           <GlassContainer style={styles.previewCard}>
             <Text
-              style={[styles.previewText, { color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)' }]}
+              style={[styles.previewText, { color: 'rgba(255,255,255,0.5)' }]}
               numberOfLines={6}
             >
               {rawText.slice(-300)}
@@ -138,7 +138,6 @@ export function TonightPlanStream({
           isLast={index === plan.stops.length - 1}
           language={language}
           textColor={colors.text}
-          isDark={isDark}
         />
       ))}
 
@@ -159,13 +158,11 @@ function TimelineStop({
   isLast,
   language,
   textColor,
-  isDark,
 }: {
   stop: PlanStop;
   isLast: boolean;
   language: string;
   textColor: string;
-  isDark: boolean;
 }) {
   const activity = language === 'bs'
     ? stop.activity_bs || stop.activity_en || ''
@@ -180,7 +177,7 @@ function TimelineStop({
       {/* Timeline column */}
       <View style={styles.timelineCol}>
         <View style={styles.timeDot} />
-        {!isLast && <View style={[styles.timeLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }]} />}
+        {!isLast && <View style={[styles.timeLine, { backgroundColor: 'rgba(255,255,255,0.15)' }]} />}
       </View>
 
       {/* Card */}

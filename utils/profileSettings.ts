@@ -1,6 +1,4 @@
 export type ProfileLanguage = 'bs' | 'en';
-export type ProfileThemeMode = 'auto' | 'light' | 'dark';
-
 export interface ProfileLanguageOption {
   label: string;
   value: ProfileLanguage;
@@ -27,7 +25,6 @@ export interface ProfileSettingsCopy {
   signOutModalTitle: string;
   signUpFailedBody: string;
   signUpFailedTitle: string;
-  themeTitle: string;
 }
 
 export const PROFILE_LANGUAGE_OPTIONS: ProfileLanguageOption[] = [
@@ -65,6 +62,5 @@ export function getProfileSettingsCopy(isBosnian: boolean): ProfileSettingsCopy 
     signOutModalTitle: isBosnian ? 'Odjavi se?' : 'Sign out?',
     signUpFailedBody: isBosnian ? 'Registracija nije uspjela' : 'Failed to sign up',
     signUpFailedTitle: isBosnian ? 'Registracija nije uspjela' : 'Sign up failed',
-    themeTitle: isBosnian ? 'Tema / Theme' : 'Theme / Tema',
   };
 }

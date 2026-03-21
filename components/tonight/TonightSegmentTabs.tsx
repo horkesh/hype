@@ -2,7 +2,6 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { GlassContainer } from '@/components/glass/GlassContainer';
-import { useTheme } from '@/hooks/useTheme';
 import { TimeSegment, TimeSegmentConfig } from '@/utils/tonightScreen';
 
 interface TonightSegmentTabsProps {
@@ -19,8 +18,6 @@ export function TonightSegmentTabs({
   segments,
   onSelectSegment,
 }: TonightSegmentTabsProps) {
-  const { isDark } = useTheme();
-
   return (
     <View style={styles.segmentTabs}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -63,7 +60,7 @@ const styles = StyleSheet.create({
   segmentTabs: {
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
   content: {
     paddingHorizontal: 16,

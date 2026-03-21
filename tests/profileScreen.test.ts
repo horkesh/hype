@@ -4,7 +4,6 @@ import test from 'node:test';
 import {
   PROFILE_DEMO_BADGES,
   PROFILE_MOODS,
-  PROFILE_THEME_OPTIONS,
   toggleProfileMoodSelection,
 } from '@/utils/profileScreen';
 
@@ -16,13 +15,6 @@ test('toggleProfileMoodSelection adds and removes moods predictably', () => {
 test('profile mood config keeps clean emoji values', () => {
   assert.equal(PROFILE_MOODS[0]?.emoji, '\u{1F389}');
   assert.equal(PROFILE_MOODS[7]?.emoji, '\u{1F37D}\uFE0F');
-});
-
-test('profile theme config exposes the expected choices', () => {
-  assert.deepEqual(
-    PROFILE_THEME_OPTIONS.map((option) => option.value),
-    ['auto', 'light', 'dark']
-  );
 });
 
 test('profile demo badges keep their visible icons', () => {

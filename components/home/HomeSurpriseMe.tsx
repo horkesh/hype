@@ -17,24 +17,41 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
   const router = useRouter();
   const [plan, setPlan] = useState<SurprisePlan | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const expandHeight = useSharedValue(48);
 
   const handlePress = useCallback(async () => {
     if (expanded) {
       setExpanded(false);
+      setPlan(null);
+      setError(false);
       expandHeight.value = withSpring(48, { damping: 15 });
       return;
     }
     setLoading(true);
+    setError(false);
+    setExpanded(true);
+    expandHeight.value = withSpring(64, { damping: 15 });
     try {
-      const result = await fetchSurprise(tasteMoods, language);
-      if (result) {
+      const timeout = new Promise<null>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 10000)
+      );
+      const result = await Promise.race([fetchSurprise(tasteMoods, language), timeout]);
+      if (result && result.stops?.length > 0) {
         setPlan(result);
         setExpanded(true);
-        expandHeight.value = withSpring(200 + (result.stops.length * 60), { damping: 15 });
+        expandHeight.value = withSpring(200 + (result.stops.length * 70), { damping: 15 });
+      } else {
+        setError(true);
+        expandHeight.value = withSpring(90, { damping: 15 });
+        setExpanded(true);
       }
-    } catch {} finally {
+    } catch {
+      setError(true);
+      expandHeight.value = withSpring(90, { damping: 15 });
+      setExpanded(true);
+    } finally {
       setLoading(false);
     }
   }, [expanded, tasteMoods, language]);
@@ -44,20 +61,43 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
     overflow: 'hidden',
   }));
 
+  const isBosnian = language === 'bs';
+
   return (
     <Animated.View style={containerAnimStyle}>
-      <GlassContainer glowColor="#D4A056" style={styles.container}>
+      <GlassContainer glowColor={colors.accent} style={styles.container}>
         <TouchableOpacity onPress={handlePress} style={styles.header} activeOpacity={0.8}>
           <Text style={styles.sparkle}>{'\u2726'}</Text>
-          <Text style={styles.title}>
-            {language === 'bs' ? 'Iznenadi me' : 'Surprise me'}
+          <Text style={[styles.title, { color: colors.text }]}>
+            {isBosnian ? 'Iznenadi me' : 'Surprise me'}
           </Text>
-          {loading && <ActivityIndicator size="small" color="#D4A056" />}
+          {loading && (
+            <>
+              <ActivityIndicator size="small" color={colors.accent} />
+              <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+                {isBosnian ? 'Tražim...' : 'Finding...'}
+              </Text>
+            </>
+          )}
+          {expanded && !loading && (
+            <Text style={[styles.collapseHint, { color: colors.textSecondary }]}>
+              {isBosnian ? 'zatvori' : 'close'}
+            </Text>
+          )}
         </TouchableOpacity>
+        {expanded && error && (
+          <View style={styles.errorContent}>
+            <Text style={[styles.errorText, { color: colors.textSecondary }]}>
+              {isBosnian
+                ? 'Nije uspjelo — pokušaj ponovo za trenutak.'
+                : 'Couldn\'t load — try again in a moment.'}
+            </Text>
+          </View>
+        )}
         {expanded && plan && (
           <View style={styles.planContent}>
-            <Text style={styles.tagline}>
-              {language === 'bs' ? plan.tagline_bs : plan.tagline_en}
+            <Text style={[styles.tagline, { color: colors.accent }]}>
+              {isBosnian ? plan.tagline_bs : plan.tagline_en}
             </Text>
             {plan.stops.map((stop, i) => (
               <TouchableOpacity
@@ -65,11 +105,11 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
                 style={styles.stopRow}
                 onPress={() => { if (stop.venue?.id) router.push(`/venue/${stop.venue.id}`); }}
               >
-                <Text style={styles.stopTime}>{stop.time}</Text>
+                <Text style={[styles.stopTime, { color: colors.accent }]}>{stop.time}</Text>
                 <View style={styles.stopInfo}>
                   <Text style={[styles.stopVenue, { color: colors.text }]}>{stop.venue_name}</Text>
-                  <Text style={styles.stopPitch}>
-                    {language === 'bs' ? stop.pitch_bs : stop.pitch_en}
+                  <Text style={[styles.stopPitch, { color: colors.textSecondary }]}>
+                    {isBosnian ? stop.pitch_bs : stop.pitch_en}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -85,12 +125,16 @@ const styles = StyleSheet.create({
   container: { padding: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   sparkle: { fontSize: 16, color: '#D4A056' },
-  title: { fontSize: 15, fontWeight: '700', color: '#FAFAF8', fontFamily: 'DMSans_700Bold', flex: 1 },
+  title: { fontSize: 15, fontWeight: '700', fontFamily: 'DMSans_700Bold', flex: 1 },
+  collapseHint: { fontSize: 12, fontFamily: 'DMSans_400Regular' },
+  loadingText: { fontSize: 12, fontFamily: 'DMSans_400Regular' },
   planContent: { marginTop: 12 },
-  tagline: { fontSize: 13, color: '#D4A056', fontFamily: 'DMSans_500Medium', marginBottom: 10 },
-  stopRow: { flexDirection: 'row', marginBottom: 8, gap: 10 },
-  stopTime: { fontSize: 13, color: '#D4A056', fontFamily: 'DMSans_700Bold', width: 40 },
+  tagline: { fontSize: 13, fontFamily: 'DMSans_500Medium', marginBottom: 10 },
+  stopRow: { flexDirection: 'row', marginBottom: 10, gap: 10 },
+  stopTime: { fontSize: 13, fontFamily: 'DMSans_700Bold', width: 55 },
   stopInfo: { flex: 1 },
   stopVenue: { fontSize: 14, fontWeight: '600', fontFamily: 'DMSans_700Bold' },
-  stopPitch: { fontSize: 12, color: '#A0A0A0', fontFamily: 'DMSans_400Regular', marginTop: 2 },
+  stopPitch: { fontSize: 12, fontFamily: 'DMSans_400Regular', marginTop: 2, lineHeight: 16 },
+  errorContent: { marginTop: 8 },
+  errorText: { fontSize: 13, fontFamily: 'DMSans_400Regular' },
 });

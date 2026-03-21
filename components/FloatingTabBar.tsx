@@ -11,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FloatingTabButtons } from '@/components/tabbar/FloatingTabButtons';
 import { FloatingTabIndicator } from '@/components/tabbar/FloatingTabIndicator';
 import { BlurView } from 'expo-blur';
-import { useTheme } from '@/hooks/useTheme';
 import Animated, {
   useSharedValue,
   withSpring,
@@ -49,7 +48,6 @@ export default function FloatingTabBar({
 }: FloatingTabBarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isDark } = useTheme();
   const animatedValue = useSharedValue(0);
   const pathnameString = typeof pathname === 'string' ? pathname : '';
 
@@ -73,7 +71,7 @@ export default function FloatingTabBar({
 
   const tabWidthPercent = getTabIndicatorWidthPercent(tabs.length);
   const [indicatorStart, indicatorEnd] = getTabIndicatorTranslateRange(containerWidth, tabs.length);
-  const surfaceColors = getTabBarSurfaceColors(isDark);
+  const surfaceColors = getTabBarSurfaceColors();
 
   const dynamicStyles = {
     blurContainer: {
@@ -82,7 +80,7 @@ export default function FloatingTabBar({
       borderColor: surfaceColors.borderColor,
       ...Platform.select({
         ios: {
-          backgroundColor: isDark ? 'rgba(28, 28, 30, 0.8)' : surfaceColors.backgroundColor,
+          backgroundColor: 'rgba(28, 28, 30, 0.8)',
         },
         android: {
           backgroundColor: surfaceColors.backgroundColor,

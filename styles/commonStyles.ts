@@ -1,29 +1,21 @@
 
 import { StyleSheet } from 'react-native';
 
-// Hype color scheme
+// Hype dark color scheme (Spotify-inspired charcoal)
 export const colors = {
-  // Light mode
-  light: {
-    background: '#FAFAF8',
-    card: '#FFFFFF',
-    text: '#1A1A1A',
-    textSecondary: '#6B6B6B',
-    accent: '#D4A056',
-    border: '#E5E5E5',
-    shadow: 'rgba(0, 0, 0, 0.1)',
-  },
-  // Dark mode
-  dark: {
-    background: '#1A1A2E',
-    card: '#252538',
-    text: '#FAFAF8',
-    textSecondary: '#A0A0A0',
-    accent: '#D4A056',
-    border: '#3A3A4E',
-    shadow: 'rgba(0, 0, 0, 0.3)',
-  },
+  background: '#121212',
+  card: '#1E1E1E',
+  text: '#F5F5F5',
+  textSecondary: '#A0A0A0',
+  textTertiary: '#6B6B6B',
+  accent: '#D4A056',
+  border: '#2A2A2A',
+  shadow: 'rgba(0, 0, 0, 0.4)',
+  surface: '#181818',
+  surfaceHover: '#282828',
 };
+
+export type ThemeColors = typeof colors;
 
 export const commonStyles = StyleSheet.create({
   container: {

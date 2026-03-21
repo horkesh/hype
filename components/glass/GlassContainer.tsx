@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme } from '@/hooks/useTheme';
 import { glassTokens } from '@/styles/glassTokens';
 
 interface GlassContainerProps {
@@ -17,9 +16,6 @@ export function GlassContainer({
   style,
   borderRadius = 24,
 }: GlassContainerProps) {
-  const { isDark } = useTheme();
-  const tokens = isDark ? glassTokens.dark : glassTokens.light;
-
   const glowShadow = glowColor
     ? { shadowColor: glowColor, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 5 }
     : glassTokens.shadow.default;
@@ -29,8 +25,8 @@ export function GlassContainer({
       style={[
         styles.container,
         {
-          backgroundColor: tokens.background,
-          borderColor: glowColor ? glowColor + '4D' : tokens.border,
+          backgroundColor: glassTokens.background,
+          borderColor: glowColor ? glowColor + '4D' : glassTokens.border,
           borderRadius,
           ...glowShadow,
         },

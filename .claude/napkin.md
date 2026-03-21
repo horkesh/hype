@@ -41,6 +41,10 @@
    Do instead: use `requestSupabaseAdminNoContent` for bulk inserts, not `fetchSupabaseAdminJson` with `?select=` param.
 4. **[2026-03-17] National sources need Sarajevo city filter**
    Do instead: for sources like KupiKartu that cover all of BiH, add a city rejection list + known Sarajevo venue matching before inserting candidates.
+5. **[2026-03-20] Browser `toLocaleDateString('bs-BA')` is unreliable**
+   Do instead: use explicit Bosnian month/day name arrays for date formatting instead of relying on browser Intl support for `bs-BA` locale, which produces broken output like "M03" in many browsers.
+6. **[2026-03-20] App is dark-mode-only — no light mode, no theme toggle**
+   Do instead: use `colors` from `useTheme()` or `commonStyles.ts` for all color values. Never add `isDark` conditionals, `useColorScheme`, or light-mode color branches. The theme is always dark (`#121212` bg, `#D4A056` accent). Glass tokens are flat (no `.light`/`.dark` nesting).
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

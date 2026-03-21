@@ -1,5 +1,7 @@
 export type HomeLanguage = 'bs' | 'en';
 
+const BS_MONTHS = ['jan', 'feb', 'mart', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'] as const;
+
 interface HomeMoodOption {
   id: string;
   emoji: string;
@@ -106,7 +108,11 @@ export function formatEventDateLabel(
     return language === 'bs' ? 'Sutra' : 'Tomorrow';
   }
 
-  return date.toLocaleDateString(language === 'bs' ? 'bs-BA' : 'en-US', {
+  if (language === 'bs') {
+    return `${date.getDate()}. ${BS_MONTHS[date.getMonth()]}`;
+  }
+
+  return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
   });

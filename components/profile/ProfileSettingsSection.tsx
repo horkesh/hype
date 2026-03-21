@@ -7,9 +7,7 @@ import {
   getProfileSettingsCopy,
   PROFILE_LANGUAGE_OPTIONS,
   ProfileLanguage,
-  ProfileThemeMode,
 } from '@/utils/profileSettings';
-import { ProfileThemeOption } from '@/utils/profileScreen';
 
 interface ProfileSettingsSectionProps {
   accentColor: string;
@@ -18,11 +16,8 @@ interface ProfileSettingsSectionProps {
   colorsText: string;
   isBosnian: boolean;
   language: ProfileLanguage;
-  onSelectTheme: (mode: ProfileThemeMode) => void;
   onToggleLanguage: (language: ProfileLanguage) => void;
   textSecondaryColor: string;
-  themeMode: ProfileThemeMode;
-  themeOptions: ProfileThemeOption[];
 }
 
 export function ProfileSettingsSection({
@@ -32,17 +27,10 @@ export function ProfileSettingsSection({
   colorsText,
   isBosnian,
   language,
-  onSelectTheme,
   onToggleLanguage,
   textSecondaryColor,
-  themeMode,
-  themeOptions,
 }: ProfileSettingsSectionProps) {
   const copy = getProfileSettingsCopy(isBosnian);
-  const localizedThemeOptions = themeOptions.map((option) => ({
-    value: option.value,
-    label: isBosnian ? option.label_bs : option.label_en,
-  }));
 
   return (
     <View style={styles.section}>
@@ -56,17 +44,6 @@ export function ProfileSettingsSection({
           selectedValue={language}
           textColor={colorsText}
           onSelect={onToggleLanguage}
-        />
-      </ProfileSettingsCard>
-
-      <ProfileSettingsCard cardColor={cardColor} textColor={colorsText} title={copy.themeTitle}>
-        <ProfileOptionToggleGroup
-          accentColor={accentColor}
-          backgroundColor={backgroundColor}
-          options={localizedThemeOptions}
-          selectedValue={themeMode}
-          textColor={colorsText}
-          onSelect={onSelectTheme}
         />
       </ProfileSettingsCard>
 

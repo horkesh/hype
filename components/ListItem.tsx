@@ -1,6 +1,6 @@
 import React from "react";
 import * as Haptics from "expo-haptics";
-import { Pressable, StyleSheet, useColorScheme, View, Text } from "react-native";
+import { Pressable, StyleSheet, View, Text } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   configureReanimatedLogger,
@@ -16,8 +16,6 @@ import { IconSymbol } from "./IconSymbol";
 configureReanimatedLogger({ strict: false });
 
 export default function ListItem({ listId }: { listId: string }) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
 
   const RightAction = (
     prog: SharedValue<number>,
@@ -55,7 +53,7 @@ export default function ListItem({ listId }: { listId: string }) {
         enableContextMenu
       >
         <View style={styles.listItemContainer}>
-          <Text style={[styles.listItemText, { color: isDark ? "#FFFFFF" : "#000000" }]}>{listId}</Text>
+          <Text style={[styles.listItemText, { color: "#FFFFFF" }]}>{listId}</Text>
         </View>
 
       </ReanimatedSwipeable>
@@ -74,9 +72,6 @@ export const NicknameCircle = ({
   index?: number;
   isEllipsis?: boolean;
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   return (
     <Text
       style={[
@@ -84,7 +79,7 @@ export const NicknameCircle = ({
         isEllipsis && styles.ellipsisCircle,
         {
           backgroundColor: color,
-          borderColor: isDark ? "#000000" : "#ffffff",
+          borderColor: "#000000",
           marginLeft: index > 0 ? -6 : 0,
         },
       ]}

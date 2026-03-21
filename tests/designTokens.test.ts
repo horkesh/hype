@@ -8,9 +8,9 @@ const ALL_MOODS = [
   'kultura', 'foodie', 'brunch', 'after_work', 'outdoor', 'turista',
 ] as const;
 
-test('glassTokens exports dark and light backgrounds', () => {
-  assert.ok(glassTokens.dark.background, 'dark background should be defined');
-  assert.ok(glassTokens.light.background, 'light background should be defined');
+test('glassTokens exports background and border', () => {
+  assert.ok(glassTokens.background, 'background should be defined');
+  assert.ok(glassTokens.border, 'border should be defined');
 });
 
 test('glassTokens exports moodColors for all 12 moods, each with a primary color', () => {

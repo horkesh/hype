@@ -1,4 +1,3 @@
-const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 
 export const zincColors = {
@@ -23,34 +22,19 @@ export const appleGreen = "#34C759";
 
 // Hype brand colors
 export const HYPE_AMBER = "#D4A056";
-export const HYPE_LIGHT_BG = "#FAFAF8";
-export const HYPE_DARK_BG = "#1A1A2E";
+export const HYPE_DARK_BG = "#121212";
 
 export const Colors = {
-  light: {
-    text: "#11181C",
-    background: HYPE_LIGHT_BG,
-    tint: tintColorLight,
-    icon: "#687076",
-    tabIconDefault: "#687076",
-    tabIconSelected: tintColorLight,
-    accent: HYPE_AMBER,
-    card: "#FFFFFF",
-    textSecondary: "#71717a",
-    border: "#e4e4e7",
-  },
-  dark: {
-    text: "#ECEDEE",
-    background: HYPE_DARK_BG,
-    tint: tintColorDark,
-    icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
-    accent: HYPE_AMBER,
-    card: "#2A2A3E",
-    textSecondary: "#a1a1aa",
-    border: "#3f3f46",
-  },
+  text: "#F5F5F5",
+  background: HYPE_DARK_BG,
+  tint: tintColorDark,
+  icon: "#9BA1A6",
+  tabIconDefault: "#9BA1A6",
+  tabIconSelected: tintColorDark,
+  accent: HYPE_AMBER,
+  card: "#1E1E1E",
+  textSecondary: "#a1a1aa",
+  border: "#2A2A2A",
 };
 
 export const backgroundColors = [

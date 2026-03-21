@@ -32,13 +32,9 @@ test('tab indicator helpers return stable layout values', () => {
   assert.deepEqual(getTabIndicatorTranslateRange(300, 5), [0, 233.6]);
 });
 
-test('getTabBarSurfaceColors returns theme-safe colors', () => {
-  assert.deepEqual(getTabBarSurfaceColors(false), {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 1)',
-    iconColor: '#8E8E93',
-    labelColor: '#8E8E93',
-    indicatorColor: 'rgba(0, 0, 0, 0.04)',
-  });
-  assert.equal(getTabBarSurfaceColors(true).backgroundColor, 'rgba(28, 28, 30, 0.95)');
+test('getTabBarSurfaceColors returns dark surface colors', () => {
+  const surface = getTabBarSurfaceColors();
+  assert.equal(surface.backgroundColor, 'rgba(18, 18, 18, 0.95)');
+  assert.equal(surface.borderColor, 'rgba(255, 255, 255, 0.08)');
+  assert.equal(surface.iconColor, '#98989D');
 });

@@ -3,13 +3,10 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Language = 'bs' | 'en';
-type ThemeMode = 'auto' | 'light' | 'dark';
 
 interface AppContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
   t: (key: string) => string;
 }
 
@@ -57,10 +54,6 @@ const translations = {
     tomorrow: 'Sutra',
     settings: 'Postavke',
     language: 'Jezik',
-    theme: 'Tema',
-    auto: 'Automatski',
-    light: 'Svijetla',
-    dark: 'Tamna',
     bosnian: 'Bosanski',
     english: 'English',
     searchPlaceholder: 'Pretra\u017ei mjesta i doga\u0111aje...',
@@ -141,10 +134,6 @@ const translations = {
     tomorrow: 'Tomorrow',
     settings: 'Settings',
     language: 'Language',
-    theme: 'Theme',
-    auto: 'Auto',
-    light: 'Light',
-    dark: 'Dark',
     bosnian: 'Bosanski',
     english: 'English',
     searchPlaceholder: 'Search venues and events...',
@@ -224,7 +213,6 @@ const storage = {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('bs');
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('auto');
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -234,14 +222,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const loadPreferences = async () => {
     try {
       const savedLanguage = await storage.getItem('hype_language');
-      const savedTheme = await storage.getItem('hype_theme');
 
       if (savedLanguage) {
         setLanguageState(savedLanguage as Language);
-      }
-
-      if (savedTheme) {
-        setThemeModeState(savedTheme as ThemeMode);
       }
     } catch (error) {
       console.log('Error loading preferences:', error);
@@ -259,15 +242,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setThemeMode = async (mode: ThemeMode) => {
-    setThemeModeState(mode);
-    try {
-      await storage.setItem('hype_theme', mode);
-    } catch (error) {
-      console.log('Error saving theme:', error);
-    }
-  };
-
   const t = (key: string): string => {
     const translation = translations[language][key as keyof typeof translations.bs];
     return translation || key;
@@ -278,7 +252,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, themeMode, setThemeMode, t }}>
+    <AppContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </AppContext.Provider>
   );

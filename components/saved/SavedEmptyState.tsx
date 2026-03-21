@@ -32,7 +32,7 @@ export function SavedEmptyState({
         <Text style={[styles.emptySubtitle, { color: textSecondaryColor }]}>{subtitle}</Text>
         <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
           <GlassContainer borderRadius={24} glowColor={accentColor} style={styles.emptyButton}>
-            <Text style={styles.emptyButtonText}>{buttonText}</Text>
+            <Text style={[styles.emptyButtonText, { color: accentColor }]}>{buttonText}</Text>
           </GlassContainer>
         </TouchableOpacity>
       </GlassContainer>
@@ -74,6 +74,5 @@ const styles = StyleSheet.create({
   emptyButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
   },
 });

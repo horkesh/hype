@@ -5,12 +5,6 @@ export interface ProfileMoodOption {
   label_en: string;
 }
 
-export interface ProfileThemeOption {
-  value: 'auto' | 'light' | 'dark';
-  label_bs: string;
-  label_en: string;
-}
-
 export interface ProfileDemoBadge {
   icon: string;
   name_bs: string;
@@ -30,12 +24,6 @@ export const PROFILE_MOODS: ProfileMoodOption[] = [
   { id: 'after_work', emoji: '\u{1F37B}', label_bs: 'After Work', label_en: 'After Work' },
   { id: 'outdoor', emoji: '\u{1F333}', label_bs: 'Outdoor', label_en: 'Outdoor' },
   { id: 'tourist', emoji: '\u{1F4F8}', label_bs: 'Turista', label_en: 'Tourist' },
-];
-
-export const PROFILE_THEME_OPTIONS: ProfileThemeOption[] = [
-  { value: 'auto', label_bs: 'Automatski', label_en: 'Auto' },
-  { value: 'light', label_bs: 'Svijetla', label_en: 'Light' },
-  { value: 'dark', label_bs: 'Tamna', label_en: 'Dark' },
 ];
 
 export const PROFILE_DEMO_BADGES: ProfileDemoBadge[] = [

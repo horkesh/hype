@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   TextStyle,
-  useColorScheme,
   ViewStyle,
 } from "react-native";
 import { appleBlue, zincColors } from "@/constants/Colors";
@@ -34,8 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = true;
 
   const sizeStyles: Record<
     ButtonSize,

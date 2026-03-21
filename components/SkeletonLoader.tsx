@@ -9,7 +9,6 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import { useTheme } from '@/hooks/useTheme';
 
 interface SkeletonLoaderProps {
   width?: number | string;
@@ -24,7 +23,6 @@ export function SkeletonLoader({
   borderRadius = 8,
   style,
 }: SkeletonLoaderProps) {
-  const { theme } = useTheme(); // ✅ useTheme() returns { theme, colors, isDark }
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export function SkeletonLoader({
     };
   });
 
-  const skeletonColor = theme === 'dark' ? '#3A3A4E' : '#E5E5E5';
+  const skeletonColor = '#3A3A4E';
 
   return (
     <Animated.View

@@ -6,10 +6,8 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useColorScheme } from "react-native";
 import {
   DarkTheme,
-  DefaultTheme,
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
@@ -28,8 +26,19 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
+const HypeDarkTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    primary: "#D4A056",
+    background: "#121212",
+    card: "#1E1E1E",
+    text: "#F5F5F5",
+    border: "#2A2A2A",
+    notification: "#D4A056",
+  },
+};
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -50,37 +59,10 @@ export default function RootLayout() {
     return null;
   }
 
-  const CustomDefaultTheme: Theme = {
-    ...DefaultTheme,
-    dark: false,
-    colors: {
-      primary: "#D4A056",
-      background: "#FAFAF8",
-      card: "#FFFFFF",
-      text: "#1A1A1A",
-      border: "#E5E5E5",
-      notification: "#D4A056",
-    },
-  };
-
-  const CustomDarkTheme: Theme = {
-    ...DarkTheme,
-    colors: {
-      primary: "#D4A056",
-      background: "#1A1A2E",
-      card: "#252538",
-      text: "#FAFAF8",
-      border: "#3A3A4E",
-      notification: "#D4A056",
-    },
-  };
-
   return (
     <>
-      <StatusBar style="auto" animated />
-      <ThemeProvider
-        value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
-      >
+      <StatusBar style="light" animated />
+      <ThemeProvider value={HypeDarkTheme}>
         <AppProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <Stack
@@ -92,7 +74,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
-            <SystemBars style="auto" />
+            <SystemBars style="light" />
           </GestureHandlerRootView>
         </AppProvider>
       </ThemeProvider>

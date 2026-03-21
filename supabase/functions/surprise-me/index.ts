@@ -1,5 +1,5 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
-import { callOpenAI } from '../_shared/ai-clients.ts';
+import { callClaude } from '../_shared/ai-clients.ts';
 import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
 
 Deno.serve(async (req: Request) => {
@@ -10,11 +10,11 @@ Deno.serve(async (req: Request) => {
 
     const supabase = getSupabaseAdmin();
 
-    // Fetch open venues
+    // Fetch venues (cafes, restaurants, bars, clubs)
     const { data: venues } = await supabase
       .from('venues')
       .select('id, name, category, neighborhood, vibe_tags, price_level, address')
-      .eq('is_open', true)
+      .in('category', ['cafe', 'restaurant', 'bar', 'club'])
       .limit(30);
 
     const venueList = (venues ?? [])
@@ -25,46 +25,47 @@ Deno.serve(async (req: Request) => {
       ? `User moods/preferences: ${moods.join(', ')}.`
       : 'No specific mood — surprise them!';
 
-    const systemPrompt = `You are Hype, a Sarajevo nightlife curator. Generate a 2-3 stop micro-plan for tonight.
-${moodContext}
-Language for pitches: ${language}.
+    const isBosnian = language === 'bs';
 
-Available venues:
+    const prompt = `Generate a 2-3 stop micro-plan for a spontaneous evening in Sarajevo.
+${moodContext}
+
+Available venues (ONLY use these exact names):
 ${venueList || 'Various Sarajevo venues.'}
 
-Create an exciting, spontaneous evening plan. Each stop should flow naturally into the next.
+Create an exciting, spontaneous evening plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
 
-Respond with ONLY valid JSON (no markdown):
+${isBosnian ? 'Write pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend suggesting the plan.' : 'Write pitches in casual, warm English.'}
+
+Respond with ONLY valid JSON:
 {
-  "tagline_en": "short exciting tagline in English",
+  "tagline_en": "short exciting tagline",
   "tagline_bs": "short exciting tagline in Bosnian",
   "stops": [
     {
-      "venue_name": "exact venue name from list",
+      "venue_name": "exact venue name from list above",
       "time": "e.g. 8:00 PM",
-      "pitch_en": "why this stop is exciting (English)",
-      "pitch_bs": "why this stop is exciting (Bosnian)"
+      "pitch_en": "one sentence — why this stop (English)",
+      "pitch_bs": "one sentence — why this stop (Bosnian)"
     }
   ]
 }`;
 
-    const aiResponse = await callOpenAI({
-      model: 'gpt-4.1-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Give me a surprise plan for tonight!' },
-      ],
-      response_format: { type: 'json_object' },
+    const aiResponse = await callClaude({
+      model: 'claude-haiku-4-5-20251001',
+      messages: [{ role: 'user', content: prompt }],
       max_tokens: 1024,
     });
 
-    const rawText: string = aiResponse?.choices?.[0]?.message?.content ?? '{}';
+    const rawText: string = aiResponse?.content?.[0]?.text ?? '{}';
 
-    // Strip markdown code fences
-    const cleaned = rawText
-      .replace(/```json\n?/g, '')
-      .replace(/```\n?/g, '')
-      .trim();
+    // Extract JSON from response
+    let cleaned = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const jsonStart = cleaned.indexOf('{');
+    const jsonEnd = cleaned.lastIndexOf('}');
+    if (jsonStart > 0 && jsonEnd > jsonStart) {
+      cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+    }
 
     const parsed = JSON.parse(cleaned);
     const { stops = [], tagline_en, tagline_bs } = parsed;

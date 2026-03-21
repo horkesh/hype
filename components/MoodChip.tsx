@@ -18,23 +18,23 @@ interface MoodChipProps {
   moodId: string;
 }
 
-const MOOD_COLORS: Record<string, { light: string; dark: string }> = {
-  party: { light: 'rgba(239, 68, 68, 0.15)', dark: 'rgba(239, 68, 68, 0.25)' },
-  chill: { light: 'rgba(59, 130, 246, 0.15)', dark: 'rgba(59, 130, 246, 0.25)' },
-  girls_night: { light: 'rgba(236, 72, 153, 0.15)', dark: 'rgba(236, 72, 153, 0.25)' },
-  date_night: { light: 'rgba(251, 146, 60, 0.15)', dark: 'rgba(251, 146, 60, 0.25)' },
-  muzika: { light: 'rgba(168, 85, 247, 0.15)', dark: 'rgba(168, 85, 247, 0.25)' },
-  romantika: { light: 'rgba(190, 18, 60, 0.15)', dark: 'rgba(190, 18, 60, 0.25)' },
-  kultura: { light: 'rgba(99, 102, 241, 0.15)', dark: 'rgba(99, 102, 241, 0.25)' },
-  foodie: { light: 'rgba(234, 179, 8, 0.15)', dark: 'rgba(234, 179, 8, 0.25)' },
-  brunch: { light: 'rgba(251, 207, 232, 0.3)', dark: 'rgba(251, 207, 232, 0.2)' },
-  after_work: { light: 'rgba(217, 119, 6, 0.15)', dark: 'rgba(217, 119, 6, 0.25)' },
-  outdoor: { light: 'rgba(34, 197, 94, 0.15)', dark: 'rgba(34, 197, 94, 0.25)' },
-  turista: { light: 'rgba(14, 165, 233, 0.15)', dark: 'rgba(14, 165, 233, 0.25)' },
+const MOOD_COLORS: Record<string, string> = {
+  party: 'rgba(239, 68, 68, 0.25)',
+  chill: 'rgba(59, 130, 246, 0.25)',
+  girls_night: 'rgba(236, 72, 153, 0.25)',
+  date_night: 'rgba(251, 146, 60, 0.25)',
+  muzika: 'rgba(168, 85, 247, 0.25)',
+  romantika: 'rgba(190, 18, 60, 0.25)',
+  kultura: 'rgba(99, 102, 241, 0.25)',
+  foodie: 'rgba(234, 179, 8, 0.25)',
+  brunch: 'rgba(251, 207, 232, 0.2)',
+  after_work: 'rgba(217, 119, 6, 0.25)',
+  outdoor: 'rgba(34, 197, 94, 0.25)',
+  turista: 'rgba(14, 165, 233, 0.25)',
 };
 
 export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChipProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
@@ -51,8 +51,7 @@ export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChip
     };
   });
 
-  const moodColor = MOOD_COLORS[moodId] || { light: 'rgba(0, 0, 0, 0.05)', dark: 'rgba(255, 255, 255, 0.1)' };
-  const backgroundColor = isDark ? moodColor.dark : moodColor.light;
+  const backgroundColor = MOOD_COLORS[moodId] || 'rgba(255, 255, 255, 0.1)';
 
   const selectedBackgroundColor = colors.accent;
   const selectedTextColor = '#FFFFFF';

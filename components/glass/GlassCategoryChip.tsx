@@ -14,11 +14,11 @@ interface GlassCategoryChipProps {
 }
 
 export function GlassCategoryChip({ categoryId, label, isSelected, onPress, iconSource }: GlassCategoryChipProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const chipBg = isSelected ? colors.accent : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
-  const borderColor = isSelected ? colors.accent : isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)';
+  const chipBg = isSelected ? colors.accent : 'rgba(255,255,255,0.08)';
+  const borderColor = isSelected ? colors.accent : 'rgba(255,255,255,0.15)';
   const textColor = isSelected ? '#FFF' : colors.text;
   const content = (
     <>

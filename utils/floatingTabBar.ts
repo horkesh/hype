@@ -48,7 +48,7 @@ export function getTabIndicatorTranslateRange(containerWidth: number, tabCount: 
   return [0, tabWidth * Math.max(safeTabCount - 1, 0)];
 }
 
-export function getTabBarSurfaceColors(isDark: boolean): {
+export function getTabBarSurfaceColors(): {
   backgroundColor: string;
   borderColor: string;
   iconColor: string;
@@ -56,10 +56,10 @@ export function getTabBarSurfaceColors(isDark: boolean): {
   indicatorColor: string;
 } {
   return {
-    backgroundColor: isDark ? 'rgba(28, 28, 30, 0.95)' : 'rgba(255, 255, 255, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 1)',
-    iconColor: isDark ? '#98989D' : '#8E8E93',
-    labelColor: isDark ? '#98989D' : '#8E8E93',
-    indicatorColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+    backgroundColor: 'rgba(18, 18, 18, 0.95)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    iconColor: '#98989D',
+    labelColor: '#98989D',
+    indicatorColor: 'rgba(255, 255, 255, 0.08)',
   };
 }

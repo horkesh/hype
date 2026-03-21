@@ -257,6 +257,26 @@ Status:
   - `/simplify` pass completed: parallelized enrichment N+1, debounced SSE re-renders, added pulse cache cleanup
 - Remaining: hero image assets (gradient fallbacks active), end-to-end in-app demo walkthrough
 
+#### E11. Dark mode only conversion
+
+- Status: `Done`
+- Goal:
+  - convert app from cream/beige light theme to Spotify-inspired dark-mode-only
+- Plan: `~/.claude/plans/linear-churning-mist.md`
+- Architecture:
+  - single dark palette: `#121212` background, `#1E1E1E` card, `#D4A056` accent
+  - `useTheme()` collapsed to static constant (no dynamic theme resolution)
+  - theme toggle removed from Profile
+  - glass tokens flattened from light/dark to single dark-only set
+  - tab bar white border bug fixed
+- What was delivered:
+  - 25+ component files updated across 6 waves
+  - all `isDark` ternaries collapsed, all `useColorScheme` references removed
+  - `commonStyles.ts` now flat `colors` export with `surface`, `surfaceHover`, `textTertiary` tokens
+  - ErrorBoundary, LoadingButton, Map, MoodChip, ListItem, SkeletonLoader updated for dark
+  - 3 test files updated for new token structure
+  - 177/178 tests passing
+
 #### E9. Venue data quality pipeline
 
 - Status: `Done`
@@ -436,6 +456,10 @@ Status:
   - Home weather hero messages in `homeHeroState.ts` now use correct diacritics (Savršen, baštu, Kišovito, kafić)
   - event free-entry badge label now lives in `getEventFreeEntryLabel()` in `eventDetailScreen.ts` instead of hardcoded in the component
   - `npm test` script now exists and runs 117 tests via Node test runner with tsx
+  - `formatEventDateLabel` in `homeScreenContent.ts` now uses explicit Bosnian month names instead of broken `toLocaleDateString('bs-BA')` browser output
+  - `HomeCardRail` web fallback removed — events rail now scrolls horizontally on web like Hidden Gems
+  - `SavedTabContent` crash fixed (missing `SAVED_MOODS` import)
+  - `SavedEmptyState` button text changed from invisible white to accent color
 
 #### B13. Adapter and compatibility cleanup
 

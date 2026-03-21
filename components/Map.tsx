@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: '100%',
     minHeight: 200,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#121212',
   },
   webview: {
     flex: 1,

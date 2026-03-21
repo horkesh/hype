@@ -1195,3 +1195,144 @@ Full execution of the presentation restyle plan across 6 chunks, 16 commits on `
 - All 8 edge functions deployed
 - Vercel builds green
 - 179 tests passing
+
+### 2026-03-20 — Browser UI Walkthrough + Fixes
+
+#### Goal
+Full browser walkthrough of every tab and detail screen, fixing bugs found along the way.
+
+#### Bugs fixed
+
+1. **Event cards stacked vertically on web** (`components/home/HomeCardRail.tsx`)
+   - `HomeCardRail` had a web-specific fallback that rendered cards in a vertical `View` instead of horizontal `ScrollView`
+   - Removed the `Platform.OS === 'web'` branch — now uses horizontal `ScrollView` on all platforms, matching the Hidden Gems rail
+
+2. **Date format "M03 22" instead of "22. mart"** (`utils/homeScreenContent.ts`)
+   - `toLocaleDateString('bs-BA', ...)` produces broken output in browsers
+   - Added explicit Bosnian month name array for the `bs` locale path
+
+3. **Saved tab crash: "SAVED_MOODS is not defined"** (`components/saved/SavedTabContent.tsx`)
+   - Missing import — `SAVED_MOODS` was used but not imported from `utils/savedScreen`
+
+4. **Invisible "Otvori profil" button on Saved empty state** (`components/saved/SavedEmptyState.tsx`)
+   - Button text was hardcoded `#FFFFFF` (white) on a near-white glass background (`rgba(255,255,255,0.6)`)
+   - Changed to use `accentColor` prop (gold) for visible contrast
+
+#### Files touched
+- `components/home/HomeCardRail.tsx`
+- `utils/homeScreenContent.ts`
+- `components/saved/SavedTabContent.tsx`
+- `components/saved/SavedEmptyState.tsx`
+
+#### Observations (not fixed — data or polish items)
+- "Magic by Aida" event appears twice in the events rail — duplicate in DB, not a UI bug
+- Many events have gold placeholder images (no real photos scraped yet)
+- Tonight tab shows empty state for all time slots — expected since events start March 22+
+- Pre-existing test failure in `aiHelpersExtra.test.ts` (model ID assertion) — unrelated
+
+#### Session end state
+- 178/179 tests passing (1 pre-existing failure)
+- All 5 tabs render cleanly on web
+- Event cards now horizontal rail with correct Bosnian dates
+- Saved tab no longer crashes
+
+### 2026-03-20 — Dark Mode Only Conversion
+
+#### Goal
+Convert the app from cream/beige light theme to Spotify-inspired dark-mode-only. No toggle, no light mode.
+
+#### New palette
+- Background: `#121212` (was `#FAFAF8` light / `#1A1A2E` dark)
+- Card: `#1E1E1E` (was `#FFFFFF` / `#252538`)
+- Text: `#F5F5F5`, accent: `#D4A056` (gold, unchanged)
+- Glass: `rgba(255,255,255,0.06)` (tuned for darker base)
+- Tab bar border: `rgba(255,255,255,0.08)` (was `rgba(255,255,255,1)` — bug fix)
+
+#### Architecture changes
+- `styles/commonStyles.ts` — flattened from `colors.light`/`colors.dark` to single `colors` export with new palette + `surface`, `surfaceHover`, `textTertiary` tokens
+- `hooks/useTheme.ts` — collapsed to static module-level constant, always returns dark
+- `app/_layout.tsx` — hardcoded `HypeDarkTheme`, removed `useColorScheme`, `StatusBar style="light"`
+- `contexts/AppContext.tsx` — removed `ThemeMode`, `themeMode`, `setThemeMode`, `hype_theme` persistence, theme translations
+- `styles/glassTokens.ts` — removed light/dark split, flattened to single dark tokens
+- `utils/floatingTabBar.ts` — removed `isDark` param, hardcoded dark values, fixed white border bug
+- `components/glass/GlassContainer.tsx` — removed `isDark` conditional, uses flat tokens directly
+
+#### UI changes (6 waves)
+- Wave 1+2: Core infrastructure + removed theme toggle from Profile
+- Wave 3: Glass + tab bar tokens
+- Wave 4: ErrorBoundary, LoadingButton, Map, TonightPlanStream — hardcoded light colors replaced
+- Wave 5: Systematic sweep of ~100 files across all component directories
+- Wave 6: Cleanup — removed remaining `useColorScheme`, `isDark` ternaries in button.tsx, MoodChip, ListItem, SkeletonLoader, GlassMoodChip, GlassCategoryChip, FloatingTabBar
+
+#### Files touched (25+)
+- `styles/commonStyles.ts`, `hooks/useTheme.ts`, `app/_layout.tsx`, `contexts/AppContext.tsx`
+- `styles/glassTokens.ts`, `utils/floatingTabBar.ts`, `components/glass/GlassContainer.tsx`
+- `components/ErrorBoundary.tsx`, `components/LoadingButton.tsx`, `components/button.tsx`
+- `components/Map.tsx`, `components/Map.web.tsx`
+- `components/tonight/TonightPlanStream.tsx`, `TonightSegmentTabs.tsx`, `TonightModalStack.tsx`, `TonightEventBadges.tsx`, `TonightVoteModal.tsx`
+- `components/saved/SavedBadgeCard.tsx`, `components/profile/ProfileSignOutModal.tsx`
+- `components/SkeletonLoader.tsx`, `components/ListItem.tsx`, `components/MoodChip.tsx`, `components/FloatingTabBar.tsx`
+- `components/glass/GlassMoodChip.tsx`, `components/glass/GlassCategoryChip.tsx`
+- `constants/Colors.ts`, `utils/profileScreen.ts`, `utils/profileSettings.ts`
+- `components/profile/ProfileSettingsSection.tsx`, `app/(tabs)/profile.tsx`
+- Tests: `tests/designTokens.test.ts`, `tests/floatingTabBar.test.ts`, `tests/profileScreen.test.ts`
+
+#### Session end state
+- 177/178 tests passing (1 pre-existing failure)
+- All 5 tabs + detail screens render dark on web
+- No `useColorScheme`, `isDaytime`, `colors.light`, `HYPE_LIGHT_BG` references remain
+- Gold accent (#D4A056) on charcoal (#121212) reads premium
+- Glass effects pop on dark backgrounds
+
+### 2026-03-20 — City Pulse Intelligence + AI Model Upgrades
+
+#### City Pulse enhancements
+- Edge function now fetches **klix.ba RSS feed** and filters for Sarajevo-relevant headlines
+- Headlines injected into prompt only when genuinely significant (events, protests, closures — not niche stories)
+- **Holiday calendar** hardcoded for 2026: Bajram, Kurban Bajram, Ramazan, Nova Godina, Praznik rada, etc.
+- Holidays are injected as a mandatory primary theme: `⚠️ TODAY IS A HOLIDAY: BAJRAM...`
+- Prompt rewritten to understand the **rhythm of holiday celebrations** by time of day (morning prayers → lunch → walks → evening)
+- Weather data now passed from client → edge function
+- Strict venue list enforcement: "Any venue not on this list does NOT exist"
+- Robust JSON parsing: strips preamble text if model outputs thinking before JSON
+- Cache shortened to 2 hours for freshness
+
+#### AI model upgrades
+- **surprise-me**: GPT-4.1 mini → **Claude Haiku 4.5** — better Bosnian prose, more reliable JSON
+- **generate-plan**: GPT-4.1 mini → **Claude Haiku 4.5** with SSE streaming — server-side format translation (Claude SSE → OpenAI SSE) so client stays unchanged
+- **generate-pulse**: kept on Gemini Flash Lite (adequate for short blurbs, cheapest)
+- **smart-search**: kept on GPT-4.1 nano (intent parsing only, cheapest works fine)
+
+#### Surprise Me fixes
+- Added error state UI (was silently swallowing failures)
+- Added "zatvori/close" hint when expanded
+- Added 10s timeout on API call
+- Fixed hero container clipping: `height: 320` → `minHeight: 320`, removed `overflow: hidden`
+- Hero gradient updated from old navy `#1A1A2E` to new charcoal `#121212`
+
+#### Earlier bug fixes (same session)
+- Home event cards: vertical stack → horizontal scroll rail (`HomeCardRail.tsx`)
+- Date format "M03 22" → "22. mart" (explicit Bosnian month names)
+- Saved tab crash: missing `SAVED_MOODS` import
+- Saved empty state: invisible white button text → gold accent color
+
+#### Files touched
+- `supabase/functions/generate-pulse/index.ts` — klix RSS, holiday calendar, weather, strict venues
+- `supabase/functions/surprise-me/index.ts` — switched to Claude Haiku
+- `supabase/functions/generate-plan/index.ts` — switched to Claude Haiku streaming with SSE translation
+- `utils/ai/cityPulse.ts` — passes weather to edge function
+- `components/home/HomeCityPulse.tsx` — fetches weather before pulse call
+- `components/home/HomeSurpriseMe.tsx` — error state, timeout, theme tokens
+- `components/home/HomeHeroPhoto.tsx` — minHeight, removed overflow clip, gradient fix
+
+#### Deployments
+- `generate-pulse`, `surprise-me`, `generate-plan` all deployed to Supabase
+- Old pulse cache cleared
+
+#### Session end state
+- All 3 AI features tested and returning quality results
+- City Pulse correctly shows "Bajram mubarek!" on Eid
+- Surprise Me generates real plans with Claude Haiku
+- Tonight Planner streams with Claude Haiku via SSE format translation
+- Smart Search correctly parses Bosnian queries
+- 177/178 tests passing

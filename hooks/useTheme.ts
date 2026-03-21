@@ -1,34 +1,13 @@
 // hooks/useTheme.ts
 
-import { useColorScheme } from 'react-native';
-import { useApp } from '@/contexts/AppContext';
-import { colors } from '@/styles/commonStyles';
+import { colors, ThemeColors } from '@/styles/commonStyles';
 
-export function useTheme() {
-  const systemColorScheme = useColorScheme();
-  const { themeMode } = useApp();
+const THEME = {
+  theme: 'dark' as const,
+  colors,
+  isDark: true as const,
+};
 
-  // Determine if it's daytime (6 AM - 7 PM)
-  const isDaytime = () => {
-    const hour = new Date().getHours();
-    return hour >= 6 && hour < 19;
-  };
-
-  // Calculate effective theme
-  const getEffectiveTheme = () => {
-    if (themeMode === 'light') return 'light';
-    if (themeMode === 'dark') return 'dark';
-
-    // Auto mode: use time-based logic
-    return isDaytime() ? 'light' : 'dark';
-  };
-
-  const effectiveTheme = getEffectiveTheme();
-  const themeColors = effectiveTheme === 'dark' ? colors.dark : colors.light;
-
-  return {
-    theme: effectiveTheme,
-    colors: themeColors,
-    isDark: effectiveTheme === 'dark',
-  };
+export function useTheme(): { theme: 'dark'; colors: ThemeColors; isDark: true } {
+  return THEME;
 }

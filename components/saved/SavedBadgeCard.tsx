@@ -25,7 +25,7 @@ export function SavedBadgeCard({
       style={[
         styles.badgeCard,
         {
-          backgroundColor: badge.isEarned ? '#FFFFFF' : backgroundColor,
+          backgroundColor: badge.isEarned ? '#121212' : backgroundColor,
           opacity: badge.isEarned ? 1 : 0.6,
         },
       ]}
@@ -41,7 +41,7 @@ export function SavedBadgeCard({
         </View>
       ) : (
         <View style={styles.progressContainer}>
-          <View style={[styles.progressBar, { backgroundColor: '#FFFFFF' }]}>
+          <View style={[styles.progressBar, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
             <View
               style={[
                 styles.progressFill,

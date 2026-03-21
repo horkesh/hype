@@ -14,11 +14,10 @@ import { useTheme } from '@/hooks/useTheme';
 import {
   PROFILE_DEMO_BADGES,
   PROFILE_MOODS,
-  PROFILE_THEME_OPTIONS,
 } from '@/utils/profileScreen';
 
 export default function ProfileScreen() {
-  const { language, setLanguage, setThemeMode, themeMode } = useApp();
+  const { language, setLanguage } = useApp();
   const { colors } = useTheme();
   const isBosnian = language === 'bs';
   const controller = useProfileController({ isBosnian });
@@ -90,11 +89,8 @@ export default function ProfileScreen() {
           colorsText={colors.text}
           isBosnian={isBosnian}
           language={language}
-          onSelectTheme={setThemeMode}
           onToggleLanguage={setLanguage}
           textSecondaryColor={colors.textSecondary}
-          themeMode={themeMode}
-          themeOptions={PROFILE_THEME_OPTIONS}
         />
       </ScrollView>
 

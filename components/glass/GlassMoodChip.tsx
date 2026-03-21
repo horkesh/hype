@@ -26,7 +26,7 @@ export function GlassMoodChip({
   onPress,
   iconSource,
 }: GlassMoodChipProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const scale = useSharedValue(1);
   const mood = glassTokens.moodColors[moodId];
 
@@ -43,9 +43,7 @@ export function GlassMoodChip({
 
   const chipBg = isSelected
     ? mood?.primary ?? colors.accent
-    : isDark
-    ? mood?.bg ?? 'rgba(255,255,255,0.08)'
-    : (mood?.bg ?? 'rgba(0,0,0,0.05)').replace('0.25', '0.12');
+    : mood?.bg ?? 'rgba(255,255,255,0.08)';
 
   const glowShadow = isSelected && mood
     ? { shadowColor: mood.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }
@@ -53,7 +51,7 @@ export function GlassMoodChip({
 
   const borderColor = isSelected
     ? mood?.primary ?? colors.accent
-    : isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)';
+    : 'rgba(255,255,255,0.15)';
 
   const textColor = isSelected ? '#FFFFFF' : colors.text;
 

@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { designTokens } from '@/styles/designTokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_HEIGHT = 320;
+const HERO_MIN_HEIGHT = 320;
 
 // Hero images — will be replaced with Gemini-generated assets
 const HERO_IMAGES: Record<string, any> = {
@@ -48,7 +48,7 @@ export function HomeHeroPhoto({ language, children }: HomeHeroPhotoProps) {
         <Image source={heroImage} style={styles.backgroundImage} />
       ) : (
         <LinearGradient
-          colors={['#D4A056', '#1A1A2E']}
+          colors={['#D4A056', '#121212']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.backgroundImage}
@@ -66,8 +66,8 @@ export function HomeHeroPhoto({ language, children }: HomeHeroPhotoProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { width: SCREEN_WIDTH, height: HERO_HEIGHT, overflow: 'hidden', marginBottom: 16 },
-  backgroundImage: { ...StyleSheet.absoluteFillObject, width: SCREEN_WIDTH, height: HERO_HEIGHT },
-  overlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', padding: 20, paddingBottom: 24 },
+  container: { width: SCREEN_WIDTH, minHeight: HERO_MIN_HEIGHT, marginBottom: 16 },
+  backgroundImage: { ...StyleSheet.absoluteFillObject, width: SCREEN_WIDTH, minHeight: HERO_MIN_HEIGHT },
+  overlay: { justifyContent: 'flex-end', padding: 20, paddingBottom: 24, minHeight: HERO_MIN_HEIGHT },
   greeting: { ...designTokens.typography.heroTitle, color: '#FFF', marginBottom: 12 },
 });
