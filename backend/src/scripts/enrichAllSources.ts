@@ -279,7 +279,7 @@ async function main() {
     try {
       const response = await fetch(event.source_url, {
         headers: {
-          'User-Agent': 'HypeIngestionBot/0.1 (+https://hype.local)',
+          'User-Agent': 'LookIngestionBot/0.1 (+https://look.ba)',
           Accept: 'text/html,application/xhtml+xml',
         },
       });

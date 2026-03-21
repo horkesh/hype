@@ -167,7 +167,7 @@ export function enrichKupikartuCandidateFromDetail(
 async function fetchDetailHtml(url: string, fetchImpl: FetchLike): Promise<string> {
   const response = await fetchImpl(url, {
     headers: {
-      'User-Agent': 'HypeIngestionBot/0.1 (+https://hype.local)',
+      'User-Agent': 'LookIngestionBot/0.1 (+https://look.ba)',
       Accept: 'text/html,application/xhtml+xml',
     },
   });

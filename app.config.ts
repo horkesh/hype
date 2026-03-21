@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Hype',
-  slug: 'hype',
+  name: 'Look',
+  slug: 'look',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/app-icon-kdx.png',
@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
   },
   plugins: ['expo-font', 'expo-router', 'expo-web-browser'],
-  scheme: 'hype',
+  scheme: 'look',
   experiments: {
     typedRoutes: true,
   },

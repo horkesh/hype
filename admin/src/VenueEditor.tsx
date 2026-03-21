@@ -104,7 +104,7 @@ export function VenueEditor({ onSignOut }: { onSignOut: () => void }) {
   return (
     <div className="editor" onKeyDown={handleKeyDown} tabIndex={0}>
       <header>
-        <h1>Hype Venue Editor</h1>
+        <h1>Look Venue Editor</h1>
         <div className="stats">
           <span>{stats.total} venues</span>
           <span className="stat-good">{stats.withDesc} with descriptions</span>

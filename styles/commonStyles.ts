@@ -1,7 +1,7 @@
 
 import { StyleSheet } from 'react-native';
 
-// Hype dark color scheme (Spotify-inspired charcoal)
+// Look dark color scheme (Spotify-inspired charcoal)
 export const colors = {
   background: '#121212',
   card: '#1E1E1E',

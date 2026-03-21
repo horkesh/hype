@@ -63,6 +63,6 @@ test('buildTonightVoteResults returns only selected events that still exist', ()
 test('buildMockTonightVoteLink is deterministic for the selected ids', () => {
   assert.equal(
     buildMockTonightVoteLink(['event-2', 'event-1']),
-    'hype.ba/vote/event-1-event-2'
+    'look.ba/vote/event-1-event-2'
   );
 });

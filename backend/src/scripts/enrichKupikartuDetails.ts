@@ -181,7 +181,7 @@ function extractDetail(html: string): ExtractedDetail {
 async function fetchDetailHtml(url: string): Promise<string> {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'HypeIngestionBot/0.1 (+https://hype.local)',
+      'User-Agent': 'LookIngestionBot/0.1 (+https://look.ba)',
       Accept: 'text/html,application/xhtml+xml',
     },
   });

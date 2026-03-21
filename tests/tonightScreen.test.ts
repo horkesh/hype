@@ -29,9 +29,9 @@ test('Tonight share text uses cleaned Bosnian copy', () => {
   });
 
   assert.match(planText, /Moj plan za večeras/);
-  assert.match(planText, /Kreirano sa Hype app/);
+  assert.match(planText, /Kreirano sa Look app/);
 
-  const voteText = buildTonightVoteShareText('bs', 'https://hype.ba/vote/demo');
+  const voteText = buildTonightVoteShareText('bs', 'https://look.ba/vote/demo');
   assert.match(voteText, /Glasaj za večeras!/);
 });
 

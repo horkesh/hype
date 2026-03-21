@@ -18,7 +18,7 @@ export function buildMockTonightVoteLink(selectedEvents: string[]): string {
     .replace(/[^a-zA-Z0-9-]/g, '')
     .slice(0, 32);
 
-  return `hype.ba/vote/${suffix || 'demo'}`;
+  return `look.ba/vote/${suffix || 'demo'}`;
 }
 
 export function buildTonightVoteResults(

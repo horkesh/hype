@@ -34,7 +34,7 @@ export const PROFILE_LANGUAGE_OPTIONS: ProfileLanguageOption[] = [
 
 export function getProfileSettingsCopy(isBosnian: boolean): ProfileSettingsCopy {
   return {
-    aboutBody: isBosnian ? 'Hype v1.0 - Digitalni puls grada' : 'Hype v1.0 - The city pulse',
+    aboutBody: isBosnian ? 'Look v1.0 - Digitalni puls grada' : 'Look v1.0 - The city pulse',
     aboutTitle: isBosnian ? 'O aplikaciji' : 'About',
     authCheckEmailBody: isBosnian
       ? 'Provjeri email za potvrdni link.'

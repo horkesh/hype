@@ -150,7 +150,7 @@ export async function fetchSourceContent(source: IngestionSourceSummary): Promis
   for (const pageUrl of fetchedUrls) {
     const response = await fetch(pageUrl, {
       headers: {
-        'User-Agent': 'HypeIngestionBot/0.1 (+https://hype.local)',
+        'User-Agent': 'LookIngestionBot/0.1 (+https://look.ba)',
         Accept: 'text/html,application/xhtml+xml',
       },
     });

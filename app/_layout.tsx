@@ -30,7 +30,7 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
-const HypeDarkTheme: Theme = {
+const LookDarkTheme: Theme = {
   ...DarkTheme,
   colors: {
     primary: "#D4A056",
@@ -70,7 +70,7 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style="light" animated />
-      <ThemeProvider value={HypeDarkTheme}>
+      <ThemeProvider value={LookDarkTheme}>
         <AppProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <Stack

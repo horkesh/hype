@@ -18,7 +18,10 @@ export function HypeHeader() {
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-      <Text style={[styles.logo, { color: colors.accent }]}>Hype</Text>
+      <View style={styles.logoRow}>
+        <Text style={[styles.logo, { color: colors.accent }]}>Look</Text>
+        <Text style={[styles.logoCity, { color: colors.textSecondary }]}> - Sarajevo</Text>
+      </View>
       <View style={styles.headerRight}>
         <TouchableOpacity 
           onPress={toggleLanguage}
@@ -52,10 +55,18 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     borderBottomWidth: 1,
   },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
   logo: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'DMSerifDisplay_400Regular',
     letterSpacing: 1,
+  },
+  logoCity: {
+    fontSize: 16,
+    fontFamily: 'DMSans_400Regular',
   },
   headerRight: {
     flexDirection: 'row',

@@ -20,7 +20,7 @@ export const appleRed = "#FF3B30";
 export const borderColor = "#A1A1AA80";
 export const appleGreen = "#34C759";
 
-// Hype brand colors
+// Look brand colors
 export const HYPE_AMBER = "#D4A056";
 export const HYPE_DARK_BG = "#121212";
 

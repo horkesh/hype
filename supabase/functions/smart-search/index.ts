@@ -26,7 +26,7 @@ Deno.serve(async (req: Request) => {
     const categories = [...new Set((venuesMeta ?? []).map((v) => v.category).filter(Boolean))];
     const neighborhoods = [...new Set((venuesMeta ?? []).map((v) => v.neighborhood).filter(Boolean))];
 
-    const systemPrompt = `You are a smart search assistant for Hype, a Sarajevo nightlife app.
+    const systemPrompt = `You are a smart search assistant for Look, a Sarajevo city discovery app.
 Available venue categories: ${categories.join(', ')}.
 Available neighborhoods: ${neighborhoods.join(', ')}.
 Language: ${language}.

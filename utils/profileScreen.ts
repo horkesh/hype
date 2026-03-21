@@ -29,7 +29,7 @@ export const PROFILE_MOODS: ProfileMoodOption[] = [
 export const PROFILE_DEMO_BADGES: ProfileDemoBadge[] = [
   { icon: '\u2615', name_bs: 'Kafedzija', name_en: 'Coffee Lover' },
   { icon: '\u{1F575}\uFE0F', name_bs: 'Explorer', name_en: 'Explorer' },
-  { icon: '\u{1F451}', name_bs: 'Hype OG', name_en: 'Hype OG' },
+  { icon: '\u{1F451}', name_bs: 'Look OG', name_en: 'Look OG' },
 ];
 
 export function toggleProfileMoodSelection(

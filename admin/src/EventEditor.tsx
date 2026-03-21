@@ -146,7 +146,7 @@ export function EventEditor({ onSignOut }: { onSignOut: () => void }) {
   return (
     <div className="editor" tabIndex={0}>
       <header>
-        <h1>Hype Event Editor</h1>
+        <h1>Look Event Editor</h1>
         <div className="stats">
           <span>{events.length} events</span>
           <span className="stat-good">{events.filter(e => e.status === 'approved').length} approved</span>

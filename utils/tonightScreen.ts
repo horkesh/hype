@@ -172,11 +172,11 @@ export function buildTonightPlanShareText(language: string, currentPlan: AIPlan)
 
   return `${language === 'bs' ? 'Moj plan za večeras' : 'My plan for tonight'}:\n\n${planText}\n\n${
     language === 'bs' ? 'Ukupno' : 'Total'
-  }: ~${currentPlan.total} KM\n\n${language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'}`;
+  }: ~${currentPlan.total} KM\n\n${language === 'bs' ? 'Kreirano sa Look app' : 'Created with Look app'}`;
 }
 
 export function buildTonightVoteShareText(language: string, voteLink: string): string {
   return `${language === 'bs' ? 'Glasaj za večeras!' : 'Vote for tonight!'}\n\n${voteLink}\n\n${
-    language === 'bs' ? 'Kreirano sa Hype app' : 'Created with Hype app'
+    language === 'bs' ? 'Kreirano sa Look app' : 'Created with Look app'
   }`;
 }

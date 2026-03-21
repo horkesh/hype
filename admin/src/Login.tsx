@@ -18,7 +18,7 @@ export function Login() {
 
   return (
     <div className="login-container">
-      <h1>Hype Admin</h1>
+      <h1>Look Admin</h1>
       <form onSubmit={handleSubmit}>
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
