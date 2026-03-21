@@ -25,7 +25,7 @@ export function EventCardFront({ title, imageUrl, startTime, urgency }: EventCar
       ) : (
         <View style={[styles.image, styles.placeholder]} />
       )}
-      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.7)']} style={styles.gradient}>
+      <LinearGradient colors={['transparent', 'rgba(20,10,0,0.7)']} style={styles.gradient}>
         {startTime && <Text style={styles.time}>{startTime}</Text>}
         <Text style={styles.title} numberOfLines={2}>{title}</Text>
       </LinearGradient>

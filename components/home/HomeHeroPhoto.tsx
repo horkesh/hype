@@ -60,7 +60,7 @@ export function HomeHeroPhoto({ language, heroImageUrl, children }: HomeHeroPhot
         />
       )}
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.6)']}
+        colors={['transparent', 'rgba(20,10,0,0.7)']}
         style={styles.overlay}
       >
         <Text style={styles.greeting}>{greeting}</Text>

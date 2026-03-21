@@ -1,6 +1,6 @@
 export const glassTokens = {
-  background: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
+  background: 'rgba(212,160,86,0.04)',
+  border: 'rgba(212,160,86,0.10)',
   borderWidth: 1,
   moodColors: {
     party:       { primary: '#EF4444', glow: 'rgba(239,68,68,0.2)',   bg: 'rgba(239,68,68,0.25)' },

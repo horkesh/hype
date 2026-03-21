@@ -161,6 +161,10 @@ export default function EventDetailScreen() {
             venueEnabled={Boolean(event.venue_id)}
             onVenuePress={handleVenueTap}
             venueLabel={t('venue')}
+            dateTimeDisplay={formattedDateTime}
+            whenLabel={t('when') || 'WHEN'}
+            priceDisplay={isFree ? getEventFreeEntryLabel(language) : priceDisplay}
+            priceLabel={t('price')}
             category={event.category}
             categoryEmoji={getEventCategoryEmoji(event.category)}
             moods={event.moods || []}
@@ -223,8 +227,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'DMSerifDisplay_400Regular',
     marginBottom: 12,
   },
   descriptionText: {

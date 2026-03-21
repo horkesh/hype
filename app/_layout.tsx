@@ -19,6 +19,10 @@ import {
   DMSans_500Medium,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
+import {
+  useFonts as useDMSerif,
+  DMSerifDisplay_400Regular,
+} from "@expo-google-fonts/dm-serif-display";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,13 +53,17 @@ export default function RootLayout() {
     DMSans_700Bold,
   });
 
+  const [dmSerifLoaded] = useDMSerif({
+    DMSerifDisplay_400Regular,
+  });
+
   useEffect(() => {
-    if (loaded && dmSansLoaded) {
+    if (loaded && dmSansLoaded && dmSerifLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, dmSansLoaded]);
+  }, [loaded, dmSansLoaded, dmSerifLoaded]);
 
-  if (!loaded || !dmSansLoaded) {
+  if (!loaded || !dmSansLoaded || !dmSerifLoaded) {
     return null;
   }
 

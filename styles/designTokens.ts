@@ -7,9 +7,9 @@ export const designTokens = {
     imageFrame: 20,
   },
   typography: {
-    heroTitle:     { fontSize: 32, fontWeight: '700' as const, fontFamily: 'DMSans_700Bold' },
-    sectionHeader: { fontSize: 24, fontWeight: '700' as const, fontFamily: 'DMSans_700Bold' },
-    cardTitle:     { fontSize: 18, fontWeight: '700' as const, fontFamily: 'DMSans_700Bold' },
+    heroTitle:     { fontSize: 34, fontWeight: '400' as const, fontFamily: 'DMSerifDisplay_400Regular' },
+    sectionHeader: { fontSize: 24, fontWeight: '400' as const, fontFamily: 'DMSerifDisplay_400Regular' },
+    cardTitle:     { fontSize: 18, fontWeight: '400' as const, fontFamily: 'DMSerifDisplay_400Regular' },
     body:          { fontSize: 15, fontWeight: '400' as const, fontFamily: 'DMSans_400Regular' },
     caption:       { fontSize: 12, fontWeight: '500' as const, fontFamily: 'DMSans_500Medium' },
   },

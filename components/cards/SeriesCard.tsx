@@ -29,7 +29,7 @@ export function SeriesCard({ title, imageUrl, startDate, eventCount, onPress }: 
       ) : (
         <View style={[styles.image, styles.placeholder]} />
       )}
-      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.7)']} style={styles.gradient}>
+      <LinearGradient colors={['transparent', 'rgba(20,10,0,0.7)']} style={styles.gradient}>
         <Text style={styles.title} numberOfLines={2}>{title}</Text>
         {eventCount !== undefined && (
           <Text style={styles.eventCount}>{eventCount} events</Text>

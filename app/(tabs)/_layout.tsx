@@ -13,7 +13,7 @@ export default function TabLayout() {
         headerShown: false,
         animation: 'none',
         tabBarStyle: {
-          backgroundColor: '#1A1A1A',
+          backgroundColor: '#1A1710',
           borderTopColor: 'rgba(255,255,255,0.08)',
           borderTopWidth: 1,
           height: 60,
