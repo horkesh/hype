@@ -162,7 +162,7 @@ export default function EventDetailScreen() {
             onVenuePress={handleVenueTap}
             venueLabel={t('venue')}
             dateTimeDisplay={formattedDateTime}
-            whenLabel={t('when') || 'WHEN'}
+            whenLabel={t('dateAndTime')}
             priceDisplay={isFree ? getEventFreeEntryLabel(language) : priceDisplay}
             priceLabel={t('price')}
             category={event.category}
