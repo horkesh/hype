@@ -292,20 +292,25 @@ Status:
 
 #### E10. Event scraping pipeline
 
-- Status: `In Progress`
+- Status: `Done`
 - Goal:
   - populate events from web scrapers and Instagram
-- What's done:
+- What was delivered:
   - 3 web scrapers working (Pozorista, AllEvents, KupiKartu) → 93 raw events
   - Sarajevo city filter on KupiKartu
   - Instagram pipeline built (Apify → Claude Haiku → raw_events), tested end-to-end
   - `parse-instagram` edge function schema fixed
   - `runScraper.ts` standalone script working
+  - `enrichKupikartuDetails.ts` — detail page scraper for KupiKartu (descriptions, dates, images)
+  - `enrichAllSources.ts` — detail page scraper for AllEvents.in (JSON-LD) and Pozorista.ba (datetime attrs)
+  - `promoteEvents.ts` — venue matching + date parsing + category inference + dedup
+  - 15 KupiKartu navigation false positives dismissed, 1 cancelled event dismissed, 2 undatable events dismissed
+  - 76 raw_events promoted to canonical events table (47 first pass + 29 second pass)
+  - 21 past events deactivated
+  - 70 upcoming events live in the app (Home rail + Tonight tab verified)
 - What's next:
-  - Promote raw_events → canonical events table (venue matching + transformation)
-  - KupiKartu detail page enrichment (full descriptions, full-size images)
   - Top up Apify credits for full Instagram run
-  - Add events tab to admin editor
+  - Re-scrape sources periodically for new events
 
 ## Backlog
 

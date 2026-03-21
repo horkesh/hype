@@ -1336,3 +1336,60 @@ Convert the app from cream/beige light theme to Spotify-inspired dark-mode-only.
 - Tonight Planner streams with Claude Haiku via SSE format translation
 - Smart Search correctly parses Bosnian queries
 - 177/178 tests passing
+
+### 2026-03-21 — Event Pipeline Completion
+
+#### Goal
+Promote the remaining 46 unpromoted raw_events and clean up false positives.
+
+#### What was done
+
+1. **Built `enrichAllSources.ts`** — unified enrichment script for AllEvents.in and Pozorista.ba
+   - AllEvents: extracts dates, descriptions, images, venue names from JSON-LD structured data
+   - Pozorista: extracts dates from HTML `datetime` attributes, images from `og:image`
+   - Also dismisses KupiKartu navigation false positives automatically
+
+2. **Enriched 31 events** from detail pages:
+   - 29 AllEvents.in events got ISO dates, descriptions, images, and venue names
+   - 2 Pozorista.ba events got dates and images
+   - 2 AllEvents events had no date on their pages at all — dismissed
+
+3. **Dismissed 17 false positives**:
+   - 14 KupiKartu navigation pages (Prodajna mjesta, Uslovi korištenja, O nama, etc.)
+   - 1 cancelled event (MAYA BEROVIĆ - OTKAZANO)
+   - 2 undatable AllEvents entries (Garden of Dreams, Figarov pir)
+
+4. **Promoted 29 new events** to canonical events table:
+   - Venue matching: 1 exact, 13 partial, 0 fuzzy, 15 no match
+   - Key venues matched: Narodno Pozorište, AG Club, Cinemas Sloga, Vijećnica
+
+5. **Deactivated 21 past events** (`is_active = false`)
+
+#### Final event counts
+- Total canonical events: 91
+- Active upcoming: 70
+- Deactivated (past): 21
+- Raw events promoted: 76 (of 93 scraped)
+- Raw events dismissed: 17
+
+#### Browser verification
+- Home "Nadolazeći događaji" rail shows real event cards with AllEvents poster images
+- Tonight tab shows tonight's events with correct times and venues
+- Event cards have proper Bosnian dates, venue names, and "Besplatno" pricing
+
+#### Files touched
+- `backend/src/scripts/enrichAllSources.ts` (new)
+- `docs/00-overview/execution_board.md`
+- `.claude/napkin.md`
+- `docs/project_ledger.md`
+
+#### Decisions
+- AllEvents JSON-LD is the best extraction path — reliable structured data with ISO dates, venue info, descriptions, and images
+- Pozorista.ba uses WordPress The Events Calendar — `datetime` HTML attributes work reliably
+- KupiKartu false positives should be dismissed automatically by title matching against a known navigation page list
+- Past events should be deactivated (`is_active = false`), not deleted, to preserve history
+
+#### Follow-up
+- Re-run scrapers periodically to pick up new events
+- Top up Apify credits for Instagram pipeline
+- Consider automating past-event deactivation on a schedule

@@ -21,16 +21,14 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-17] Event promotion pipeline — promote 93 raw_events to canonical events table**
-   Do instead: match venue names to venues table, transform raw_events schema to events schema, insert. This makes Tonight and Home show real events.
-2. **[2026-03-17] KupiKartu detail enrichment — scrape detail pages for full descriptions + images**
-   Do instead: for each KupiKartu raw_event with a source_url, fetch the detail page, extract full description, proper date/time, and 700x300 image.
-3. **[2026-03-17] Apify Instagram — waiting for user to top up credits**
+1. **[2026-03-17] Apify Instagram — waiting for user to top up credits**
    Do instead: once credits are available, run `scrapeInstagram.ts` to scrape 62 accounts.
-4. **[2026-03-17] In-app demo walkthrough still pending**
-   Do instead: run `npx expo start --web` and walk through every screen to verify glass UI renders.
-5. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
+2. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
    Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
+3. **[2026-03-21] Periodic event re-scrape**
+   Do instead: re-run `runScraper.ts` + `enrichAllSources.ts` + `promoteEvents.ts` weekly to pick up new events from all three sources.
+4. **[2026-03-21] Deactivate past events on schedule**
+   Do instead: run a deactivation pass (`is_active = false` for `start_datetime < now()`) before each re-scrape or on a cron.
 
 ## Data Pipeline Lessons
 1. **[2026-03-17] BS-first bilingual content generation**
