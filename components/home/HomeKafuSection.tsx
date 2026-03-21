@@ -7,9 +7,10 @@ import { useTheme } from '@/hooks/useTheme';
 
 interface HomeKafuSectionProps {
   language: string;
+  selectedMood?: string | null;
 }
 
-export function HomeKafuSection({ language }: HomeKafuSectionProps) {
+export function HomeKafuSection({ language, selectedMood }: HomeKafuSectionProps) {
   const { colors } = useTheme();
   const router = useRouter();
   const [cafe, setCafe] = useState<any>(null);
@@ -18,18 +19,30 @@ export function HomeKafuSection({ language }: HomeKafuSectionProps) {
   const rollCafe = useCallback(async () => {
     setLoading(true);
     try {
-      // Deterministic offset based on current minute
       const offset = new Date().getMinutes();
-      const { data } = await supabase
+      let query = supabase
         .from('venues')
-        .select('id, name, neighborhood, cover_image_url, description_en, description_bs')
-        .eq('category', 'cafe')
-        .range(offset % 20, (offset % 20) + 1);
-      if (data && data.length > 0) setCafe(data[0]);
+        .select('id, name, neighborhood, cover_image_url, description_en, description_bs, moods')
+        .eq('category', 'cafe');
+      if (selectedMood) {
+        query = query.contains('moods', [selectedMood]);
+      }
+      const { data } = await query.range(offset % 20, (offset % 20) + 1);
+      if (data && data.length > 0) {
+        setCafe(data[0]);
+      } else if (selectedMood) {
+        // Fallback: no cafe matches this mood, try without filter
+        const { data: fallback } = await supabase
+          .from('venues')
+          .select('id, name, neighborhood, cover_image_url, description_en, description_bs')
+          .eq('category', 'cafe')
+          .range(offset % 20, (offset % 20) + 1);
+        if (fallback && fallback.length > 0) setCafe(fallback[0]);
+      }
     } catch {} finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedMood]);
 
   return (
     <GlassContainer style={styles.container}>

@@ -9,24 +9,28 @@ import { SectionHeader } from '@/components/SectionHeader';
 
 interface HomeHiddenGemsProps {
   language: string;
+  selectedMood?: string | null;
 }
 
-export function HomeHiddenGems({ language }: HomeHiddenGemsProps) {
+export function HomeHiddenGems({ language, selectedMood }: HomeHiddenGemsProps) {
   const router = useRouter();
   const [gems, setGems] = useState<any[]>([]);
 
   useEffect(() => {
     let mounted = true;
-    supabase
+    let query = supabase
       .from('venues')
       .select('*')
       .eq('is_hidden_gem', true)
-      .limit(6)
-      .then(({ data }) => {
-        if (mounted && data) setGems(data);
-      });
+      .limit(6);
+    if (selectedMood) {
+      query = query.contains('moods', [selectedMood]);
+    }
+    query.then(({ data }) => {
+      if (mounted && data) setGems(data);
+    });
     return () => { mounted = false; };
-  }, []);
+  }, [selectedMood]);
 
   if (gems.length === 0) return null;
 

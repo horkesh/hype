@@ -82,15 +82,15 @@ export function HomeContentSections({
       </View>
 
       <View style={styles.section}>
-        <HomeTrendingSection language={language} />
+        <HomeTrendingSection language={language} selectedMood={selectedMood} />
       </View>
 
       <View style={styles.section}>
-        <HomeKafuSection language={language} />
+        <HomeKafuSection language={language} selectedMood={selectedMood} />
       </View>
 
       <View style={styles.section}>
-        <HomeHiddenGems language={language} />
+        <HomeHiddenGems language={language} selectedMood={selectedMood} />
       </View>
 
       <View style={styles.section}>

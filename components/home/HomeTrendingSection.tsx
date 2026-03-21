@@ -10,21 +10,25 @@ import { useRouter } from 'expo-router';
 
 interface HomeTrendingSectionProps {
   language: string;
+  selectedMood?: string | null;
 }
 
-export function HomeTrendingSection({ language }: HomeTrendingSectionProps) {
+export function HomeTrendingSection({ language, selectedMood }: HomeTrendingSectionProps) {
   const router = useRouter();
   const [venues, setVenues] = useState<any[]>([]);
 
   useEffect(() => {
     let mounted = true;
     fetchTrendingVenues(6).then((data) => {
-      if (mounted) setVenues(data);
+      const filtered = selectedMood
+        ? data.filter((v: any) => v.moods?.includes(selectedMood))
+        : data;
+      if (mounted) setVenues(filtered);
     });
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [selectedMood]);
 
   if (venues.length === 0) return null;
 
