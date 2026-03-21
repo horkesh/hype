@@ -21,8 +21,8 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-17] Apify Instagram — waiting for user to top up credits**
-   Do instead: once credits are available, run `scrapeInstagram.ts` to scrape 62 accounts.
+1. **[2026-03-21] Apify Instagram — 189 venues with handles, ready to scrape**
+   Do instead: once Apify credits are topped up, update `scrapeInstagram.ts` to pull from `instagram_handle` column (189 venues) instead of hardcoded lists, then run the full scrape.
 2. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
    Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
 3. **[2026-03-21] Periodic event re-scrape**
@@ -55,6 +55,8 @@
    Do instead: use "Look" in all user-facing text, share links, about text, and system prompts. Never reintroduce "Hype" as the brand name. The "- Sarajevo" suffix supports future multi-city expansion.
 12. **[2026-03-21] Mood chip IDs differ from DB mood values — always use `moodToDbValue()`**
    Do instead: when querying venues or events by mood, always pass the chip ID through `moodToDbValue()` from `utils/homeScreenContent.ts`. The app uses Bosnian-flavored names (muzika, romantika, kultura, turista) while the DB uses English keys (live_music, romantic, culture, tourist).
+13. **[2026-03-21] Website-scraped Instagram handles need spot-checking**
+   Do instead: when `findInstagramHandles.ts` finds a handle from a venue website, the site may link to a parent company, platform (Wix, Glovo), or unrelated business. Always verify high-value handles (clubs, theatres) by navigating to the Instagram profile in the browser before trusting them.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**

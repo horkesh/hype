@@ -1545,3 +1545,48 @@ Added `moodToDbValue()` mapping function in `utils/homeScreenContent.ts` that tr
 - `utils/homeData.ts`, `utils/exploreData.ts` (import + use mapping)
 - `components/home/HomeHiddenGems.tsx`, `HomeKafuSection.tsx`, `HomeTrendingSection.tsx` (import + use mapping)
 - `tests/homeScreenContent.test.ts` (new mood mapping test)
+
+### 2026-03-21 — Instagram handle discovery pipeline
+
+#### Goal
+Build a comprehensive list of Instagram accounts for all venues in the database to feed into the Apify scraper.
+
+#### Starting state
+- 104 venues had `instagram_handle` populated
+- 1,122 venues had no handle
+- Some existing handles were wrong (e.g. `hemingways.sa` should be `hemingways387`)
+
+#### What was built
+- `backend/src/scripts/findInstagramHandles.ts` — automated handle finder with two strategies:
+  1. **Website scraping**: fetches each venue's website HTML and extracts Instagram links
+  2. **Google search**: searches `"{venue name}" sarajevo instagram` and extracts handles from results
+- Supports `--dry-run`, `--limit=N`, and `--category=X` flags
+
+#### What was found
+- **78 handles from website scraping** (bakeries, restaurants, galleries, museums with proper sites)
+- **13 handles from Google search via browser** (clubs, theatres, cultural centers without websites)
+- Total: **91 new handles** added to the database
+
+#### Manual spot-check results
+Verified in browser by navigating to Instagram profiles:
+- ✅ Confirmed correct: `dasistwalterclub`, `bambusclubsarajevo`, `cltropics`, `club_frka_sarajevo`, `xsclubxs`, `otvorenascenaobala`, `pozoristemladihsarajevo`, `goyakart`
+- ❌ Cleared wrong handles (5 venues, 3 unique bad handles):
+  - `@glovo_es` — Glovo España, was assigned to Mr Charlie Chaplin
+  - `@wixstudio` — Wix website builder, was assigned to LAFF Bakery + LAFF Coffee
+  - `@inovinebh` — iNovine retail chain, was assigned to Mr.Waffle & Mrs.Pancake
+  - `@fiskultura_sarajevo` — fitness studio, was assigned to Fis Kultura nightclub
+  - `@mystiqueclub` — Buenos Aires nightclub, was assigned to Mystique Club Sarajevo
+- 🔧 Fixed: `hemingways.sa` → `hemingways387` (user-reported)
+
+#### Final state
+- **189 venues with instagram_handle** (was 104, +85 net after removals)
+- **176 unique handles** (some chains share handles)
+- **1,037 venues still missing** — mostly small neighborhood places without websites or discoverable Instagram
+
+#### Key lesson
+Website scraping picks up the Instagram link from the venue's own site footer/social icons — high confidence. Google search finds handles but needs manual verification to avoid wrong-city or wrong-business matches.
+
+#### Files touched
+- `backend/src/scripts/findInstagramHandles.ts` (new)
+- `backend/data/found_instagram_handles.json` (output)
+- `backend/data/no_instagram_found.json` (output)
