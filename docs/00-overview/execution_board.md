@@ -286,6 +286,18 @@ Status:
   - no content overlap — content flows above the bar naturally
   - all 5 tabs verified on web
 
+#### E14. Warm cinematic visual style
+
+- Status: `Done`
+- Goal:
+  - match the app's visual feel to the warm cinematic travel-magazine aesthetic of reference screenshots
+- What was delivered:
+  - DM Serif Display for headings (hero, section, card titles), DM Sans for body
+  - glass tokens warmed to amber tint, image overlays use warm amber-black gradients
+  - event detail info rows restyled: gold icons, uppercase labels, bold values, separator lines
+  - accent badge visibility fix (white text on stronger gold)
+  - 12 files touched, 1 new font dependency
+
 #### E11. Dark mode only conversion
 
 - Status: `Done`

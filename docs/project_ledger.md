@@ -1437,3 +1437,51 @@ Promote the remaining 46 unpromoted raw_events and clean up false positives.
 - Clean up unused `FloatingTabBar.tsx`, `components/tabbar/*`, `utils/floatingTabBar.ts`
 - Consider generating different hero images for different weather conditions more aggressively
 - Monitor Supabase Storage usage and add cleanup for old hero images
+
+### 2026-03-21 — Warm Cinematic Visual Style Pass
+
+#### Goal
+Match the app's visual style to the warm, cinematic travel-magazine aesthetic of the reference screenshots (IMG_4102-4105).
+
+#### Typography
+- Added DM Serif Display font (`@expo-google-fonts/dm-serif-display`)
+- Headings (hero 34px, section 24px, card 18px) now use `DMSerifDisplay_400Regular`
+- Body text, captions, labels, badges remain DM Sans
+- Creates an editorial travel-magazine feel while keeping body text clean
+
+#### Warm tints
+- Glass tokens: `rgba(255,255,255,0.06)` → `rgba(212,160,86,0.04)` (amber tint)
+- Glass border: `rgba(255,255,255,0.12)` → `rgba(212,160,86,0.10)`
+- Image overlays: `rgba(0,0,0,0.7)` → `rgba(20,10,0,0.7)` (warm amber-black)
+- Tab bar: `#1A1A1A` → `#1A1710` (subtle warm tint)
+
+#### Event detail info rows
+- Restyled to match reference screenshots (IMG_4104/4105)
+- Structured rows: gold icon (MaterialIcons) + uppercase muted label + bold white value
+- Separator lines between rows (`rgba(255,255,255,0.08)`)
+- Venue row tappable with gold text, When row with formatted datetime, Price row
+
+#### Accent badge fix
+- Changed from gold-on-gold (`rgba(212,160,86,0.3)` bg + `#D4A056` text) to white-on-gold (`rgba(212,160,86,0.5)` bg + `#FFF` text)
+- "HIDDEN GEM" badge now visible over warm image overlays
+
+#### Files touched
+- `app/_layout.tsx` — font loading
+- `styles/designTokens.ts` — serif heading fonts
+- `styles/glassTokens.ts` — amber tints
+- `components/home/HomeHeroPhoto.tsx` — warm overlay
+- `components/cards/EventCardFront.tsx`, `VenueCardFront.tsx`, `SeriesCard.tsx` — warm overlays
+- `components/event/EventVenueAndBadges.tsx` — structured info rows
+- `components/glass/badgeVariants.ts` — accent badge visibility
+- `app/(tabs)/_layout.tsx` — warm tab bar
+- `app/event/[id].tsx` — new props + serif section title
+
+#### Decisions
+- DM Serif Display pairs with DM Sans (same design family) — no visual clash
+- Warm amber tints are very subtle (4-10% opacity) — enough to feel warmer without looking yellow
+- Info rows match the industry pattern (Yelp, Eventbrite, Fever) — gold icon, uppercase label, bold value
+
+#### Follow-up
+- Apply same info row pattern to venue detail page
+- Consider warming the Explore search bar and filter modals
+- Clean up unused FloatingTabBar components

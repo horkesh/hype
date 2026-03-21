@@ -47,6 +47,10 @@
    Do instead: when calling Gemini for image generation, try Imagen `:predict` endpoint first (fastest), then fall back to Gemini `:generateContent` with `responseModalities: ['IMAGE']`. Model availability varies by API key tier.
 8. **[2026-03-21] Tab bar is standard full-width bottom — not floating pill**
    Do instead: use Expo Router `Tabs` navigator with `tabBarStyle` for the main navigation. Do not reintroduce `FloatingTabBar` or absolute-positioned overlays.
+9. **[2026-03-21] Headings use DM Serif Display, body uses DM Sans**
+   Do instead: use `DMSerifDisplay_400Regular` for heroTitle, sectionHeader, and cardTitle in `designTokens.ts`. Keep `DMSans_*` for body, caption, labels, and badges. Never mix serif into small body text.
+10. **[2026-03-21] Glass and overlays use warm amber tints, not cold white/black**
+   Do instead: glass background is `rgba(212,160,86,0.04)`, glass border is `rgba(212,160,86,0.10)`, image overlays use `rgba(20,10,0,0.7)` not `rgba(0,0,0,0.7)`. This gives the warm cinematic feel matching the reference screenshots.
 
 ## Execution & Validation
 1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**
