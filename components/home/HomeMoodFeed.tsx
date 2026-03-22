@@ -176,9 +176,17 @@ export function HomeMoodFeed({
     ? 'Nema rezultata za ovaj mood'
     : 'No spots match this mood yet';
 
+  const countLabel = loading
+    ? ''
+    : items.length === 0
+      ? ''
+      : language === 'bs'
+        ? `${items.length} rezultata`
+        : `${items.length} results`;
+
   return (
     <View style={styles.container}>
-      <SectionHeader title={moodLabel} />
+      <SectionHeader title={moodLabel} subtitle={countLabel} />
       <View style={[styles.moodAccent, { backgroundColor: moodColor }]} />
       <ContentState
         loading={loading}

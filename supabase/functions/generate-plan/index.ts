@@ -91,7 +91,7 @@ Moods/preferences: ${moods.length > 0 ? moods.join(', ') : 'open to anything'}.
 Today's events:
 ${eventList}
 
-Available venues (ONLY use these exact names):
+Available venues (ONLY use these exact original names — NEVER translate or alter venue names, keep them in their original language):
 ${venueList || 'Various Sarajevo venues.'}
 
 Create a realistic ${timeOfDay} flow. Pick venues that work geographically (walking distance between stops). Include timing, walking directions, and cost estimates.

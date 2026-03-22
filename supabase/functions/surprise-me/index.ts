@@ -74,7 +74,7 @@ Deno.serve(async (req: Request) => {
 It is currently ${timeOfDay} (${sarajevoHour}:00 local time). Suggest times that start from now and make sense for this time of day.${holidayContext}
 ${moodContext}
 
-Available venues (ONLY use these exact names):
+Available venues (ONLY use these exact names — NEVER translate or alter venue names):
 ${venueList || 'Various Sarajevo venues.'}
 
 Create an exciting, spontaneous ${timeOfDay} plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
