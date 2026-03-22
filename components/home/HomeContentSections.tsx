@@ -78,10 +78,6 @@ export function HomeContentSections({
     return () => { mounted = false; };
   }, []);
 
-  // Determine content mode: category, mood, both, or default editorial
-  const hasCategory = selectedCategory != null;
-  const hasMood = selectedMood != null;
-
   return (
     <>
       <HomeHeroPhoto language={language} heroImageUrl={heroImageUrl}>
@@ -108,8 +104,8 @@ export function HomeContentSections({
         />
       </View>
 
-      {/* Content: adapts based on selection state */}
-      {hasCategory ? (
+      {/* Content: category → filtered list, mood → mood feed, default → editorial */}
+      {selectedCategory != null ? (
         /* Category selected (with optional mood boost) */
         <View style={styles.section}>
           <HomeCategoryFeed
@@ -118,7 +114,7 @@ export function HomeContentSections({
             language={language}
           />
         </View>
-      ) : hasMood ? (
+      ) : selectedMood != null ? (
         /* Mood only — existing mood feed */
         <View style={styles.section}>
           <HomeMoodFeed

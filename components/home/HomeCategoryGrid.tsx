@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { getCategoryLabel } from '@/utils/categoryLabels';
 
+/** Categories shown in the Home grid — matches CATEGORIES array below */
 export type HomeCategoryId =
   | 'restaurant'
   | 'bar'
@@ -12,12 +13,8 @@ export type HomeCategoryId =
   | 'club'
   | 'theatre'
   | 'museum'
-  | 'cinema'
-  | 'concert_hall'
   | 'gallery'
-  | 'park'
-  | 'landmark'
-  | 'cultural_center';
+  | 'landmark';
 
 interface CategoryDef {
   id: HomeCategoryId;

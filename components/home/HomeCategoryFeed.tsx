@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
 import { SectionHeader } from '@/components/SectionHeader';
 import { GlassBadge } from '@/components/glass/GlassBadge';
-import { getCategoryLabel } from '@/utils/categoryLabels';
+import { getCategoryGroup, getCategoryLabel } from '@/utils/categoryLabels';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
+import type { HomeCategoryId } from '@/components/home/HomeCategoryGrid';
 
 interface CategoryVenue {
   id: string;
@@ -17,12 +18,10 @@ interface CategoryVenue {
   google_rating: number | null;
   cover_image_url: string | null;
   moods: string[] | null;
-  description_bs: string | null;
-  description_en: string | null;
 }
 
 interface HomeCategoryFeedProps {
-  category: string;
+  category: HomeCategoryId;
   selectedMood: string | null;
   language: 'bs' | 'en';
 }
@@ -34,47 +33,45 @@ export function HomeCategoryFeed({
 }: HomeCategoryFeedProps) {
   const { colors } = useTheme();
   const router = useRouter();
-  const [venues, setVenues] = useState<CategoryVenue[]>([]);
+  const [rawVenues, setRawVenues] = useState<CategoryVenue[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch only when category changes — mood is a client-side sort
   useEffect(() => {
     let mounted = true;
     setLoading(true);
 
     (async () => {
-      // Query venues for this category — also match related categories
       const categoryFilter = getCategoryGroup(category);
       const { data } = await supabase
         .from('venues')
-        .select('id, name, category, neighborhood, google_rating, cover_image_url, moods, description_bs, description_en')
+        .select('id, name, category, neighborhood, google_rating, cover_image_url, moods')
         .in('category', categoryFilter)
         .order('google_rating', { ascending: false, nullsFirst: false })
         .limit(40);
 
       if (!mounted) return;
-
-      let sorted = data ?? [];
-
-      // Mood boost: if a mood is selected, sort mood-tagged venues to top
-      if (selectedMood && sorted.length > 0) {
-        const withMood: CategoryVenue[] = [];
-        const without: CategoryVenue[] = [];
-        for (const v of sorted) {
-          if (v.moods?.includes(selectedMood)) {
-            withMood.push(v);
-          } else {
-            without.push(v);
-          }
-        }
-        sorted = [...withMood, ...without];
-      }
-
-      setVenues(sorted);
+      setRawVenues(data ?? []);
       setLoading(false);
     })();
 
     return () => { mounted = false; };
-  }, [category, selectedMood]);
+  }, [category]);
+
+  // Mood boost: sort mood-tagged venues to top (no re-fetch needed)
+  const venues = useMemo(() => {
+    if (!selectedMood || rawVenues.length === 0) return rawVenues;
+    const withMood: CategoryVenue[] = [];
+    const without: CategoryVenue[] = [];
+    for (const v of rawVenues) {
+      if (v.moods?.includes(selectedMood)) {
+        withMood.push(v);
+      } else {
+        without.push(v);
+      }
+    }
+    return [...withMood, ...without];
+  }, [rawVenues, selectedMood]);
 
   const title = getCategoryLabel(category, language);
   const countLabel = loading
@@ -135,36 +132,6 @@ export function HomeCategoryFeed({
   );
 }
 
-/**
- * Map a grid category to the DB categories it should match.
- * e.g. "theatre" matches both "theatre" and "cultural_center"
- */
-function getCategoryGroup(category: string): string[] {
-  switch (category) {
-    case 'restaurant':
-      return ['restaurant'];
-    case 'bar':
-      return ['bar', 'pub', 'hookah'];
-    case 'cafe':
-      return ['cafe', 'bakery', 'dessert', 'ice_cream'];
-    case 'club':
-      return ['club'];
-    case 'theatre':
-      return ['theatre', 'cultural_center'];
-    case 'museum':
-      return ['museum'];
-    case 'gallery':
-      return ['gallery'];
-    case 'landmark':
-      return ['landmark', 'park', 'outdoor'];
-    case 'cinema':
-      return ['cinema'];
-    case 'concert_hall':
-      return ['concert_hall'];
-    default:
-      return [category];
-  }
-}
 
 const styles = StyleSheet.create({
   loadingContainer: {
