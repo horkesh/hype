@@ -79,6 +79,7 @@ function renderTonightVoteEventCard({
   cardColor,
   colorsText,
   eventMetaSeparator,
+  language,
   onEventPress,
   onOpenTicket,
   onToggleSelection,
@@ -89,6 +90,7 @@ function renderTonightVoteEventCard({
   | 'cardColor'
   | 'colorsText'
   | 'eventMetaSeparator'
+  | 'language'
   | 'onEventPress'
   | 'onOpenTicket'
   | 'onToggleSelection'
@@ -101,6 +103,7 @@ function renderTonightVoteEventCard({
       colorsText={colorsText}
       event={event}
       eventMetaSeparator={eventMetaSeparator}
+      language={language}
       onEventPress={onEventPress}
       onOpenTicket={onOpenTicket}
       onToggleSelection={onToggleSelection}
@@ -153,6 +156,7 @@ export function TonightModalStack({
     cardColor,
     colorsText,
     eventMetaSeparator,
+    language,
     onEventPress,
     onOpenTicket,
     onToggleSelection,

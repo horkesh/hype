@@ -11,6 +11,7 @@ interface TonightEventListProps {
   emptyStateMessage: string;
   eventMetaSeparator: string;
   events: Event[];
+  language: string;
   loading: boolean;
   refreshing: boolean;
   showSelectionControls: boolean;
@@ -28,6 +29,7 @@ export function TonightEventList({
   emptyStateMessage,
   eventMetaSeparator,
   events,
+  language,
   loading,
   refreshing,
   showSelectionControls,
@@ -56,6 +58,7 @@ export function TonightEventList({
       colorsText={colorsText}
       eventMetaSeparator={eventMetaSeparator}
       eventCards={eventCards}
+      language={language}
       refreshing={refreshing}
       showSelectionControls={showSelectionControls}
       textSecondaryColor={textSecondaryColor}

@@ -2,7 +2,9 @@ import React from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { AnimatedCard } from '@/components/AnimatedCard';
+import { GlassBadge } from '@/components/glass/GlassBadge';
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
+import { useEventCountdown } from '@/hooks/useEventCountdown';
 import { HomeEventItem } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeScreenContent';
 import { getHomeEventCardContent } from '@/utils/homeEventsSection';
@@ -22,6 +24,7 @@ interface HomeEventCardProps {
 
 export function HomeEventCard({ event, index, language, colors, onPress }: HomeEventCardProps) {
   const content = getHomeEventCardContent(language, event);
+  const countdown = useEventCountdown(event.start_datetime, language);
 
   return (
     <AnimatedCard delay={Platform.OS === 'web' ? 0 : index * 50}>
@@ -30,12 +33,23 @@ export function HomeEventCard({ event, index, language, colors, onPress }: HomeE
         onPress={() => onPress(event.id)}
         activeOpacity={0.8}
       >
-        <ImageWithPlaceholder
-          source={event.cover_image_url}
-          style={styles.image}
-          categoryEmoji={'\ud83c\udf89'}
-          borderRadius={0}
-        />
+        <View>
+          <ImageWithPlaceholder
+            source={event.cover_image_url}
+            style={styles.image}
+            categoryEmoji={'\ud83c\udf89'}
+            borderRadius={0}
+          />
+          {countdown.label ? (
+            <View style={styles.countdownOverlay}>
+              <GlassBadge
+                label={countdown.label}
+                variant={countdown.isHappeningNow ? 'danger' : 'accent'}
+                size="sm"
+              />
+            </View>
+          ) : null}
+        </View>
         <View style={styles.content}>
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
             {content.title}
@@ -77,5 +91,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 4,
     fontFamily: 'DMSans_400Regular',
+  },
+  countdownOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
   },
 });

@@ -8,6 +8,7 @@ interface TonightVoteEventCardProps {
   colorsText: string;
   event: Event;
   eventMetaSeparator: string;
+  language: string;
   onEventPress: (eventId: string) => void;
   onOpenTicket: (url: string) => void;
   onToggleSelection: (eventId: string) => void;
@@ -28,6 +29,7 @@ export function TonightVoteEventCard({
   colorsText,
   event,
   eventMetaSeparator,
+  language,
   onEventPress,
   onOpenTicket,
   onToggleSelection,
@@ -44,6 +46,7 @@ export function TonightVoteEventCard({
       eventTime={eventProps.eventTime}
       eventTitle={eventProps.eventTitle}
       isSelected={eventProps.isSelected}
+      language={language}
       onOpenTicket={onOpenTicket}
       onPress={() => onEventPress(event.id)}
       onToggleSelection={onToggleSelection}

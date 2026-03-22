@@ -161,6 +161,7 @@ export function TonightScreenContent({
         emptyStateMessage={emptyStateMessage}
         eventMetaSeparator={eventMetaSeparator}
         events={events}
+        language={language}
         loading={loading}
         refreshing={refreshing}
         showSelectionControls={showVoteModal && !voteLink}

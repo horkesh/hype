@@ -145,10 +145,28 @@ Deno.serve(async (req: Request) => {
     const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
     const fullDate = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-    // Weather context
-    const weatherLine = weather?.temp !== undefined
-      ? `Current weather: ${weather.temp}°C, ${weather.condition || 'clear'}.`
-      : '';
+    // Weather context — build a rich weather hint for the AI
+    let weatherLine = '';
+    let weatherGuidance = '';
+    if (weather?.temp !== undefined) {
+      const cond = (weather.condition || 'clear').toLowerCase();
+      weatherLine = `Current weather: ${weather.temp}°C, ${cond}.`;
+
+      // Build weather-aware guidance
+      if (cond.includes('rain') || cond.includes('drizzle') || cond.includes('thunderstorm')) {
+        weatherGuidance = 'It\'s rainy — lean into cozy indoor vibes: warm drinks, čorba, indoor cafés. Mention staying dry.';
+      } else if (cond.includes('snow')) {
+        weatherGuidance = 'Snow in Sarajevo! Suggest warm indoor spots, hot čaj or salep, enjoying the winter scenery.';
+      } else if (cond.includes('fog') || cond.includes('mist')) {
+        weatherGuidance = 'Foggy/misty — atmospheric vibes. Cozy indoor spots work great.';
+      } else if (weather.temp >= 28) {
+        weatherGuidance = 'It\'s hot — suggest terraces with shade, cold drinks, evening outings when it cools down.';
+      } else if (weather.temp <= 0) {
+        weatherGuidance = 'Freezing cold — warm indoor spots, hot drinks, bundle-up energy.';
+      } else if (weather.temp >= 18 && (cond.includes('clear') || cond.includes('sun') || cond === 'clouds' || cond === 'few clouds')) {
+        weatherGuidance = 'Beautiful weather — push outdoor terraces, walks, parks, riverside spots.';
+      }
+    }
 
     const eventSummary = events && events.length > 0
       ? events.map((e) => `- ${e.name} (${e.category}) at ${e.venue_name}`).join('\n')
@@ -177,10 +195,10 @@ WHAT MATTERS TODAY:
   * Bajram evening → "Family visits done, time to grab a coffee with friends."
   * Ramazan evening → "Iftar time! The city comes alive after sunset."
 - Weekend: Friday after džuma is when the weekend starts. Saturday night is peak going-out.
-- Season + weather: snow, rain, heatwave, or perfect terrace weather?
+- Season + weather: use the current weather data below to shape the vibe (indoor vs outdoor, hot vs cold drinks, etc.)
 - Festivals: SFF (Aug), Jazz Fest (Jul), MESS (Oct)
 ${newsBlock ? `\nLOCAL NEWS — ONLY mention if it's a BIG deal that affects the whole city (major event, protest, road closure, big sports win, celebrity visit). IGNORE niche stories, random crime, politics, or anything most people wouldn't care about when deciding where to go:\n${newsBlock}` : ''}
-${weatherLine ? weatherLine + '\n' : ''}${dayOfWeek === 'Friday' || dayOfWeek === 'Saturday' || dayOfWeek === 'Sunday' ? `It's the weekend (${dayOfWeek}).\n` : ''}
+${weatherLine ? weatherLine + '\n' : ''}${weatherGuidance ? 'WEATHER GUIDANCE: ' + weatherGuidance + '\n' : ''}${dayOfWeek === 'Friday' || dayOfWeek === 'Saturday' || dayOfWeek === 'Sunday' ? `It's the weekend (${dayOfWeek}).\n` : ''}
 Today's events:
 ${eventSummary}
 

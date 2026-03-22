@@ -9,6 +9,7 @@ interface TonightEventCardsProps {
   colorsText: string;
   eventMetaSeparator: string;
   eventCards: TonightEventCardViewModel[];
+  language: string;
   refreshing: boolean;
   showSelectionControls: boolean;
   textSecondaryColor: string;
@@ -23,6 +24,7 @@ export function TonightEventCards({
   colorsText,
   eventMetaSeparator,
   eventCards,
+  language,
   refreshing,
   showSelectionControls,
   textSecondaryColor,
@@ -53,6 +55,7 @@ export function TonightEventCards({
           eventTime={eventCard.eventTime}
           eventTitle={eventCard.eventTitle}
           isSelected={eventCard.isSelected}
+          language={language}
           onOpenTicket={onOpenTicket}
           onPress={() => onEventPress(eventCard.id)}
           onToggleSelection={onToggleSelection}

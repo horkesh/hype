@@ -59,12 +59,16 @@ export function HomeContentSections({
   upcomingEvents,
 }: HomeContentSectionsProps) {
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [weather, setWeather] = useState<{ temp: number; condition: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const weather = await loadHomeWeather().catch(() => null);
-      const url = await fetchHeroImage({ weather }).catch(() => null);
+      const w = await loadHomeWeather().catch(() => null);
+      // Map weatherCondition → condition for downstream consumers
+      const mapped = w ? { temp: w.temp, condition: w.weatherCondition } : null;
+      if (mounted) setWeather(mapped);
+      const url = await fetchHeroImage({ weather: mapped }).catch(() => null);
       if (mounted && url) setHeroImageUrl(url);
     })();
     return () => { mounted = false; };
@@ -73,7 +77,7 @@ export function HomeContentSections({
   return (
     <>
       <HomeHeroPhoto language={language} heroImageUrl={heroImageUrl}>
-        <HomeCityPulse language={language} />
+        <HomeCityPulse language={language} weather={weather} />
         <HomeSurpriseMe language={language} />
       </HomeHeroPhoto>
 

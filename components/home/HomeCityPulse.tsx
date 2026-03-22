@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { fetchCityPulse } from '@/utils/ai/cityPulse';
-import { loadHomeWeather } from '@/utils/homeData';
 import { GlassContainer } from '@/components/glass/GlassContainer';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { GlassBadge } from '@/components/glass/GlassBadge';
 
 interface HomeCityPulseProps {
   language: string;
+  weather?: { temp: number; condition: string } | null;
 }
 
-export function HomeCityPulse({ language }: HomeCityPulseProps) {
+export function HomeCityPulse({ language, weather }: HomeCityPulseProps) {
   const [pulse, setPulse] = useState<{ pulse_bs: string; pulse_en: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const weather = await loadHomeWeather().catch(() => null);
-      const data = await fetchCityPulse({ weather }).catch(() => null);
+      const data = await fetchCityPulse({ weather: weather ?? null }).catch(() => null);
       if (mounted) {
         setPulse(data);
         setLoading(false);
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [weather]);
 
   if (loading) {
     return (

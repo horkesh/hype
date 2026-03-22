@@ -14,6 +14,7 @@ interface TonightEventCardProps {
   eventTime: string;
   eventTitle: string;
   isSelected: boolean;
+  language: string;
   onOpenTicket: (url: string) => void;
   onPress: () => void;
   onToggleSelection: (eventId: string) => void;
@@ -33,6 +34,7 @@ export function TonightEventCard({
   eventTime,
   eventTitle,
   isSelected,
+  language,
   onOpenTicket,
   onPress,
   onToggleSelection,
@@ -58,7 +60,9 @@ export function TonightEventCard({
 
       <View style={styles.eventContent}>
         <TonightEventBadges
+          language={language}
           priceText={priceText}
+          startDatetime={event.start_datetime}
           textColor={textColor}
           urgencyBadge={urgencyBadge}
         />
