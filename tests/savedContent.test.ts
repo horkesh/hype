@@ -22,6 +22,7 @@ test('buildSavedVenueCardModels shapes venue price and mood display data', () =>
     ],
     {
       getPriceLevelDisplay: (level) => '$'.repeat(level),
+      language: 'bs',
       moodLookup: { party: 'P', culture: 'C' },
     }
   );
@@ -30,7 +31,7 @@ test('buildSavedVenueCardModels shapes venue price and mood display data', () =>
     {
       id: 'venue-1',
       venueId: 'venue-1',
-      category: 'bar',
+      category: 'Bar',
       imageSource: null,
       moodBadges: ['P', 'C'],
       name: 'Kino Bosna',

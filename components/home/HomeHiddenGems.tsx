@@ -6,6 +6,7 @@ import { VenueCardFront } from '@/components/cards/VenueCardFront';
 import { VenueCardBack } from '@/components/cards/VenueCardBack';
 import { useRouter } from 'expo-router';
 import { SectionHeader } from '@/components/SectionHeader';
+import { getCategoryLabel } from '@/utils/categoryLabels';
 import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface HomeHiddenGemsProps {
@@ -54,7 +55,7 @@ export function HomeHiddenGems({ language, selectedMood }: HomeHiddenGemsProps) 
               <VenueCardFront
                 name={item.name}
                 imageUrl={item.cover_image_url}
-                category={item.category}
+                category={getCategoryLabel(item.category, language as 'bs' | 'en')}
                 isHiddenGem
               />
             }

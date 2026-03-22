@@ -185,5 +185,6 @@ const styles = StyleSheet.create({
   },
   moodText: {
     fontSize: 13,
+    fontFamily: 'DMSans_400Regular',
   },
 });

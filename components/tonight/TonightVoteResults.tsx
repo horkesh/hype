@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
   voteLinkContainer: {
     padding: 16,
@@ -87,16 +88,19 @@ const styles = StyleSheet.create({
   },
   voteLinkLabel: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
     marginBottom: 8,
   },
   voteLink: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     color: '#D4A056',
   },
   voteResultsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
     marginVertical: 16,
   },
 });

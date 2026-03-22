@@ -85,10 +85,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
+    fontFamily: 'DMSans_700Bold',
     marginBottom: 8,
   },
   metaText: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
   },
   eventMeta: {
     flexDirection: 'row',

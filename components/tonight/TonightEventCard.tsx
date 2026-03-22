@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
     marginBottom: 8,
   },
 });

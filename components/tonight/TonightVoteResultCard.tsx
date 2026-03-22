@@ -53,11 +53,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     marginBottom: 4,
   },
   count: {
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: 'DMSans_500Medium',
     color: '#D4A056',
   },
   button: {
@@ -70,5 +72,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

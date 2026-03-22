@@ -7,6 +7,7 @@ import { VenueCardBack } from '@/components/cards/VenueCardBack';
 import { GlassBadge } from '@/components/glass/GlassBadge';
 import { SectionHeader } from '@/components/SectionHeader';
 import { useRouter } from 'expo-router';
+import { getCategoryLabel } from '@/utils/categoryLabels';
 import { moodToDbValue } from '@/utils/homeScreenContent';
 
 interface HomeTrendingSectionProps {
@@ -56,7 +57,7 @@ export function HomeTrendingSection({ language, selectedMood }: HomeTrendingSect
                 <VenueCardFront
                   name={item.name}
                   imageUrl={item.cover_image_url}
-                  category={item.category}
+                  category={getCategoryLabel(item.category, language as 'bs' | 'en')}
                 />
               }
               back={

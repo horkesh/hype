@@ -41,6 +41,12 @@ If you are continuing work, resume with this exact focus:
 - hero image assets still placeholder gradients
 - in-app visual walkthrough not yet done
 - prior verification items (favorites flow, taste-profile, auth refresh) still pending on home machine
+- mood chips now use vector icons from `@expo/vector-icons` (not AI-generated images) — 12 icons mapped in `GlassMoodChip.tsx`
+- selecting a mood chip on Home now shows a unified feed of mood-matched venues + events (interleaved 2:1) instead of filtering each section independently; deselecting reverts to the default layout
+- venue category labels are now translated via `getCategoryLabel()` in `utils/categoryLabels.ts` — raw DB values no longer leak to UI
+- "Look - Sarajevo" header is now a home button
+- hero image, Surprise Me, and AI Planner are all time-of-day + holiday aware (Sarajevo timezone); prompts layer context additively instead of overriding
+- B19 backlog item added: clickable AI plan stops → venue/POI detail modals
 
 ## Key scripts (all run from repo root)
 ```

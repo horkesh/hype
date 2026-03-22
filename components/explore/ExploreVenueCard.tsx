@@ -3,6 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
 import { ExploreVenueMoodBadges } from '@/components/explore/ExploreVenueMoodBadges';
+import { useApp } from '@/contexts/AppContext';
+import { getCategoryLabel } from '@/utils/categoryLabels';
 import { ExploreLookupItem, Venue } from '@/utils/exploreScreen';
 
 interface ExploreVenueCardProps {
@@ -32,6 +34,7 @@ export function ExploreVenueCard({
   textSecondaryColor,
   venue,
 }: ExploreVenueCardProps) {
+  const { language } = useApp();
   const isOpen = isVenueOpenNow(venue.opening_hours);
 
   return (
@@ -50,7 +53,7 @@ export function ExploreVenueCard({
         <Text style={[styles.venueName, { color: textColor }]}>{venue.name}</Text>
         <View style={styles.venueDetails}>
           <View style={[styles.categoryPill, { backgroundColor: accentColor }]}>
-            <Text style={styles.categoryPillText}>{venue.category}</Text>
+            <Text style={styles.categoryPillText}>{getCategoryLabel(venue.category, language)}</Text>
           </View>
           {venue.neighborhood ? (
             <Text style={[styles.venueNeighborhood, { color: textSecondaryColor }]}>
@@ -95,6 +98,7 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
     marginBottom: 8,
   },
   venueDetails: {
@@ -112,9 +116,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
   venueNeighborhood: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
   },
   venueFooter: {
     flexDirection: 'row',
@@ -125,6 +131,7 @@ const styles = StyleSheet.create({
   priceLevel: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
   },
   openBadge: {
     backgroundColor: '#4CAF50',
@@ -136,5 +143,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

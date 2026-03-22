@@ -482,6 +482,17 @@ Status:
   - automate the verify-categories + Google-enrichment + AI-description pipeline so new venues get the same treatment automatically
   - scripts exist: `verifyCategoriesVsGoogle.ts`, `enrichFromGoogle.ts`, `enrichDescriptions.ts`, `scrapeGooglePhotos.ts`
 
+#### B19. Clickable AI plan stops → venue/POI modals
+
+- Status: `Backlog`
+- Goal:
+  - make venue stops in Surprise Me and AI Planner results tappable, opening a custom modal with full venue details (photo, description, hours, reviews, map, actions)
+- Notes:
+  - Surprise Me and generate-plan already return `venue_name` matched to DB venue data via `venueMap`
+  - enriched stops include `venue.id` which can be used to navigate or open a detail modal
+  - could reuse `VenueCardFront`/`VenueCardBack` or a simplified venue preview sheet
+  - high-value UX improvement: turns AI plans from read-only text into interactive discovery
+
 #### B9. Public web and city pulse expansion
 
 - Status: `Deferred`
@@ -572,6 +583,13 @@ Status:
 - Expo Router helper-route cleanup
 - regression tests for Home weather, image sources, and accidental `app/` helper files
 - regression tests for shared Home copy/date/countdown helpers
+- mood chip vector icons: replaced AI-generated images (opaque black backgrounds) with 12 crisp vector icons from `@expo/vector-icons` (MaterialCommunityIcons + Ionicons), tinted per mood color
+- unified mood feed on Home: selecting a mood now replaces independent sections (Trending, Kafu, Hidden Gems, Events) with a single vertical feed of interleaved venues + events matching that mood; default sections restored on deselect
+- centralized category label translations: `getCategoryLabel()` in `utils/categoryLabels.ts` maps all ~20 DB categories to BS/EN display labels; wired into 4 leaking components
+- "Look - Sarajevo" header now acts as a home button (navigates to `/` on tap)
+- hero image prompt fix: holiday context now layers on top of time-of-day instead of replacing it; cache cleared to force regeneration
+- Surprise Me + AI Planner now time-of-day and holiday aware: morning plans get morning times, Bajram context woven in naturally
+- font family consistency sweep: added `fontFamily` to ~30 text styles across 20 files; fixed `DMSans_600SemiBold` (not loaded) → `DMSans_500Medium`
 
 ## Blockers and risks
 

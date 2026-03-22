@@ -70,6 +70,7 @@ export function SavedTabContent({
   const emptyState = getSavedEmptyState(activeTab, isSignedIn, isBosnian);
   const venueModels = buildSavedVenueCardModels(venues, {
     getPriceLevelDisplay: getSavedPriceLevelDisplay,
+    language: isBosnian ? 'bs' : 'en',
     moodLookup: SAVED_MOODS,
   });
   const eventModels = buildSavedEventCardModels(events, {

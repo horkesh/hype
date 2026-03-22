@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
   segmentLabel: {
     fontSize: 15,
     fontWeight: '600',
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: 'DMSans_500Medium',
   },
 });

@@ -1,3 +1,4 @@
+import { getCategoryLabel } from '@/utils/categoryLabels';
 import { SavedBadge, SavedEvent, SavedVenue } from '@/utils/savedScreen';
 
 export interface SavedVenueCardModel {
@@ -32,6 +33,7 @@ export interface SavedBadgeCardModel {
 
 interface BuildSavedVenueCardModelsOptions {
   getPriceLevelDisplay: (level: number) => string;
+  language: 'bs' | 'en';
   moodLookup: Record<string, string>;
 }
 
@@ -54,7 +56,7 @@ export function buildSavedVenueCardModels(
   options: BuildSavedVenueCardModelsOptions
 ): SavedVenueCardModel[] {
   return venues.map((venue) => ({
-    category: venue.category,
+    category: getCategoryLabel(venue.category, options.language),
     id: venue.id,
     imageSource: venue.cover_image_url,
     moodBadges: venue.moods.slice(0, 3).map((mood) => options.moodLookup[mood] || '\u2728'),

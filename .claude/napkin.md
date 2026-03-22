@@ -30,6 +30,12 @@
 4. **[2026-03-21] Deactivate past events on schedule**
    Do instead: run a deactivation pass (`is_active = false` for `start_datetime < now()`) before each re-scrape or on a cron.
 
+## Asset & Icon Conventions
+1. **[2026-03-22] Use vector icons from @expo/vector-icons, not AI-generated images**
+   Do instead: for small UI icons (mood chips, category chips, badges), use `MaterialCommunityIcons` or `Ionicons` from `@expo/vector-icons`. AI image generators produce opaque backgrounds, generic subjects, and can't match the app's glass/dark aesthetic. Vector icons are crisp at any size, perfectly transparent, and tint to any color.
+2. **[2026-03-22] Mood chip icons are vector — `MOOD_ICONS` lives in `GlassMoodChip.tsx`**
+   Do instead: when adding or changing a mood, update the `MOOD_ICONS` record in `components/glass/GlassMoodChip.tsx`. Each entry maps a `MoodId` to `{ library: 'mci' | 'ion', name: string }`. The icon tints to `glassTokens.moodColors[moodId].primary` when unselected, white when selected.
+
 ## Data Pipeline Lessons
 1. **[2026-03-17] BS-first bilingual content generation**
    Do instead: always write Bosnian first from Bosnian source data, then translate to English. Never generate EN first and back-translate.
@@ -51,7 +57,13 @@
    Do instead: use `DMSerifDisplay_400Regular` for heroTitle, sectionHeader, and cardTitle in `designTokens.ts`. Keep `DMSans_*` for body, caption, labels, and badges. Never mix serif into small body text.
 10. **[2026-03-21] Glass and overlays use warm amber tints, not cold white/black**
    Do instead: glass background is `rgba(212,160,86,0.04)`, glass border is `rgba(212,160,86,0.10)`, image overlays use `rgba(20,10,0,0.7)` not `rgba(0,0,0,0.7)`. This gives the warm cinematic feel matching the reference screenshots.
-11. **[2026-03-21] App is now "Look", not "Hype" — header shows "Look - Sarajevo"**
+11. **[2026-03-22] All AI edge functions must be time-of-day, weather, and holiday aware**
+   Do instead: every edge function that generates user-facing content (hero image, surprise-me, generate-plan, city pulse) must determine the current Sarajevo hour via `toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })`, check the holiday calendar, and layer these contexts into the prompt additively — never let holidays override the time-of-day scene.
+12. **[2026-03-22] Every text style must declare fontFamily — no system font fallback**
+   Do instead: when adding any `fontSize` in a `StyleSheet`, always include `fontFamily`. Use `DMSerifDisplay_400Regular` for headings (20px+), `DMSans_700Bold` for bold, `DMSans_500Medium` for semi-bold/600, `DMSans_400Regular` for regular. Never use `DMSans_600SemiBold` — it's not loaded.
+13. **[2026-03-22] Venue categories must go through getCategoryLabel() before display**
+   Do instead: never display `venue.category` raw in any component. Always call `getCategoryLabel(category, language)` from `utils/categoryLabels.ts`. When adding a new DB category, add it to the `CATEGORY_LABELS` record in that file.
+13. **[2026-03-21] App is now "Look", not "Hype" — header shows "Look - Sarajevo"**
    Do instead: use "Look" in all user-facing text, share links, about text, and system prompts. Never reintroduce "Hype" as the brand name. The "- Sarajevo" suffix supports future multi-city expansion.
 12. **[2026-03-21] Mood chip IDs differ from DB mood values — always use `moodToDbValue()`**
    Do instead: when querying venues or events by mood, always pass the chip ID through `moodToDbValue()` from `utils/homeScreenContent.ts`. The app uses Bosnian-flavored names (muzika, romantika, kultura, turista) while the DB uses English keys (live_music, romantic, culture, tourist).
@@ -83,7 +95,11 @@
    Do instead: trace UI behavior from `index.ts` to `app/_layout.tsx` to `app/(tabs)/_layout.tsx` before changing app-wide flow.
 
 ## Frontend Patterns
-1. **[2026-03-09] App-wide providers belong in the root layout**
+1. **[2026-03-22] Mood chips switch Home between default sections and a unified mood feed**
+   Do instead: when `selectedMood` is set, `HomeContentSections` renders `HomeMoodFeed` (unified venue+event feed) instead of the independent Trending/Kafu/Hidden Gems/Events sections. Deselecting reverts to the default layout. The feed data layer lives in `utils/homeMoodFeed.ts` with pure interleaving logic in `utils/homeMoodFeedUtils.ts`.
+2. **[2026-03-22] Pure helper logic that needs Node-side tests must live in a `*Utils.ts` file**
+   Do instead: when a module imports Supabase or react-native but also contains pure functions you want to unit test, split the pure functions and types into `utils/<name>Utils.ts` and keep the runtime-dependent code in `utils/<name>.ts`. The Utils file re-exports through the main file so consumers don't need to change imports. Examples: `errorLoggerUtils.ts`, `homeMoodFeedUtils.ts`.
+3. **[2026-03-09] App-wide providers belong in the root layout**
    Do instead: place cross-cutting UI setup such as theming, fonts, and global providers in `app/_layout.tsx` unless a narrower route scope is clearly better.
 2. **[2026-03-09] Navigation changes should respect Expo Router structure**
    Do instead: make route and tab changes through the relevant `_layout.tsx` files and route folders instead of patching navigation behavior ad hoc inside leaf screens.

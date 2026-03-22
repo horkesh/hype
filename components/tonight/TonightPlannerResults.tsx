@@ -85,10 +85,12 @@ const styles = StyleSheet.create({
   planTotalLabel: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
   },
   planTotalAmount: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
     color: '#D4A056',
   },
   planMap: {

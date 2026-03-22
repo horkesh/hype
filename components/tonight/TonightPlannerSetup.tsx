@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     marginTop: 20,
     marginBottom: 12,
   },
@@ -118,5 +119,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

@@ -9,10 +9,44 @@ Deno.serve(async (req: Request) => {
   try {
     const { moods = [], groupSize = 2, budget = 'mid', language = 'en' } = await req.json();
 
+    // Determine time of day in Sarajevo
+    const now = new Date();
+    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    let timeOfDay: string;
+    let timeContext: string;
+    if (sarajevoHour < 11) {
+      timeOfDay = 'morning';
+      timeContext = 'a morning/brunch outing with coffee, pastries, and sightseeing';
+    } else if (sarajevoHour < 15) {
+      timeOfDay = 'afternoon';
+      timeContext = 'an afternoon plan with lunch, exploring, and culture';
+    } else if (sarajevoHour < 19) {
+      timeOfDay = 'evening';
+      timeContext = 'an evening plan with dinner, drinks, and atmosphere';
+    } else {
+      timeOfDay = 'night';
+      timeContext = 'a late night plan with drinks, nightlife, and vibes';
+    }
+
+    // Holiday awareness
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const HOLIDAYS: Record<string, string> = {
+      '03-20': 'Bajram (Eid al-Fitr) first day',
+      '03-21': 'Bajram second day',
+      '03-22': 'Bajram third day — relaxed festive atmosphere',
+      '05-27': 'Kurban Bajram first day',
+      '01-01': 'New Year',
+      '03-01': 'Independence Day',
+      '05-01': 'Labour Day',
+    };
+    const holiday = HOLIDAYS[`${mm}-${dd}`] ?? null;
+    const holidayContext = holiday ? `\nToday is ${holiday} — incorporate this festive context into the plan.` : '';
+
     const supabase = getSupabaseAdmin();
 
     // Fetch venues and events in parallel
-    const today = new Date().toISOString().split('T')[0];
+    const today = now.toISOString().split('T')[0];
     const [venuesResult, eventsResult] = await Promise.all([
       supabase
         .from('venues')
@@ -47,30 +81,31 @@ Deno.serve(async (req: Request) => {
 
     const isBosnian = language === 'bs';
 
-    const prompt = `Create a detailed 3-4 stop evening plan for Sarajevo.
+    const prompt = `Create a detailed 3-4 stop ${timeContext} plan for Sarajevo.
+It is currently ${timeOfDay} (${sarajevoHour}:00 local time). Start times from now onward.${holidayContext}
 
 Group size: ${groupSize} people.
 Budget: ${budgetMap[budget] ?? 'moderate'}.
 Moods/preferences: ${moods.length > 0 ? moods.join(', ') : 'open to anything'}.
 
-Tonight's events:
+Today's events:
 ${eventList}
 
 Available venues (ONLY use these exact names):
 ${venueList || 'Various Sarajevo venues.'}
 
-Create a realistic evening flow. Pick venues that work geographically (walking distance between stops). Include timing, walking directions, and cost estimates.
+Create a realistic ${timeOfDay} flow. Pick venues that work geographically (walking distance between stops). Include timing, walking directions, and cost estimates.
 
-${isBosnian ? 'Write activities and pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend planning the evening.' : 'Write activities and pitches in casual, warm English.'}
+${isBosnian ? 'Write activities and pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend planning.' : 'Write activities and pitches in casual, warm English.'}
 
 Respond with ONLY valid JSON:
 {
-  "tagline_en": "catchy evening tagline",
-  "tagline_bs": "catchy evening tagline in Bosnian",
+  "tagline_en": "catchy tagline",
+  "tagline_bs": "catchy tagline in Bosnian",
   "total_cost": estimated_total_number_in_KM,
   "stops": [
     {
-      "time": "e.g. 7:30 PM",
+      "time": "e.g. 10:00 AM",
       "venue_name": "exact venue name from the list",
       "activity_en": "what to do there (English)",
       "activity_bs": "what to do there (Bosnian)",

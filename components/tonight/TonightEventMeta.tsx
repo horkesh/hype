@@ -37,5 +37,6 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
   },
 });

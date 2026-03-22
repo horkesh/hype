@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
+    fontFamily: 'DMSans_700Bold',
     marginBottom: 8,
   },
   cardMeta: {
@@ -116,10 +117,12 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 12,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     color: '#FFFFFF',
   },
   metaText: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
   },
   moodBadges: {
     flexDirection: 'row',

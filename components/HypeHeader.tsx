@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { IconSymbol } from './IconSymbol';
@@ -8,6 +9,8 @@ import { IconSymbol } from './IconSymbol';
 export function HypeHeader() {
   const { language, setLanguage } = useApp();
   const { colors } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const toggleLanguage = () => {
     console.log('Toggling language from', language);
@@ -18,10 +21,18 @@ export function HypeHeader() {
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-      <View style={styles.logoRow}>
+      <TouchableOpacity
+        style={styles.logoRow}
+        onPress={() => {
+          if (!pathname.startsWith('/(tabs)/(home)') && pathname !== '/') {
+            router.push('/');
+          }
+        }}
+        activeOpacity={0.7}
+      >
         <Text style={[styles.logo, { color: colors.accent }]}>Look</Text>
         <Text style={[styles.logoCity, { color: colors.textSecondary }]}> - Sarajevo</Text>
-      </View>
+      </TouchableOpacity>
       <View style={styles.headerRight}>
         <TouchableOpacity 
           onPress={toggleLanguage}

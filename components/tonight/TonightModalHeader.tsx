@@ -36,9 +36,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'DMSerifDisplay_400Regular',
   },
   close: {
     fontSize: 28,
     fontWeight: '300',
+    fontFamily: 'DMSans_400Regular',
   },
 });

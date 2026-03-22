@@ -57,17 +57,21 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
   price: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
   },
   title: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     marginBottom: 4,
   },
   validTimes: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
   },
 });

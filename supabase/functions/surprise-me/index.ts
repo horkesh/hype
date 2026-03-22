@@ -8,6 +8,40 @@ Deno.serve(async (req: Request) => {
   try {
     const { moods = [], language = 'en' } = await req.json();
 
+    // Determine time of day in Sarajevo
+    const now = new Date();
+    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    let timeOfDay: string;
+    let timeContext: string;
+    if (sarajevoHour < 11) {
+      timeOfDay = 'morning';
+      timeContext = 'a spontaneous morning outing (coffee, brunch, sightseeing)';
+    } else if (sarajevoHour < 15) {
+      timeOfDay = 'afternoon';
+      timeContext = 'a spontaneous afternoon adventure (lunch, exploring, culture)';
+    } else if (sarajevoHour < 19) {
+      timeOfDay = 'evening';
+      timeContext = 'a spontaneous evening out (dinner, drinks, nightlife)';
+    } else {
+      timeOfDay = 'night';
+      timeContext = 'a spontaneous late night plan (drinks, clubs, night vibes)';
+    }
+
+    // Holiday awareness
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const HOLIDAYS: Record<string, string> = {
+      '03-20': 'Bajram (Eid al-Fitr) first day',
+      '03-21': 'Bajram second day',
+      '03-22': 'Bajram third day — relaxed festive atmosphere',
+      '05-27': 'Kurban Bajram first day',
+      '01-01': 'New Year',
+      '03-01': 'Independence Day',
+      '05-01': 'Labour Day',
+    };
+    const holiday = HOLIDAYS[`${mm}-${dd}`] ?? null;
+    const holidayContext = holiday ? `\nToday is ${holiday} — incorporate this festive context.` : '';
+
     const supabase = getSupabaseAdmin();
 
     // Fetch venues (cafes, restaurants, bars, clubs)
@@ -27,13 +61,14 @@ Deno.serve(async (req: Request) => {
 
     const isBosnian = language === 'bs';
 
-    const prompt = `Generate a 2-3 stop micro-plan for a spontaneous evening in Sarajevo.
+    const prompt = `Generate a 2-3 stop micro-plan for ${timeContext} in Sarajevo.
+It is currently ${timeOfDay} (${sarajevoHour}:00 local time). Suggest times that start from now and make sense for this time of day.${holidayContext}
 ${moodContext}
 
 Available venues (ONLY use these exact names):
 ${venueList || 'Various Sarajevo venues.'}
 
-Create an exciting, spontaneous evening plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
+Create an exciting, spontaneous ${timeOfDay} plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
 
 ${isBosnian ? 'Write pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend suggesting the plan.' : 'Write pitches in casual, warm English.'}
 
@@ -44,7 +79,7 @@ Respond with ONLY valid JSON:
   "stops": [
     {
       "venue_name": "exact venue name from list above",
-      "time": "e.g. 8:00 PM",
+      "time": "e.g. 10:00 AM",
       "pitch_en": "one sentence — why this stop (English)",
       "pitch_bs": "one sentence — why this stop (Bosnian)"
     }

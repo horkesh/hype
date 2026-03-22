@@ -4,6 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
 import { GlassBadge } from '@/components/glass/GlassBadge';
 import { GlassContainer } from '@/components/glass/GlassContainer';
+import { useApp } from '@/contexts/AppContext';
+import { getCategoryLabel } from '@/utils/categoryLabels';
 import { VenueDetailVenue, VENUE_MOODS, getVenuePriceLevelDisplay } from '@/utils/venueDetailScreen';
 
 interface VenueDetailHeaderProps {
@@ -17,6 +19,7 @@ interface VenueDetailHeaderProps {
 }
 
 export function VenueDetailHeader({ venue, colors, t }: VenueDetailHeaderProps) {
+  const { language } = useApp();
   return (
     <>
       <ImageWithPlaceholder
@@ -30,7 +33,7 @@ export function VenueDetailHeader({ venue, colors, t }: VenueDetailHeaderProps) 
         <Text style={[styles.venueName, { color: colors.text }]}>{venue.name}</Text>
 
         <View style={styles.badgeRow}>
-          <GlassBadge label={venue.category} variant="accent" size="md" />
+          <GlassBadge label={getCategoryLabel(venue.category, language)} variant="accent" size="md" />
           <GlassBadge label={getVenuePriceLevelDisplay(venue.price_level)} variant="default" size="md" />
         </View>
 

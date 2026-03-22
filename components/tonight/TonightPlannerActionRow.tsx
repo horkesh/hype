@@ -65,11 +65,13 @@ const styles = StyleSheet.create({
   secondaryText: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     color: '#D4A056',
   },
   primaryText: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     color: '#FFFFFF',
   },
 });

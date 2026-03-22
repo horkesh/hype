@@ -50,11 +50,13 @@ export function TonightVoteSetup({
 const styles = StyleSheet.create({
   voteInstructions: {
     fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
     marginBottom: 12,
   },
   voteCount: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
     marginBottom: 16,
   },
   primaryButton: {
@@ -68,5 +70,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

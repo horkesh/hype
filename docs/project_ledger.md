@@ -1590,3 +1590,157 @@ Website scraping picks up the Instagram link from the venue's own site footer/so
 - `backend/src/scripts/findInstagramHandles.ts` (new)
 - `backend/data/found_instagram_handles.json` (output)
 - `backend/data/no_instagram_found.json` (output)
+
+### 2026-03-22 — Mood chip vector icons
+
+#### Goal
+Replace AI-generated mood chip images (which produced generic sparkler icons with opaque black backgrounds) with crisp vector icons from `@expo/vector-icons`.
+
+#### What was done
+- Replaced `Image`/colored-circle fallback in `GlassMoodChip` with 12 mood-specific vector icons from `MaterialCommunityIcons` and `Ionicons`
+- Each icon tints to the mood's primary color when unselected, white when selected
+- Removed the unused `iconSource` prop entirely
+- No new dependencies — `@expo/vector-icons` was already installed
+
+#### Icon mapping
+| Mood | Icon | Library |
+|------|------|---------|
+| party | party-popper | MaterialCommunityIcons |
+| chill | moon-waning-crescent | MaterialCommunityIcons |
+| girls_night | glass-cocktail | MaterialCommunityIcons |
+| date_night | candle | MaterialCommunityIcons |
+| muzika | musical-notes | Ionicons |
+| romantika | heart | Ionicons |
+| kultura | drama-masks | MaterialCommunityIcons |
+| foodie | silverware-fork-knife | MaterialCommunityIcons |
+| brunch | coffee | MaterialCommunityIcons |
+| after_work | beer | MaterialCommunityIcons |
+| outdoor | leaf | Ionicons |
+| turista | compass | MaterialCommunityIcons |
+
+#### Verification
+- 187/187 tests passing (+ 1 pre-existing unrelated failure)
+- New test verifies every mood has an icon entry and old `iconSource`/`iconPlaceholder` paths are gone
+- Verified on web preview: Home and Explore both render vector icons with correct mood colors
+
+#### Files touched
+- `components/glass/GlassMoodChip.tsx` (rewritten: vector icons instead of Image)
+- `tests/glassMoodChip.test.ts` (new test for icon coverage)
+
+### 2026-03-22 — Unified mood feed on Home screen
+
+#### Goal
+When a mood chip is selected on Home, replace the independent sections (Trending, Kafu, Hidden Gems, Events) with a unified vertical feed showing both venues AND events matching that mood. Default layout preserved when no mood is selected.
+
+#### What was built
+- `utils/homeMoodFeedUtils.ts` — types (`MoodFeedVenue`, `MoodFeedEvent`, `MoodFeedItem` tagged union) and pure `interleaveFeedItems()` function (2:1 venue:event interleaving ratio)
+- `utils/homeMoodFeed.ts` — `loadMoodFeed(moodId)` fetches venues (limit 15) and events (limit 10, future only) in parallel from Supabase, both filtered by `.contains('moods', [dbMood])`, then interleaves them
+- `components/home/HomeMoodFeed.tsx` — renders the unified feed:
+  - Section header with mood label + mood-colored accent line
+  - Venue cards via `FlippableCard` + `VenueCardFront`/`VenueCardBack` (same pattern as Hidden Gems)
+  - Event cards with `getHomeEventCardContent()` + `ImageWithPlaceholder` (same content as `HomeEventCard` but full-width)
+  - `ContentState` for loading/empty states
+  - Own `useRouter()` for venue navigation
+- `components/home/HomeContentSections.tsx` — conditional rendering: mood selected → `HomeMoodFeed`, else → existing sections
+
+#### Design decisions
+- Pure interleaving function separated into `homeMoodFeedUtils.ts` so Node-side tests can import without pulling in `react-native` / Supabase client (same pattern as `errorLoggerUtils.ts`)
+- Existing section components not modified — they continue working in default (no mood) state
+- Feed uses vertical layout (not horizontal rails) since it replaces multiple sections
+- Interleaving ratio: 2 venues, 1 event, repeat — creates a natural browsing rhythm
+
+#### Verification
+- 187/187 tests passing (+ 1 pre-existing unrelated failure)
+- 8 new interleaving tests cover: equal counts, more venues, more events, only venues, only events, empty, type tags, 2:1 ratio pattern
+- Web preview verified: Kultura → galleries/museums/cultural centers; Muzika → music venues; deselect → default sections restored
+- No console errors, no failed network requests
+
+#### Files touched
+- `utils/homeMoodFeedUtils.ts` (new)
+- `utils/homeMoodFeed.ts` (new)
+- `components/home/HomeMoodFeed.tsx` (new)
+- `components/home/HomeContentSections.tsx` (modified: conditional rendering)
+- `tests/homeMoodFeed.test.ts` (new)
+
+### 2026-03-22 — Category label translations
+
+#### Goal
+Fix raw DB category values (`concert_hall`, `cultural_center`, `museum`, etc.) leaking through to the UI without translation.
+
+#### What was done
+- Created `utils/categoryLabels.ts` with `getCategoryLabel(category, language)` — centralized mapping for all ~20 venue categories in both Bosnian and English
+- Wired into 4 leaking components: `VenueCardFront` (via callers: HomeHiddenGems, HomeTrendingSection, HomeMoodFeed), `ExploreVenueCard`, `VenueDetailHeader`, and `SavedVenueCard` (via `savedContent.ts` model builder)
+- Unknown categories fall back gracefully: `food_truck` → "Food Truck"
+- 5 new tests covering BS labels, EN labels, defaults, fallback, case-insensitivity
+
+#### Files touched
+- `utils/categoryLabels.ts` (new)
+- `tests/categoryLabels.test.ts` (new)
+- `components/home/HomeHiddenGems.tsx` (import + use getCategoryLabel)
+- `components/home/HomeTrendingSection.tsx` (import + use getCategoryLabel)
+- `components/home/HomeMoodFeed.tsx` (import + use getCategoryLabel)
+- `components/explore/ExploreVenueCard.tsx` (import + use getCategoryLabel via useApp)
+- `components/venue/VenueDetailHeader.tsx` (import + use getCategoryLabel via useApp)
+- `utils/savedContent.ts` (translate in model builder, added language option)
+- `components/saved/SavedTabContent.tsx` (pass language to builder)
+- `tests/savedContent.test.ts` (updated for translated category)
+
+### 2026-03-22 — Look header as home button
+
+#### What was done
+- Wrapped the "Look - Sarajevo" text in `HypeHeader.tsx` with a `TouchableOpacity` that navigates to `/` when tapped from any non-home screen
+- Uses `useRouter()` and `usePathname()` from expo-router
+
+#### Files touched
+- `components/HypeHeader.tsx`
+
+### 2026-03-22 — Hero image prompt fix + cache clear
+
+#### Problem
+Hero image showed a nighttime scene even during morning because the Bajram holiday override completely replaced the time-of-day scene in the prompt.
+
+#### Fix
+Changed holiday modifications from replacing the scene to layering on top of the time-of-day base. Morning during Bajram now produces: "Baščaršija cobblestone street... warm golden morning light... festive holiday atmosphere, traditional decorations, families greeting each other."
+
+Cleared the cached hero_image_url in city_pulse to force regeneration. New image correctly shows a morning Sarajevo scene with a džezva (coffee pot) in the foreground and festive decorations.
+
+#### Files touched
+- `supabase/functions/generate-hero-image/index.ts` (deployed)
+
+### 2026-03-22 — AI planners now time and holiday aware
+
+#### Problem
+Both Surprise Me and the AI Evening Planner hardcoded "evening" in their prompts, producing nighttime plans (7:30 PM stops) regardless of the actual time of day.
+
+#### Fix
+Added Sarajevo timezone awareness and holiday calendar to both edge functions:
+- `surprise-me`: now determines time of day (morning/afternoon/evening/night) and adjusts the prompt context, venue types, and suggested times accordingly. Also adds holiday context when applicable.
+- `generate-plan`: same time-of-day and holiday awareness. Prompt now says "Create a morning/brunch outing" instead of hardcoded "evening plan".
+
+#### Verification
+- Surprise Me in morning now returns: "Bajram vibes, local bites & hidden gems" with 11:15 AM and 12:45 PM stops
+- AI Planner in morning returns: morning-appropriate stops starting from current hour
+- Both incorporate Bajram festive context naturally
+
+#### Files touched
+- `supabase/functions/surprise-me/index.ts` (deployed)
+- `supabase/functions/generate-plan/index.ts` (deployed)
+
+### 2026-03-22 — Font family consistency sweep
+
+#### Problem
+~30 text styles across 20 component files were missing `fontFamily` declarations, causing system fonts to render instead of DM Serif Display / DM Sans. Most visible on the Tonight screen ("Suggest a plan" buttons, segment chips, event titles) but also present in Explore, Saved, Profile, and Event detail screens. Additionally, `TonightSegmentTabs` referenced `DMSans_600SemiBold` which was never loaded in `app/_layout.tsx`.
+
+#### Fix
+Added `fontFamily` to every text style missing one, following the design system:
+- Headings/modal titles (20px+): `DMSerifDisplay_400Regular`
+- Bold text (700/bold): `DMSans_700Bold`
+- Semi-bold text (500/600): `DMSans_500Medium`
+- Regular text (400): `DMSans_400Regular`
+- Fixed `DMSans_600SemiBold` → `DMSans_500Medium` (600 weight not loaded)
+
+#### Files touched (20 files)
+Tonight: `TonightActionButtons`, `TonightEventCard`, `TonightModalHeader`, `TonightEventBadges`, `TonightEventMeta`, `TonightPlannerGroupSizePicker`, `TonightPlannerMoodGrid`, `TonightPlannerSetup`, `TonightPlannerActionRow`, `TonightVoteSetup`, `TonightVoteResultCard`, `TonightVoteResults`, `TonightSegmentTabs`, `TonightPlannerResults`
+Explore: `ExploreVenueCard`, `ExploreMenuCard`, `ExploreModalHeader`
+Saved: `SavedVenueCard`, `SavedEventCard`
+Other: `EventDetailHero`, `EventVenueAndBadges`, `ProfileSettingsCard`

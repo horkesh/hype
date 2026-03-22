@@ -40,6 +40,7 @@ function buildImagePrompt(
   weather: { temp: number; condition: string } | null,
   holiday: string | null,
 ): string {
+  // Base scene — always anchored to time of day
   const scenes: Record<string, string> = {
     morning: 'Baščaršija cobblestone street with a Turkish coffee set on a copper tray in foreground, warm golden morning light filtering through narrow streets',
     afternoon: 'Old town panorama with terrace cafe umbrellas and blue sky, view over red rooftops and minarets',
@@ -57,7 +58,7 @@ function buildImagePrompt(
   let scene = scenes[timeOfDay] || scenes.evening;
   let light = lighting[timeOfDay] || lighting.evening;
 
-  // Weather modifications
+  // Weather — layered on top of the time-of-day base
   if (weather) {
     const cond = weather.condition.toLowerCase();
     if (cond.includes('rain') || cond.includes('drizzle')) {
@@ -76,16 +77,19 @@ function buildImagePrompt(
     }
   }
 
-  // Holiday modifications
+  // Holiday — layered on top, never replaces the base scene or lighting
   if (holiday) {
-    if (holiday.toLowerCase().includes('bajram') || holiday.toLowerCase().includes('eid')) {
-      scene = 'Festive Baščaršija with warm lights, traditional Sarajevo old town atmosphere during holiday celebration, decorative warmth';
-      light = 'warm festive golden lighting, celebratory atmosphere';
-    } else if (holiday.toLowerCase().includes('christmas') || holiday.toLowerCase().includes('božić')) {
+    const h = holiday.toLowerCase();
+    if (h.includes('bajram') || h.includes('eid')) {
+      scene += ', festive holiday atmosphere, traditional decorations, families greeting each other';
+      light += ', celebratory warmth';
+    } else if (h.includes('christmas') || h.includes('božić')) {
       scene += ', subtle festive decorations, warm holiday atmosphere';
-    } else if (holiday.toLowerCase().includes('new year')) {
-      scene = 'Sarajevo old town at night with festive lights, celebration atmosphere, warm glow';
-      light = 'dramatic festive night lighting with warm tones';
+    } else if (h.includes('new year')) {
+      scene += ', festive lights and celebration atmosphere';
+      light += ', festive sparkle';
+    } else if (h.includes('independence') || h.includes('labour')) {
+      scene += ', flags and outdoor gathering atmosphere';
     }
   }
 

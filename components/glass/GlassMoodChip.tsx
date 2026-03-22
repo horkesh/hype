@@ -1,22 +1,47 @@
 import React from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, Platform, Image } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { glassTokens } from '@/styles/glassTokens';
 import type { MoodId } from '@/styles/glassTokens';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
+const MOOD_ICONS: Record<MoodId, { library: 'mci' | 'ion'; name: string }> = {
+  party:       { library: 'mci', name: 'party-popper' },
+  chill:       { library: 'mci', name: 'moon-waning-crescent' },
+  girls_night: { library: 'mci', name: 'glass-cocktail' },
+  date_night:  { library: 'mci', name: 'candle' },
+  muzika:      { library: 'ion', name: 'musical-notes' },
+  romantika:   { library: 'ion', name: 'heart' },
+  kultura:     { library: 'mci', name: 'drama-masks' },
+  foodie:      { library: 'mci', name: 'silverware-fork-knife' },
+  brunch:      { library: 'mci', name: 'coffee' },
+  after_work:  { library: 'mci', name: 'beer' },
+  outdoor:     { library: 'ion', name: 'leaf' },
+  turista:     { library: 'mci', name: 'compass' },
+};
+
+function MoodIcon({ moodId, color, size }: { moodId: MoodId; color: string; size: number }) {
+  const icon = MOOD_ICONS[moodId];
+  if (!icon) return null;
+
+  if (icon.library === 'ion') {
+    return <Ionicons name={icon.name as any} size={size} color={color} style={styles.icon} />;
+  }
+  return <MaterialCommunityIcons name={icon.name as any} size={size} color={color} style={styles.icon} />;
+}
+
 interface GlassMoodChipProps {
   moodId: MoodId;
   label: string;
   isSelected: boolean;
   onPress: () => void;
-  iconSource?: any;
 }
 
 export function GlassMoodChip({
@@ -24,7 +49,6 @@ export function GlassMoodChip({
   label,
   isSelected,
   onPress,
-  iconSource,
 }: GlassMoodChipProps) {
   const { colors } = useTheme();
   const scale = useSharedValue(1);
@@ -54,6 +78,7 @@ export function GlassMoodChip({
     : 'rgba(255,255,255,0.15)';
 
   const textColor = isSelected ? '#FFFFFF' : colors.text;
+  const iconColor = isSelected ? '#FFFFFF' : (mood?.primary ?? colors.accent);
 
   const chipStyle = [
     styles.chip,
@@ -62,11 +87,7 @@ export function GlassMoodChip({
 
   const content = (
     <>
-      {iconSource ? (
-        <Image source={iconSource} style={styles.icon} />
-      ) : (
-        <View style={[styles.iconPlaceholder, { backgroundColor: mood?.primary ?? colors.accent }]} />
-      )}
+      <MoodIcon moodId={moodId} color={iconColor} size={18} />
       <Text
         style={[
           styles.label,
@@ -111,17 +132,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   icon: {
-    width: 20,
-    height: 20,
     marginRight: 6,
-    borderRadius: 10,
-  },
-  iconPlaceholder: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginRight: 6,
-    opacity: 0.7,
   },
   label: {
     fontSize: 14,

@@ -6,6 +6,7 @@ import { HomeEventsSection } from '@/components/home/HomeEventsSection';
 import { HomeHeroPhoto } from '@/components/home/HomeHeroPhoto';
 import { HomeHiddenGems } from '@/components/home/HomeHiddenGems';
 import { HomeKafuSection } from '@/components/home/HomeKafuSection';
+import { HomeMoodFeed } from '@/components/home/HomeMoodFeed';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
@@ -81,34 +82,47 @@ export function HomeContentSections({
         />
       </View>
 
-      <View style={styles.section}>
-        <HomeTrendingSection language={language} selectedMood={selectedMood} />
-      </View>
+      {selectedMood ? (
+        <View style={styles.section}>
+          <HomeMoodFeed
+            moodId={selectedMood}
+            language={language}
+            colors={colors}
+            onEventPress={onEventPress}
+          />
+        </View>
+      ) : (
+        <>
+          <View style={styles.section}>
+            <HomeTrendingSection language={language} selectedMood={selectedMood} />
+          </View>
 
-      <View style={styles.section}>
-        <HomeKafuSection language={language} selectedMood={selectedMood} />
-      </View>
+          <View style={styles.section}>
+            <HomeKafuSection language={language} selectedMood={selectedMood} />
+          </View>
 
-      <View style={styles.section}>
-        <HomeHiddenGems language={language} selectedMood={selectedMood} />
-      </View>
+          <View style={styles.section}>
+            <HomeHiddenGems language={language} selectedMood={selectedMood} />
+          </View>
 
-      <View style={styles.section}>
-        <HomeEventsSection
-          language={language}
-          colors={colors}
-          loadingEvents={loadingEvents}
-          emptyEventsMessage={emptyEventsMessage}
-          eventsTitle={sectionLabels.events}
-          seeAllLabel={sectionLabels.seeAll}
-          seriesTitle={sectionLabels.series}
-          upcomingEvents={upcomingEvents}
-          eventSeries={eventSeries}
-          onSeeAll={onSeeAll}
-          onEventPress={onEventPress}
-          onSeriesPress={onSeriesPress}
-        />
-      </View>
+          <View style={styles.section}>
+            <HomeEventsSection
+              language={language}
+              colors={colors}
+              loadingEvents={loadingEvents}
+              emptyEventsMessage={emptyEventsMessage}
+              eventsTitle={sectionLabels.events}
+              seeAllLabel={sectionLabels.seeAll}
+              seriesTitle={sectionLabels.series}
+              upcomingEvents={upcomingEvents}
+              eventSeries={eventSeries}
+              onSeeAll={onSeeAll}
+              onEventPress={onEventPress}
+              onSeriesPress={onSeriesPress}
+            />
+          </View>
+        </>
+      )}
     </>
   );
 }

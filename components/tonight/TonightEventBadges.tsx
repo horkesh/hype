@@ -44,5 +44,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
   secondaryAction: {
     flex: 1,
@@ -65,5 +66,6 @@ const styles = StyleSheet.create({
     color: '#D4A056',
     fontSize: 15,
     fontWeight: '600',
+    fontFamily: 'DMSans_500Medium',
   },
 });

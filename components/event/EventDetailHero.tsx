@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    fontFamily: 'DMSerifDisplay_400Regular',
     marginBottom: 16,
   },
   dateBadgeRow: {
