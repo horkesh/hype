@@ -51,9 +51,10 @@ ${venueList}
 RULES:
 - Answer in ${language === 'bs' ? 'Bosnian (ijekavica, Latin script, diacritics: č, ć, š, ž, đ)' : 'English'}
 - Be conversational, warm, like a local friend explaining
-- When you mention a place that matches a venue in our database, include its ID
+- NEVER include venue IDs, UUIDs, or [id:...] tags in your answer text — those go ONLY in the mentioned_venues JSON array
+- Your answer text must be clean, natural language with NO technical artifacts
 - Keep answers concise (2-4 sentences)
-- Always attribute: "Source: Visit Sarajevo" at the end
+- Do NOT include "Source: Visit Sarajevo" in the answer text — it goes in source_pages only
 - If the question is about a specific attraction, give the Visit Sarajevo description
 - If asked about food, reference the Places to Eat categories from Visit Sarajevo
 - If asked about transport, reference their transport data
