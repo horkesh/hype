@@ -484,14 +484,15 @@ Status:
 
 #### B19. Clickable AI plan stops → venue/POI modals
 
-- Status: `Backlog`
+- Status: `Done`
 - Goal:
-  - make venue stops in Surprise Me and AI Planner results tappable, opening a custom modal with full venue details (photo, description, hours, reviews, map, actions)
-- Notes:
-  - Surprise Me and generate-plan already return `venue_name` matched to DB venue data via `venueMap`
-  - enriched stops include `venue.id` which can be used to navigate or open a detail modal
-  - could reuse `VenueCardFront`/`VenueCardBack` or a simplified venue preview sheet
-  - high-value UX improvement: turns AI plans from read-only text into interactive discovery
+  - make venue stops in Surprise Me and AI Planner results tappable, navigating to full venue detail page
+- What was delivered:
+  - TonightPlanStream stops wrapped in TouchableOpacity with chevron indicator, navigate to `/venue/[id]`
+  - planGenerator.ts: client-side venue enrichment after streaming (fetches all 1200 venues, fuzzy matches)
+  - surprise-me edge function: enrichment now matches against all 1200 venues instead of the 50-venue prompt subset
+  - HomeSurpriseMe stops already had onPress — now actually work because venue IDs are populated
+  - raw JSON no longer leaks during streaming (shimmer + status text only)
 
 #### B9. Public web and city pulse expansion
 

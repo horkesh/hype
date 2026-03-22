@@ -9,7 +9,31 @@ This is the living source of truth for active development. We should read it at 
 - Primary frontend: Expo Router app in the repo root
 - Secondary backend: Node service in `backend/`
 - Current phase: Stabilize and align the prototype against the live Supabase backend
-- Last updated: 2026-03-10
+- Last updated: 2026-03-22
+
+## Session: 2026-03-22 — Visit Sarajevo integration + AI fixes
+
+### What happened
+- Hero image prompt updated: no faces, only distant silhouettes or from behind
+- Hero image prompt now layers time-of-day + weather + holiday additively
+- AI Planner (generate-plan): raw JSON streaming display fixed — now shows shimmer + status only
+- AI Planner stops made clickable → navigate to venue detail page (B19 done)
+- Client-side venue enrichment added to planGenerator.ts (fuzzy matches against all 1200 venues)
+- Surprise Me venue enrichment fixed: was matching against 50-venue prompt subset, now uses all 1200 venues
+- Visit Sarajevo logo placed in header (centered, clickable, language-aware URLs)
+- Visit Sarajevo venue descriptions applied to 8 matching venues
+- Transport directions section added to venue detail ("Kako doći" / "How to get here")
+- "Powered by Visit Sarajevo" attribution on AI plans
+- Heritage walks section already working (3 walks, 15 stops in DB)
+- Font family consistency sweep: ~30 styles across 20 files
+- Category label translations: centralized getCategoryLabel() for all ~20 DB categories
+- Pitch deck created (PPTX) for Visit Sarajevo presentation
+- Verified all features live on hype-alpha.vercel.app
+
+### Key decisions
+- Both AI functions (surprise-me, generate-plan) now use Sonnet for better Bosnian quality
+- Venue enrichment happens client-side for streaming (generate-plan) and server-side for non-streaming (surprise-me)
+- Heritage walks backed by DB tables (heritage_walks, heritage_walk_stops) not static data
 
 ## Product intent
 
