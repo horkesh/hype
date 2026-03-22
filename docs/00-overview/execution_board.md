@@ -441,31 +441,34 @@ Status:
 
 #### B14. Live crowd signals + trending venues
 
-- Status: `Planned`
+- Status: `Done`
 - Goal:
   - seed realistic check-in data and show live "Who's Here" counts on venue cards
   - add "Trending Now" rail on Home showing venues with check-in spikes in the last 2 hours
-- Notes:
-  - `checkins` table already exists
-  - `GlassBadge` urgency variants already available for flame/count display
+- What was delivered:
+  - 100 demo check-ins seeded across 12 popular venues
+  - HomeTrendingSection shows crowd badges (bilingual: "X sada ovdje" / "X here now")
+  - Trending Now rail visible on Home when check-ins exist within 2 hours
 
 #### B15. Live event countdowns
 
-- Status: `Backlog`
+- Status: `Done`
 - Goal:
   - events happening in the next 3 hours show a live "starts in X min" countdown badge on Tonight and Home
-- Notes:
-  - `GlassBadge` + `EventCardFront` urgency prop already support this pattern
-  - needs a timer hook and filtered Supabase query
+- What was delivered:
+  - `useEventCountdown` hook: bilingual countdown (Počinje za X min / Starts in X min, U toku / Happening now)
+  - Updates every 60 seconds, shows for events within 3 hours
+  - Wired into HomeEventCard and Tonight event cards via GlassBadge
 
 #### B16. Weather-reactive recommendations
 
-- Status: `Backlog`
+- Status: `Done`
 - Goal:
-  - wire live weather data into the city pulse prompt so Gemini gives weather-aware recommendations ("rain coming — grab a window seat at X")
-- Notes:
-  - Home already has weather integration via OpenWeather API
-  - generate-pulse edge function already deployed, just needs weather param
+  - wire live weather data into the city pulse prompt so it gives weather-aware recommendations
+- What was delivered:
+  - generate-pulse edge function now receives weather data and builds weather-aware guidance
+  - Rain → indoor/cozy suggestions, hot → terraces, snow → warm drinks, clear → outdoor spots
+  - HomeCityPulse accepts weather prop, HomeContentSections passes it through
 
 #### B17. "Right Now" mode on Explore
 

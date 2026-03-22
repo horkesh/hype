@@ -30,10 +30,26 @@ This is the living source of truth for active development. We should read it at 
 - Pitch deck created (PPTX) for Visit Sarajevo presentation
 - Verified all features live on hype-alpha.vercel.app
 
+### Simplify pass
+- Removed dead rawText state + debounce handler from TonightPlanStream (was causing ~6 no-op re-renders/sec)
+- Fixed CardWrapper passing invalid props to View — split into explicit TouchableOpacity/View branches
+- Added module-level venue cache in planGenerator (avoids re-fetching 1200 venues per plan)
+- Pre-computed lowercase venue names in both client and edge function partial matching
+- Fixed SurprisePlan venue type from `any` to proper typed interface
+
+### Backlog items completed
+- **B14**: Seeded 100 demo check-ins across 12 popular venues, bilingual crowd badge on Trending Now
+- **B15**: useEventCountdown hook with bilingual countdowns, wired into Home + Tonight event cards
+- **B16**: Weather-reactive city pulse — generate-pulse edge function now uses weather data for context-aware recommendations
+- **B10**: Fixed "Istrazi" → "Istraži" diacritics in savedScreen.ts
+- **B1**: Audited — already consolidated into dedicated storage helpers, dual-key pattern is intentional backward compat
+- **B2**: Audited — no fragmented clients, all frontend uses canonical client from integrations/supabase/client.ts
+
 ### Key decisions
 - Both AI functions (surprise-me, generate-plan) now use Sonnet for better Bosnian quality
 - Venue enrichment happens client-side for streaming (generate-plan) and server-side for non-streaming (surprise-me)
 - Heritage walks backed by DB tables (heritage_walks, heritage_walk_stops) not static data
+- B1/B2 are clean — no immediate cleanup needed, just monitoring
 
 ## Product intent
 
