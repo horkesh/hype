@@ -8,6 +8,7 @@ import { GlassBadge } from '@/components/glass/GlassBadge';
 import { getCategoryGroup, getCategoryLabel } from '@/utils/categoryLabels';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
+import { moodToDbValue } from '@/utils/homeScreenContent';
 import type { HomeCategoryId } from '@/components/home/HomeCategoryGrid';
 
 interface CategoryVenue {
@@ -58,20 +59,12 @@ export function HomeCategoryFeed({
     return () => { mounted = false; };
   }, [category]);
 
-  // Mood boost: sort mood-tagged venues to top (no re-fetch needed)
+  // Mood filter: when a mood is active, show ONLY venues with that mood tag
+  const dbMood = selectedMood ? moodToDbValue(selectedMood) : null;
   const venues = useMemo(() => {
-    if (!selectedMood || rawVenues.length === 0) return rawVenues;
-    const withMood: CategoryVenue[] = [];
-    const without: CategoryVenue[] = [];
-    for (const v of rawVenues) {
-      if (v.moods?.includes(selectedMood)) {
-        withMood.push(v);
-      } else {
-        without.push(v);
-      }
-    }
-    return [...withMood, ...without];
-  }, [rawVenues, selectedMood]);
+    if (!dbMood || rawVenues.length === 0) return rawVenues;
+    return rawVenues.filter((v) => v.moods?.includes(dbMood));
+  }, [rawVenues, dbMood]);
 
   const title = getCategoryLabel(category, language);
   const countLabel = loading
@@ -120,7 +113,7 @@ export function HomeCategoryFeed({
                 </Text>
               )}
             </View>
-            {selectedMood && venue.moods?.includes(selectedMood) && (
+            {dbMood && venue.moods?.includes(dbMood) && (
               <View style={styles.moodBadge}>
                 <GlassBadge label="★" variant="accent" />
               </View>
