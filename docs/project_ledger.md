@@ -1873,3 +1873,32 @@ Navigating to venue/event/series detail pages lost both the "Look - Sarajevo" he
 - `supabase/functions/generate-hero-image/index.ts` (no faces prompt)
 - `supabase/functions/surprise-me/index.ts` (Sonnet model, wider venue matching)
 - `docs/superpowers/specs/2026-03-22-home-magazine-redesign-design.md` (new spec)
+
+### Session 2026-03-22 (cont.) — Mood filtering fix & data quality
+
+#### Mood tag inflation cleanup
+- Discovered AI enrichment massively over-tagged venues: "chill" at 51% (514/1000), "foodie" at 35% (352/1000)
+- Ran cleanup script: stripped generic tags from bakeries, cafes, bars, restaurants
+- Kept tags only where genuinely distinctive (name contains "lounge", "jazz", "chill", "gourmet", "bistro")
+- Results: chill 514→58 (6%), foodie 352→21 (2%) — all other moods unchanged
+
+#### Category + mood hard filter
+- Bug: selecting Bar + Party still showed Bistro Cuco (an after_work-only bar)
+- Root cause: HomeCategoryFeed used sort-boost (mood-matching venues sorted to top, rest still shown)
+- Fix: changed to hard filter — `rawVenues.filter(v => v.moods?.includes(dbMood))` — only shows venues matching BOTH category AND mood
+- Added `moodToDbValue()` translation to HomeCategoryFeed for Bosnian mood IDs (muzika→live_music, etc.)
+
+#### Verified on production
+- Bar + After Work: shows Bistro Cuco, Caffe index ✅
+- Bar + Party: shows Shelter Pub, Sarajevo Pub Crawl Start — Bistro Cuco correctly absent ✅
+- Mood-only (Chill): shows 58 genuinely chill venues instead of 514 generic ones ✅
+
+#### Pitch materials created
+- Visit Sarajevo pitch deck (PPTX) with roadmap and feature mockups
+- Cost estimate documents: external (for board) and internal (realistic numbers)
+- Look Presentation event seeded for tomorrow 11:15 AM at Visit Sarajevo
+
+#### Files touched
+- `components/home/HomeCategoryFeed.tsx` (hard filter instead of sort boost)
+- `.claude/napkin.md` (data quality rules added)
+- Database: 975 venue mood tag updates (chill + foodie cleanup)

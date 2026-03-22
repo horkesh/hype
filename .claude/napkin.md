@@ -80,6 +80,12 @@
 15. **[2026-03-22] Hero image prompt must explicitly ban faces**
    Do instead: AI image generators ignore subtle hints like "no people in focus". Use explicit negative instructions: "if people appear they must be distant silhouettes or shot from behind — NEVER show recognizable faces, close-up portraits, or people looking at camera."
 
+## Data Quality
+1. **[2026-03-22] AI mood enrichment over-tags — audit before trusting**
+   Do instead: after running AI venue enrichment, audit mood tag distribution. If any mood covers >15% of venues, it's inflated and useless as a filter. Strip generic tags (e.g. every cafe is not "chill", every restaurant is not "foodie"). Keep tags only where genuinely distinctive (name contains "lounge", "jazz", tags contain "gourmet", etc.).
+2. **[2026-03-22] Category + mood must be AND filter, not sort boost**
+   Do instead: when both a category and mood are selected on Home, show ONLY venues matching both. Never show all category venues with mood-tagged ones sorted to top — users expect hard filtering. Use `.filter()` not sort-and-append.
+
 ## Execution & Validation
 1. **[2026-03-22] Never test on localhost — always push, deploy, and verify on production**
    Do instead: after making code changes, push to git, let Vercel deploy, then open `https://hype-alpha.vercel.app/` to verify. Do not use `expo start --web` or localhost for verification. The user wants to see the real deployed app, not a local dev server.
