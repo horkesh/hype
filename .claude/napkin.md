@@ -73,7 +73,9 @@
    Do instead: when `findInstagramHandles.ts` finds a handle from a venue website, the site may link to a parent company, platform (Wix, Glovo), or unrelated business. Always verify high-value handles (clubs, theatres) by navigating to the Instagram profile in the browser before trusting them.
 
 ## Execution & Validation
-1. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**
+1. **[2026-03-22] Never test on localhost — always push, deploy, and verify on production**
+   Do instead: after making code changes, push to git, let Vercel deploy, then open `https://hype-alpha.vercel.app/` to verify. Do not use `expo start --web` or localhost for verification. The user wants to see the real deployed app, not a local dev server.
+2. **[2026-03-09] Treat `docs/00-overview/execution_board.md` as the structured planning source**
    Do instead: update the execution board whenever backlog state, active work, blockers, or next-wave sequencing changes.
 2. **[2026-03-09] Treat `docs/project_ledger.md` as the chronological session source**
    Do instead: read the ledger before substantial work and update it after meaningful changes so recent decisions and implementation history do not drift into chat history only.

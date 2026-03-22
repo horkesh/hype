@@ -105,16 +105,11 @@ export function TonightPlanStream({
           <SkeletonLoader height={14} width="85%" style={styles.shimmerLine} />
         </View>
 
-        {/* Raw text preview */}
+        {/* Streaming status */}
         {rawText.length > 0 && (
-          <GlassContainer style={styles.previewCard}>
-            <Text
-              style={[styles.previewText, { color: 'rgba(255,255,255,0.5)' }]}
-              numberOfLines={6}
-            >
-              {rawText.slice(-300)}
-            </Text>
-          </GlassContainer>
+          <Text style={[styles.previewStatus, { color: 'rgba(255,255,255,0.4)' }]}>
+            {language === 'bs' ? 'AI kreira tvoj plan...' : 'AI is crafting your plan...'}
+          </Text>
         )}
       </View>
     );
@@ -216,14 +211,11 @@ const styles = StyleSheet.create({
   shimmerLine: {
     marginBottom: 0,
   },
-  previewCard: {
-    padding: 12,
-    marginTop: 4,
-  },
-  previewText: {
-    fontSize: 12,
+  previewStatus: {
+    fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    lineHeight: 18,
+    textAlign: 'center',
+    marginTop: 4,
   },
   errorCard: {
     padding: 20,
