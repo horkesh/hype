@@ -93,7 +93,7 @@ function buildImagePrompt(
     }
   }
 
-  return `Cinematic photograph, ${scene}, Sarajevo Bosnia, ${light}, shallow depth of field, professional travel photography, 16:9 aspect ratio, no text, no people in focus, no watermarks, 1920x1080`;
+  return `Cinematic photograph, ${scene}, Sarajevo Bosnia, ${light}, shallow depth of field, professional travel photography, 16:9 aspect ratio, no text, no watermarks, 1920x1080. IMPORTANT: if people appear they must be distant silhouettes or shot from behind — NEVER show recognizable faces, close-up portraits, or people looking at camera.`;
 }
 
 // ─── Gemini Image Generation ─────────────────────────────────────────────────
