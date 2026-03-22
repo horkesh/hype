@@ -29,15 +29,21 @@ export async function generatePlan(
   onProgress?: (text: string) => void,
 ): Promise<EveningPlan | null> {
   let accumulated = '';
+  let buffer = ''; // Handle partial SSE lines split across chunks
 
   const { error } = await streamEdgeFunction(
     'generate-plan',
     params,
     (chunk) => {
-      const lines = chunk.split('\n');
+      buffer += chunk;
+      const lines = buffer.split('\n');
+      // Keep the last line in buffer (it may be incomplete)
+      buffer = lines.pop() ?? '';
+
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data: ')) {
+          const data = trimmed.slice(6);
           if (data === '[DONE]') continue;
           try {
             const parsed = JSON.parse(data);
@@ -47,12 +53,24 @@ export async function generatePlan(
               onProgress?.(accumulated);
             }
           } catch {
-            // Non-JSON line, skip
+            // Incomplete JSON fragment, skip
           }
         }
       }
     },
   );
+
+  // Process any remaining buffer
+  if (buffer.trim().startsWith('data: ')) {
+    const data = buffer.trim().slice(6);
+    if (data !== '[DONE]') {
+      try {
+        const parsed = JSON.parse(data);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) accumulated += content;
+      } catch { /* skip */ }
+    }
+  }
 
   if (error) {
     console.warn('Plan generation stream error:', error);

@@ -1,7 +1,7 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
 
-const STREAM_TIMEOUT_MS = 25_000;
+const STREAM_TIMEOUT_MS = 45_000;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
