@@ -71,7 +71,11 @@
    Do instead: when querying venues or events by mood, always pass the chip ID through `moodToDbValue()` from `utils/homeScreenContent.ts`. The app uses Bosnian-flavored names (muzika, romantika, kultura, turista) while the DB uses English keys (live_music, romantic, culture, tourist).
 13. **[2026-03-21] Website-scraped Instagram handles need spot-checking**
    Do instead: when `findInstagramHandles.ts` finds a handle from a venue website, the site may link to a parent company, platform (Wix, Glovo), or unrelated business. Always verify high-value handles (clubs, theatres) by navigating to the Instagram profile in the browser before trusting them.
-14. **[2026-03-22] AI venue enrichment must match against ALL venues, not just the prompt subset**
+14. **[2026-03-22] Category grouping logic lives in `utils/categoryLabels.ts` as `getCategoryGroup()`**
+   Do instead: when mapping a display category (e.g. "bar") to the DB categories it covers (bar, pub, hookah), use `getCategoryGroup()` from `utils/categoryLabels.ts`. Don't duplicate this mapping in components.
+15. **[2026-03-22] Separate fetch from client-side sort in data-loading components**
+   Do instead: when a component fetches data from Supabase and also applies a client-side sort (e.g. mood boost), put the fetch in `useEffect` with only the fetch-triggering dependency (category), and the sort in `useMemo` with both the raw data and the sort key (mood). This prevents unnecessary network calls when only the sort changes.
+16. **[2026-03-22] AI venue enrichment must match against ALL venues, not just the prompt subset**
    Do instead: when an edge function gives the AI a curated list of 50 venues for prompt context, the post-response venue enrichment (fuzzy name → ID matching) must search the full 1200-venue table, not just the prompt subset. The AI may return venue names that weren't in the curated list. Fetch all venues in parallel with the prompt subset to avoid an extra round-trip.
 15. **[2026-03-22] Hero image prompt must explicitly ban faces**
    Do instead: AI image generators ignore subtle hints like "no people in focus". Use explicit negative instructions: "if people appear they must be distant silhouettes or shot from behind — NEVER show recognizable faces, close-up portraits, or people looking at camera."

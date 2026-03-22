@@ -1821,3 +1821,55 @@ Navigating to venue/event/series detail pages lost both the "Look - Sarajevo" he
 - `app/(tabs)/(home)/event/[id].tsx` (moved from `app/event/[id].tsx`)
 - `app/(tabs)/(home)/series/[id].tsx` (moved from `app/series/[id].tsx`)
 - `components/HypeHeader.tsx` (added back button + MaterialIcons import)
+
+---
+
+### 2026-03-22 — Session 2: Visit Sarajevo integration, pitch materials, Home magazine redesign
+
+#### Visit Sarajevo integration
+- Visit Sarajevo logo placed in header (centered, language-aware links)
+- "Powered by Visit Sarajevo" attribution added to AI plan results
+- Transport directions component on venue detail (14 neighborhoods mapped)
+- 8 venue descriptions updated from Visit Sarajevo content
+- Hero image prompt updated: no faces, only distant silhouettes or from behind
+
+#### AI quality fixes
+- Surprise Me upgraded from Haiku to Sonnet for better Bosnian language quality
+- AI Planner raw JSON streaming fixed (shimmer + status text only during generation)
+- AI plan stops made clickable — navigate to venue detail on tap (B19 done)
+- Client-side venue enrichment for AI planner (fuzzy match against all 1,200 venues)
+
+#### Live features shipped
+- B14: Live crowd signals — 100 demo check-ins seeded, Trending Now rail on Home
+- B15: Live event countdowns — "Starts in X min" badges on Home + Tonight cards
+- B16: Weather-reactive city pulse — rain/snow/heat guidance in AI recommendations
+- "Look Prezentacija" test event seeded for tomorrow 11:15 AM (pitch demo)
+
+#### Font consistency sweep
+- Added fontFamily to ~30 text styles across 20 files
+- Fixed DMSans_600SemiBold (not loaded) → DMSans_500Medium
+
+#### Pitch materials
+- PPTX pitch deck for Visit Sarajevo (Bosnian) with 4 roadmap mockup slides
+- DOCX cost estimate report — two versions:
+  - External (for board): 1,830 hours, ~220K KM total investment, all in KM with EU/US comparisons
+  - Internal (real): ~930 hours actual, ~160-210 hours personal time, 9-11x AI productivity multiplier
+
+#### Home magazine redesign (partner feedback)
+- Problem: Home read like a restaurant menu, not a city discovery experience
+- Solution: "Smart magazine cover" with 4x2 category icon grid
+- New HomeCategoryGrid: 8 categories (Restoran, Bar, Kafić, Klub, Pozorište, Muzej, Galerija, Znamenitost)
+- New HomeCategoryFeed: category-filtered venue list with mood boost sorting
+- Three content modes: default editorial, category-filtered, mood feed
+- Removed HomeKafuSection and HomeAskSarajevo from default view
+- /simplify pass: extracted getCategoryGroup to utils, removed unused fields, separated fetch from sort
+
+#### Files touched (key)
+- `components/home/HomeCategoryGrid.tsx` (new)
+- `components/home/HomeCategoryFeed.tsx` (new)
+- `components/home/HomeContentSections.tsx` (redesigned)
+- `components/home/HomeScreen.tsx` (added category state)
+- `utils/categoryLabels.ts` (added getCategoryGroup)
+- `supabase/functions/generate-hero-image/index.ts` (no faces prompt)
+- `supabase/functions/surprise-me/index.ts` (Sonnet model, wider venue matching)
+- `docs/superpowers/specs/2026-03-22-home-magazine-redesign-design.md` (new spec)

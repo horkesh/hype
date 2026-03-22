@@ -587,6 +587,11 @@ Status:
 - Expo Router helper-route cleanup
 - regression tests for Home weather, image sources, and accidental `app/` helper files
 - regression tests for shared Home copy/date/countdown helpers
+- Home magazine redesign: 4x2 category icon grid below hero, mood chips as soft boost, three content modes (editorial/category/mood), HomeKafuSection and HomeAskSarajevo removed
+- Visit Sarajevo integration: header logo, transport directions, venue descriptions, AI plan attribution, hero image no-faces prompt
+- B14/B15/B16: live crowd signals, event countdowns, weather-reactive city pulse — all shipped
+- B19: clickable AI plan stops — venue enrichment + navigation on tap
+- AI quality: Surprise Me upgraded to Sonnet, planner raw JSON leak fixed, font consistency sweep
 - mood chip vector icons: replaced AI-generated images (opaque black backgrounds) with 12 crisp vector icons from `@expo/vector-icons` (MaterialCommunityIcons + Ionicons), tinted per mood color
 - unified mood feed on Home: selecting a mood now replaces independent sections (Trending, Kafu, Hidden Gems, Events) with a single vertical feed of interleaved venues + events matching that mood; default sections restored on deselect
 - centralized category label translations: `getCategoryLabel()` in `utils/categoryLabels.ts` maps all ~20 DB categories to BS/EN display labels; wired into 4 leaking components
