@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -29,22 +29,8 @@ export function TonightPlanStream({
   const { colors } = useTheme();
   const router = useRouter();
   const [phase, setPhase] = useState<StreamPhase>('streaming');
-  const [rawText, setRawText] = useState('');
   const [plan, setPlan] = useState<EveningPlan | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-
-  // Debounce progress updates to avoid 5-20 re-renders/sec during SSE streaming
-  const latestTextRef = useRef('');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleProgress = useCallback((text: string) => {
-    latestTextRef.current = text;
-    if (!timerRef.current) {
-      timerRef.current = setTimeout(() => {
-        setRawText(latestTextRef.current);
-        timerRef.current = null;
-      }, 150);
-    }
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +39,6 @@ export function TonightPlanStream({
       try {
         const result = await generatePlan(
           { moods, groupSize, budget, language },
-          handleProgress,
         );
 
         if (cancelled) return;
@@ -75,7 +60,6 @@ export function TonightPlanStream({
 
     return () => {
       cancelled = true;
-      if (timerRef.current) clearTimeout(timerRef.current);
     };
     // Fire once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -171,8 +155,6 @@ function TimelineStop({
     ? stop.pitch_bs || stop.pitch_en || ''
     : stop.pitch_en || stop.pitch_bs || '';
 
-  const CardWrapper = onPress ? TouchableOpacity : View;
-
   return (
     <View style={styles.stopRow}>
       {/* Timeline column */}
@@ -182,30 +164,54 @@ function TimelineStop({
       </View>
 
       {/* Card — tappable if venue has an ID */}
-      <CardWrapper onPress={onPress} activeOpacity={0.7} style={{ flex: 1 }}>
-        <GlassContainer style={styles.stopCard}>
-          <View style={styles.stopHeader}>
-            <Text style={styles.stopTime}>{stop.time}</Text>
-            <View style={styles.stopHeaderRight}>
-              {stop.estimated_cost != null && (
-                <Text style={styles.stopCost}>~{stop.estimated_cost} KM</Text>
-              )}
-              {onPress && (
-                <MaterialCommunityIcons name="chevron-right" size={16} color="rgba(255,255,255,0.4)" />
-              )}
-            </View>
-          </View>
-          <Text style={[styles.stopVenue, { color: textColor }]}>{stop.venue_name}</Text>
-          {activity ? <Text style={[styles.stopActivity, { color: textColor, opacity: 0.7 }]}>{activity}</Text> : null}
-          {pitch ? <Text style={[styles.stopPitch, { color: textColor, opacity: 0.5 }]}>{pitch}</Text> : null}
-          {stop.walk_minutes != null && stop.walk_minutes > 0 && (
-            <Text style={[styles.stopWalk, { color: textColor, opacity: 0.4 }]}>
-              {stop.walk_minutes} min walk
-            </Text>
-          )}
-        </GlassContainer>
-      </CardWrapper>
+      {onPress ? (
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{ flex: 1 }}>
+          <StopCardContent stop={stop} activity={activity} pitch={pitch} textColor={textColor} showChevron />
+        </TouchableOpacity>
+      ) : (
+        <View style={{ flex: 1 }}>
+          <StopCardContent stop={stop} activity={activity} pitch={pitch} textColor={textColor} />
+        </View>
+      )}
     </View>
+  );
+}
+
+function StopCardContent({
+  stop,
+  activity,
+  pitch,
+  textColor,
+  showChevron,
+}: {
+  stop: PlanStop;
+  activity: string;
+  pitch: string;
+  textColor: string;
+  showChevron?: boolean;
+}) {
+  return (
+    <GlassContainer style={styles.stopCard}>
+      <View style={styles.stopHeader}>
+        <Text style={styles.stopTime}>{stop.time}</Text>
+        <View style={styles.stopHeaderRight}>
+          {stop.estimated_cost != null && (
+            <Text style={styles.stopCost}>~{stop.estimated_cost} KM</Text>
+          )}
+          {showChevron && (
+            <MaterialCommunityIcons name="chevron-right" size={16} color="rgba(255,255,255,0.4)" />
+          )}
+        </View>
+      </View>
+      <Text style={[styles.stopVenue, { color: textColor }]}>{stop.venue_name}</Text>
+      {activity ? <Text style={[styles.stopActivity, { color: textColor, opacity: 0.7 }]}>{activity}</Text> : null}
+      {pitch ? <Text style={[styles.stopPitch, { color: textColor, opacity: 0.5 }]}>{pitch}</Text> : null}
+      {stop.walk_minutes != null && stop.walk_minutes > 0 && (
+        <Text style={[styles.stopWalk, { color: textColor, opacity: 0.4 }]}>
+          {stop.walk_minutes} min walk
+        </Text>
+      )}
+    </GlassContainer>
   );
 }
 

@@ -6,7 +6,7 @@ export interface SurprisePlan {
     time: string;
     pitch_en?: string;
     pitch_bs?: string;
-    venue?: any;
+    venue?: { id: string; name: string; category?: string; neighborhood?: string } | null;
   }>;
   tagline_en?: string;
   tagline_bs?: string;

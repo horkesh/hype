@@ -122,16 +122,18 @@ Respond with ONLY valid JSON:
 
     // Enrich stops with venue data (fuzzy matching against ALL venues, not just prompt subset)
     const venueMap = new Map(allVenues.map((v) => [v.name.toLowerCase(), v]));
+    // Pre-compute lowercase names for partial matching
+    const venueLower = allVenues.map((v) => ({ lower: v.name.toLowerCase(), venue: v }));
     function findVenue(name: string | undefined) {
       if (!name) return null;
       const lower = name.toLowerCase();
       // Exact match first
       const exact = venueMap.get(lower);
       if (exact) return exact;
-      // Partial match: venue name contains the search or vice versa
-      return allVenues.find(
-        (v) => v.name.toLowerCase().includes(lower) || lower.includes(v.name.toLowerCase())
-      ) ?? null;
+      // Partial match with pre-computed lowercase
+      return venueLower.find(
+        (entry) => entry.lower.includes(lower) || lower.includes(entry.lower)
+      )?.venue ?? null;
     }
     const enrichedStops = stops.map((stop: any) => ({
       ...stop,

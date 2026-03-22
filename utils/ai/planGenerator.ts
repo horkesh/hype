@@ -22,28 +22,52 @@ export interface EveningPlan {
 
 /**
  * Client-side venue enrichment: match AI-generated venue names to DB venue IDs.
+ * Venue list is cached for the session to avoid re-fetching 1200 rows per plan.
  */
+type VenueRef = { id: string; name: string; category?: string; neighborhood?: string };
+
+let cachedVenues: VenueRef[] | null = null;
+let cachedVenueMap: Map<string, VenueRef> | null = null;
+// Pre-computed lowercase names to avoid repeated .toLowerCase() in partial matching
+let cachedVenueLower: Array<{ lower: string; venue: VenueRef }> | null = null;
+
+async function getVenueLookup(): Promise<{
+  map: Map<string, VenueRef>;
+  lowerList: Array<{ lower: string; venue: VenueRef }>;
+}> {
+  if (cachedVenueMap && cachedVenueLower) {
+    return { map: cachedVenueMap, lowerList: cachedVenueLower };
+  }
+
+  const { data: venues } = await supabase
+    .from('venues')
+    .select('id, name, category, neighborhood')
+    .limit(1200);
+
+  if (!venues?.length) return { map: new Map(), lowerList: [] };
+
+  cachedVenues = venues as VenueRef[];
+  cachedVenueMap = new Map(cachedVenues.map((v) => [v.name.toLowerCase(), v]));
+  cachedVenueLower = cachedVenues.map((v) => ({ lower: v.name.toLowerCase(), venue: v }));
+
+  return { map: cachedVenueMap, lowerList: cachedVenueLower };
+}
+
 async function enrichStopsWithVenueIds(stops: PlanStop[]): Promise<PlanStop[]> {
   try {
-    const { data: venues } = await supabase
-      .from('venues')
-      .select('id, name, category, neighborhood')
-      .limit(1200);
+    const { map, lowerList } = await getVenueLookup();
+    if (map.size === 0) return stops;
 
-    if (!venues?.length) return stops;
-
-    const venueMap = new Map(venues.map((v) => [v.name.toLowerCase(), v]));
-
-    function findVenue(name: string | undefined) {
+    function findVenue(name: string | undefined): VenueRef | null {
       if (!name) return null;
       const lower = name.toLowerCase();
       // Exact match first
-      const exact = venueMap.get(lower);
+      const exact = map.get(lower);
       if (exact) return exact;
-      // Partial match
-      return venues.find(
-        (v) => v.name.toLowerCase().includes(lower) || lower.includes(v.name.toLowerCase()),
-      ) ?? null;
+      // Partial match with pre-computed lowercase names
+      return lowerList.find(
+        (entry) => entry.lower.includes(lower) || lower.includes(entry.lower),
+      )?.venue ?? null;
     }
 
     return stops.map((stop) => ({
