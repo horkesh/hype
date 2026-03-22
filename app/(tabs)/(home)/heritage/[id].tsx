@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/hooks/useTheme';
 import { HypeHeader } from '@/components/HypeHeader';
 import { GlassContainer } from '@/components/glass/GlassContainer';
 import { GlassBadge } from '@/components/glass/GlassBadge';

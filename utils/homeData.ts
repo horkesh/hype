@@ -101,13 +101,12 @@ export interface NewInTownVenue {
   category: string;
   neighborhood: string | null;
   google_rating: number | null;
-  price_level: string | null;
 }
 
 export async function loadHomeNewInTown(): Promise<NewInTownVenue[]> {
   const { data } = await supabase
     .from('venues')
-    .select('id, name, cover_image_url, category, neighborhood, google_rating, price_level')
+    .select('id, name, cover_image_url, category, neighborhood, google_rating')
     .order('created_at', { ascending: false })
     .limit(6);
   return (data ?? []) as NewInTownVenue[];
