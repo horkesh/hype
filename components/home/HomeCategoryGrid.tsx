@@ -111,12 +111,12 @@ const styles = StyleSheet.create({
   },
   cell: {
     width: '23%',
-    aspectRatio: 1,
-    borderRadius: 16,
+    height: 72,
+    borderRadius: 14,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 6,
   },
   label: {
     fontSize: 11,
