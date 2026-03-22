@@ -27,6 +27,7 @@ export function HomeScreen(): React.ReactElement {
   const { language } = useApp();
   const isWeb = Platform.OS === 'web';
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<HomeEventItem[]>([]);
   const [eventSeries, setEventSeries] = useState<HomeEventSeries[]>([]);
   const [loadingStatic, setLoadingStatic] = useState(true);
@@ -88,9 +89,11 @@ export function HomeScreen(): React.ReactElement {
         loadingEvents={loadingEvents}
         onEventPress={(eventId) => router.push(`/event/${eventId}`)}
         onSeeAll={() => router.push('/(tabs)/tonight')}
+        onSelectCategory={setSelectedCategory}
         onSelectMood={setSelectedMood}
         onSeriesPress={(seriesId) => router.push(`/series/${seriesId}`)}
         sectionLabels={sectionLabels}
+        selectedCategory={selectedCategory}
         selectedMood={selectedMood}
         upcomingEvents={upcomingEvents}
       />

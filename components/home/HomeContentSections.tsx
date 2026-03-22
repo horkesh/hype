@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { HomeCategoryFeed } from '@/components/home/HomeCategoryFeed';
+import { HomeCategoryGrid } from '@/components/home/HomeCategoryGrid';
 import { HomeCityPulse } from '@/components/home/HomeCityPulse';
 import { HomeEventsSection } from '@/components/home/HomeEventsSection';
 import { HomeHeroPhoto } from '@/components/home/HomeHeroPhoto';
 import { HomeHiddenGems } from '@/components/home/HomeHiddenGems';
-import { HomeKafuSection } from '@/components/home/HomeKafuSection';
 import { HomeMoodFeed } from '@/components/home/HomeMoodFeed';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
-import { HomeAskSarajevo } from '@/components/home/HomeAskSarajevo';
 import { HomeFeaturedSection } from '@/components/home/HomeFeaturedSection';
 import { HomeHeritageSection } from '@/components/home/HomeHeritageSection';
 import { HomeNewInTownSection } from '@/components/home/HomeNewInTownSection';
@@ -31,8 +31,10 @@ interface HomeContentSectionsProps {
   loadingEvents: boolean;
   onEventPress: (eventId: string) => void;
   onSeeAll: () => void;
+  onSelectCategory: (category: string | null) => void;
   onSelectMood: (mood: string | null) => void;
   onSeriesPress: (seriesId: string) => void;
+  selectedCategory: string | null;
   sectionLabels: {
     cafes: string;
     events: string;
@@ -52,8 +54,10 @@ export function HomeContentSections({
   loadingEvents,
   onEventPress,
   onSeeAll,
+  onSelectCategory,
   onSelectMood,
   onSeriesPress,
+  selectedCategory,
   sectionLabels,
   selectedMood,
   upcomingEvents,
@@ -74,6 +78,10 @@ export function HomeContentSections({
     return () => { mounted = false; };
   }, []);
 
+  // Determine content mode: category, mood, both, or default editorial
+  const hasCategory = selectedCategory != null;
+  const hasMood = selectedMood != null;
+
   return (
     <>
       <HomeHeroPhoto language={language} heroImageUrl={heroImageUrl}>
@@ -81,6 +89,16 @@ export function HomeContentSections({
         <HomeSurpriseMe language={language} />
       </HomeHeroPhoto>
 
+      {/* Category grid — always visible */}
+      <View style={styles.section}>
+        <HomeCategoryGrid
+          language={language}
+          selectedCategory={selectedCategory}
+          onSelectCategory={onSelectCategory}
+        />
+      </View>
+
+      {/* Mood chips — always visible below category grid */}
       <View style={styles.section}>
         <HomeMoodSection
           language={language}
@@ -90,7 +108,18 @@ export function HomeContentSections({
         />
       </View>
 
-      {selectedMood ? (
+      {/* Content: adapts based on selection state */}
+      {hasCategory ? (
+        /* Category selected (with optional mood boost) */
+        <View style={styles.section}>
+          <HomeCategoryFeed
+            category={selectedCategory}
+            selectedMood={selectedMood}
+            language={language}
+          />
+        </View>
+      ) : hasMood ? (
+        /* Mood only — existing mood feed */
         <View style={styles.section}>
           <HomeMoodFeed
             moodId={selectedMood}
@@ -100,17 +129,10 @@ export function HomeContentSections({
           />
         </View>
       ) : (
+        /* Default editorial magazine sections */
         <>
           <View style={styles.section}>
-            <HomeAskSarajevo language={language} colors={colors} />
-          </View>
-
-          <View style={styles.section}>
             <HomeFeaturedSection language={language} colors={colors} onEventPress={onEventPress} />
-          </View>
-
-          <View style={styles.section}>
-            <HomeHeritageSection language={language} colors={colors} />
           </View>
 
           <View style={styles.section}>
@@ -122,7 +144,7 @@ export function HomeContentSections({
           </View>
 
           <View style={styles.section}>
-            <HomeKafuSection language={language} selectedMood={selectedMood} />
+            <HomeHeritageSection language={language} colors={colors} />
           </View>
 
           <View style={styles.section}>
