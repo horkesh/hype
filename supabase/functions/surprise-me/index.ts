@@ -44,12 +44,21 @@ Deno.serve(async (req: Request) => {
 
     const supabase = getSupabaseAdmin();
 
-    // Fetch venues (cafes, restaurants, bars, clubs)
-    const { data: venues } = await supabase
-      .from('venues')
-      .select('id, name, category, neighborhood, vibe_tags, price_level, address')
-      .in('category', ['cafe', 'restaurant', 'bar', 'club', 'museum', 'gallery', 'landmark', 'cultural_center', 'theatre', 'park', 'outdoor'])
-      .limit(50);
+    // Fetch venues for prompt (curated subset) and enrichment (all) in parallel
+    const [promptVenuesRes, allVenuesRes] = await Promise.all([
+      supabase
+        .from('venues')
+        .select('id, name, category, neighborhood, vibe_tags, price_level, address')
+        .in('category', ['cafe', 'restaurant', 'bar', 'club', 'museum', 'gallery', 'landmark', 'cultural_center', 'theatre', 'park', 'outdoor'])
+        .limit(50),
+      supabase
+        .from('venues')
+        .select('id, name, category, neighborhood')
+        .limit(1200),
+    ]);
+
+    const venues = promptVenuesRes.data;
+    const allVenues = allVenuesRes.data ?? [];
 
     const venueList = (venues ?? [])
       .map((v) => `- ${v.name} (${v.category}, ${v.neighborhood}, price: ${v.price_level ?? '?'})`)
@@ -111,9 +120,8 @@ Respond with ONLY valid JSON:
     const parsed = JSON.parse(cleaned);
     const { stops = [], tagline_en, tagline_bs } = parsed;
 
-    // Enrich stops with venue data (fuzzy matching)
-    const venueList2 = venues ?? [];
-    const venueMap = new Map(venueList2.map((v) => [v.name.toLowerCase(), v]));
+    // Enrich stops with venue data (fuzzy matching against ALL venues, not just prompt subset)
+    const venueMap = new Map(allVenues.map((v) => [v.name.toLowerCase(), v]));
     function findVenue(name: string | undefined) {
       if (!name) return null;
       const lower = name.toLowerCase();
@@ -121,7 +129,7 @@ Respond with ONLY valid JSON:
       const exact = venueMap.get(lower);
       if (exact) return exact;
       // Partial match: venue name contains the search or vice versa
-      return venueList2.find(
+      return allVenues.find(
         (v) => v.name.toLowerCase().includes(lower) || lower.includes(v.name.toLowerCase())
       ) ?? null;
     }
