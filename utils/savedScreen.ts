@@ -149,7 +149,7 @@ export function getSavedEmptyState(
   if (isVenuesTab) {
     return {
       buttonRoute: '/(tabs)/explore',
-      buttonText: isBosnian ? 'Istrazi mjesta' : 'Explore places',
+      buttonText: isBosnian ? 'Istraži mjesta' : 'Explore places',
       emoji: '\u2764\uFE0F',
       subtitle: isBosnian
         ? 'Sačuvaj svoja omiljena mjesta da ih lako pronađeš kasnije.'
@@ -172,7 +172,7 @@ export function getSavedEmptyState(
 
   return {
     buttonRoute: '/(tabs)/explore',
-    buttonText: isBosnian ? 'Istrazi grad' : 'Explore the city',
+    buttonText: isBosnian ? 'Istraži grad' : 'Explore the city',
     emoji: '\u{1F3C6}',
     subtitle: isBosnian
       ? 'Osvoji bedževe kroz aktivnost u aplikaciji.'

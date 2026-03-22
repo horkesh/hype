@@ -75,7 +75,7 @@ export function HomeTrendingSection({ language, selectedMood }: HomeTrendingSect
             {/* Crowd badge overlay */}
             <View style={styles.crowdBadge}>
               <GlassBadge
-                label={`${item.checkin_count} here now`}
+                label={language === 'bs' ? `${item.checkin_count} sada ovdje` : `${item.checkin_count} here now`}
                 variant="danger"
                 size="sm"
               />
