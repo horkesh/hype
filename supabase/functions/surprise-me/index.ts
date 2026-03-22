@@ -48,8 +48,8 @@ Deno.serve(async (req: Request) => {
     const { data: venues } = await supabase
       .from('venues')
       .select('id, name, category, neighborhood, vibe_tags, price_level, address')
-      .in('category', ['cafe', 'restaurant', 'bar', 'club'])
-      .limit(30);
+      .in('category', ['cafe', 'restaurant', 'bar', 'club', 'museum', 'gallery', 'landmark', 'cultural_center', 'theatre', 'park', 'outdoor'])
+      .limit(50);
 
     const venueList = (venues ?? [])
       .map((v) => `- ${v.name} (${v.category}, ${v.neighborhood}, price: ${v.price_level ?? '?'})`)
@@ -70,7 +70,13 @@ ${venueList || 'Various Sarajevo venues.'}
 
 Create an exciting, spontaneous ${timeOfDay} plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
 
-${isBosnian ? 'Write pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend suggesting the plan.' : 'Write pitches in casual, warm English.'}
+${isBosnian ? `Write ALL pitches in natural, grammatically correct Sarajevo Bosnian (Latin script, ijekavica).
+Rules for Bosnian:
+- Sound like a young local friend casually texting the plan, not a tourist brochure
+- Use short, punchy sentences — max 15 words per pitch
+- Never mix English words into Bosnian pitches
+- Use proper grammar and diacritics (č, ć, š, ž, đ)
+- Examples of good tone: "Ovdje se pije najbolja kafa u gradu", "Prošetaj čaršijom dok je mirno", "Obavezno probaj baklavu"` : 'Write pitches in casual, warm English. Sound like a local friend suggesting the plan.'}
 
 Respond with ONLY valid JSON:
 {
@@ -87,7 +93,7 @@ Respond with ONLY valid JSON:
 }`;
 
     const aiResponse = await callClaude({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-5-20250929',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1024,
     });
@@ -105,11 +111,23 @@ Respond with ONLY valid JSON:
     const parsed = JSON.parse(cleaned);
     const { stops = [], tagline_en, tagline_bs } = parsed;
 
-    // Enrich stops with venue data
-    const venueMap = new Map((venues ?? []).map((v) => [v.name.toLowerCase(), v]));
+    // Enrich stops with venue data (fuzzy matching)
+    const venueList2 = venues ?? [];
+    const venueMap = new Map(venueList2.map((v) => [v.name.toLowerCase(), v]));
+    function findVenue(name: string | undefined) {
+      if (!name) return null;
+      const lower = name.toLowerCase();
+      // Exact match first
+      const exact = venueMap.get(lower);
+      if (exact) return exact;
+      // Partial match: venue name contains the search or vice versa
+      return venueList2.find(
+        (v) => v.name.toLowerCase().includes(lower) || lower.includes(v.name.toLowerCase())
+      ) ?? null;
+    }
     const enrichedStops = stops.map((stop: any) => ({
       ...stop,
-      venue: venueMap.get(stop.venue_name?.toLowerCase()) ?? null,
+      venue: findVenue(stop.venue_name),
     }));
 
     return new Response(

@@ -1744,3 +1744,40 @@ Tonight: `TonightActionButtons`, `TonightEventCard`, `TonightModalHeader`, `Toni
 Explore: `ExploreVenueCard`, `ExploreMenuCard`, `ExploreModalHeader`
 Saved: `SavedVenueCard`, `SavedEventCard`
 Other: `EventDetailHero`, `EventVenueAndBadges`, `ProfileSettingsCard`
+
+### 2026-03-22 — AI planner model upgrade + bug fix
+
+#### Problem
+Both AI planners (Surprise Me and Generate Plan) were broken on live — returning "Could not generate a plan" every time. Root cause: incorrect Anthropic model ID `claude-sonnet-4-5-20241022` (doesn't exist, returns 404). The edge function caught the error as `{ success: false }` but the client showed a generic error with no indication of the cause.
+
+#### Fix
+- Corrected model ID to `claude-sonnet-4-5-20250929` in both edge functions
+- Upgraded from Haiku to Sonnet 4.5 for better Bosnian language quality
+- Improved Bosnian prompt rules: short sentences, proper diacritics, no English mixing, concrete tone examples
+- Added fuzzy venue matching in surprise-me (partial name match fallback) so plan stops are clickable
+- Broadened surprise-me venue categories to include museums, galleries, landmarks, parks, cultural centers
+
+#### Lesson
+Always verify Anthropic model IDs against the live API before deploying — model IDs include a release date suffix that cannot be guessed.
+
+#### Files touched
+- `supabase/functions/surprise-me/index.ts` (deployed)
+- `supabase/functions/generate-plan/index.ts` (deployed)
+
+### 2026-03-22 — Header + tab bar persistence across detail pages
+
+#### Problem
+Navigating to venue/event/series detail pages lost both the "Look - Sarajevo" header and the bottom tab bar because those routes were outside the `(tabs)` group.
+
+#### Fix
+- Moved `venue/[id]`, `event/[id]`, `series/[id]` from top-level `app/` into `app/(tabs)/(home)/` as nested stack routes
+- Updated `(home)/_layout.tsx` to register the three detail routes with `headerShown: false`
+- Added `HypeHeader` with conditional back arrow to all three detail screens
+- `HypeHeader` now detects detail pages via pathname regex and shows a back button when `router.canGoBack()`
+
+#### Files touched
+- `app/(tabs)/(home)/_layout.tsx` (updated)
+- `app/(tabs)/(home)/venue/[id].tsx` (moved from `app/venue/[id].tsx`)
+- `app/(tabs)/(home)/event/[id].tsx` (moved from `app/event/[id].tsx`)
+- `app/(tabs)/(home)/series/[id].tsx` (moved from `app/series/[id].tsx`)
+- `components/HypeHeader.tsx` (added back button + MaterialIcons import)

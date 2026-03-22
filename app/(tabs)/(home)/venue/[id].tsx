@@ -8,8 +8,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { HypeHeader } from '@/components/HypeHeader';
 import { VenueActionButtons } from '@/components/venue/VenueActionButtons';
 import { VenueDetailHeader } from '@/components/venue/VenueDetailHeader';
 import { VenueDetailTabs } from '@/components/venue/VenueDetailTabs';
@@ -152,8 +154,8 @@ export default function VenueDetailScreen() {
   if (loading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <Stack.Screen options={{ headerShown: true, title: '', headerBackTitle: copy.back }} />
-        <ActivityIndicator size="large" color={colors.accent} />
+        <HypeHeader />
+        <ActivityIndicator size="large" color={colors.accent} style={{ flex: 1 }} />
       </View>
     );
   }
@@ -161,7 +163,7 @@ export default function VenueDetailScreen() {
   if (!venue) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <Stack.Screen options={{ headerShown: true, title: '', headerBackTitle: copy.back }} />
+        <HypeHeader />
         <Text style={[styles.errorText, { color: colors.text }]}>{copy.notFound}</Text>
       </View>
     );
@@ -190,7 +192,7 @@ export default function VenueDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Stack.Screen options={{ headerShown: true, title: '', headerBackTitle: copy.back }} />
+      <HypeHeader />
 
       <ScrollView style={styles.scrollView}>
         <VenueDetailHeader venue={venue} colors={colors} t={t} />

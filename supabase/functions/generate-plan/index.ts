@@ -96,7 +96,13 @@ ${venueList || 'Various Sarajevo venues.'}
 
 Create a realistic ${timeOfDay} flow. Pick venues that work geographically (walking distance between stops). Include timing, walking directions, and cost estimates.
 
-${isBosnian ? 'Write activities and pitches in natural Sarajevo Bosnian (Latin script, ijekavica). Sound like a local friend planning.' : 'Write activities and pitches in casual, warm English.'}
+${isBosnian ? `Write ALL activities and pitches in natural, grammatically correct Sarajevo Bosnian (Latin script, ijekavica).
+Rules for Bosnian:
+- Sound like a young local friend casually planning, not a tourist brochure
+- Use short, punchy sentences — max 15 words per activity/pitch
+- Never mix English words into Bosnian text
+- Use proper grammar and diacritics (č, ć, š, ž, đ)
+- Examples of good tone: "Kreni na kafu kod Sebija", "Prošetaj Ferhadijom do Morića Hana", "Završi uz pivu na Bašči"` : 'Write activities and pitches in casual, warm English.'}
 
 Respond with ONLY valid JSON:
 {
@@ -133,7 +139,7 @@ Respond with ONLY valid JSON:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-sonnet-4-5-20250929',
           max_tokens: 1500,
           stream: true,
           messages: [{ role: 'user', content: prompt }],

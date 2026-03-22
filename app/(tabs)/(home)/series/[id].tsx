@@ -7,8 +7,9 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { HypeHeader } from '@/components/HypeHeader';
 import { SeriesDetailActions } from '@/components/series/SeriesDetailActions';
 import { SeriesDetailHero } from '@/components/series/SeriesDetailHero';
 import { SeriesEventsSection } from '@/components/series/SeriesEventsSection';
@@ -90,7 +91,7 @@ export default function SeriesDetailScreen() {
   if (loading) {
     return (
       <>
-        <Stack.Screen options={{ title: t('loading'), headerShown: true }} />
+        <HypeHeader />
         <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <ActivityIndicator size="large" color={colors.accent} />
         </View>
@@ -101,7 +102,7 @@ export default function SeriesDetailScreen() {
   if (!series) {
     return (
       <>
-        <Stack.Screen options={{ title: t('error'), headerShown: true }} />
+        <HypeHeader />
         <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <Text style={[styles.errorText, { color: colors.text }]}>{t('error')}</Text>
         </View>
@@ -140,7 +141,7 @@ export default function SeriesDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title, headerShown: true }} />
+      <HypeHeader />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
         <SeriesDetailHero
           imageSource={series.cover_image_url}

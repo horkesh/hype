@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { HypeHeader } from '@/components/HypeHeader';
 import { EventDetailHero } from '@/components/event/EventDetailHero';
 import { EventPurchaseSection } from '@/components/event/EventPurchaseSection';
 import { EventVenueAndBadges } from '@/components/event/EventVenueAndBadges';
@@ -87,7 +88,7 @@ export default function EventDetailScreen() {
   if (loading) {
     return (
       <>
-        <Stack.Screen options={{ title: t('eventDetails'), headerShown: true }} />
+        <HypeHeader />
         <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <ActivityIndicator size="large" color={colors.accent} />
         </View>
@@ -98,7 +99,7 @@ export default function EventDetailScreen() {
   if (!event) {
     return (
       <>
-        <Stack.Screen options={{ title: t('eventDetails'), headerShown: true }} />
+        <HypeHeader />
         <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <Text style={[styles.errorText, { color: colors.text }]}>{t('error')}</Text>
         </View>
@@ -146,7 +147,7 @@ export default function EventDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: eventTitle, headerShown: true }} />
+      <HypeHeader />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
         <EventDetailHero
           imageSource={event.cover_image_url}

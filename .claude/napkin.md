@@ -57,7 +57,9 @@
    Do instead: use `DMSerifDisplay_400Regular` for heroTitle, sectionHeader, and cardTitle in `designTokens.ts`. Keep `DMSans_*` for body, caption, labels, and badges. Never mix serif into small body text.
 10. **[2026-03-21] Glass and overlays use warm amber tints, not cold white/black**
    Do instead: glass background is `rgba(212,160,86,0.04)`, glass border is `rgba(212,160,86,0.10)`, image overlays use `rgba(20,10,0,0.7)` not `rgba(0,0,0,0.7)`. This gives the warm cinematic feel matching the reference screenshots.
-11. **[2026-03-22] All AI edge functions must be time-of-day, weather, and holiday aware**
+11. **[2026-03-22] Always verify Anthropic model IDs against the live API before deploying**
+   Do instead: model IDs include a release date suffix — never guess it. Correct format: `claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001`. A wrong date (e.g. `20241022`) returns a 404 that the edge function catches as `success: false`, and the client silently shows "Could not generate a plan." Always test with a direct `node` fetch to the edge function URL before assuming a model change works.
+12. **[2026-03-22] All AI edge functions must be time-of-day, weather, and holiday aware**
    Do instead: every edge function that generates user-facing content (hero image, surprise-me, generate-plan, city pulse) must determine the current Sarajevo hour via `toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })`, check the holiday calendar, and layer these contexts into the prompt additively — never let holidays override the time-of-day scene.
 12. **[2026-03-22] Every text style must declare fontFamily — no system font fallback**
    Do instead: when adding any `fontSize` in a `StyleSheet`, always include `fontFamily`. Use `DMSerifDisplay_400Regular` for headings (20px+), `DMSans_700Bold` for bold, `DMSans_500Medium` for semi-bold/600, `DMSans_400Regular` for regular. Never use `DMSans_600SemiBold` — it's not loaded.
