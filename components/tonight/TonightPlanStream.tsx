@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { GlassBadge } from '@/components/glass/GlassBadge';
 import { GlassContainer } from '@/components/glass/GlassContainer';
@@ -25,6 +27,7 @@ export function TonightPlanStream({
   onPlanReady,
 }: TonightPlanStreamProps) {
   const { colors } = useTheme();
+  const router = useRouter();
   const [phase, setPhase] = useState<StreamPhase>('streaming');
   const [rawText, setRawText] = useState('');
   const [plan, setPlan] = useState<EveningPlan | null>(null);
@@ -105,12 +108,10 @@ export function TonightPlanStream({
           <SkeletonLoader height={14} width="85%" style={styles.shimmerLine} />
         </View>
 
-        {/* Streaming status */}
-        {rawText.length > 0 && (
-          <Text style={[styles.previewStatus, { color: 'rgba(255,255,255,0.4)' }]}>
-            {language === 'bs' ? 'AI kreira tvoj plan...' : 'AI is crafting your plan...'}
-          </Text>
-        )}
+        {/* Streaming status — never show raw JSON */}
+        <Text style={[styles.previewStatus, { color: 'rgba(255,255,255,0.4)' }]}>
+          {language === 'bs' ? 'AI kreira tvoj plan...' : 'AI is crafting your plan...'}
+        </Text>
       </View>
     );
   }
@@ -133,6 +134,7 @@ export function TonightPlanStream({
           isLast={index === plan.stops.length - 1}
           language={language}
           textColor={colors.text}
+          onPress={stop.venue?.id ? () => router.push(`/venue/${stop.venue!.id}`) : undefined}
         />
       ))}
 
@@ -153,11 +155,13 @@ function TimelineStop({
   isLast,
   language,
   textColor,
+  onPress,
 }: {
   stop: PlanStop;
   isLast: boolean;
   language: string;
   textColor: string;
+  onPress?: () => void;
 }) {
   const activity = language === 'bs'
     ? stop.activity_bs || stop.activity_en || ''
@@ -167,6 +171,8 @@ function TimelineStop({
     ? stop.pitch_bs || stop.pitch_en || ''
     : stop.pitch_en || stop.pitch_bs || '';
 
+  const CardWrapper = onPress ? TouchableOpacity : View;
+
   return (
     <View style={styles.stopRow}>
       {/* Timeline column */}
@@ -175,23 +181,30 @@ function TimelineStop({
         {!isLast && <View style={[styles.timeLine, { backgroundColor: 'rgba(255,255,255,0.15)' }]} />}
       </View>
 
-      {/* Card */}
-      <GlassContainer style={styles.stopCard}>
-        <View style={styles.stopHeader}>
-          <Text style={styles.stopTime}>{stop.time}</Text>
-          {stop.estimated_cost != null && (
-            <Text style={styles.stopCost}>~{stop.estimated_cost} KM</Text>
+      {/* Card — tappable if venue has an ID */}
+      <CardWrapper onPress={onPress} activeOpacity={0.7} style={{ flex: 1 }}>
+        <GlassContainer style={styles.stopCard}>
+          <View style={styles.stopHeader}>
+            <Text style={styles.stopTime}>{stop.time}</Text>
+            <View style={styles.stopHeaderRight}>
+              {stop.estimated_cost != null && (
+                <Text style={styles.stopCost}>~{stop.estimated_cost} KM</Text>
+              )}
+              {onPress && (
+                <MaterialCommunityIcons name="chevron-right" size={16} color="rgba(255,255,255,0.4)" />
+              )}
+            </View>
+          </View>
+          <Text style={[styles.stopVenue, { color: textColor }]}>{stop.venue_name}</Text>
+          {activity ? <Text style={[styles.stopActivity, { color: textColor, opacity: 0.7 }]}>{activity}</Text> : null}
+          {pitch ? <Text style={[styles.stopPitch, { color: textColor, opacity: 0.5 }]}>{pitch}</Text> : null}
+          {stop.walk_minutes != null && stop.walk_minutes > 0 && (
+            <Text style={[styles.stopWalk, { color: textColor, opacity: 0.4 }]}>
+              {stop.walk_minutes} min walk
+            </Text>
           )}
-        </View>
-        <Text style={[styles.stopVenue, { color: textColor }]}>{stop.venue_name}</Text>
-        {activity ? <Text style={[styles.stopActivity, { color: textColor, opacity: 0.7 }]}>{activity}</Text> : null}
-        {pitch ? <Text style={[styles.stopPitch, { color: textColor, opacity: 0.5 }]}>{pitch}</Text> : null}
-        {stop.walk_minutes != null && stop.walk_minutes > 0 && (
-          <Text style={[styles.stopWalk, { color: textColor, opacity: 0.4 }]}>
-            {stop.walk_minutes} min walk
-          </Text>
-        )}
-      </GlassContainer>
+        </GlassContainer>
+      </CardWrapper>
     </View>
   );
 }
@@ -285,6 +298,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
+  },
+  stopHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   stopTime: {
     fontSize: 13,

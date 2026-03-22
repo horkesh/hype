@@ -1,3 +1,4 @@
+import { supabase } from '@/integrations/supabase/client';
 import { streamEdgeFunction } from './edgeFunctionClient';
 
 export interface PlanStop {
@@ -9,7 +10,7 @@ export interface PlanStop {
   pitch_bs?: string;
   walk_minutes?: number;
   estimated_cost?: number;
-  venue?: any;
+  venue?: { id: string; name: string; category?: string; neighborhood?: string } | null;
 }
 
 export interface EveningPlan {
@@ -17,6 +18,41 @@ export interface EveningPlan {
   total_cost: number;
   tagline_en?: string;
   tagline_bs?: string;
+}
+
+/**
+ * Client-side venue enrichment: match AI-generated venue names to DB venue IDs.
+ */
+async function enrichStopsWithVenueIds(stops: PlanStop[]): Promise<PlanStop[]> {
+  try {
+    const { data: venues } = await supabase
+      .from('venues')
+      .select('id, name, category, neighborhood')
+      .limit(1200);
+
+    if (!venues?.length) return stops;
+
+    const venueMap = new Map(venues.map((v) => [v.name.toLowerCase(), v]));
+
+    function findVenue(name: string | undefined) {
+      if (!name) return null;
+      const lower = name.toLowerCase();
+      // Exact match first
+      const exact = venueMap.get(lower);
+      if (exact) return exact;
+      // Partial match
+      return venues.find(
+        (v) => v.name.toLowerCase().includes(lower) || lower.includes(v.name.toLowerCase()),
+      ) ?? null;
+    }
+
+    return stops.map((stop) => ({
+      ...stop,
+      venue: findVenue(stop.venue_name),
+    }));
+  } catch {
+    return stops;
+  }
 }
 
 export async function generatePlan(
@@ -79,7 +115,12 @@ export async function generatePlan(
 
   try {
     const clean = accumulated.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(clean);
+    const plan: EveningPlan = JSON.parse(clean);
+
+    // Enrich stops with venue IDs for navigation
+    plan.stops = await enrichStopsWithVenueIds(plan.stops);
+
+    return plan;
   } catch {
     console.warn('Failed to parse plan JSON:', accumulated.slice(0, 100));
     return null;
