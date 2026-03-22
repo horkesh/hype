@@ -30,6 +30,7 @@ export interface VenueDetailVenue {
   description_en: string;
   latitude: number;
   longitude: number;
+  neighborhood: string | null;
 }
 
 export interface VenueDetailEvent {

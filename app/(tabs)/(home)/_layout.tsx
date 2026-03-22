@@ -7,6 +7,7 @@ export default function HomeLayout() {
       <Stack.Screen name="venue/[id]" />
       <Stack.Screen name="event/[id]" />
       <Stack.Screen name="series/[id]" />
+      <Stack.Screen name="heritage/[id]" />
     </Stack>
   );
 }

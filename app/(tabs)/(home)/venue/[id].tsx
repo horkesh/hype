@@ -19,6 +19,7 @@ import { VenueEventsSection } from '@/components/venue/VenueEventsSection';
 import { VenueHoursSection } from '@/components/venue/VenueHoursSection';
 import { VenueInfoSection } from '@/components/venue/VenueInfoSection';
 import { VenueSpecialsSection } from '@/components/venue/VenueSpecialsSection';
+import { VenueTransportSection } from '@/components/venue/VenueTransportSection';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { isFavoritesAuthRequiredError } from '@/utils/favorites';
@@ -206,6 +207,12 @@ export default function VenueDetailScreen() {
           labels={copy}
           hoursRows={hoursRows}
           hasOpeningHours={Boolean(venue.opening_hours)}
+        />
+
+        <VenueTransportSection
+          neighborhood={venue.neighborhood}
+          language={language as 'bs' | 'en'}
+          colors={colors}
         />
 
         <VenueActionButtons

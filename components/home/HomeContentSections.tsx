@@ -9,6 +9,10 @@ import { HomeKafuSection } from '@/components/home/HomeKafuSection';
 import { HomeMoodFeed } from '@/components/home/HomeMoodFeed';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
+import { HomeAskSarajevo } from '@/components/home/HomeAskSarajevo';
+import { HomeFeaturedSection } from '@/components/home/HomeFeaturedSection';
+import { HomeHeritageSection } from '@/components/home/HomeHeritageSection';
+import { HomeNewInTownSection } from '@/components/home/HomeNewInTownSection';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
 import { HomeEventItem, HomeEventSeries, loadHomeWeather } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeHeroState';
@@ -93,6 +97,22 @@ export function HomeContentSections({
         </View>
       ) : (
         <>
+          <View style={styles.section}>
+            <HomeAskSarajevo language={language} colors={colors} />
+          </View>
+
+          <View style={styles.section}>
+            <HomeFeaturedSection language={language} colors={colors} onEventPress={onEventPress} />
+          </View>
+
+          <View style={styles.section}>
+            <HomeHeritageSection language={language} colors={colors} />
+          </View>
+
+          <View style={styles.section}>
+            <HomeNewInTownSection language={language} colors={colors} />
+          </View>
+
           <View style={styles.section}>
             <HomeTrendingSection language={language} selectedMood={selectedMood} />
           </View>

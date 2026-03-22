@@ -81,6 +81,38 @@ export async function loadHomeUpcomingEvents(
   return (data ?? []) as HomeEventItem[];
 }
 
+export async function loadHomeFeaturedEvent(): Promise<HomeEventItem | null> {
+  const { data } = await supabase
+    .from('events')
+    .select('id, title_bs, title_en, cover_image_url, start_datetime, moods, price_bam, location_name, venues(name)')
+    .eq('is_featured', true)
+    .eq('is_active', true)
+    .gte('start_datetime', new Date().toISOString())
+    .order('start_datetime', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return data as HomeEventItem | null;
+}
+
+export interface NewInTownVenue {
+  id: string;
+  name: string;
+  cover_image_url: string | null;
+  category: string;
+  neighborhood: string | null;
+  google_rating: number | null;
+  price_level: string | null;
+}
+
+export async function loadHomeNewInTown(): Promise<NewInTownVenue[]> {
+  const { data } = await supabase
+    .from('venues')
+    .select('id, name, cover_image_url, category, neighborhood, google_rating, price_level')
+    .order('created_at', { ascending: false })
+    .limit(6);
+  return (data ?? []) as NewInTownVenue[];
+}
+
 export async function loadHomeWeather(): Promise<{
   temp: number;
   weatherCondition: string;

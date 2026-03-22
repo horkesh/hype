@@ -114,6 +114,13 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
                 </View>
               </TouchableOpacity>
             ))}
+            <View style={styles.attribution}>
+              <Text style={styles.attributionText}>
+                {isBosnian
+                  ? 'Na osnovu podataka Visit Sarajevo i 1.226 lokalnih objekata'
+                  : 'Based on data from Visit Sarajevo and 1,226 local venues'}
+              </Text>
+            </View>
           </View>
         )}
       </GlassContainer>
@@ -137,4 +144,16 @@ const styles = StyleSheet.create({
   stopPitch: { fontSize: 12, fontFamily: 'DMSans_400Regular', marginTop: 2, lineHeight: 16 },
   errorContent: { marginTop: 8 },
   errorText: { fontSize: 13, fontFamily: 'DMSans_400Regular' },
+  attribution: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  attributionText: {
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
+    color: 'rgba(255,255,255,0.4)',
+    textAlign: 'center',
+  },
 });
