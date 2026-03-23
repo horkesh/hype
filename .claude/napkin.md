@@ -21,7 +21,9 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-21] Apify Instagram — 189 venues with handles, ready to scrape**
+1. **[2026-03-23] Deploy `generate-event-cover` edge function from home machine**
+   Do instead: run `supabase functions deploy generate-event-cover` from the repo root on the home machine (needs Supabase CLI). The DB column (`events.cover_image_url`) and storage bucket (`event-covers`, public) are already created in Supabase.
+2. **[2026-03-21] Apify Instagram — 189 venues with handles, ready to scrape**
    Do instead: once Apify credits are topped up, update `scrapeInstagram.ts` to pull from `instagram_handle` column (189 venues) instead of hardcoded lists, then run the full scrape.
 2. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
    Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
