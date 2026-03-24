@@ -79,24 +79,27 @@ ${venueList || 'Various Sarajevo venues.'}
 
 Create an exciting, spontaneous ${timeOfDay} plan. Each stop should flow naturally into the next. Pick venues that make sense together geographically and thematically.
 
-${isBosnian ? `Write ALL pitches in natural, grammatically correct Sarajevo Bosnian (Latin script, ijekavica).
-Rules for Bosnian:
-- Sound like a young local friend casually texting the plan, not a tourist brochure
-- Use short, punchy sentences — max 15 words per pitch
-- Never mix English words into Bosnian pitches
-- Use proper grammar and diacritics (č, ć, š, ž, đ)
-- Examples of good tone: "Ovdje se pije najbolja kafa u gradu", "Prošetaj čaršijom dok je mirno", "Obavezno probaj baklavu"` : 'Write pitches in casual, warm English. Sound like a local friend suggesting the plan.'}
+IMPORTANT — WRITE BOSNIAN FIRST, THEN TRANSLATE TO ENGLISH:
+1. Write tagline_bs and all pitch_bs fields FIRST. Think in Bosnian, write in Bosnian.
+   Rules for Bosnian:
+   - Sound like a young local friend casually texting the plan, not a tourist brochure
+   - Use short, punchy sentences — max 15 words per pitch
+   - Never mix English words into Bosnian pitches
+   - Use proper grammar and diacritics (č, ć, š, ž, đ)
+   - Use Sarajevo Bosnian — "kafa" not "kava", "uvijek" not "uvek", "vrijedi" not "vredi", "ovdje" not "ovde"
+   - Examples of good tone: "Ovdje se pije najbolja kafa u gradu", "Prošetaj čaršijom dok je mirno", "Obavezno probaj baklavu"
+2. THEN translate each Bosnian field into natural English. Rephrase idioms — don't translate literally.
 
 Respond with ONLY valid JSON:
 {
-  "tagline_en": "short exciting tagline",
-  "tagline_bs": "short exciting tagline in Bosnian",
+  "tagline_bs": "short exciting tagline in Bosnian (write FIRST)",
+  "tagline_en": "English translation",
   "stops": [
     {
       "venue_name": "exact venue name from list above",
       "time": "e.g. 10:00 AM",
-      "pitch_en": "one sentence — why this stop (English)",
-      "pitch_bs": "one sentence — why this stop (Bosnian)"
+      "pitch_bs": "Bosnian pitch (write FIRST)",
+      "pitch_en": "English translation"
     }
   ]
 }`;
