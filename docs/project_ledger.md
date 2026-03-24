@@ -9,7 +9,16 @@ This is the living source of truth for active development. We should read it at 
 - Primary frontend: Expo Router app in the repo root
 - Secondary backend: Node service in `backend/`
 - Current phase: Stabilize and align the prototype against the live Supabase backend
-- Last updated: 2026-03-22
+- Last updated: 2026-03-24
+
+## Session: 2026-03-24 — Tourist board demo prep + AI fixes
+
+### What happened
+- Created demo event "Sarajevo night bazaar: Bascarsija under the stars" (09:30 today, featured, culture/foodie/live_music moods) for tourist board presentation
+- Hero image generation: replaced panoramic city views with intimate close-up scenes (džezva, somun, lanterns, cobblestones) — all four time-of-day prompts rewritten
+- City Pulse bug fix: events query used wrong column names (name→title_en, start_time→start_datetime, venue_name→venues join + location_name), causing pulse to ignore app events and lean on Klix headlines instead
+- City Pulse now also filters by status=approved and is_active=true
+- Both edge functions deployed: generate-hero-image, generate-pulse
 
 ## Session: 2026-03-22 — Visit Sarajevo integration + AI fixes
 

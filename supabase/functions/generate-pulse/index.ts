@@ -124,9 +124,11 @@ Deno.serve(async (req: Request) => {
     const [eventsResult, venuesResult, klixHeadlines] = await Promise.all([
       supabase
         .from('events')
-        .select('name, description, category, start_time, venue_name')
-        .gte('start_time', `${today}T00:00:00`)
-        .lte('start_time', `${today}T23:59:59`)
+        .select('title_en, description_en, category, start_datetime, location_name, venues(name)')
+        .gte('start_datetime', `${today}T00:00:00`)
+        .lte('start_datetime', `${today}T23:59:59`)
+        .eq('status', 'approved')
+        .eq('is_active', true)
         .limit(10),
       supabase
         .from('venues')
@@ -169,7 +171,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const eventSummary = events && events.length > 0
-      ? events.map((e) => `- ${e.name} (${e.category}) at ${e.venue_name}`).join('\n')
+      ? events.map((e: any) => `- ${e.title_en} (${e.category}) at ${e.venues?.name ?? e.location_name ?? 'TBA'}`).join('\n')
       : 'No specific events in our database today.';
 
     const venueSummary = venues && venues.length > 0

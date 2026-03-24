@@ -42,10 +42,10 @@ function buildImagePrompt(
 ): string {
   // Base scene — always anchored to time of day
   const scenes: Record<string, string> = {
-    morning: 'Baščaršija cobblestone street with a Turkish coffee set on a copper tray in foreground, warm golden morning light filtering through narrow streets',
-    afternoon: 'Old town panorama with terrace cafe umbrellas and blue sky, view over red rooftops and minarets',
-    evening: 'Skyline with minarets and mosque domes, golden hour sunset with amber and pink sky over the valley',
-    night: 'Old town lantern-lit street with warm glowing windows and atmospheric street lights, intimate nighttime mood',
+    morning: 'Close-up of a traditional Bosnian coffee set — copper džezva and fildžan cups on a hand-hammered tray, steam rising, on a worn wooden cafe table in Baščaršija',
+    afternoon: 'Close-up of freshly baked somun bread on a stone counter beside a copper coffee pot, dappled sunlight through a cafe window in old Sarajevo',
+    evening: 'Intimate close-up of a lantern-lit cafe table with a Turkish coffee cup and a small plate of rahat lokum, warm amber glow on weathered stone walls',
+    night: 'Close-up of glowing warm lanterns reflecting on rain-slicked Baščaršija cobblestones, shallow depth of field, intimate nighttime atmosphere',
   };
 
   const lighting: Record<string, string> = {
