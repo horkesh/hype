@@ -96,27 +96,30 @@ ${venueList || 'Various Sarajevo venues.'}
 
 Create a realistic ${timeOfDay} flow. Pick venues that work geographically (walking distance between stops). Include timing, walking directions, and cost estimates.
 
-${isBosnian ? `Write ALL activities and pitches in natural, grammatically correct Sarajevo Bosnian (Latin script, ijekavica).
-Rules for Bosnian:
-- Sound like a young local friend casually planning, not a tourist brochure
-- Use short, punchy sentences — max 15 words per activity/pitch
-- Never mix English words into Bosnian text
-- Use proper grammar and diacritics (č, ć, š, ž, đ)
-- Examples of good tone: "Kreni na kafu kod Sebija", "Prošetaj Ferhadijom do Morića Hana", "Završi uz pivu na Bašči"` : 'Write activities and pitches in casual, warm English.'}
+IMPORTANT — WRITE BOSNIAN FIRST, THEN TRANSLATE TO ENGLISH:
+1. Write ALL _bs fields FIRST (tagline_bs, activity_bs, pitch_bs). Think in Bosnian, write in Bosnian.
+   Rules for Bosnian:
+   - Sound like a young local friend casually planning, not a tourist brochure
+   - Use short, punchy sentences — max 15 words per activity/pitch
+   - Never mix English words into Bosnian text
+   - Use proper grammar and diacritics (č, ć, š, ž, đ)
+   - Use Sarajevo Bosnian — "kafa" not "kava", "uvijek" not "uvek", "vrijedi" not "vredi", "ovdje" not "ovde"
+   - Examples of good tone: "Kreni na kafu kod Sebija", "Prošetaj Ferhadijom do Morića Hana", "Završi uz pivu na Bašči"
+2. THEN translate each Bosnian field into natural English for the _en fields. Rephrase idioms — don't translate literally.
 
 Respond with ONLY valid JSON:
 {
-  "tagline_en": "catchy tagline",
-  "tagline_bs": "catchy tagline in Bosnian",
+  "tagline_bs": "catchy tagline in Bosnian (write FIRST)",
+  "tagline_en": "English translation",
   "total_cost": estimated_total_number_in_KM,
   "stops": [
     {
       "time": "e.g. 10:00 AM",
       "venue_name": "exact venue name from the list",
-      "activity_en": "what to do there (English)",
-      "activity_bs": "what to do there (Bosnian)",
-      "pitch_en": "one sentence — why this is great (English)",
-      "pitch_bs": "one sentence — why this is great (Bosnian)",
+      "activity_bs": "what to do there (Bosnian, write FIRST)",
+      "activity_en": "English translation",
+      "pitch_bs": "one sentence — why this is great (Bosnian, write FIRST)",
+      "pitch_en": "English translation",
       "walk_minutes": minutes_to_walk_from_previous,
       "estimated_cost": cost_in_KM_per_person
     }
