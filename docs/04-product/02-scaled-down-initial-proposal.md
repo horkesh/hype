@@ -69,30 +69,30 @@ This covers 3 months of infrastructure + App Store fees:
 | AI APIs (3 mo, pilot) | $36 | 71 KM |
 | Apple Developer (annual) | $99 | 194 KM |
 | Google Play (one-time) | $25 | 49 KM |
-| Claude Max (3 mo) | $300 | 588 KM |
+| Claude Max (3 mo) | $600 | 1,176 KM |
 | App Store screenshots + listings | — | 200 KM |
-| **Total** | | **~1,655 KM** |
+| **Total** | | **~2,243 KM** |
 
-Round up to **3,000–5,000 KM** to include minimal developer compensation for the remaining App Store readiness work (~40–60 hours at subsidized rate).
+Round up to **5,000–7,000 KM** to include minimal developer compensation for the remaining App Store readiness work (~40–60 hours at subsidized rate).
 
 > **Message to tourist board**: "We're investing our own development time. We just need infrastructure costs covered to go live by May."
 
-### Option B: Fair Start — Partnership Launch (~8,000–12,000 KM)
+### Option B: Fair Start — Partnership Launch (~10,000–15,000 KM)
 
 Covers infrastructure + focused development for web widget + store readiness:
 
 | Item | KM |
 |------|-----|
-| Infrastructure (3 months) | 1,655 KM |
+| Infrastructure (3 months) | 2,243 KM |
 | Web widget development (see doc 03) | 3,000 KM |
 | App Store readiness + submission | 2,000 KM |
 | Heritage walk map completion | 1,000 KM |
 | Testing + QA on 10+ devices | 1,500 KM |
-| **Total** | **~9,155 KM** |
+| **Total** | **~9,743 KM** |
 
-Rounded: **8,000–12,000 KM** depending on scope confirmation.
+Rounded: **10,000–15,000 KM** depending on scope confirmation.
 
-### Option C: Full Phase 1 — (~15,000–20,000 KM)
+### Option C: Full Phase 1 — (~18,000–25,000 KM)
 
 Everything above plus:
 
@@ -103,7 +103,7 @@ Everything above plus:
 | Automated scraping pipeline | 2,500 KM |
 | Admin dashboard for Visit Sarajevo | 3,000 KM |
 | Content moderation tools | 2,000 KM |
-| **Total** | **~20,000 KM** |
+| **Total** | **~20,000–25,000 KM** |
 
 ---
 
@@ -147,7 +147,7 @@ The tourist board suggested connecting with KupiKartu. This is **already built**
 ## Key Selling Points for the Board
 
 1. **90% of the app is already built** — this is not a promise, it's a product
-2. **Infrastructure cost is absurdly low** — 430 KM/month runs the whole thing
+2. **Infrastructure cost is low** — ~625 KM/month runs the whole thing
 3. **AI features are a differentiator** — no other city app in the region has this
 4. **Ready by May** — 6-week sprint to production
 5. **No JP risk** — direct partnership, they control scope

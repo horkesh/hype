@@ -6,14 +6,14 @@ _Prepared 2026-03-24 — post-pitch to Visit Sarajevo tourist board_
 
 | Service | Plan | Monthly (USD) | Monthly (KM) | What it covers |
 |---------|------|---------------|--------------|----------------|
-| **Claude Max** (Anthropic) | Max plan | $100 | ~196 KM | Development via Claude Code CLI — the engine behind 90% of the codebase |
+| **Claude Max** (Anthropic) | Max plan | $200 | ~392 KM | Development via Claude Code CLI — the engine behind 90% of the codebase |
 | **Supabase** | Pro | $25 | ~49 KM | Database, Auth, Edge Functions, Storage (10+ tables, 8 migrations, RLS) |
 | **Vercel** | Pro | $20 | ~39 KM | Web hosting (PWA) + admin panel deployment |
 | **Apple Developer** | Annual ($99/yr) | ~$8.25 | ~16 KM | iOS App Store listing (required) |
 | **Google Play** | One-time ($25) | ~$2.08 | ~4 KM | Android Play Store listing (amortized/yr) |
 | **Domain + DNS** | Annual | ~$3 | ~6 KM | Custom domain for web + API |
 | | | | | |
-| **Subtotal Fixed** | | **~$158/mo** | **~310 KM/mo** | |
+| **Subtotal Fixed** | | **~$258/mo** | **~506 KM/mo** | |
 
 ## 2. Usage-Based Services (Monthly, by user scale)
 
@@ -74,37 +74,37 @@ Current scraping targets:
 
 | Category | USD | KM |
 |----------|-----|-----|
-| Fixed subscriptions | $158 | 310 KM |
+| Fixed subscriptions | $258 | 506 KM |
 | AI APIs (blended) | $12 | 24 KM |
 | Apify | $49 | 96 KM |
-| **Total** | **~$220/mo** | **~430 KM/mo** |
+| **Total** | **~$320/mo** | **~626 KM/mo** |
 
 ### Scenario B: Launch (500 MAU, summer season)
 
 | Category | USD | KM |
 |----------|-----|-----|
-| Fixed subscriptions | $158 | 310 KM |
+| Fixed subscriptions | $258 | 506 KM |
 | AI APIs (blended) | $60 | 118 KM |
 | Apify | $49 | 96 KM |
-| **Total** | **~$270/mo** | **~530 KM/mo** |
+| **Total** | **~$370/mo** | **~725 KM/mo** |
 
 ### Scenario C: Growth (1,000 MAU)
 
 | Category | USD | KM |
 |----------|-----|-----|
-| Fixed subscriptions | $158 | 310 KM |
+| Fixed subscriptions | $258 | 506 KM |
 | AI APIs (blended) | $120 | 235 KM |
 | Apify | $49 | 96 KM |
-| **Total** | **~$330/mo** | **~645 KM/mo** |
+| **Total** | **~$430/mo** | **~840 KM/mo** |
 
 ### Scenario D: Scale (5,000 MAU)
 
 | Category | USD | KM |
 |----------|-----|-----|
-| Fixed subscriptions | $158 | 310 KM |
+| Fixed subscriptions | $258 | 506 KM |
 | AI APIs (blended) | $600 | 1,176 KM |
 | Apify | $149 | 292 KM |
-| **Total** | **~$910/mo** | **~1,780 KM/mo** |
+| **Total** | **~$1,010/mo** | **~1,975 KM/mo** |
 
 ## 4. One-Time / Occasional Costs
 
@@ -126,4 +126,4 @@ Current scraping targets:
 
 ## Key Insight
 
-The entire technical infrastructure for Look costs **430–650 KM/month** at launch scale. This is remarkably lean for an app with 8 AI features, 1,226 venues, live event scraping, and bilingual support. The AI cost scales linearly and predictably — no surprises.
+The entire technical infrastructure for Look costs **625–840 KM/month** at launch scale. This is remarkably lean for an app with 8 AI features, 1,226 venues, live event scraping, and bilingual support. The AI cost scales linearly and predictably — no surprises.
