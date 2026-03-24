@@ -224,12 +224,14 @@ Great examples (use venue names from the APPROVED list, not these):
   BS: "Petak popodne, sunce sija. Navrati na [venue from list] prije večernje gužve."
   EN: "Friday afternoon sun. Drop by [venue from list] before the evening rush."
 
-CRITICAL for pulse_bs: Write in BOSNIAN using LATIN SCRIPT only. Never Cyrillic. Use Sarajevo Bosnian — "uvijek" not "uvek", "kafa" not "kava", "vrijedi" not "vredi". Sound like a Sarajlija texting.
+IMPORTANT — WRITE BOSNIAN FIRST:
+1. Write pulse_bs FIRST — this is the primary output. Think in Bosnian, write in Bosnian. Use LATIN SCRIPT only. Never Cyrillic. Use Sarajevo Bosnian — "uvijek" not "uvek", "kafa" not "kava", "vrijedi" not "vredi". Sound like a Sarajlija texting a friend.
+2. THEN translate pulse_bs into natural English for pulse_en. The English should feel native, not a literal translation — rephrase idioms, adjust tone for English speakers.
 
 Respond with ONLY valid JSON (no markdown):
 {
-  "pulse_en": "English pulse",
-  "pulse_bs": "Bosnian pulse"
+  "pulse_bs": "Bosnian pulse (write this FIRST)",
+  "pulse_en": "English translation"
 }`;
 
     const geminiResponse = await callGemini({

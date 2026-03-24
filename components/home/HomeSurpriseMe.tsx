@@ -35,7 +35,7 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
     expandHeight.value = withSpring(64, { damping: 15 });
     try {
       const timeout = new Promise<null>((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 10000)
+        setTimeout(() => reject(new Error('timeout')), 25000)
       );
       const result = await Promise.race([fetchSurprise(tasteMoods, language), timeout]);
       if (result && result.stops?.length > 0) {
