@@ -1,147 +1,263 @@
-# Look Sarajevo — Mjesecni troskovi i finansijska ponuda
+# Look x Visit Sarajevo — Finansijska ponuda
 
 _Pripremljeno: 25.03.2026_
-_Kurs: 1 USD = 1.80 KM (approx.)_
 
 ---
 
-## 1. TRENUTNI MJESECNI TROSKOVI (mart 2026)
+## 1. O projektu Look
 
-| Stavka | USD/mj | KM/mj | Napomena |
-|--------|-------:|------:|----------|
-| Claude Max (AI development) | $200 | 360 | Razvoj, testiranje, code generation |
-| Supabase (Free tier) | $0 | 0 | Baza podataka, auth, storage — besplatan do limita |
-| Vercel (Hobby tier) | $0 | 0 | Web hosting — besplatan do limita |
-| Expo / EAS (Free tier) | $0 | 0 | Mobile app build system |
-| Apple Developer Program | $8.25 | 15 | $99/godisnje = ~$8.25/mj |
-| Google Play Developer | $0.50 | 1 | $25 jednokratno, amortizirano na 4 godine |
-| **UKUPNO TRENUTNO** | **$209** | **~376** | |
+Look je mobilna aplikacija (iOS + Android) i web platforma za otkrivanje Sarajeva — lokacija, dogadjaja, nocnog zivota, kulture i gastronomije. Aplikacija koristi najnovije AI tehnologije kako bi posjetiocima i gradjanima pruzila personalizirane preporuke na bosanskom i engleskom jeziku.
 
----
+### Sta je vec gotovo
 
-## 2. NEOPHODNE NADOGRADNJE (april–maj 2026, pred lansiranje)
-
-| Stavka | USD/mj | KM/mj | Zasto je potrebno |
-|--------|-------:|------:|-------------------|
-| Supabase Pro | $25 | 45 | 8 GB baza, 250 GB bandwidth, dnevni backup, bez limita na auth |
-| Vercel Pro | $20 | 36 | Custom domain, analytics, veci limiti, edge functions |
-| Domena (looksarajevo.ba ili slicno) | ~$3 | ~5 | Godisnja cijena ~$30-50, ovisi o TLD-u |
-| EAS Production Build | $0–99 | 0–178 | Besplatno do 30 buildova/mj; $99 za neograniceno |
-| **SUBTOTAL NADOGRADNJE** | **$48–147** | **~86–264** | |
+| Funkcionalnost | Status |
+|----------------|--------|
+| 1.226 verificiranih sarajevskih lokacija | Zavrseno |
+| Dogadjaji uzivo iz 3 izvora (Pozorista.ba, AllEvents, KupiKartu) | Zavrseno |
+| Dvojezicni interfejs (BS/EN) | Zavrseno |
+| AI "City Pulse" — sta se trenutno desava u gradu | Zavrseno |
+| AI Planer veceri — personalizirani prijedlog za vecer | Zavrseno |
+| Pametna pretraga (prirodni jezik) | Zavrseno |
+| Otkrivanje po raspolozenju (6 kategorija) | Zavrseno |
+| Brendiranje Visit Sarajevo + logo | Zavrseno |
+| Heritage setnje (kulturno-historijske rute) | 80% zavrseno |
+| Web widget za VisitSarajevo.ba | Novo — 2–3 sedmice |
+| Prijava na App Store (iOS + Android) | Spremno za prijavu |
+| KupiKartu deep-linkovi za kupovinu karata | Zavrseno |
 
 ---
 
-## 3. PLANIRANE INTEGRACIJE (maj–septembar 2026)
+## 2. Mjesecni troskovi infrastrukture
 
-| Stavka | USD/mj | KM/mj | Napomena |
-|--------|-------:|------:|----------|
-| Instagram scraping (Apify/Bright Data) | $49–149 | 88–268 | Za automatski import evenata s Instagrama |
-| Maps / Geocoding API (Google/Mapbox) | $0–50 | 0–90 | Besplatno do odredjenog broja poziva, ovisi o prometu |
-| Email servis (Resend/SendGrid) | $0–20 | 0–36 | Push notifikacije, verifikacija emaila |
-| CDN / Image optimization (Cloudinary) | $0–25 | 0–45 | Ako Supabase storage postane nedovoljan |
-| Analytics (PostHog/Mixpanel) | $0–25 | 0–45 | User analytics, funnel tracking |
-| Error monitoring (Sentry) | $0–26 | 0–47 | Pracenje bugova u produkciji |
-| **SUBTOTAL INTEGRACIJE** | **$49–295** | **~88–531** | |
+### 2.1 Fiksne pretplate
 
----
+| Usluga | Namjena | Mjesecno (KM) |
+|--------|---------|---------------|
+| Cloud baza podataka (Pro plan) | Baza podataka, autentikacija, funkcije, storage | ~49 KM |
+| Web hosting (Pro plan) | Hosting web aplikacije, admin panel, widget | ~39 KM |
+| AI razvojni alati | Razvoj, testiranje, automatizacija | ~392 KM |
+| Apple Developer Program | Obavezno za iOS App Store | ~16 KM |
+| Google Play Developer | Obavezno za Android Play Store | ~4 KM |
+| Domena + DNS | Custom domena za web i API | ~6 KM |
+| **Ukupno fiksno** | | **~506 KM/mj** |
 
-## 4. JEDNOKRATNI TROSKOVI
+### 2.2 AI servisni troskovi (ovisno o broju korisnika)
 
-| Stavka | USD | KM | Status |
-|--------|----:|---:|--------|
-| Apple Developer Program (godisnje) | $99 | 178 | Placeno |
-| Google Play (jednokratno) | $25 | 45 | Placeno |
-| SSL certifikat | $0 | 0 | Besplatno kroz Vercel/Let's Encrypt |
-| Branding / logo finalizacija | $0 | 0 | Interno uradjeno |
+Aplikacija koristi vise AI modela optimiziranih za razlicite funkcije (generisanje teksta, obrada slika, pretraga, parsiranje podataka). Troskovi rastu linearno s brojem korisnika.
 
----
+| Broj korisnika (MAU) | Sesija mjesecno | AI troskovi (KM/mj) |
+|-----------------------|-----------------|----------------------|
+| 50–100 (pilot) | 3.000 | ~24 KM |
+| 500 (lansiranje) | 15.000 | ~118 KM |
+| 1.000 (rast) | 30.000 | ~235 KM |
+| 5.000 (skaliranje) | 150.000 | ~1.176 KM |
 
-## 5. PROJEKCIJA MJESECNIH TROSKOVA
+> Pri 1.000 aktivnih korisnika mjesecno, kompletni AI troskovi su manji od **jedne kafe dnevno** u Sarajevu.
 
-| Faza | Period | USD/mj | KM/mj |
-|------|--------|-------:|------:|
-| **Trenutno** (development) | mart 2026 | ~$209 | ~376 |
-| **Pre-launch** (minimalni upgrade) | april 2026 | ~$280 | ~504 |
-| **Launch** (produkcija) | maj 2026 | ~$350 | ~630 |
-| **Rast** (sve integracije) | jun–sep 2026 | ~$450–600 | ~810–1080 |
-| **Puni kapacitet** (skaliranje) | sep 2026+ | ~$500–700 | ~900–1260 |
+### 2.3 Web scraping (prikupljanje podataka)
 
----
-
-## 6. GODISNJI PREGLED TROSKOVA
-
-| Scenarij | Godisnje USD | Godisnje KM |
-|----------|------------:|------------:|
-| **Minimalni** (samo infrastruktura, bez AI dev) | ~$1,500 | ~2,700 |
-| **Realni** (infrastruktura + AI + integracije) | ~$5,000 | ~9,000 |
-| **Maksimalni** (puni kapacitet, skaliranje) | ~$7,500 | ~13,500 |
+| Stavka | Mjesecno (KM) | Napomena |
+|--------|---------------|----------|
+| Instagram scraping (50+ lokacija) | ~96 KM | Automatski uvoz sadrzaja s Instagram profila lokacija |
+| Scraping dogadjaja | 0 KM | Pozorista.ba, AllEvents, KupiKartu — vlastiti scraperi |
+| Skaliranje (po potrebi) | do ~292 KM | Samo ako se znacajno poveca ucestalost scrapinga |
 
 ---
 
-## 7. STA NIJE UKLJUCENO U TROSKOVE
+## 3. Ukupni mjesecni troskovi po fazama
 
-- **Rad developera** — trenutno neplaceN; stvarna trzisna vrijednost ~4,000-8,000 KM/mj za senior full-stack developera
-- **Rad na dizajnu** — trenutno neplacen
-- **Rad na marketingu i poslovnom razvoju** — trenutno neplacen (Berina)
-- **Uredski prostor, oprema, internet**
-- **Pravne usluge** (registracija firme, ugovori, GDPR compliance)
+### Faza A: Pilot (pred lansiranje, 50–100 korisnika)
 
----
+| Kategorija | KM/mj |
+|------------|-------|
+| Fiksne pretplate | 506 KM |
+| AI servisi | 24 KM |
+| Web scraping | 96 KM |
+| **Ukupno** | **~626 KM/mj** |
 
-## 8. FINANSIJSKA PONUDA ZA TURISTICKU ZAJEDNICU
+### Faza B: Lansiranje (500 korisnika, ljetna sezona)
 
-### Opcija A: Osnovna saradnja (6,000 KM)
+| Kategorija | KM/mj |
+|------------|-------|
+| Fiksne pretplate | 506 KM |
+| AI servisi | 118 KM |
+| Web scraping | 96 KM |
+| **Ukupno** | **~725 KM/mj** |
 
-**Sta se dobija:**
-- Look Sarajevo branding na info-standovima
-- Pristup bazi lokacija turisticke zajednice u app-u
-- Logo turisticke zajednice u app-u (sekcija "Partneri")
-- Mjesecni izvjestaj o korisnickim statistikama
+### Faza C: Rast (1.000 korisnika)
 
-**Sta se NE dobija:**
-- Web integracija
-- Live data feed
-- Ekskluzivnost
+| Kategorija | KM/mj |
+|------------|-------|
+| Fiksne pretplate | 506 KM |
+| AI servisi | 235 KM |
+| Web scraping | 96 KM |
+| **Ukupno** | **~840 KM/mj** |
 
-### Opcija B: Web integracija (12,000–15,000 KM)
+### Faza D: Skaliranje (5.000 korisnika)
 
-**Sta se dobija:**
-- Sve iz Opcije A
-- Widget/iframe Look Sarajevo sadrzaja na web stranici turisticke zajednice
-- Live data feed — eventi, lokacije, preporuke vidljive na njihovom sajtu
-- API integracija za dvosmjernu razmjenu podataka
-- Zajednicko brendiranje ("powered by Look Sarajevo")
-- Prioritetna tehnicka podrska
-
-### Opcija C: Stratesko partnerstvo (25,000+ KM, ili kroz program u septembru)
-
-**Sta se dobija:**
-- Sve iz Opcije B
-- Ekskluzivni partnership — "Oficijalna turisticka aplikacija Sarajeva"
-- Zajednicka PR kampanja pred turisticku sezonu
-- Integracija sa Kupi Kartu platformom
-- Custom features po zahtjevu turisticke zajednice
-- Kvartaleni strateski sastanci
+| Kategorija | KM/mj |
+|------------|-------|
+| Fiksne pretplate | 506 KM |
+| AI servisi | 1.176 KM |
+| Web scraping | 292 KM |
+| **Ukupno** | **~1.975 KM/mj** |
 
 ---
 
-## 9. PREPORUKA
+## 4. Web integracija za VisitSarajevo.ba
 
-Za trenutnu situaciju preporucujem **Opciju B** sa mogucnoscu nadogradnje na Opciju C u septembru:
+Turisticka zajednica je izrazila zelju da se Look poveze s njihovom web stranicom tako da zive informacije budu vidljive direktno na VisitSarajevo.ba.
 
-- Pokriva realne troskove infrastrukture za 6+ mjeseci
-- Daje turistickoj zajednici konkretnu vrijednost (web integracija)
-- Ostavlja prostor za veci ugovor u septembru kad budu imali novi budzet
-- Demonstrira ozbiljnost i profesionalnost
+### Predlozeno rjesenje: Ugradivi web widget
 
-**Alternativno:** Ako mogu samo 6,000 KM odmah, prihvatiti Opciju A uz pismeni dogovor da se u septembru predje na Opciju B ili C.
+Lagan, ugradivi widget koji Visit Sarajevo postavlja na svoju pocetnu stranicu. Widget automatski povlaci zive podatke i prikazuje ih u brendiranom panelu.
+
+#### Sta widget prikazuje
+
+**Tab 1: "Danas u Sarajevu"**
+- AI pregled — sta se trenutno desava u gradu
+- Trenutno vrijeme
+- Top 3–5 dogadjaja za danas
+- Svaki dogadjaj vodi na Look aplikaciju ili web
+
+**Tab 2: "Popularna mjesta"**
+- Najpopularnije lokacije
+- Filteri po kategorijama (Kafane, Restorani, Kultura, Nocni zivot...)
+- Svaka lokacija prikazuje: fotografiju, naziv, kategoriju, ocjenu
+
+**Tab 3: "Veceras"**
+- Vecernji dogadjaji i preporuke
+- "Planiraj vecer" — otvara AI Planer veceri
+
+#### Tehnicke karakteristike
+
+- Jedna linija koda za ugradnju na bilo koju stranicu
+- Automatsko azuriranje podataka (dogadjaji svakih 6 sati, lokacije dnevno, AI pregled svakih 30 min)
+- Prilagodljiv dizajn (boje, jezik, broj stavki)
+- Responzivan — radi na mobilnom, tabletu i desktopu
+- Bez dodatnih mjesecnih troskova hostinga (pokriveno postojecim planom)
+
+#### Procjena razvoja widgeta
+
+| Zadatak | Sati |
+|---------|------|
+| Osnovna struktura widgeta | 8 |
+| API za agregirane podatke | 4 |
+| Tab "Danas u Sarajevu" | 6 |
+| Tab "Popularna mjesta" | 6 |
+| Tab "Veceras" | 4 |
+| Integracija AI pregleda grada | 3 |
+| Sistem tema (svjetlo/tamno/custom boje) | 4 |
+| Responzivni dizajn | 4 |
+| Deep linkovi (widget → app/web) | 3 |
+| Testiranje i poliranje | 6 |
+| **Ukupno** | **~48 sati** |
 
 ---
 
-## 10. NAPOMENE
+## 5. KupiKartu integracija
+
+Turisticka zajednica je predlozila povezivanje s KupiKartu. Ovo je **vec ugradeno**:
+
+- KupiKartu je jedan od 3 izvora dogadjaja u aplikaciji
+- Dogadjaji ukljucuju linkove za kupovinu karata koji vode direktno na KupiKartu
+- Filtriranje po gradu osigurava da se prikazuju samo sarajevski dogadjaji
+
+**Dodatna vrijednost:** Web widget na VisitSarajevo.ba prirodno integrira KupiKartu — posjetilac vidi dogadjaj, klikne "Kupi kartu" i direktno kupuje na KupiKartu. Web stranica turisticke zajednice postaje centralno mjesto: vidi sta se desava → kupi kartu → planiraj vecer.
+
+---
+
+## 6. Finansijska ponuda — Faza 1 (april–septembar 2026)
+
+### Opcija A: Pokrivanje troskova infrastrukture (5.000–7.000 KM)
+
+Pokriva 3 mjeseca infrastrukture + pripremu za App Store.
+
+| Stavka | KM |
+|--------|----|
+| Cloud baza podataka — Pro plan (3 mj) | 147 KM |
+| Web hosting — Pro plan (3 mj) | 118 KM |
+| AI razvojni alati (3 mj) | 1.176 KM |
+| Web scraping (3 mj) | 288 KM |
+| AI servisi — pilot (3 mj) | 71 KM |
+| Apple Developer (godisnje) | 194 KM |
+| Google Play (jednokratno) | 49 KM |
+| Priprema za App Store (vizuali, opisi, testiranje) | 200 KM |
+| **Infrastruktura ukupno** | **~2.243 KM** |
+| Minimalna kompenzacija za rad na pripremi aplikacije za objavu (~40–60 sati) | 2.757–4.757 KM |
+| **UKUPNO** | **5.000–7.000 KM** |
+
+> Ulazemo vlastito razvojno vrijeme. Potrebna nam je podrska za pokrivanje infrastrukturnih troskova da aplikacija bude ziva do maja.
+
+### Opcija B: Partnersko lansiranje (10.000–15.000 KM)
+
+Pokriva infrastrukturu + razvoj web widgeta + pripremu za objavljivanje.
+
+| Stavka | KM |
+|--------|----|
+| Infrastruktura (3 mjeseca) | 2.243 KM |
+| Razvoj web widgeta za VisitSarajevo.ba | 3.000 KM |
+| Priprema i objava na App Store (iOS + Android) | 2.000 KM |
+| Zavrsavanje heritage setnji (mapa) | 1.000 KM |
+| Testiranje i QA na 10+ uredjaja | 1.500 KM |
+| **UKUPNO** | **~10.000–15.000 KM** |
+
+### Opcija C: Kompletna Faza 1 (18.000–25.000 KM)
+
+Sve iz Opcije B plus napredne funkcionalnosti.
+
+| Stavka | KM |
+|--------|----|
+| Opcija B | ~10.000 KM |
+| Push notifikacije | 2.500 KM |
+| Automatizacija prikupljanja podataka | 2.500 KM |
+| Admin dashboard za Visit Sarajevo | 3.000 KM |
+| Alati za moderaciju sadrzaja | 2.000 KM |
+| **UKUPNO** | **~20.000–25.000 KM** |
+
+---
+
+## 7. Sta Visit Sarajevo dobija odmah
+
+1. **Look na pocetnoj stranici** — ugradivi web widget sa zivim dogadjajima i lokacijama
+2. **AI-pokretane turisticke informacije** — posjetioci pretrazuju prirodnim jezikom, dobijaju trenutne odgovore
+3. **Njihov sadrzaj ozivljava** — heritage setnje, opisi lokacija, dogadjaji postaju interaktivni
+4. **Podaci koje nemaju** — 1.226 verificiranih lokacija sa radnim vremenom, fotografijama, kategorijama, AI opisima
+5. **Brendiranje svuda** — logo Visit Sarajevo, atribucija, upute za prevoz
+6. **KupiKartu integracija** — kupovina karata direktno iz aplikacije
+
+---
+
+## 8. Vremenski plan
+
+| Sedmica | Isporuka |
+|---------|----------|
+| S1 (24–30. mart) | Prototip web widgeta, finalizacija vizuala za App Store |
+| S2 (31. mart – 6. april) | Widget povezan sa zivim podacima, heritage setnje zavrsene |
+| S3 (7–13. april) | Prijava na App Store (iOS + Android), widget na staging okruzenju |
+| S4 (14–20. april) | Period pregleda App Store-a, integracija widgeta na VisitSarajevo.ba |
+| S5 (21–27. april) | QA, ispravke gresaka, soft launch |
+| S6 (1. maj —) | **Aplikacija ziva za turisticku sezonu** |
+
+---
+
+## 9. Faza 2 — Septembar 2026
+
+Sa podacima iz ljetne sezone (preuzimanja, koristenje, povratne informacije turista), planiramo prosirenje saradnje:
+
+- Kompletne funkcionalnosti (gamifikacija, push notifikacije, offline mod)
+- 12-mjesecni troskovi infrastrukture i AI servisa
+- Kontinuirana kuracija i moderacija sadrzaja
+- Marketinski materijali
+
+**Procijenjeni budzet za Fazu 2**: 30.000–50.000 KM (potkrijepljeno stvarnim podacima o koristenju iz ljeta)
+
+---
+
+## 10. Napomene
 
 - Svi iznosi su bez PDV-a
-- Troskovi infrastrukture rastu s brojem korisnika — gore navedeno pokriva do ~10,000 aktivnih korisnika mjesecno
-- Instagram scraping je najveci varijabilni trosak i ovisi o obimu podataka
-- Claude Max ($200/mj) je razvojni trosak koji se moze smanjiti nakon lansiranja, ali je kriticaN za trenutni tempo razvoja
-- Navigator je konkurent — brzina je faktor
+- Troskovi infrastrukture rastu s brojem korisnika — navedene cifre pokrivaju do ~10.000 aktivnih korisnika mjesecno
+- Kompletna tehnicka infrastruktura za Look kosta **625–840 KM mjesecno** u fazi lansiranja — izuzetno nisko za aplikaciju s 8 AI funkcionalnosti, 1.226 lokacija, zivim dogadjajima i dvojezicnom podrskom
+- AI troskovi skaliraju linearno i predvidivo — bez iznenadjenja
+- Aplikacija je spremna za lansiranje do maja 2026.
