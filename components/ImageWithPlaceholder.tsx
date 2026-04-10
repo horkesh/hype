@@ -1,15 +1,16 @@
 
-import React, { useState } from 'react';
-import { View, Image, StyleSheet, ImageSourcePropType, Text, Platform, StyleProp, ViewStyle } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SkeletonLoader } from './SkeletonLoader';
 import { resolveImageSource } from '@/utils/imageSource';
 
 interface ImageWithPlaceholderProps {
-  source: string | number | ImageSourcePropType | null | undefined;
+  source: string | number | { uri: string } | null | undefined;
   style?: StyleProp<ViewStyle>;
   categoryEmoji?: string;
   borderRadius?: number;
+  accessibilityLabel?: string;
 }
 
 export function ImageWithPlaceholder({
@@ -17,13 +18,11 @@ export function ImageWithPlaceholder({
   style,
   categoryEmoji = '🎉',
   borderRadius = 12,
+  accessibilityLabel,
 }: ImageWithPlaceholderProps) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const resolvedSource = resolveImageSource(source);
 
-  if (!resolvedSource || error) {
+  if (!resolvedSource) {
     return (
       <View style={[styles.placeholder, style, { borderRadius }]}>
         <LinearGradient
@@ -37,35 +36,16 @@ export function ImageWithPlaceholder({
     );
   }
 
-  if (Platform.OS === 'web') {
-    return (
-      <View style={[style, { borderRadius }]}>
-        <Image
-          source={resolvedSource}
-          style={[style, { borderRadius }]}
-        />
-      </View>
-    );
-  }
-
   return (
-    <View style={[style, { borderRadius }]}>
-      {loading && (
-        <View style={StyleSheet.absoluteFill}>
-          <SkeletonLoader height="100%" width="100%" borderRadius={borderRadius} />
-        </View>
-      )}
-      <Image
-        source={resolvedSource}
-        style={[style, { borderRadius }]}
-        onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
-        onError={() => {
-          setLoading(false);
-          setError(true);
-        }}
-      />
-    </View>
+    <Image
+      source={resolvedSource}
+      style={[style, { borderRadius }]}
+      contentFit="cover"
+      transition={200}
+      cachePolicy="disk"
+      recyclingKey={typeof resolvedSource === 'string' ? resolvedSource : undefined}
+      accessibilityLabel={accessibilityLabel}
+    />
   );
 }
 

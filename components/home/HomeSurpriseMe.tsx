@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, useReducedMotion } from 'react-native-reanimated';
 import { GlassContainer } from '@/components/glass/GlassContainer';
 import { fetchSurprise } from '@/utils/ai/surpriseMe';
 import type { SurprisePlan } from '@/utils/ai/surpriseMe';
@@ -15,24 +15,31 @@ interface HomeSurpriseMeProps {
 export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProps) {
   const { colors } = useTheme();
   const router = useRouter();
+  const reducedMotion = useReducedMotion();
   const [plan, setPlan] = useState<SurprisePlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const expandHeight = useSharedValue(48);
 
+  const animateHeight = useCallback((toValue: number) => {
+    expandHeight.value = reducedMotion
+      ? withTiming(toValue, { duration: 0 })
+      : withSpring(toValue, { damping: 15 });
+  }, [expandHeight, reducedMotion]);
+
   const handlePress = useCallback(async () => {
     if (expanded) {
       setExpanded(false);
       setPlan(null);
       setError(false);
-      expandHeight.value = withSpring(48, { damping: 15 });
+      animateHeight(48);
       return;
     }
     setLoading(true);
     setError(false);
     setExpanded(true);
-    expandHeight.value = withSpring(64, { damping: 15 });
+    animateHeight(64);
     try {
       const timeout = new Promise<null>((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), 25000)
@@ -41,20 +48,20 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
       if (result && result.stops?.length > 0) {
         setPlan(result);
         setExpanded(true);
-        expandHeight.value = withSpring(200 + (result.stops.length * 70), { damping: 15 });
+        animateHeight(200 + (result.stops.length * 70));
       } else {
         setError(true);
-        expandHeight.value = withSpring(90, { damping: 15 });
+        animateHeight(90);
         setExpanded(true);
       }
     } catch {
       setError(true);
-      expandHeight.value = withSpring(90, { damping: 15 });
+      animateHeight(90);
       setExpanded(true);
     } finally {
       setLoading(false);
     }
-  }, [expanded, tasteMoods, language]);
+  }, [expanded, tasteMoods, language, animateHeight]);
 
   const containerAnimStyle = useAnimatedStyle(() => ({
     height: expandHeight.value,

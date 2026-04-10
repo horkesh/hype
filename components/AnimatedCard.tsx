@@ -8,6 +8,7 @@ import Animated, {
   withDelay,
   cancelAnimation,
   Easing,
+  useReducedMotion,
 } from 'react-native-reanimated';
 
 interface AnimatedCardProps extends ViewProps {
@@ -19,18 +20,19 @@ interface AnimatedCardProps extends ViewProps {
 const isWeb = Platform.OS === 'web';
 
 export function AnimatedCard({ children, delay = 0, style, ...props }: AnimatedCardProps) {
-  const opacity = useSharedValue(isWeb ? 1 : 0);
-  const translateY = useSharedValue(isWeb ? 0 : 20);
+  const reducedMotion = useReducedMotion();
+  const opacity = useSharedValue(isWeb || reducedMotion ? 1 : 0);
+  const translateY = useSharedValue(isWeb || reducedMotion ? 0 : 20);
 
   useEffect(() => {
-    if (isWeb) return;
+    if (isWeb || reducedMotion) return;
     opacity.value = withDelay(delay, withTiming(1, { duration: 400, easing: Easing.out(Easing.cubic) }));
     translateY.value = withDelay(delay, withTiming(0, { duration: 400, easing: Easing.out(Easing.cubic) }));
     return () => {
       cancelAnimation(opacity);
       cancelAnimation(translateY);
     };
-  }, [delay, opacity, translateY]);
+  }, [delay, opacity, translateY, reducedMotion]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

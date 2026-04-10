@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Platform, Image, ImageSourcePropType } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, useReducedMotion } from 'react-native-reanimated';
 import { useTheme } from '@/hooks/useTheme';
 import { glassTokens } from '@/styles/glassTokens';
 
@@ -16,6 +16,7 @@ interface GlassCategoryChipProps {
 
 export function GlassCategoryChip({ categoryId, label, isSelected, onPress, iconSource }: GlassCategoryChipProps) {
   const { colors } = useTheme();
+  const reducedMotion = useReducedMotion();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const chipBg = isSelected ? colors.accent : glassTokens.background;
@@ -43,8 +44,8 @@ export function GlassCategoryChip({ categoryId, label, isSelected, onPress, icon
   return (
     <AnimatedTouchable
       onPress={onPress}
-      onPressIn={() => { scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }); }}
-      onPressOut={() => { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); }}
+      onPressIn={() => { if (!reducedMotion) { scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }); } }}
+      onPressOut={() => { if (!reducedMotion) { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); } }}
       style={[animatedStyle, styles.chip, { backgroundColor: chipBg, borderColor }]}
       activeOpacity={0.8}
     >

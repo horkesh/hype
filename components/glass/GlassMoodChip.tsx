@@ -4,6 +4,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  useReducedMotion,
 } from 'react-native-reanimated';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -51,14 +52,19 @@ export function GlassMoodChip({
   onPress,
 }: GlassMoodChipProps) {
   const { colors } = useTheme();
+  const reducedMotion = useReducedMotion();
   const scale = useSharedValue(1);
   const mood = glassTokens.moodColors[moodId];
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+    if (!reducedMotion) {
+      scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+    }
   };
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    if (!reducedMotion) {
+      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({

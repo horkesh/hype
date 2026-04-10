@@ -8,6 +8,7 @@ import Animated, {
   withRepeat,
   withTiming,
   cancelAnimation,
+  useReducedMotion,
 } from 'react-native-reanimated';
 
 interface SkeletonLoaderProps {
@@ -23,14 +24,19 @@ export function SkeletonLoader({
   borderRadius = 8,
   style,
 }: SkeletonLoaderProps) {
+  const reducedMotion = useReducedMotion();
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
+    if (reducedMotion) {
+      opacity.value = 0.45;
+      return;
+    }
     opacity.value = withRepeat(withTiming(0.6, { duration: 1000 }), -1, true);
     return () => {
       cancelAnimation(opacity);
     };
-  }, [opacity]);
+  }, [opacity, reducedMotion]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

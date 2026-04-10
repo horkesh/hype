@@ -5,7 +5,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
   interpolate,
+  useReducedMotion,
 } from 'react-native-reanimated';
 import { designTokens } from '@/styles/designTokens';
 
@@ -28,16 +30,19 @@ export function FlippableCard({
   style,
   accessibilityLabel,
 }: FlippableCardProps) {
+  const reducedMotion = useReducedMotion();
   const flipProgress = useSharedValue(0);
   const isFlipped = useSharedValue(false);
 
   const handleFlip = useCallback(() => {
     isFlipped.value = !isFlipped.value;
-    flipProgress.value = withSpring(isFlipped.value ? 1 : 0, {
-      damping: 15,
-      stiffness: 100,
-    });
-  }, []);
+    flipProgress.value = reducedMotion
+      ? withTiming(isFlipped.value ? 1 : 0, { duration: 0 })
+      : withSpring(isFlipped.value ? 1 : 0, {
+          damping: 15,
+          stiffness: 100,
+        });
+  }, [reducedMotion]);
 
   const frontAnimatedStyle = useAnimatedStyle(() => {
     const rotateY = interpolate(flipProgress.value, [0, 1], [0, 180]);

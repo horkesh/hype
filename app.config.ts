@@ -20,6 +20,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
+    associatedDomains: ['applinks:look-sarajevo.vercel.app'],
   },
   android: {
     adaptiveIcon: {
@@ -28,6 +29,35 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
     package: 'com.placeholder.app',
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        data: [
+          {
+            scheme: 'https',
+            host: 'look-sarajevo.vercel.app',
+            pathPrefix: '/venue',
+          },
+          {
+            scheme: 'https',
+            host: 'look-sarajevo.vercel.app',
+            pathPrefix: '/event',
+          },
+          {
+            scheme: 'https',
+            host: 'look-sarajevo.vercel.app',
+            pathPrefix: '/series',
+          },
+          {
+            scheme: 'https',
+            host: 'look-sarajevo.vercel.app',
+            pathPrefix: '/heritage',
+          },
+        ],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
   },
   web: {
     favicon: './assets/images/final_quest_240x240.png',
@@ -43,6 +73,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
     backendUrl: process.env.EXPO_PUBLIC_BACKEND_URL ?? '',
-    openWeatherApiKey: process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY ?? '',
   },
 });

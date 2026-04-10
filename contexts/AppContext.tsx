@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 type Language = 'bs' | 'en';
 
@@ -187,9 +187,9 @@ const storage = {
     }
 
     try {
-      return await AsyncStorage.getItem(key);
+      return await SecureStore.getItemAsync(key);
     } catch (error) {
-      console.log('Error reading from AsyncStorage:', error);
+      console.log('Error reading from SecureStore:', error);
       return null;
     }
   },
@@ -204,9 +204,9 @@ const storage = {
     }
 
     try {
-      await AsyncStorage.setItem(key, value);
+      await SecureStore.setItemAsync(key, value);
     } catch (error) {
-      console.log('Error writing to AsyncStorage:', error);
+      console.log('Error writing to SecureStore:', error);
     }
   },
 };

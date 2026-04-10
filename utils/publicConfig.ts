@@ -3,8 +3,7 @@ import Constants from 'expo-constants';
 type PublicConfigKey =
   | 'supabaseUrl'
   | 'supabaseAnonKey'
-  | 'backendUrl'
-  | 'openWeatherApiKey';
+  | 'backendUrl';
 
 type PublicConfig = Record<PublicConfigKey, string>;
 
@@ -26,10 +25,6 @@ export const publicConfig: PublicConfig = {
     'supabaseAnonKey',
   ),
   backendUrl: readPublicConfig('EXPO_PUBLIC_BACKEND_URL', 'backendUrl'),
-  openWeatherApiKey: readPublicConfig(
-    'EXPO_PUBLIC_OPENWEATHER_API_KEY',
-    'openWeatherApiKey',
-  ),
 };
 
 export function requirePublicConfig(

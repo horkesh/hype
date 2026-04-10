@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { publicConfig } from '@/utils/publicConfig';
 import { moodToDbValue } from '@/utils/homeScreenContent';
+import { invokeEdgeFunction } from '@/utils/ai/edgeFunctionClient';
 
 export interface HomeVenue {
   id: string;
@@ -33,9 +33,6 @@ export interface HomeEventSeries {
   start_date: string;
   end_date: string;
 }
-
-const OPENWEATHER_API_URL = 'https://api.openweathermap.org/data/2.5/weather';
-const OPENWEATHER_API_KEY = publicConfig.openWeatherApiKey;
 
 export async function loadHomeRandomCafe(): Promise<HomeVenue | null> {
   const { data, error } = await supabase
@@ -116,25 +113,15 @@ export async function loadHomeNewInTown(): Promise<NewInTownVenue[]> {
   return (data ?? []) as NewInTownVenue[];
 }
 
-export async function loadHomeWeather(): Promise<{
-  temp: number;
-  weatherCondition: string;
-} | null> {
-  if (!OPENWEATHER_API_KEY) {
+export async function loadHomeWeather(): Promise<{ temp: number; weatherCondition: string } | null> {
+  try {
+    const result = await invokeEdgeFunction<{ temp: number; weatherCondition: string }>('weather-proxy', {
+      lat: 43.8563,
+      lon: 18.4131,
+    });
+    if (result.error || !result.data) return null;
+    return result.data;
+  } catch {
     return null;
   }
-
-  const response = await fetch(
-    `${OPENWEATHER_API_URL}?lat=43.8563&lon=18.4131&units=metric&appid=${OPENWEATHER_API_KEY}`
-  );
-  if (!response.ok) {
-    console.error('loadHomeWeather error:', response.status, response.statusText);
-    return null;
-  }
-  const data = await response.json();
-
-  return {
-    temp: Math.round(data?.main?.temp ?? 0),
-    weatherCondition: data?.weather?.[0]?.main?.toLowerCase?.() ?? '',
-  };
 }
