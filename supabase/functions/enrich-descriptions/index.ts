@@ -1,15 +1,23 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callOpenAI, callClaude } from '../_shared/ai-clients.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { verifyAdminAuth } from '../_shared/auth.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  if (!verifyAdminAuth(req)) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Admin authentication required' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const { venue_id, batch_size = 5, ai_model = 'gpt-4.1-mini' } = await req.json();
-    const supabase = getSupabaseAdmin();
     const selectFields = 'id, name, category, neighborhood, moods, google_rating, google_ratings_count, google_editorial_summary, google_top_reviews, address';
-    let query = supabase.from('venues').select(selectFields).is('description_en', null).limit(batch_size);
-    if (venue_id) { query = supabase.from('venues').select(selectFields).eq('id', venue_id); }
+    let query = supabaseAdmin.from('venues').select(selectFields).is('description_en', null).limit(batch_size);
+    if (venue_id) { query = supabaseAdmin.from('venues').select(selectFields).eq('id', venue_id); }
     const { data: venues, error: fetchErr } = await query;
     if (fetchErr) throw fetchErr;
     if (!venues?.length) {
@@ -95,7 +103,7 @@ ABSOLUTE RULES for description_bs (Bosnian):
         }
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const parsed = JSON.parse(clean);
-        await supabase.from('venues').update({ description_bs: parsed.description_bs, description_en: parsed.description_en }).eq('id', venue.id);
+        await supabaseAdmin.from('venues').update({ description_bs: parsed.description_bs, description_en: parsed.description_en }).eq('id', venue.id);
         return venue.name;
       }),
     );
@@ -108,6 +116,6 @@ ABSOLUTE RULES for description_bs (Bosnian):
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 });
   }
 });

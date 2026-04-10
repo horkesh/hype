@@ -1,14 +1,23 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callClaude } from '../_shared/ai-clients.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { verifyAdminAuth } from '../_shared/auth.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  if (!verifyAdminAuth(req)) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Admin authentication required' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const { caption, account_name, post_url, image_url } = await req.json();
     if (!caption) {
       return new Response(JSON.stringify({ success: false, error: 'Missing caption' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     const result = await callClaude({
       model: 'claude-haiku-4-5-20251001',
@@ -21,8 +30,7 @@ Deno.serve(async (req: Request) => {
     let parsed;
     try { parsed = JSON.parse(clean); } catch { parsed = { is_event: false, confidence: 'low' }; }
     if (parsed.is_event && parsed.title) {
-      const supabase = getSupabaseAdmin();
-      await supabase.from('raw_events').insert({
+      await supabaseAdmin.from('raw_events').insert({
         title_raw: parsed.title,
         description_raw: [parsed.description_bs, parsed.description_en].filter(Boolean).join(' / ') || caption.slice(0, 500),
         date_raw: [parsed.date, parsed.time].filter(Boolean).join(' ') || null,
@@ -45,6 +53,6 @@ Deno.serve(async (req: Request) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 });
   }
 });

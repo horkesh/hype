@@ -1,13 +1,23 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callGemini } from '../_shared/ai-clients.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const { image_base64, mime_type = 'image/jpeg' } = await req.json();
     if (!image_base64) {
       return new Response(JSON.stringify({ success: false, error: 'Missing image_base64' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     const result = await callGemini({
       model: 'gemini-2.5-flash',
@@ -27,6 +37,6 @@ Deno.serve(async (req: Request) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 });
   }
 });

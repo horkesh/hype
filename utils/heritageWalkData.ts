@@ -31,11 +31,12 @@ export interface HeritageWalkStop {
 }
 
 export async function loadHeritageWalks(): Promise<HeritageWalk[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('heritage_walks')
     .select('*')
     .eq('is_active', true)
     .order('sort_order', { ascending: true });
+  if (error) { console.error('loadHeritageWalks error:', error); return []; }
   return (data ?? []) as HeritageWalk[];
 }
 
@@ -51,8 +52,10 @@ export async function loadHeritageWalkDetail(walkId: string): Promise<{
       .eq('walk_id', walkId)
       .order('sort_order', { ascending: true }),
   ]);
+  if (walkRes.error) { console.error('loadHeritageWalkDetail walk error:', walkRes.error); }
+  if (stopsRes.error) { console.error('loadHeritageWalkDetail stops error:', stopsRes.error); }
   return {
-    walk: (walkRes.data as HeritageWalk) ?? null,
-    stops: (stopsRes.data ?? []) as HeritageWalkStop[],
+    walk: walkRes.error ? null : (walkRes.data as HeritageWalk) ?? null,
+    stops: stopsRes.error ? [] : (stopsRes.data ?? []) as HeritageWalkStop[],
   };
 }

@@ -1,5 +1,7 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { getActiveHoliday } from '../_shared/holidays.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 const CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -11,26 +13,6 @@ function getTimeOfDay(hour: number): string {
   if (hour < 17) return 'afternoon';
   if (hour < 21) return 'evening';
   return 'night';
-}
-
-const HOLIDAYS: Record<string, string> = {
-  '03-20': 'Bajram (Eid al-Fitr) first day — festive celebrations',
-  '03-21': 'Bajram second day — family gatherings, festive mood',
-  '03-22': 'Bajram third day — relaxed festive atmosphere',
-  '05-27': 'Kurban Bajram first day — major holiday celebrations',
-  '05-28': 'Kurban Bajram second day',
-  '01-01': 'New Year celebrations',
-  '03-01': 'Independence Day',
-  '05-01': 'Labour Day — outdoor gatherings, picnics',
-  '12-25': 'Catholic Christmas',
-  '01-07': 'Orthodox Christmas',
-  '12-31': 'New Year Eve — festive night atmosphere',
-};
-
-function getTodayHoliday(now: Date): string | null {
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return HOLIDAYS[`${mm}-${dd}`] ?? null;
 }
 
 // ─── Prompt builder ──────────────────────────────────────────────────────────
@@ -207,6 +189,14 @@ async function tryGeminiImage(apiKey: string, model: string, prompt: string): Pr
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return corsResponse();
 
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const weather = body.weather ?? null;
@@ -215,13 +205,11 @@ Deno.serve(async (req) => {
     // Sarajevo is UTC+1 (CET) / UTC+2 (CEST)
     const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
     const timeOfDay = getTimeOfDay(sarajevoHour);
-    const holiday = getTodayHoliday(now);
-
-    const supabase = getSupabaseAdmin();
+    const holiday = getActiveHoliday(now);
 
     // Check cache: look for a recent city_pulse row with a hero_image_url
     const cacheThreshold = new Date(now.getTime() - CACHE_TTL_MS).toISOString();
-    const { data: cached } = await supabase
+    const { data: cached } = await supabaseAdmin
       .from('city_pulse')
       .select('hero_image_url')
       .gte('created_at', cacheThreshold)
@@ -254,7 +242,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryStr.charCodeAt(i);
     }
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from('hero-images')
       .upload(filename, bytes, {
         contentType: mimeType,
@@ -266,14 +254,14 @@ Deno.serve(async (req) => {
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseAdmin.storage
       .from('hero-images')
       .getPublicUrl(filename);
 
     const imageUrl = urlData.publicUrl;
 
     // Cache in city_pulse table (update the most recent row, or insert)
-    const { data: recentPulse } = await supabase
+    const { data: recentPulse } = await supabaseAdmin
       .from('city_pulse')
       .select('id')
       .order('created_at', { ascending: false })
@@ -281,7 +269,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (recentPulse) {
-      await supabase
+      await supabaseAdmin
         .from('city_pulse')
         .update({ hero_image_url: imageUrl })
         .eq('id', recentPulse.id);
@@ -295,7 +283,7 @@ Deno.serve(async (req) => {
     console.error('generate-hero-image error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.message }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

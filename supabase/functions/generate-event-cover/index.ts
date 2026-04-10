@@ -1,5 +1,6 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { verifyAdminAuth } from '../_shared/auth.ts';
 
 // ─── Image generation (reuses hero-image pattern) ───────────────────────────
 
@@ -140,6 +141,13 @@ function buildEventCoverPrompt(event: {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return corsResponse();
 
+  if (!verifyAdminAuth(req)) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Admin authentication required' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const eventId = body.event_id;
@@ -151,10 +159,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabase = getSupabaseAdmin();
-
     // Fetch event details
-    const { data: event, error: fetchError } = await supabase
+    const { data: event, error: fetchError } = await supabaseAdmin
       .from('events')
       .select('id, title_bs, title_en, category, moods, description_bs, description_en, venue_id, location_name, venues(name)')
       .eq('id', eventId)
@@ -194,7 +200,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryStr.charCodeAt(i);
     }
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from('event-covers')
       .upload(filename, bytes, {
         contentType: mimeType,
@@ -206,14 +212,14 @@ Deno.serve(async (req) => {
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseAdmin.storage
       .from('event-covers')
       .getPublicUrl(filename);
 
     const imageUrl = urlData.publicUrl;
 
     // Update the event
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('events')
       .update({ cover_image_url: imageUrl })
       .eq('id', eventId);
@@ -230,7 +236,7 @@ Deno.serve(async (req) => {
     console.error('generate-event-cover error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.message }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

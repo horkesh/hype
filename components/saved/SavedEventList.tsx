@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native';
 
 import { SavedEventCard } from '@/components/saved/SavedEventCard';
 import { SavedEventCardModel } from '@/utils/savedContent';
@@ -14,6 +14,8 @@ interface SavedEventListProps {
   textSecondaryColor: string;
 }
 
+const keyExtractor = (item: SavedEventCardModel) => item.eventId;
+
 export function SavedEventList({
   accentColor,
   cardColor,
@@ -23,23 +25,29 @@ export function SavedEventList({
   textColor,
   textSecondaryColor,
 }: SavedEventListProps) {
+  const renderItem = useCallback(
+    ({ item: event }: ListRenderItemInfo<SavedEventCardModel>) => (
+      <SavedEventCard
+        accentColor={accentColor}
+        cardColor={cardColor}
+        event={event}
+        onDelete={onRemoveEvent}
+        onPress={onPressEvent}
+        textColor={textColor}
+        textSecondaryColor={textSecondaryColor}
+      />
+    ),
+    [accentColor, cardColor, onRemoveEvent, onPressEvent, textColor, textSecondaryColor],
+  );
+
   return (
-    <ScrollView style={styles.content}>
-      <View style={styles.cardsContainer}>
-        {models.map((event) => (
-          <SavedEventCard
-            key={event.eventId}
-            accentColor={accentColor}
-            cardColor={cardColor}
-            event={event}
-            onDelete={onRemoveEvent}
-            onPress={onPressEvent}
-            textColor={textColor}
-            textSecondaryColor={textSecondaryColor}
-          />
-        ))}
-      </View>
-    </ScrollView>
+    <FlatList
+      data={models}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      style={styles.content}
+      contentContainerStyle={styles.cardsContainer}
+    />
   );
 }
 

@@ -1,7 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-
-import { useTheme } from '@/hooks/useTheme';
+import { StyleSheet, View } from 'react-native';
 import { EmptyState } from '@/components/EmptyState';
 import { SkeletonList } from '@/components/SkeletonLoader';
 
@@ -22,8 +20,6 @@ export function ContentState({
   skeletonCount = 1,
   children,
 }: ContentStateProps) {
-  const { colors } = useTheme();
-
   if (loading) {
     return (
       <View style={styles.loadingBlock}>
@@ -36,24 +32,11 @@ export function ContentState({
     return <EmptyState emoji={emptyEmoji} message={emptyMessage} />;
   }
 
-  if (!children) {
-    return (
-      <View style={styles.spinnerBlock}>
-        <ActivityIndicator color={colors.accent} size="large" />
-      </View>
-    );
-  }
-
   return <>{children}</>;
 }
 
 const styles = StyleSheet.create({
   loadingBlock: {
     paddingHorizontal: 20,
-  },
-  spinnerBlock: {
-    minHeight: 160,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

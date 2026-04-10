@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
+import { designTokens } from '@/styles/designTokens';
 
 interface SectionHeaderProps {
   title: string;
@@ -16,7 +17,7 @@ export function SectionHeader({ title, actionLabel, onPressAction }: SectionHead
     <View style={styles.container}>
       <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
       {actionLabel && onPressAction ? (
-        <TouchableOpacity onPress={onPressAction} style={styles.actionButton}>
+        <TouchableOpacity onPress={onPressAction} style={styles.actionButton} accessibilityRole="button">
           <Text style={[styles.actionText, { color: colors.accent }]}>{actionLabel}</Text>
         </TouchableOpacity>
       ) : null}
@@ -33,9 +34,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
-    fontFamily: 'DMSans_700Bold',
+    ...designTokens.typography.sectionHeader,
   },
   actionButton: {
     paddingVertical: 4,

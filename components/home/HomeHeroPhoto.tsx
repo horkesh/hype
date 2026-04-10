@@ -6,14 +6,6 @@ import { designTokens } from '@/styles/designTokens';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_MIN_HEIGHT = 320;
 
-// Hero images — will be replaced with Gemini-generated assets
-const HERO_IMAGES: Record<string, any> = {
-  morning: null,
-  afternoon: null,
-  evening: null,
-  night: null,
-};
-
 function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' | 'night' {
   const hour = new Date().getHours();
   if (hour < 12) return 'morning';
@@ -41,16 +33,10 @@ interface HomeHeroPhotoProps {
 export function HomeHeroPhoto({ language, heroImageUrl, children }: HomeHeroPhotoProps) {
   const timeOfDay = getTimeOfDay();
   const greeting = getGreeting(timeOfDay, language);
-  const heroImage = HERO_IMAGES[timeOfDay];
-
-  const hasImage = heroImageUrl || heroImage;
-
   return (
     <View style={styles.container}>
       {heroImageUrl ? (
         <Image source={{ uri: heroImageUrl }} style={styles.backgroundImage} resizeMode="cover" />
-      ) : heroImage ? (
-        <Image source={heroImage} style={styles.backgroundImage} />
       ) : (
         <LinearGradient
           colors={['#D4A056', '#121212']}

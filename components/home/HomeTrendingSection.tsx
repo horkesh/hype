@@ -53,6 +53,7 @@ export function HomeTrendingSection({ language, selectedMood }: HomeTrendingSect
               height={280}
               style={styles.card}
               onPress={() => router.push(`/venue/${item.id}`)}
+              accessibilityLabel={item.name}
               front={
                 <VenueCardFront
                   name={item.name}

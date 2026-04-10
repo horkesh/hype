@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ImageWithPlaceholder } from '@/components/ImageWithPlaceholder';
@@ -26,6 +26,64 @@ interface HomeCategoryFeedProps {
   selectedMood: string | null;
   language: 'bs' | 'en';
 }
+
+interface VenueCardProps {
+  venue: CategoryVenue;
+  cardColor: string;
+  textColor: string;
+  textSecondaryColor: string;
+  accentColor: string;
+  dbMood: string | null;
+  language: 'bs' | 'en';
+  onPress: (venueId: string) => void;
+}
+
+const HomeCategoryVenueCard = React.memo(function HomeCategoryVenueCard({
+  venue,
+  cardColor,
+  textColor,
+  textSecondaryColor,
+  accentColor,
+  dbMood,
+  language,
+  onPress,
+}: VenueCardProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: cardColor }]}
+      activeOpacity={0.7}
+      onPress={() => onPress(venue.id)}
+      accessibilityRole="button"
+      accessibilityLabel={venue.name}
+    >
+      <ImageWithPlaceholder
+        source={venue.cover_image_url ? { uri: venue.cover_image_url } : undefined}
+        style={styles.image}
+      />
+      <View style={styles.info}>
+        <Text style={[styles.name, { color: textColor }]} numberOfLines={1}>
+          {venue.name}
+        </Text>
+        <Text style={[styles.meta, { color: textSecondaryColor }]} numberOfLines={1}>
+          {getCategoryLabel(venue.category, language)}
+          {venue.neighborhood ? ` · ${venue.neighborhood}` : ''}
+        </Text>
+        {venue.google_rating != null && venue.google_rating > 0 && (
+          <Text style={[styles.rating, { color: accentColor }]}>
+            ★ {venue.google_rating.toFixed(1)}
+          </Text>
+        )}
+      </View>
+      {dbMood && venue.moods?.includes(dbMood) && (
+        <View style={styles.moodBadge}>
+          <GlassBadge label="★" variant="accent" />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+});
+
+const keyExtractor = (item: CategoryVenue) => item.id;
 
 export function HomeCategoryFeed({
   category,
@@ -71,57 +129,58 @@ export function HomeCategoryFeed({
     ? (language === 'bs' ? 'Učitavanje...' : 'Loading...')
     : (language === 'bs' ? `${venues.length} mjesta` : `${venues.length} places`);
 
-  return (
-    <View>
-      <SectionHeader
-        title={title}
-        subtitle={countLabel}
+  const handleVenuePress = useCallback(
+    (venueId: string) => router.push(`/venue/${venueId}`),
+    [router],
+  );
+
+  const renderItem = useCallback(
+    ({ item: venue }: ListRenderItemInfo<CategoryVenue>) => (
+      <HomeCategoryVenueCard
+        venue={venue}
+        cardColor={colors.card}
+        textColor={colors.text}
+        textSecondaryColor={colors.textSecondary}
+        accentColor={colors.accent}
+        dbMood={dbMood}
+        language={language}
+        onPress={handleVenuePress}
       />
-      {loading ? (
+    ),
+    [colors.card, colors.text, colors.textSecondary, colors.accent, dbMood, language, handleVenuePress],
+  );
+
+  const ListHeader = useMemo(
+    () => <SectionHeader title={title} subtitle={countLabel} />,
+    [title, countLabel],
+  );
+
+  const ListEmpty = useMemo(() => {
+    if (loading) {
+      return (
         <View style={styles.loadingContainer}>
           {[1, 2, 3].map((i) => (
             <View key={i} style={[styles.skeletonCard, { backgroundColor: colors.card }]} />
           ))}
         </View>
-      ) : venues.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textSecondary }]}>
-          {language === 'bs' ? 'Nema rezultata' : 'No results'}
-        </Text>
-      ) : (
-        venues.map((venue) => (
-          <TouchableOpacity
-            key={venue.id}
-            style={[styles.card, { backgroundColor: colors.card }]}
-            activeOpacity={0.7}
-            onPress={() => router.push(`/venue/${venue.id}`)}
-          >
-            <ImageWithPlaceholder
-              source={venue.cover_image_url ? { uri: venue.cover_image_url } : undefined}
-              style={styles.image}
-            />
-            <View style={styles.info}>
-              <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
-                {venue.name}
-              </Text>
-              <Text style={[styles.meta, { color: colors.textSecondary }]} numberOfLines={1}>
-                {getCategoryLabel(venue.category, language)}
-                {venue.neighborhood ? ` · ${venue.neighborhood}` : ''}
-              </Text>
-              {venue.google_rating != null && venue.google_rating > 0 && (
-                <Text style={[styles.rating, { color: colors.accent }]}>
-                  ★ {venue.google_rating.toFixed(1)}
-                </Text>
-              )}
-            </View>
-            {dbMood && venue.moods?.includes(dbMood) && (
-              <View style={styles.moodBadge}>
-                <GlassBadge label="★" variant="accent" />
-              </View>
-            )}
-          </TouchableOpacity>
-        ))
-      )}
-    </View>
+      );
+    }
+    return (
+      <Text style={[styles.empty, { color: colors.textSecondary }]}>
+        {language === 'bs' ? 'Nema rezultata' : 'No results'}
+      </Text>
+    );
+  }, [loading, colors.card, colors.textSecondary, language]);
+
+  return (
+    <FlatList
+      data={loading ? [] : venues}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeader}
+      ListEmptyComponent={ListEmpty}
+      scrollEnabled={false}
+    />
   );
 }
 

@@ -29,6 +29,9 @@ export function TonightSegmentTabs({
               key={segment.key}
               onPress={() => onSelectSegment(segment.key)}
               activeOpacity={0.7}
+              accessibilityRole="tab"
+              accessibilityLabel={segment.label}
+              accessibilityState={{ selected: isActive }}
             >
               <GlassContainer
                 borderRadius={24}

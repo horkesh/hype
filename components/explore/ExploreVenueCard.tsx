@@ -21,7 +21,7 @@ interface ExploreVenueCardProps {
   venue: Venue;
 }
 
-export function ExploreVenueCard({
+export const ExploreVenueCard = React.memo(function ExploreVenueCard({
   accentColor,
   backgroundColor,
   cardColor,
@@ -41,6 +41,8 @@ export function ExploreVenueCard({
     <TouchableOpacity
       style={[styles.venueCard, { backgroundColor: cardColor }]}
       onPress={() => onPress(venue.id)}
+      accessibilityRole="button"
+      accessibilityLabel={venue.name}
     >
       {venue.cover_image_url ? (
         <ImageWithPlaceholder
@@ -75,7 +77,7 @@ export function ExploreVenueCard({
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   venueCard: {

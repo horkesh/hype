@@ -28,6 +28,8 @@ export function HomeSeriesCard({ series, index, language, colors, onPress }: Hom
         style={[styles.card, styles.blockCard, { backgroundColor: colors.card }]}
         onPress={() => onPress(series.id)}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={content.title}
       >
         <ImageWithPlaceholder
           source={series.cover_image_url}

@@ -54,9 +54,9 @@ test('translate-scene uses gemini-2.5-flash', () => {
   assert.ok(content.includes('gemini-2.5-flash'));
 });
 
-test('enrich-descriptions uses claude-haiku-4-5-20251001', () => {
+test('enrich-descriptions defaults to gpt-4.1-mini', () => {
   const content = fs.readFileSync(path.join(fnDir, 'enrich-descriptions', 'index.ts'), 'utf-8');
-  assert.ok(content.includes('claude-haiku-4-5-20251001'));
+  assert.ok(content.includes('gpt-4.1-mini'));
 });
 
 test('parse-instagram uses claude-haiku-4-5-20251001', () => {

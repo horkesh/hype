@@ -18,13 +18,20 @@ export function TonightActionButtons({
 }: TonightActionButtonsProps) {
   return (
     <View style={styles.actionButtons}>
-      <TouchableOpacity style={styles.primaryAction} onPress={onOpenPlanner}>
+      <TouchableOpacity
+        style={styles.primaryAction}
+        onPress={onOpenPlanner}
+        accessibilityRole="button"
+        accessibilityLabel={plannerButtonText}
+      >
         <Text style={styles.primaryActionText}>{plannerButtonText}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.secondaryAction, { backgroundColor: cardColor }]}
         onPress={onOpenVote}
+        accessibilityRole="button"
+        accessibilityLabel={secondaryButtonText}
       >
         <Text style={styles.secondaryActionText}>{secondaryButtonText}</Text>
       </TouchableOpacity>

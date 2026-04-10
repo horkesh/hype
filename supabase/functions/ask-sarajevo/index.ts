@@ -1,9 +1,18 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callClaude } from '../_shared/ai-clients.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
 
   try {
     const { question, language = 'bs' } = await req.json();
@@ -14,15 +23,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabase = getSupabaseAdmin();
-
     // Load knowledge base
-    const { data: kbRows } = await supabase
+    const { data: kbRows } = await supabaseAdmin
       .from('visit_sarajevo_kb')
       .select('page_title, content_text, category');
 
     // Load venue names for linking
-    const { data: venues } = await supabase
+    const { data: venues } = await supabaseAdmin
       .from('venues')
       .select('id, name, category, neighborhood')
       .limit(500);

@@ -33,6 +33,8 @@ export default function ListItem({ listId }: { listId: string }) {
           }
           console.log("delete");
         }}
+        accessibilityRole="button"
+        accessibilityLabel="Delete item"
       >
         <Reanimated.View style={[styleAnimation, styles.rightAction]}>
           <IconSymbol name="trash.fill" size={24} color="white" />

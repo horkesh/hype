@@ -51,6 +51,7 @@ export function HomeHiddenGems({ language, selectedMood }: HomeHiddenGemsProps) 
             height={280}
             style={styles.card}
             onPress={() => router.push(`/venue/${item.id}`)}
+            accessibilityLabel={item.name}
             front={
               <VenueCardFront
                 name={item.name}

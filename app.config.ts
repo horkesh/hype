@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/images/final_quest_240x240.png',
     bundler: 'metro',
   },
-  plugins: ['expo-font', 'expo-router', 'expo-web-browser'],
+  plugins: ['expo-font', 'expo-router', 'expo-web-browser', '@react-native-community/datetimepicker'],
   scheme: 'look',
   experiments: {
     typedRoutes: true,

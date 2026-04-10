@@ -52,7 +52,7 @@ export async function loadHomeRandomCafe(): Promise<HomeVenue | null> {
 }
 
 export async function loadHomeEventSeries(): Promise<HomeEventSeries[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('event_series')
     .select('id, name_bs, name_en, cover_image_url, start_date, end_date')
     .eq('is_active', true)
@@ -60,6 +60,7 @@ export async function loadHomeEventSeries(): Promise<HomeEventSeries[]> {
     .order('start_date', { ascending: true })
     .limit(5);
 
+  if (error) { console.error('loadHomeEventSeries error:', error); return []; }
   return (data ?? []) as HomeEventSeries[];
 }
 
@@ -77,12 +78,13 @@ export async function loadHomeUpcomingEvents(
     query = query.contains('moods', [moodToDbValue(selectedMood)]);
   }
 
-  const { data } = await query;
+  const { data, error } = await query;
+  if (error) { console.error('loadHomeUpcomingEvents error:', error); return []; }
   return (data ?? []) as HomeEventItem[];
 }
 
 export async function loadHomeFeaturedEvent(): Promise<HomeEventItem | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('events')
     .select('id, title_bs, title_en, cover_image_url, start_datetime, moods, price_bam, location_name, venues(name)')
     .eq('is_featured', true)
@@ -91,6 +93,7 @@ export async function loadHomeFeaturedEvent(): Promise<HomeEventItem | null> {
     .order('start_datetime', { ascending: true })
     .limit(1)
     .maybeSingle();
+  if (error) { console.error('loadHomeFeaturedEvent error:', error); return null; }
   return data as HomeEventItem | null;
 }
 
@@ -104,11 +107,12 @@ export interface NewInTownVenue {
 }
 
 export async function loadHomeNewInTown(): Promise<NewInTownVenue[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('venues')
     .select('id, name, cover_image_url, category, neighborhood, google_rating')
     .order('created_at', { ascending: false })
     .limit(6);
+  if (error) { console.error('loadHomeNewInTown error:', error); return []; }
   return (data ?? []) as NewInTownVenue[];
 }
 
@@ -123,6 +127,10 @@ export async function loadHomeWeather(): Promise<{
   const response = await fetch(
     `${OPENWEATHER_API_URL}?lat=43.8563&lon=18.4131&units=metric&appid=${OPENWEATHER_API_KEY}`
   );
+  if (!response.ok) {
+    console.error('loadHomeWeather error:', response.status, response.statusText);
+    return null;
+  }
   const data = await response.json();
 
   return {

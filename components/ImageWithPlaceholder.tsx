@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, ImageSourcePropType, Text, Platform } from 'react-native';
+import { View, Image, StyleSheet, ImageSourcePropType, Text, Platform, StyleProp, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SkeletonLoader } from './SkeletonLoader';
 import { resolveImageSource } from '@/utils/imageSource';
 
 interface ImageWithPlaceholderProps {
   source: string | number | ImageSourcePropType | null | undefined;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   categoryEmoji?: string;
   borderRadius?: number;
 }

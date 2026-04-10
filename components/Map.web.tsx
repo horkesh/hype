@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import {
   buildLeafletMapHtml,
   DEFAULT_MAP_REGION,
@@ -11,7 +11,6 @@ interface MapProps {
   markers?: MapMarker[];
   initialRegion?: MapRegion;
   style?: ViewStyle;
-  showsUserLocation?: boolean;
 }
 
 export const Map = ({
@@ -34,9 +33,6 @@ export const Map = ({
         sandbox="allow-scripts allow-same-origin allow-popups"
         title="Venue map"
       />
-      <View pointerEvents="none" style={styles.loadingOverlay}>
-        <ActivityIndicator />
-      </View>
     </View>
   );
 };
@@ -56,10 +52,5 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     minHeight: 200,
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
   },
 });

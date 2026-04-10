@@ -24,7 +24,11 @@ export function HomeHeritageSection({ language, colors }: Props) {
   const router = useRouter();
 
   useEffect(() => {
-    loadHeritageWalks().then(setWalks);
+    let mounted = true;
+    loadHeritageWalks().then((data) => {
+      if (mounted) setWalks(data);
+    });
+    return () => { mounted = false; };
   }, []);
 
   if (walks.length === 0) return null;
@@ -41,6 +45,8 @@ export function HomeHeritageSection({ language, colors }: Props) {
             key={walk.id}
             onPress={() => router.push(`/heritage/${walk.id}` as any)}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={getWalkTitle(walk, language)}
           >
             <GlassContainer style={styles.card}>
               <MaterialCommunityIcons

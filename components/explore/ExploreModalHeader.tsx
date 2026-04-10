@@ -19,7 +19,7 @@ export function ExploreModalHeader({
   return (
     <View style={[styles.header, { borderBottomColor: borderColor }]}>
       <Text style={[styles.title, { color: textColor }]}>{title}</Text>
-      <TouchableOpacity onPress={onClose}>
+      <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
         <IconSymbol
           ios_icon_name="xmark"
           android_material_icon_name="close"

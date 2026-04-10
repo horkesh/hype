@@ -1911,3 +1911,54 @@ Navigating to venue/event/series detail pages lost both the "Look - Sarajevo" he
 - `components/home/HomeCategoryFeed.tsx` (hard filter instead of sort boost)
 - `.claude/napkin.md` (data quality rules added)
 - Database: 975 venue mood tag updates (chill + foodie cleanup)
+
+### Session 2026-04-10 — Full code quality audit and hardening
+
+#### Audit scope
+Six-dimension parallel audit: architecture, types/errors, performance, security/tests, UX/accessibility, backend/data.
+Full findings saved in `docs/08-reference/code_quality_audit_2026_04_10.md`.
+
+#### Critical fixes
+- **Security**: removed hardcoded Supabase credentials from `admin/src/supabase.ts`; added JWT auth to 7 user-facing edge functions and admin secret auth to 4 admin functions; added SSRF host allowlist to `analyze-venue-photo`; CORS updated for admin header
+- **Correctness**: fixed Rules of Hooks violation in `AnimatedCard` (hooks after conditional return); fixed `AppContext` value recreated every render (memoized with useCallback/useMemo); fixed `SkeletonLoader` infinite animation leak on unmount; wired `ErrorBoundary` into root layout
+- **Data quality**: fixed `generate-pulse` using UTC instead of Sarajevo timezone for time_of_day; fixed 6+ data loaders silently swallowing Supabase errors; fixed `loadHomeWeather` missing response.ok check; fixed empty catch block in `HomeKafuSection`
+
+#### Architecture changes
+- **Detail routes moved** from `app/(tabs)/(home)/` to `app/` — venue, event, series, heritage now render as root-level stack screens; cross-tab navigation and back behavior now work correctly
+- **Edge function HTTP status codes**: 10 functions fixed from 200-on-error to proper 400/500
+- **HOLIDAYS constant** consolidated from 3 out-of-sync copies into `_shared/holidays.ts`
+- **Supabase admin** singleton: `getSupabaseAdmin()` factory replaced with module-scoped `supabaseAdmin`
+- **`_shared/auth.ts`** created with `verifyUserAuth` (JWT) and `verifyAdminAuth` (secret) helpers
+
+#### Performance
+- 6 `.map()` lists virtualized with FlatList: TonightEventCards, SavedEventList, SavedVenueList, SavedBadgeGrid, HomeCategoryFeed, ExploreVenueList
+- 5 card components wrapped with `React.memo`: TonightEventCard, ExploreVenueCard, SavedEventCard, SavedVenueCard, SavedBadgeCard
+- `useProfileController.settingsCopy` memoized; unmount guard added to async auth callback
+- Duplicate `loadVenues` call removed from `useExploreController.applyFilters`
+- `HomeHeritageSection` unmount guard added
+
+#### Accessibility
+- Added `accessibilityLabel`, `accessibilityRole`, `accessibilityState` across 24 component files
+- Tab bars, cards, chips, toggles, action buttons, search inputs, flip cards all now screen-reader accessible
+- HypeHeader back button touch target increased from 32pt to 44pt
+
+#### Design system
+- `SectionHeader` now uses `designTokens.typography.sectionHeader` (DM Serif Display) instead of wrong font
+- `GlassContainer` rgba concatenation fixed with `toAlphaBorder` helper
+- `GlassCategoryChip` wired to `glassTokens` instead of hardcoded rgba
+- `style?: any` replaced with `StyleProp<ViewStyle>` on 5 components
+- `HypeHeader` uses `useSafeAreaInsets()` instead of hardcoded padding
+
+#### Dead code removed
+- 5 dead iOS `.ios.tsx` re-export files deleted
+- `utils/visitSarajevoInstagram.ts` and `utils/ai/eventCover.ts` deleted (never imported)
+- `HERO_IMAGES` dead constant, dead `GlassBadge` useTheme import, dead `ContentState` spinner branch, permanent `Map.web.tsx` spinner all removed
+- SpaceMono font removed from root layout
+- Notification bell stub removed from HypeHeader
+- Heritage back button regex fixed, hardcoded venue count removed from HomeSurpriseMe
+- Failing test corrected (model ID assertion)
+- `errorLogger` source tag fixed from 'expo-template' to 'look-app'
+
+#### Totals
+- ~80+ files changed, 9 deleted, 3 created
+- 193/193 tests passing throughout

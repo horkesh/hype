@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -233,26 +233,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setLanguage = async (lang: Language) => {
+  const setLanguage = useCallback(async (lang: Language) => {
     setLanguageState(lang);
     try {
       await storage.setItem('hype_language', lang);
     } catch (error) {
       console.log('Error saving language:', error);
     }
-  };
+  }, []);
 
-  const t = (key: string): string => {
+  const t = useCallback((key: string): string => {
     const translation = translations[language][key as keyof typeof translations.bs];
     return translation || key;
-  };
+  }, [language]);
+
+  const value = useMemo(() => ({ language, setLanguage, t }), [language, setLanguage, t]);
 
   if (!isLoaded) {
     return null;
   }
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, t }}>
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );

@@ -25,6 +25,9 @@ export function ExploreTabSwitcher({
       <TouchableOpacity
         style={[styles.button, activeTab === 'list' && { backgroundColor: accentColor }]}
         onPress={() => onSetActiveTab('list')}
+        accessibilityRole="tab"
+        accessibilityLabel="List"
+        accessibilityState={{ selected: activeTab === 'list' }}
       >
         <Text style={[styles.text, { color: activeTab === 'list' ? '#FFFFFF' : textColor }]}>
           List
@@ -33,6 +36,9 @@ export function ExploreTabSwitcher({
       <TouchableOpacity
         style={[styles.button, activeTab === 'menu' && { backgroundColor: accentColor }]}
         onPress={() => onSetActiveTab('menu')}
+        accessibilityRole="tab"
+        accessibilityLabel={dailyMenuLabel}
+        accessibilityState={{ selected: activeTab === 'menu' }}
       >
         <View style={styles.menuLabel}>
           <IconSymbol

@@ -25,6 +25,8 @@ export function VenueDeliveryActionGroup({
           key={action.id}
           style={[styles.button, { backgroundColor: accentColor }]}
           onPress={() => onPressAction(action.id)}
+          accessibilityRole="link"
+          accessibilityLabel={action.label}
         >
           <Text style={styles.text}>
             {action.emoji} {action.label}

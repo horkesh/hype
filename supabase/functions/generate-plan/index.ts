@@ -1,10 +1,20 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { getActiveHoliday } from '../_shared/holidays.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 const STREAM_TIMEOUT_MS = 45_000;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
 
   try {
     const { moods = [], groupSize = 2, budget = 'mid', language = 'en' } = await req.json();
@@ -29,31 +39,18 @@ Deno.serve(async (req: Request) => {
     }
 
     // Holiday awareness
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const HOLIDAYS: Record<string, string> = {
-      '03-20': 'Bajram (Eid al-Fitr) first day',
-      '03-21': 'Bajram second day',
-      '03-22': 'Bajram third day — relaxed festive atmosphere',
-      '05-27': 'Kurban Bajram first day',
-      '01-01': 'New Year',
-      '03-01': 'Independence Day',
-      '05-01': 'Labour Day',
-    };
-    const holiday = HOLIDAYS[`${mm}-${dd}`] ?? null;
+    const holiday = getActiveHoliday(now);
     const holidayContext = holiday ? `\nToday is ${holiday} — incorporate this festive context into the plan.` : '';
-
-    const supabase = getSupabaseAdmin();
 
     // Fetch venues and events in parallel
     const today = now.toISOString().split('T')[0];
     const [venuesResult, eventsResult] = await Promise.all([
-      supabase
+      supabaseAdmin
         .from('venues')
         .select('id, name, category, neighborhood, vibe_tags, price_level, address')
         .in('category', ['cafe', 'restaurant', 'bar', 'club'])
         .limit(40),
-      supabase
+      supabaseAdmin
         .from('events')
         .select('name, description, category, start_time, venue_name, price')
         .gte('start_time', `${today}T00:00:00`)
@@ -225,7 +222,7 @@ Respond with ONLY valid JSON:
     console.error('generate-plan error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.message ?? 'Internal error' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

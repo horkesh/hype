@@ -1,12 +1,23 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { glassTokens } from '@/styles/glassTokens';
+
+function toAlphaBorder(color: string, alpha: number): string {
+  // Handle rgba() format
+  const rgbaMatch = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbaMatch) {
+    return `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${alpha})`;
+  }
+  // Handle hex format — append alpha as hex suffix
+  const hex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+  return color + hex;
+}
 
 interface GlassContainerProps {
   children: ReactNode;
   glowColor?: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   borderRadius?: number;
 }
 
@@ -26,7 +37,7 @@ export function GlassContainer({
         styles.container,
         {
           backgroundColor: glassTokens.background,
-          borderColor: glowColor ? glowColor + '4D' : glassTokens.border,
+          borderColor: glowColor ? toAlphaBorder(glowColor, 0.3) : glassTokens.border,
           borderRadius,
           ...glowShadow,
         },

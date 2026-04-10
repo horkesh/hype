@@ -40,7 +40,7 @@ export function HomeKafuSection({ language, selectedMood }: HomeKafuSectionProps
           .range(offset % 20, (offset % 20) + 1);
         if (fallback && fallback.length > 0) setCafe(fallback[0]);
       }
-    } catch {} finally {
+    } catch (error) { console.error('Error loading cafe:', error); } finally {
       setLoading(false);
     }
   }, [selectedMood]);

@@ -32,6 +32,8 @@ export function HomeEventCard({ event, index, language, colors, onPress }: HomeE
         style={[styles.card, styles.blockCard, { backgroundColor: colors.card }]}
         onPress={() => onPress(event.id)}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={content.title}
       >
         <View>
           <ImageWithPlaceholder

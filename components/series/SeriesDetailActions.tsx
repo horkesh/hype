@@ -44,6 +44,8 @@ export function SeriesDetailActions({
               },
             ]}
             onPress={onWebsitePress}
+            accessibilityRole="link"
+            accessibilityLabel={labels.website}
           >
             <Text style={[styles.linkButtonText, { color: colors.accent }]}>
               {'\ud83c\udf10'} {labels.website}
@@ -55,6 +57,8 @@ export function SeriesDetailActions({
           <TouchableOpacity
             style={[styles.linkButton, { backgroundColor: colors.accent }]}
             onPress={onTicketPress}
+            accessibilityRole="link"
+            accessibilityLabel={labels.tickets}
           >
             <Text style={styles.linkButtonTextWhite}>
               {'\ud83c\udf9f\ufe0f'} {labels.tickets}
@@ -66,6 +70,9 @@ export function SeriesDetailActions({
       <TouchableOpacity
         style={[styles.saveButton, { backgroundColor: isSaved ? '#10B981' : colors.card }]}
         onPress={onSavePress}
+        accessibilityRole="button"
+        accessibilityLabel={isSaved ? labels.saved : labels.save}
+        accessibilityState={{ selected: isSaved }}
       >
         <Text style={[styles.saveButtonText, { color: isSaved ? '#FFFFFF' : colors.text }]}>
           {'\u2764\ufe0f'} {isSaved ? labels.saved : labels.save}

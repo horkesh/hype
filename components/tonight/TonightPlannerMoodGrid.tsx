@@ -33,6 +33,9 @@ export function TonightPlannerMoodGrid({
               key={option.id}
               style={[styles.chip, { backgroundColor: isSelected ? '#D4A056' : cardColor }]}
               onPress={() => onSelectMood(option.id)}
+              accessibilityRole="button"
+              accessibilityLabel={option.label}
+              accessibilityState={{ selected: isSelected }}
             >
               <Text style={styles.emoji}>{option.emoji}</Text>
               <Text style={[styles.label, { color: isSelected ? '#FFFFFF' : colorsText }]}>

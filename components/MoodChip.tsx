@@ -70,6 +70,9 @@ export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChip
         onPress={onPress}
         style={chipStyle}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: isSelected }}
       >
         <Text style={styles.emoji}>{emoji}</Text>
         <Text
@@ -97,6 +100,9 @@ export function MoodChip({ emoji, label, isSelected, onPress, moodId }: MoodChip
         chipStyle,
       ]}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <Text style={styles.emoji}>{emoji}</Text>
       <Text

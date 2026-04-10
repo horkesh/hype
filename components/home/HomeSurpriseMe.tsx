@@ -66,7 +66,13 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
   return (
     <Animated.View style={containerAnimStyle}>
       <GlassContainer glowColor={colors.accent} style={styles.container}>
-        <TouchableOpacity onPress={handlePress} style={styles.header} activeOpacity={0.8}>
+        <TouchableOpacity
+          onPress={handlePress}
+          style={styles.header}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={isBosnian ? 'Iznenadi me' : 'Surprise me'}
+        >
           <Text style={styles.sparkle}>{'\u2726'}</Text>
           <Text style={[styles.title, { color: colors.text }]}>
             {isBosnian ? 'Iznenadi me' : 'Surprise me'}
@@ -104,6 +110,8 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
                 key={i}
                 style={styles.stopRow}
                 onPress={() => { if (stop.venue?.id) router.push(`/venue/${stop.venue.id}`); }}
+                accessibilityRole="button"
+                accessibilityLabel={stop.venue_name}
               >
                 <Text style={[styles.stopTime, { color: colors.accent }]}>{stop.time}</Text>
                 <View style={styles.stopInfo}>
@@ -117,8 +125,8 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
             <View style={styles.attribution}>
               <Text style={styles.attributionText}>
                 {isBosnian
-                  ? 'Na osnovu podataka Visit Sarajevo i 1.226 lokalnih objekata'
-                  : 'Based on data from Visit Sarajevo and 1,226 local venues'}
+                  ? 'Na osnovu podataka Visit Sarajevo i lokalnih objekata'
+                  : 'Based on data from Visit Sarajevo and local venues'}
               </Text>
             </View>
           </View>

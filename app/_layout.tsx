@@ -1,7 +1,7 @@
 
 import "react-native-reanimated";
 import React, { useEffect } from "react";
-import { useFonts } from "expo-font";
+import { StyleSheet } from "react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
@@ -13,6 +13,7 @@ import {
 } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { AppProvider } from "@/contexts/AppContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   useFonts as useDMSans,
   DMSans_400Regular,
@@ -43,10 +44,6 @@ const LookDarkTheme: Theme = {
 };
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
-
   const [dmSansLoaded] = useDMSans({
     DMSans_400Regular,
     DMSans_500Medium,
@@ -58,12 +55,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded && dmSansLoaded && dmSerifLoaded) {
+    if (dmSansLoaded && dmSerifLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, dmSansLoaded, dmSerifLoaded]);
+  }, [dmSansLoaded, dmSerifLoaded]);
 
-  if (!loaded || !dmSansLoaded || !dmSerifLoaded) {
+  if (!dmSansLoaded || !dmSerifLoaded) {
     return null;
   }
 
@@ -71,21 +68,31 @@ export default function RootLayout() {
     <>
       <StatusBar style="light" animated />
       <ThemeProvider value={LookDarkTheme}>
-        <AppProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack
-              screenOptions={{
-                animation: "slide_from_right",
-                animationDuration: 300,
-              }}
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <SystemBars style="light" />
-          </GestureHandlerRootView>
-        </AppProvider>
+        <ErrorBoundary>
+          <AppProvider>
+            <GestureHandlerRootView style={rootStyles.flex}>
+              <Stack
+                screenOptions={{
+                  animation: "slide_from_right",
+                  animationDuration: 300,
+                }}
+              >
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="venue/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <SystemBars style="light" />
+            </GestureHandlerRootView>
+          </AppProvider>
+        </ErrorBoundary>
       </ThemeProvider>
     </>
   );
 }
+
+const rootStyles = StyleSheet.create({
+  flex: { flex: 1 },
+});

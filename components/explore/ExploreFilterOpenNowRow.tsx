@@ -19,7 +19,13 @@ export function ExploreFilterOpenNowRow({
   onToggle,
 }: ExploreFilterOpenNowRowProps) {
   return (
-    <TouchableOpacity style={[styles.row, { borderColor }]} onPress={onToggle}>
+    <TouchableOpacity
+      style={[styles.row, { borderColor }]}
+      onPress={onToggle}
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: isEnabled }}
+    >
       <Text style={[styles.label, { color: textColor }]}>{label}</Text>
       <View style={[styles.toggle, { backgroundColor: isEnabled ? accentColor : borderColor }]}>
         <View style={[styles.thumb, isEnabled && styles.thumbActive]} />

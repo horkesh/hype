@@ -24,6 +24,8 @@ export function VenuePrimaryActionGroup({
           key={action.id}
           onPress={() => onPressAction(action.id)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={action.label}
         >
           <GlassContainer borderRadius={20} style={styles.button}>
             <Text style={styles.emoji}>{action.emoji}</Text>

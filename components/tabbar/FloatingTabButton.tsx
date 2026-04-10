@@ -20,7 +20,14 @@ export function FloatingTabButton({
   onPress,
 }: FloatingTabButtonProps) {
   return (
-    <TouchableOpacity style={styles.tab} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.tab}
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityRole="tab"
+      accessibilityLabel={tab.label}
+      accessibilityState={{ selected: isActive }}
+    >
       <View style={styles.tabContent}>
         <IconSymbol
           android_material_icon_name={tab.icon}

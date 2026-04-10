@@ -1,20 +1,20 @@
 // components/SkeletonLoader.tsx
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
-  interpolate,
+  cancelAnimation,
 } from 'react-native-reanimated';
 
 interface SkeletonLoaderProps {
   width?: number | string;
   height?: number | string;
   borderRadius?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function SkeletonLoader({
@@ -26,14 +26,15 @@ export function SkeletonLoader({
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
-    opacity.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(opacity.value, [0.3, 1], [0.3, 0.6]),
+    opacity.value = withRepeat(withTiming(0.6, { duration: 1000 }), -1, true);
+    return () => {
+      cancelAnimation(opacity);
     };
-  });
+  }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   const skeletonColor = '#3A3A4E';
 

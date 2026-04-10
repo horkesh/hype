@@ -27,7 +27,7 @@ interface TonightEventCardProps {
   venueName: string;
 }
 
-export function TonightEventCard({
+export const TonightEventCard = React.memo(function TonightEventCard({
   cardColor,
   event,
   eventMetaSeparator,
@@ -55,6 +55,9 @@ export function TonightEventCard({
       ]}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={eventTitle}
+      accessibilityState={{ selected: isSelected }}
     >
       <TonightEventImage coverImageUrl={event.cover_image_url} />
 
@@ -91,7 +94,7 @@ export function TonightEventCard({
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   eventCard: {

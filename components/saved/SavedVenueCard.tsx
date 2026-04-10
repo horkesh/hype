@@ -17,7 +17,7 @@ interface SavedVenueCardProps {
   venue: SavedVenueCardModel;
 }
 
-export function SavedVenueCard({
+export const SavedVenueCard = React.memo(function SavedVenueCard({
   accentColor,
   backgroundColor,
   cardColor,
@@ -76,7 +76,7 @@ export function SavedVenueCard({
       </TouchableOpacity>
     </ReanimatedSwipeable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

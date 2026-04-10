@@ -1,13 +1,33 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callGemini } from '../_shared/ai-clients.ts';
+import { verifyAdminAuth } from '../_shared/auth.ts';
+
+const ALLOWED_HOSTS = ['kyfoqltmkqwtnrdlacqv.supabase.co', 'maps.googleapis.com', 'lh3.googleusercontent.com'];
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+  if (!verifyAdminAuth(req)) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Admin authentication required' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
   try {
     const { image_url } = await req.json();
     if (!image_url) {
       return new Response(JSON.stringify({ success: false, error: 'Missing image_url' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    // SSRF protection: only allow known image hosts
+    try {
+      const urlHost = new URL(image_url).hostname;
+      if (!ALLOWED_HOSTS.some(h => urlHost === h || urlHost.endsWith('.' + h))) {
+        return new Response(JSON.stringify({ success: false, error: 'Image URL host not allowed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+      }
+    } catch {
+      return new Response(JSON.stringify({ success: false, error: 'Invalid image URL' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     const imgRes = await fetch(image_url);
     const imgBuffer = await imgRes.arrayBuffer();
@@ -28,6 +48,6 @@ Deno.serve(async (req: Request) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 });
   }
 });

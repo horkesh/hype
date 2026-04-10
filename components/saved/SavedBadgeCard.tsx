@@ -11,7 +11,7 @@ interface SavedBadgeCardProps {
   textSecondaryColor: string;
 }
 
-export function SavedBadgeCard({
+export const SavedBadgeCard = React.memo(function SavedBadgeCard({
   accentColor,
   backgroundColor,
   badge,
@@ -58,7 +58,7 @@ export function SavedBadgeCard({
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   badgeCard: {

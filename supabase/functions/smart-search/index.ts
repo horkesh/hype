@@ -1,9 +1,18 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callOpenAI } from '../_shared/ai-clients.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
+
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
 
   try {
     const { query, language = 'en' } = await req.json();
@@ -11,14 +20,12 @@ Deno.serve(async (req: Request) => {
     if (!query || typeof query !== 'string') {
       return new Response(
         JSON.stringify({ success: false, error: 'query is required' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
-    const supabase = getSupabaseAdmin();
-
     // Fetch available categories and neighborhoods for context
-    const { data: venuesMeta } = await supabase
+    const { data: venuesMeta } = await supabaseAdmin
       .from('venues')
       .select('category, neighborhood')
       .limit(200);
@@ -70,7 +77,7 @@ Respond with ONLY valid JSON (no markdown):
 
     // If conversation mode returned venue names, fetch them from DB
     if (mode === 'conversation' && venueNames && venueNames.length > 0) {
-      const { data: venuesData } = await supabase
+      const { data: venuesData } = await supabaseAdmin
         .from('venues')
         .select('*')
         .in('name', venueNames)
@@ -95,7 +102,7 @@ Respond with ONLY valid JSON (no markdown):
     console.error('smart-search error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.message ?? 'Internal error' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

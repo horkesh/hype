@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { subscribeToAuthChanges } from '@/utils/authSession';
 import {
@@ -19,7 +19,12 @@ interface UseProfileControllerOptions {
 }
 
 export function useProfileController({ isBosnian }: UseProfileControllerOptions) {
-  const settingsCopy = getProfileSettingsCopy(isBosnian);
+  const settingsCopy = useMemo(() => getProfileSettingsCopy(isBosnian), [isBosnian]);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,10 +55,13 @@ export function useProfileController({ isBosnian }: UseProfileControllerOptions)
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges((session) => {
+      if (!mountedRef.current) return;
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        void loadProfileTaste().then(setSelectedMoods).catch((error) => {
+        void loadProfileTaste().then((moods) => {
+          if (mountedRef.current) setSelectedMoods(moods);
+        }).catch((error) => {
           console.error('Error loading taste profile:', error);
         });
       } else {

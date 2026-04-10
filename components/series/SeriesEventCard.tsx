@@ -45,6 +45,8 @@ export function SeriesEventCard({
         },
       ]}
       onPress={() => onEventPress(event.id)}
+      accessibilityRole="button"
+      accessibilityLabel={getSeriesEventTitle(event, language)}
     >
       <View style={styles.timeColumn}>
         <Text style={[styles.time, { color: colors.accent }]}>
@@ -74,6 +76,8 @@ export function SeriesEventCard({
             stopPropagation(eventPress);
             onEventTicketPress(event.ticket_url!);
           }}
+          accessibilityRole="link"
+          accessibilityLabel={copy.ticket}
         >
           <Text style={styles.ticketButtonText}>{copy.ticket}</Text>
         </TouchableOpacity>

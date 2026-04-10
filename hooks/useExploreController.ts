@@ -243,8 +243,8 @@ export function useExploreController({
 
   const applyFilters = useCallback(() => {
     setShowFilterModal(false);
-    void loadVenues();
-  }, [loadVenues]);
+    // loadVenues is triggered by the useEffect that watches filter state — no manual call needed
+  }, []);
 
   const toggleMenuPriceFilter = useCallback((filterId: string) => {
     setMenuPriceFilter((current) => (current === filterId ? null : filterId));

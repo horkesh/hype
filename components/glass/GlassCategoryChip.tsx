@@ -1,7 +1,8 @@
 import React from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, Platform, Image } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, Platform, Image, ImageSourcePropType } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '@/hooks/useTheme';
+import { glassTokens } from '@/styles/glassTokens';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -10,15 +11,15 @@ interface GlassCategoryChipProps {
   label: string;
   isSelected: boolean;
   onPress: () => void;
-  iconSource?: any;
+  iconSource?: ImageSourcePropType;
 }
 
 export function GlassCategoryChip({ categoryId, label, isSelected, onPress, iconSource }: GlassCategoryChipProps) {
   const { colors } = useTheme();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const chipBg = isSelected ? colors.accent : 'rgba(255,255,255,0.08)';
-  const borderColor = isSelected ? colors.accent : 'rgba(255,255,255,0.15)';
+  const chipBg = isSelected ? colors.accent : glassTokens.background;
+  const borderColor = isSelected ? colors.accent : glassTokens.border;
   const textColor = isSelected ? '#FFF' : colors.text;
   const content = (
     <>

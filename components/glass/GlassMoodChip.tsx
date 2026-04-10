@@ -101,7 +101,14 @@ export function GlassMoodChip({
 
   if (Platform.OS === 'web') {
     return (
-      <TouchableOpacity onPress={onPress} style={chipStyle} activeOpacity={0.8}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={chipStyle}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: isSelected }}
+      >
         {content}
       </TouchableOpacity>
     );
@@ -114,6 +121,9 @@ export function GlassMoodChip({
       onPressOut={handlePressOut}
       style={[animatedStyle, chipStyle]}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       {content}
     </AnimatedTouchable>

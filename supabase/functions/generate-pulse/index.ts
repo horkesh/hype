@@ -1,6 +1,8 @@
 import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callGemini } from '../_shared/ai-clients.ts';
-import { getSupabaseAdmin } from '../_shared/supabase-admin.ts';
+import { supabaseAdmin } from '../_shared/supabase-admin.ts';
+import { getActiveHoliday } from '../_shared/holidays.ts';
+import { verifyUserAuth } from '../_shared/auth.ts';
 
 const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -11,38 +13,6 @@ const SARAJEVO_KEYWORDS = [
   'željezničar', 'željo', 'sarajevo', 'kanton', 'kcus',
   'vijećnic', 'olimpij', 'zetra', 'bascarsij', 'centar',
 ];
-
-/**
- * Known holidays for Sarajevo. Islamic dates shift yearly — update each Jan.
- * Format: 'MM-DD' → description. Multi-day holidays get multiple entries.
- */
-const HOLIDAYS: Record<string, string> = {
-  // Ramazan Bajram (Eid al-Fitr) 2026: March 20-22
-  '03-20': 'BAJRAM (Eid al-Fitr) — first day! This is the BIGGEST celebration in Sarajevo. Morning: Bajram prayers. Then family visits, baklava, coffee, festive atmosphere everywhere. "Bajram šerif mubarek olsun!"',
-  '03-21': 'BAJRAM (Eid al-Fitr) — second day. Family lunches, visiting relatives, walks, kids getting bajramluk (money gifts). Relaxed festive mood.',
-  '03-22': 'BAJRAM (Eid al-Fitr) — third day. The celebration continues, more relaxed. Evening gatherings with friends.',
-  // Kurban Bajram (Eid al-Adha) 2026: ~May 27-29
-  '05-27': 'KURBAN BAJRAM (Eid al-Adha) — first day. Major holiday. Morning prayers, traditional meals, family gatherings.',
-  '05-28': 'KURBAN BAJRAM — second day. Family visits continue, generous hospitality.',
-  '05-29': 'KURBAN BAJRAM — third day.',
-  // Fixed holidays
-  '01-01': 'NOVA GODINA (New Year\'s Day) — Sarajevo recovers from last night\'s celebrations.',
-  '01-02': 'Still New Year\'s holiday weekend.',
-  '03-01': 'DAN NEZAVISNOSTI (Independence Day) — national holiday.',
-  '05-01': 'PRAZNIK RADA (Labour Day) — picnics, outdoor gatherings, Vrelo Bosne is packed.',
-  '11-25': 'DAN DRŽAVNOSTI (Statehood Day) — national holiday.',
-  '12-25': 'BOŽIĆ (Catholic Christmas) — part of Sarajevo celebrates.',
-  '01-07': 'BOŽIĆ (Orthodox Christmas) — part of Sarajevo celebrates.',
-  // Ramazan 2026: ~Feb 18 - Mar 19
-  '02-18': 'RAMAZAN starts today. Iftar gatherings begin at sunset. Special menus at many restaurants.',
-  '03-19': 'Last day of RAMAZAN. Tomorrow is Bajram! City is preparing for celebrations.',
-};
-
-function getTodayHoliday(now: Date): string | null {
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return HOLIDAYS[`${mm}-${dd}`] ?? null;
-}
 
 /** Fetch klix.ba RSS and extract Sarajevo-relevant headlines. */
 async function fetchKlixHeadlines(): Promise<string[]> {
@@ -87,13 +57,20 @@ async function fetchKlixHeadlines(): Promise<string[]> {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
 
+  const user = await verifyUserAuth(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
-    const supabase = getSupabaseAdmin();
     const body = await req.json().catch(() => ({}));
     const weather = body?.weather ?? null;
 
     // Check cache
-    const { data: cached } = await supabase
+    const { data: cached } = await supabaseAdmin
       .from('city_pulse')
       .select('*')
       .order('created_at', { ascending: false })
@@ -122,7 +99,7 @@ Deno.serve(async (req: Request) => {
     const today = now.toISOString().split('T')[0];
 
     const [eventsResult, venuesResult, klixHeadlines] = await Promise.all([
-      supabase
+      supabaseAdmin
         .from('events')
         .select('title_en, description_en, category, start_datetime, location_name, venues(name)')
         .gte('start_datetime', `${today}T00:00:00`)
@@ -130,7 +107,7 @@ Deno.serve(async (req: Request) => {
         .eq('status', 'approved')
         .eq('is_active', true)
         .limit(10),
-      supabase
+      supabaseAdmin
         .from('venues')
         .select('name, category, neighborhood')
         .in('category', ['cafe', 'restaurant', 'bar', 'club'])
@@ -141,11 +118,12 @@ Deno.serve(async (req: Request) => {
     const events = eventsResult.data;
     const venues = venuesResult.data;
 
-    // Time context
-    const hour = now.getHours();
+    // Time context — use Sarajevo timezone, not server-local (UTC on edge)
+    const sarajevoTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' }));
+    const hour = sarajevoTime.getHours();
     const time_of_day = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
-    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
-    const fullDate = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Sarajevo' });
+    const fullDate = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Europe/Sarajevo' });
 
     // Weather context — build a rich weather hint for the AI
     let weatherLine = '';
@@ -182,7 +160,7 @@ Deno.serve(async (req: Request) => {
       ? `\nLocal news headlines (klix.ba):\n${klixHeadlines.map(h => `- ${h}`).join('\n')}\n`
       : '';
 
-    const todayHoliday = getTodayHoliday(now);
+    const todayHoliday = getActiveHoliday(now);
     const holidayBlock = todayHoliday
       ? `\n⚠️ TODAY IS A HOLIDAY: ${todayHoliday}\nThis MUST be the primary theme of the pulse. Everything else is secondary.\n`
       : '';
@@ -260,7 +238,7 @@ Respond with ONLY valid JSON (no markdown):
     const { pulse_en, pulse_bs } = parsed;
 
     // Cache result
-    await supabase.from('city_pulse').insert({
+    await supabaseAdmin.from('city_pulse').insert({
       pulse_en,
       pulse_bs,
       time_of_day,
@@ -274,7 +252,7 @@ Respond with ONLY valid JSON (no markdown):
     console.error('generate-pulse error:', err);
     return new Response(
       JSON.stringify({ success: false, error: err.message ?? 'Internal error' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

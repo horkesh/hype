@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -15,7 +15,8 @@ interface FlippableCardProps {
   onPress?: () => void;
   width?: number;
   height?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
 }
 
 export function FlippableCard({
@@ -25,6 +26,7 @@ export function FlippableCard({
   width,
   height = 280,
   style,
+  accessibilityLabel,
 }: FlippableCardProps) {
   const flipProgress = useSharedValue(0);
   const isFlipped = useSharedValue(false);
@@ -58,9 +60,21 @@ export function FlippableCard({
   return (
     <View style={[styles.container, { width, height }, style]}>
       <Animated.View style={[styles.face, frontAnimatedStyle]}>
-        <Pressable onPress={onPress} onLongPress={handleFlip} style={styles.pressable}>
+        <Pressable
+          onPress={onPress}
+          onLongPress={handleFlip}
+          style={styles.pressable}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
+        >
           {front}
-          <Pressable onPress={handleFlip} style={styles.flipButton} hitSlop={8}>
+          <Pressable
+            onPress={handleFlip}
+            style={styles.flipButton}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Flip card for details"
+          >
             <View style={styles.flipIcon}>
               <Animated.Text style={styles.flipIconText}>ℹ</Animated.Text>
             </View>
@@ -69,7 +83,12 @@ export function FlippableCard({
       </Animated.View>
 
       <Animated.View style={[styles.face, styles.backFace, backAnimatedStyle]}>
-        <Pressable onPress={handleFlip} style={styles.pressable}>
+        <Pressable
+          onPress={handleFlip}
+          style={styles.pressable}
+          accessibilityRole="button"
+          accessibilityLabel="Flip card back"
+        >
           {back}
         </Pressable>
       </Animated.View>

@@ -68,6 +68,9 @@ export function HomeCategoryGrid({
               onPress={() =>
                 onSelectCategory(isSelected ? null : cat.id)
               }
+              accessibilityRole="button"
+              accessibilityLabel={getCategoryLabel(cat.id, language)}
+              accessibilityState={{ selected: isSelected }}
             >
               <MaterialCommunityIcons
                 name={cat.icon}

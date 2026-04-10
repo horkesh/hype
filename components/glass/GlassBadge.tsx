@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/hooks/useTheme';
 import { VARIANT_COLORS } from './badgeVariants';
 import type { BadgeVariant } from './badgeVariants';
 

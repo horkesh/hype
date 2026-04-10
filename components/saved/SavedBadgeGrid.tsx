@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native';
 
 import { SavedBadgeCard } from '@/components/saved/SavedBadgeCard';
 import { SavedBadgeCardModel } from '@/utils/savedContent';
@@ -12,6 +12,8 @@ interface SavedBadgeGridProps {
   textSecondaryColor: string;
 }
 
+const keyExtractor = (item: SavedBadgeCardModel) => item.badgeId;
+
 export function SavedBadgeGrid({
   accentColor,
   backgroundColor,
@@ -19,21 +21,29 @@ export function SavedBadgeGrid({
   textColor,
   textSecondaryColor,
 }: SavedBadgeGridProps) {
+  const renderItem = useCallback(
+    ({ item: badge }: ListRenderItemInfo<SavedBadgeCardModel>) => (
+      <SavedBadgeCard
+        accentColor={accentColor}
+        backgroundColor={backgroundColor}
+        badge={badge}
+        textColor={textColor}
+        textSecondaryColor={textSecondaryColor}
+      />
+    ),
+    [accentColor, backgroundColor, textColor, textSecondaryColor],
+  );
+
   return (
-    <ScrollView style={styles.content}>
-      <View style={styles.badgesGrid}>
-        {models.map((badge) => (
-          <SavedBadgeCard
-            key={badge.badgeId}
-            accentColor={accentColor}
-            backgroundColor={backgroundColor}
-            badge={badge}
-            textColor={textColor}
-            textSecondaryColor={textSecondaryColor}
-          />
-        ))}
-      </View>
-    </ScrollView>
+    <FlatList
+      data={models}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      numColumns={3}
+      style={styles.content}
+      contentContainerStyle={styles.badgesGrid}
+      columnWrapperStyle={styles.columnWrapper}
+    />
   );
 }
 
@@ -43,8 +53,9 @@ const styles = StyleSheet.create({
   },
   badgesGrid: {
     padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    gap: 12,
+  },
+  columnWrapper: {
     gap: 12,
   },
 });

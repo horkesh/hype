@@ -76,10 +76,16 @@ export function ExploreSearchSection({
           value={value}
           onChangeText={onChangeText}
           onFocus={onFocus}
+          accessibilityLabel={placeholder}
         />
         {searchLoading ? <ActivityIndicator size="small" color={accentColor} /> : null}
         {onCameraPress ? (
-          <TouchableOpacity onPress={onCameraPress} style={styles.cameraButton}>
+          <TouchableOpacity
+            onPress={onCameraPress}
+            style={styles.cameraButton}
+            accessibilityRole="button"
+            accessibilityLabel="Search by camera"
+          >
             <IconSymbol
               ios_icon_name="camera"
               android_material_icon_name="photo_camera"
@@ -100,6 +106,8 @@ export function ExploreSearchSection({
                 key={result.id}
                 style={[styles.searchResultItem, { borderBottomColor: borderColor }]}
                 onPress={() => onResultPress(result)}
+                accessibilityRole="button"
+                accessibilityLabel={result.name}
               >
                 <Text style={[styles.searchResultText, { color: textColor }]}>{result.name}</Text>
                 <View style={styles.searchResultMeta}>

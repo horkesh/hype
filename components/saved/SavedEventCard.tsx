@@ -16,7 +16,7 @@ interface SavedEventCardProps {
   textSecondaryColor: string;
 }
 
-export function SavedEventCard({
+export const SavedEventCard = React.memo(function SavedEventCard({
   accentColor,
   cardColor,
   event,
@@ -62,7 +62,7 @@ export function SavedEventCard({
       </TouchableOpacity>
     </ReanimatedSwipeable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

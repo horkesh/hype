@@ -58,11 +58,12 @@ export async function fetchCrowdSignals(): Promise<Map<string, VenueCrowdSignal>
 export async function fetchTrendingVenues(limit = 6): Promise<any[]> {
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
-  const { data: checkins } = await supabase
+  const { data: checkins, error: checkinsError } = await supabase
     .from('checkins')
     .select('venue_id')
     .gte('created_at', twoHoursAgo);
 
+  if (checkinsError) { console.error('fetchTrendingVenues checkins error:', checkinsError); return []; }
   if (!checkins?.length) return [];
 
   // Count per venue
@@ -80,10 +81,12 @@ export async function fetchTrendingVenues(limit = 6): Promise<any[]> {
   if (topVenueIds.length === 0) return [];
 
   // Fetch venue details
-  const { data: venues } = await supabase
+  const { data: venues, error: venuesError } = await supabase
     .from('venues')
     .select('*')
     .in('id', topVenueIds);
+
+  if (venuesError) { console.error('fetchTrendingVenues venues error:', venuesError); return []; }
 
   // Attach counts and sort
   return (venues ?? [])

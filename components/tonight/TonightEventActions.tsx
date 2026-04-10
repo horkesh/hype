@@ -25,7 +25,12 @@ export function TonightEventActions({
   return (
     <View style={styles.actions}>
       {ticketUrl ? (
-        <TouchableOpacity style={styles.ticketButton} onPress={() => onOpenTicket(ticketUrl)}>
+        <TouchableOpacity
+          style={styles.ticketButton}
+          onPress={() => onOpenTicket(ticketUrl)}
+          accessibilityRole="link"
+          accessibilityLabel={ticketButtonText}
+        >
           <Text style={styles.ticketButtonText}>{ticketButtonText}</Text>
         </TouchableOpacity>
       ) : null}
@@ -37,6 +42,9 @@ export function TonightEventActions({
             { backgroundColor: isSelected ? '#D4A056' : cardColor },
           ]}
           onPress={() => onToggleSelection(eventId)}
+          accessibilityRole="button"
+          accessibilityLabel={isSelected ? 'Deselect event' : 'Select event'}
+          accessibilityState={{ selected: isSelected }}
         >
           <Text style={[styles.voteSelectButtonText, { color: isSelected ? '#FFFFFF' : '#D4A056' }]}>
             {isSelected ? '\u2713' : '+'}

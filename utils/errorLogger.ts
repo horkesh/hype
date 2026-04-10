@@ -168,7 +168,7 @@ const sendErrorToParent = (level: string, message: string, data: any) => {
         data: data,
         timestamp: new Date().toISOString(),
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-        source: 'expo-template'
+        source: 'look-app'
       }, '*');
     }
   } catch (error) {

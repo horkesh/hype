@@ -226,6 +226,27 @@ Status:
 - Explore result and modal branching now lives in `ExploreResultsSection.tsx` and `ExploreModalStack.tsx`, leaving `ExploreScreenBody.tsx` focused on top-level composition over search, controls, results, and modal sections
 - source-layer Bosnian helper copy is now cleaned further in `utils/profileSettings.ts`, `utils/tonightScreen.ts`, `utils/homeScreenContent.ts`, and `utils/savedScreen.ts`, with adjacent Node-side assertions updated to enforce the corrected output
 
+#### E16. Code quality hardening (2026-04-10 audit)
+
+- Status: `Done`
+- Goal:
+  - comprehensive six-dimension code quality audit and fix pass
+- Audit: `docs/08-reference/code_quality_audit_2026_04_10.md`
+- What was delivered:
+  - security: edge function auth (JWT + admin secret), SSRF protection, hardcoded credentials removed
+  - correctness: Rules of Hooks fix, AppContext memoization, SkeletonLoader leak fix, ErrorBoundary wired
+  - architecture: detail routes moved to root stack (cross-tab nav fixed), HTTP status codes, HOLIDAYS consolidated, Supabase admin singleton
+  - performance: 6 lists virtualized with FlatList, 5 card components memoized, duplicate fetches eliminated, unmount guards added
+  - accessibility: 24 component files with a11y labels, roles, and selection state
+  - design system: SectionHeader token fix, GlassContainer rgba fix, GlassCategoryChip tokens, style typing, safe area insets
+  - dead code: 9 files deleted, SpaceMono removed, notification bell stub removed, numerous dead constants/imports cleaned
+- Remaining from audit (medium priority):
+  - generate Supabase types and wire `createClient<Database>()`
+  - consolidate two color systems into one canonical source
+  - replace 265 raw `fontSize` literals with design token references
+  - add reduced-motion support
+  - standardize error contract across data layer
+
 ### Planned next — Presentation Restyle
 
 #### E8. Tourism board presentation restyle + AI integration

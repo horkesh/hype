@@ -30,6 +30,9 @@ export function SavedTabs({
             onPress={() => onSelectTab(tab.key)}
             activeOpacity={0.8}
             style={styles.tabTouchable}
+            accessibilityRole="tab"
+            accessibilityLabel={tab.label}
+            accessibilityState={{ selected: isActive }}
           >
             <GlassContainer
               borderRadius={20}

@@ -44,6 +44,9 @@ export function ExploreFilterChipGrid({
                 },
               ]}
               onPress={() => onToggle(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={translate(item.labelKey)}
+              accessibilityState={{ selected: isSelected }}
             >
               <Text style={styles.emoji}>{item.emoji}</Text>
               <Text style={[styles.label, { color: isSelected ? '#FFFFFF' : textColor }]}>

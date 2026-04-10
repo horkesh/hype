@@ -45,6 +45,9 @@ export function VenueDetailTabs({
               },
             ]}
             onPress={() => onSelectTab(tab.key)}
+            accessibilityRole="tab"
+            accessibilityLabel={labels[tab.labelKey]}
+            accessibilityState={{ selected: isActive }}
           >
             <Text
               style={[

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native';
 
 import { SavedVenueCard } from '@/components/saved/SavedVenueCard';
 import { SavedVenueCardModel } from '@/utils/savedContent';
@@ -15,6 +15,8 @@ interface SavedVenueListProps {
   textSecondaryColor: string;
 }
 
+const keyExtractor = (item: SavedVenueCardModel) => item.id;
+
 export function SavedVenueList({
   accentColor,
   backgroundColor,
@@ -25,24 +27,30 @@ export function SavedVenueList({
   textColor,
   textSecondaryColor,
 }: SavedVenueListProps) {
+  const renderItem = useCallback(
+    ({ item: venue }: ListRenderItemInfo<SavedVenueCardModel>) => (
+      <SavedVenueCard
+        accentColor={accentColor}
+        backgroundColor={backgroundColor}
+        cardColor={cardColor}
+        onDelete={onRemoveVenue}
+        onPress={onPressVenue}
+        textColor={textColor}
+        textSecondaryColor={textSecondaryColor}
+        venue={venue}
+      />
+    ),
+    [accentColor, backgroundColor, cardColor, onRemoveVenue, onPressVenue, textColor, textSecondaryColor],
+  );
+
   return (
-    <ScrollView style={styles.content}>
-      <View style={styles.cardsContainer}>
-        {models.map((venue) => (
-          <SavedVenueCard
-            key={venue.id}
-            accentColor={accentColor}
-            backgroundColor={backgroundColor}
-            cardColor={cardColor}
-            onDelete={onRemoveVenue}
-            onPress={onPressVenue}
-            textColor={textColor}
-            textSecondaryColor={textSecondaryColor}
-            venue={venue}
-          />
-        ))}
-      </View>
-    </ScrollView>
+    <FlatList
+      data={models}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      style={styles.content}
+      contentContainerStyle={styles.cardsContainer}
+    />
   );
 }
 

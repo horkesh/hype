@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, ListRenderItemInfo, RefreshControl, StyleSheet } from 'react-native';
 
 import { TonightEventCard } from '@/components/tonight/TonightEventCard';
 import { TonightEventCardViewModel } from '@/utils/tonightContent';
@@ -19,6 +19,8 @@ interface TonightEventCardsProps {
   onToggleSelection: (eventId: string) => void;
 }
 
+const keyExtractor = (item: TonightEventCardViewModel) => item.id;
+
 export function TonightEventCards({
   cardColor,
   colorsText,
@@ -33,8 +35,46 @@ export function TonightEventCards({
   onRefresh,
   onToggleSelection,
 }: TonightEventCardsProps) {
+  const renderItem = useCallback(
+    ({ item: eventCard }: ListRenderItemInfo<TonightEventCardViewModel>) => (
+      <TonightEventCard
+        cardColor={cardColor}
+        event={eventCard.event}
+        eventMetaSeparator={eventMetaSeparator}
+        eventTime={eventCard.eventTime}
+        eventTitle={eventCard.eventTitle}
+        isSelected={eventCard.isSelected}
+        language={language}
+        onOpenTicket={onOpenTicket}
+        onPress={() => onEventPress(eventCard.id)}
+        onToggleSelection={onToggleSelection}
+        priceText={eventCard.priceText}
+        showSelectionControls={showSelectionControls}
+        textColor={colorsText}
+        textSecondaryColor={textSecondaryColor}
+        ticketButtonText={eventCard.ticketButtonText}
+        urgencyBadge={eventCard.urgencyBadge}
+        venueName={eventCard.venueName}
+      />
+    ),
+    [
+      cardColor,
+      colorsText,
+      eventMetaSeparator,
+      language,
+      onEventPress,
+      onOpenTicket,
+      onToggleSelection,
+      showSelectionControls,
+      textSecondaryColor,
+    ],
+  );
+
   return (
-    <ScrollView
+    <FlatList
+      data={eventCards}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
       style={styles.content}
       contentContainerStyle={styles.contentContainer}
       refreshControl={
@@ -45,30 +85,7 @@ export function TonightEventCards({
           colors={['#D4A056']}
         />
       }
-    >
-      {eventCards.map((eventCard) => (
-        <TonightEventCard
-          key={eventCard.id}
-          cardColor={cardColor}
-          event={eventCard.event}
-          eventMetaSeparator={eventMetaSeparator}
-          eventTime={eventCard.eventTime}
-          eventTitle={eventCard.eventTitle}
-          isSelected={eventCard.isSelected}
-          language={language}
-          onOpenTicket={onOpenTicket}
-          onPress={() => onEventPress(eventCard.id)}
-          onToggleSelection={onToggleSelection}
-          priceText={eventCard.priceText}
-          showSelectionControls={showSelectionControls}
-          textColor={colorsText}
-          textSecondaryColor={textSecondaryColor}
-          ticketButtonText={eventCard.ticketButtonText}
-          urgencyBadge={eventCard.urgencyBadge}
-          venueName={eventCard.venueName}
-        />
-      ))}
-    </ScrollView>
+    />
   );
 }
 

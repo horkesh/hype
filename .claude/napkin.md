@@ -109,8 +109,10 @@
 ## Repo Structure
 1. **[2026-03-09] This repo is split between app and backend**
    Do instead: check whether a change belongs in the Expo app at the repo root or in the separate Node service under `backend/` before editing.
-2. **[2026-03-09] Navigation starts from Expo Router layouts**
-   Do instead: trace UI behavior from `index.ts` to `app/_layout.tsx` to `app/(tabs)/_layout.tsx` before changing app-wide flow.
+2. **[2026-04-10] Detail routes live at root stack, not inside (home) tab**
+   Do instead: venue/event/series/heritage `[id]` routes now live at `app/venue/[id].tsx` etc., not under `app/(tabs)/(home)/`. They render as root stack screens above the tab bar. Never nest detail routes inside a tab group — it breaks cross-tab back navigation.
+3. **[2026-04-10] Edge functions require auth — JWT for user-facing, X-Admin-Secret for admin**
+   Do instead: user-facing functions (ask-sarajevo, generate-plan, surprise-me, smart-search, translate-scene, generate-pulse, generate-hero-image) verify Supabase JWT via `verifyUserAuth`. Admin functions (enrich-descriptions, parse-instagram, generate-event-cover, analyze-venue-photo) require `X-Admin-Secret` header via `verifyAdminAuth`. Both helpers live in `_shared/auth.ts`. Set `ADMIN_FUNCTION_SECRET` env var in Supabase.
 
 ## Frontend Patterns
 1. **[2026-03-22] Mood chips switch Home between default sections and a unified mood feed**
@@ -123,6 +125,16 @@
    Do instead: make route and tab changes through the relevant `_layout.tsx` files and route folders instead of patching navigation behavior ad hoc inside leaf screens.
 3. **[2026-03-12] Collapse platform wrappers once behavior is truly shared**
    Do instead: keep `.ios.tsx` and `.web.tsx` files only when they represent real platform differences; otherwise re-export the shared screen and keep the logic in one place.
+17. **[2026-04-10] Every list must use FlatList, every list item must use React.memo**
+   Do instead: never render an unbounded list with `.map()` inside ScrollView. Use `FlatList` with `keyExtractor`, `useCallback` renderItem, and `React.memo` on item components. For nested lists inside parent ScrollViews, use `scrollEnabled={false}`.
+18. **[2026-04-10] Context values must be memoized — never create objects in Provider render**
+   Do instead: wrap context value in `useMemo`, wrap callbacks in `useCallback`. A new object reference on every render triggers re-renders of every consumer in the tree.
+19. **[2026-04-10] Every interactive element needs accessibilityRole + accessibilityLabel**
+   Do instead: all TouchableOpacity/Pressable must have `accessibilityRole` ("button", "tab", "switch", "link") and `accessibilityLabel`. Chips/tabs with selection must include `accessibilityState={{ selected }}`. Toggles use `accessibilityState={{ checked }}`.
+20. **[2026-04-10] Reanimated hooks must always be called unconditionally — never after early return**
+   Do instead: `useSharedValue`, `useAnimatedStyle`, etc. must be called above any conditional return. For platform-specific rendering, compute the condition outside the component or use the hooks unconditionally and branch only in JSX. Always add `cancelAnimation` in effect cleanup.
+21. **[2026-04-10] Shared edge function constants belong in `_shared/` — never duplicate across functions**
+   Do instead: when multiple edge functions need the same data (HOLIDAYS, city config, model lists), put it in `supabase/functions/_shared/` and import. The Supabase admin client is a singleton in `_shared/supabase-admin.ts`.
 4. **[2026-03-12] Large detail screens should extract loaders and localized display helpers before UI sections**
    Do instead: move Supabase reads, save-state mutations, hours/date/copy formatting, and similar display logic into `utils/<surface>Data.ts` and `utils/<surface>Screen.ts` before splitting hero, tabs, and cards into `components/<surface>/`.
 5. **[2026-03-09] Effect dependencies should use stable inputs, not local callback identities**

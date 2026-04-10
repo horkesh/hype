@@ -22,10 +22,20 @@ export function ExploreFilterActions({
 }: ExploreFilterActionsProps) {
   return (
     <View style={styles.actions}>
-      <TouchableOpacity style={[styles.resetButton, { borderColor }]} onPress={onReset}>
+      <TouchableOpacity
+        style={[styles.resetButton, { borderColor }]}
+        onPress={onReset}
+        accessibilityRole="button"
+        accessibilityLabel={resetLabel}
+      >
         <Text style={[styles.resetText, { color: textColor }]}>{resetLabel}</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.applyButton, { backgroundColor: accentColor }]} onPress={onApply}>
+      <TouchableOpacity
+        style={[styles.applyButton, { backgroundColor: accentColor }]}
+        onPress={onApply}
+        accessibilityRole="button"
+        accessibilityLabel={applyLabel}
+      >
         <Text style={styles.applyText}>{applyLabel}</Text>
       </TouchableOpacity>
     </View>

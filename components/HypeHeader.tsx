@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Platform, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
-import { IconSymbol } from './IconSymbol';
 
 const visitSarajevoLogo = require('@/assets/visit-sarajevo.png');
 
@@ -15,6 +15,7 @@ const VISIT_SARAJEVO_URL_BS = 'https://www.visitsarajevo.ba/bs/pocetna/';
 export function HypeHeader() {
   const { language, setLanguage } = useApp();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,18 +25,24 @@ export function HypeHeader() {
 
   const languageLabel = language === 'bs' ? 'BS' : 'EN';
 
-  // Show back button on detail pages (venue, event, series)
-  const isDetailPage = /^\/(venue|event|series)\//.test(pathname);
+  // Show back button on detail pages (venue, event, series, heritage)
+  const isDetailPage = /^\/(venue|event|series|heritage)\//.test(pathname);
   const canGoBack = router.canGoBack();
   const showBack = isDetailPage && canGoBack;
 
   const visitUrl = language === 'bs' ? VISIT_SARAJEVO_URL_BS : VISIT_SARAJEVO_URL_EN;
 
   return (
-    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border, paddingTop: Math.max(insets.top, 12) }]}>
       <View style={styles.headerLeft}>
         {showBack && (
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
         )}
@@ -65,19 +72,10 @@ export function HypeHeader() {
         <TouchableOpacity
           onPress={toggleLanguage}
           style={[styles.languageButton, { backgroundColor: colors.card, borderColor: colors.accent }]}
+          accessibilityRole="button"
+          accessibilityLabel={language === 'bs' ? 'Switch to English' : 'Prebaci na bosanski'}
         >
           <Text style={[styles.languageText, { color: colors.accent }]}>{languageLabel}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.notificationButton}
-          onPress={() => console.log('Notification bell tapped')}
-        >
-          <IconSymbol
-            ios_icon_name="bell"
-            android_material_icon_name="notifications"
-            size={24}
-            color={colors.text}
-          />
         </TouchableOpacity>
       </View>
     </View>
@@ -90,7 +88,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 48 : 12,
     paddingBottom: 12,
     borderBottomWidth: 1,
   },
@@ -100,7 +97,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   backButton: {
-    padding: 4,
+    padding: 10,
+    marginLeft: -10,
   },
   logoRow: {
     flexDirection: 'row',
@@ -138,8 +136,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'DMSans_500Medium',
-  },
-  notificationButton: {
-    padding: 4,
   },
 });
