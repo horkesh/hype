@@ -54,7 +54,16 @@ jobs:
         run: |
           test -n "$SUPABASE_URL" || { echo "::error::SUPABASE_URL secret is missing"; exit 1; }
           test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is missing"; exit 1; }
-          echo "OK"
+          # Debug: print structural properties of SUPABASE_URL (not the value,
+          # which is masked). Surfaces leading/trailing whitespace or CRLF that
+          # would otherwise be invisible.
+          node -e '
+            const u = process.env.SUPABASE_URL || "";
+            console.log("URL length:", u.length);
+            console.log("First 8 byte codes:", [...u.slice(0,8)].map(c => c.charCodeAt(0)).join(","));
+            console.log("Last 4 byte codes:", [...u.slice(-4)].map(c => c.charCodeAt(0)).join(","));
+            try { new URL(u); console.log("URL parses OK"); } catch (e) { console.log("URL parse FAILED:", e.message); }
+          '
 
       - name: Phase 1 — Scrape + promote new candidates
         run: tsx backend/src/scripts/scrapeAndPromote.ts
