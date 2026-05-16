@@ -1995,7 +1995,49 @@ Added Ulaznice.org as a fourth direct-html ingestion source, then closed two cro
 - Modified: `backend/src/services/sourceExtractors.ts`, `backend/src/scripts/promoteEvents.ts`, `backend/tests/sourceExtractors.test.ts`
 - Docs: `initial_source_inventory.md` (Ulaznice slot 4), `dedupe_and_promotion_policy.md` (Layer 2 canonical key), `execution_board.md` (E5 progress), `.claude/napkin.md` (lessons #4 updated, new cross-source dedupe rule)
 
+#### Anchor-fallback bug (discovered during first ulaznice trigger)
+- First live ulaznice run inserted 32 rows. Audit showed 21 were nav/footer pollution (`Muzika`, `Biznis`, `Kontakt`, FAQ pages) extracted via `extractedFrom = anchor`. Same defect had injected 16 rows into KupiKartu raw_events in the past.
+- Root cause: `extractRawEventCandidates` in `backend/src/services/ingestionFetch.ts` fell through to the generic anchor harvester whenever the source-specific extractor returned an empty array. For a category page with no Sarajevo events, the strict filter dropped everything, then the fallback scraped every link.
+- Fix: trust the source-specific extractor's empty result. Generic anchor fallback now only fires when no source-specific extractor is registered for the source.
+- Regression test added in `ingestionFetch.test.ts`. The 21 ulaznice anchor rows were deleted; the 16 KupiKartu ones left alone (already curator-dismissed).
+
+#### Bosnian date parser (caught during first promote)
+- First promotion silently mis-dated 4 ulaznice events. "19. Dec 2026" fell through to the English-month fallback regex which parsed day=20 (grabbing "20" from "2026"). "12 - 14 Jun 2026" (BEERKA, date range) hit the same fallback and parsed Jun 20 instead of Jun 12. Seven other ulaznice events were skipped entirely.
+- Extracted `parseRawDate` into `backend/src/services/dateParse.ts`. Added: Bosnian `"DD. MonAbbrev YYYY"` with dot after day; Bosnian month abbreviations (Maj, Jun, Avg, Okt, Nov, Dec, etc.); date-range pattern that takes the first day; anchored English fallback so unrecognized formats reject cleanly.
+- 6 new tests in `dateParse.test.ts`. The 4 wrong-dated events were deleted from `events`; their raw_events rows reset to unmatched and re-promoted with correct dates. All 11 ulaznice events now have correct `start_datetime`.
+
+#### scrapeAndPromote.ts wrapper
+- New `backend/src/scripts/scrapeAndPromote.ts` chains scrape → promote in one invocation. `runScraper()` and `promoteEvents()` now export their entrypoints and auto-run only when invoked directly (via `pathToFileURL` check on `import.meta.url`), so they can be composed without spawning subprocesses.
+- Phases stay separately invokable. Today's session validated that decision twice: the gap between scrape and promote caught both the anchor-pollution defect and the date-parser defect before they could promote bad data into the canonical events table.
+
+#### Venue matcher: reverse-substring + category disambiguation
+- First promotion linked 0/11 ulaznice events to venue rows because the matcher only checked forward partial (`vNorm ⊂ rawNorm`). Ticket sites use the opposite shorthand — "Skenderija" stands for "Dom Mladih Skenderija", "ZETRA" for "Olimpijska dvorana Juan Antonio Samaranch (Zetra)".
+- Extracted `matchVenue` into `backend/src/services/venueMatch.ts`. Added reverse-substring strategy (`rawNorm ⊂ vNorm`) with `EVENT_CATEGORIES` disambiguation — `concert_hall`, `theatre`, `cinema`, `club`, `cultural_center`, `outdoor`, etc. So "Grbavica" routes to "Stadion Grbavica" (outdoor) instead of "Pekara Grbavica" (bakery). When ambiguous across non-event categories, returns null rather than auto-picking.
+- 8 new tests in `venueMatch.test.ts`.
+
+#### Six missing event venues seeded
+- Migration `20260516010000_seed_event_venues.sql` added 6 well-known Sarajevo event venues that were missing from `venues`: Olimpijska dvorana (Zetra), Stadion Grbavica, Stadion FK Slavija, AQUA CLUB, Coloseum Club, Kino Igman Ilidža. All seeded with `is_active=true`, `is_curated=false` so admin curation queue picks them up.
+
+#### Google enrichment pipeline
+- New `backend/src/scripts/findGooglePlaceIds.ts` — uses Google "Find Place from Text" API biased to Sarajevo (10km radius) to discover Place IDs + lat/lng for venues missing them. Required because `enrichFromGoogle.ts` is gated on `google_place_id NOT NULL`.
+- Ran the full pipeline against the 6 new venues: `findGooglePlaceIds` → `enrichFromGoogle` → `scrapeGooglePhotos`. All 6 now have Place IDs, lat/lng, ratings, ratings_count, website, phone, review snippets, and cover photos. Marquee numbers: Stadion Grbavica 4.6★/3547, Zetra 4.4★/2174, Coloseum Club 4.2★/797.
+- Side effect: 28 unrelated venues got Place IDs backfilled (alphabetical batch of 50). 21 hit duplicate-place-id constraint violations — pre-existing data duplicates worth a separate cleanup.
+
+#### End state on origin/main
+- All 11 ulaznice events are `type='venue_linked'` in production, linked to enriched venue rows.
+- 10 commits this session: admin SPA refactor → pitch docs → ulaznice source + strict filter + cross-source dedupe → anchor-fallback fix → date parser fix → scrapeAndPromote wrapper → reverse-substring venue matcher + 6 venue seeds → findGooglePlaceIds.
+- Periodic refresh is one command: `node --env-file=backend/.env --import tsx backend/src/scripts/scrapeAndPromote.ts [sourceId]`.
+
+#### Files
+- New services: `eventDedupe.ts`, `dateParse.ts`, `venueMatch.ts` (each with tests).
+- New scripts: `scrapeAndPromote.ts`, `findGooglePlaceIds.ts`.
+- New migrations: `20260516_ulaznice_scrape_source.sql`, `20260516010000_seed_event_venues.sql` (both applied to live Supabase via MCP).
+- Modified: `sourceExtractors.ts`, `ingestionFetch.ts`, `promoteEvents.ts`, `runScraper.ts`.
+
 #### Follow-ups deferred
-- Apply migration `20260516_ulaznice_scrape_source.sql` to live Supabase before first ingestion run.
-- Pre-existing typecheck errors in `src/scripts/*.ts`, `src/db/migrate.ts`, `src/index.ts` (Apify response narrowing, missing `@specific-dev/framework` types) untouched — none in the files this session changed.
-- Pre-existing `integration.test.ts` `bun:` ESM scheme error untouched (tooling issue, not ulaznice).
+- `scrapeGooglePhotos.ts` has a stuck-loop bug: no ORDER BY + no "tried" tracking, so when a batch of 20 all return "no photo from Google", the same 20 get returned on every run forever. ~218 venues still need covers; the script can't make progress for them without intervention.
+- Pre-existing typecheck errors in `src/scripts/*.ts`, `src/db/migrate.ts`, `src/index.ts` (Apify response narrowing, missing `@specific-dev/framework` types) — none in files this session changed.
+- 21 duplicate-place-id constraint violations during `findGooglePlaceIds` — pre-existing venue duplicates worth a cleanup pass.
+- 17 raw_events with `date_raw IS NULL` from earlier kupikartu/ulaznice runs (mostly anchor-pollution; one real event `MAYA BEROVIĆ - OTKAZANO` would need detail-page enrichment).
+- The 6 new venues have no `description_bs`/`description_en` — `enrichDescriptions.ts` would generate them.
+- Pre-existing `integration.test.ts` `bun:` ESM scheme error.

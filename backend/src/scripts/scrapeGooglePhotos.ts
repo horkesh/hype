@@ -4,6 +4,10 @@
  * Fetches venues with google_place_id but no cover_image_url,
  * calls the Google Maps Places API for photos, and updates the venues table.
  *
+ * Loops internally until every eligible venue has been attempted at least
+ * once this run. Venues where Google returns no photo are tracked in-memory
+ * for the duration of the run so the same 20 don't get re-fetched forever.
+ *
  * Usage: tsx backend/src/scripts/scrapeGooglePhotos.ts
  */
 
@@ -11,6 +15,7 @@ import { requireSupabaseAdminConfig, requestSupabaseAdminJson, requestSupabaseAd
 
 const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const PHOTO_MAX_WIDTH = 800;
+const BATCH_SIZE = 20;
 
 interface Venue {
   id: string;
@@ -24,14 +29,19 @@ interface PlaceDetailsResult {
   };
 }
 
-async function fetchVenuesNeedingPhotos(): Promise<Venue[]> {
+async function fetchVenuesNeedingPhotos(skipIds: Set<string>): Promise<Venue[]> {
   const { supabaseUrl, supabaseServiceRoleKey } = requireSupabaseAdminConfig();
   const params = new URLSearchParams({
     select: 'id,name,google_place_id',
     google_place_id: 'not.is.null',
     cover_image_url: 'is.null',
-    limit: '20',
+    order: 'id.asc',
+    limit: String(BATCH_SIZE),
   });
+  // Skip venues we already tried (and Google had no photo) in this run.
+  if (skipIds.size > 0) {
+    params.append('id', `not.in.(${[...skipIds].join(',')})`);
+  }
   const response = await fetch(`${supabaseUrl}/rest/v1/venues?${params}`, {
     headers: {
       apikey: supabaseServiceRoleKey,
@@ -73,35 +83,40 @@ async function updateVenueCoverImage(venueId: string, imageUrl: string): Promise
 
 async function main() {
   console.log('Fetching venues with google_place_id but no cover_image_url...');
-  const venues = await fetchVenuesNeedingPhotos();
-  console.log(`Found ${venues.length} venues to process`);
-
-  if (venues.length === 0) {
-    console.log('Nothing to do.');
-    return;
-  }
 
   let updated = 0;
   let skipped = 0;
+  let errors = 0;
+  // IDs of venues we already tried this run where Google returned no photo or
+  // we errored. Lets fetchVenuesNeedingPhotos skip past them so the script
+  // makes progress instead of looping on the same alphabetical-first batch.
+  const triedIds = new Set<string>();
 
-  for (const venue of venues) {
-    try {
-      const photoUrl = await fetchPlacePhoto(venue.google_place_id);
-      if (!photoUrl) {
-        console.log(`  [skip] ${venue.name} — no photo found`);
-        skipped++;
-        continue;
+  while (true) {
+    const venues = await fetchVenuesNeedingPhotos(triedIds);
+    if (venues.length === 0) break;
+
+    for (const venue of venues) {
+      try {
+        const photoUrl = await fetchPlacePhoto(venue.google_place_id);
+        if (!photoUrl) {
+          console.log(`  [skip] ${venue.name} — no photo found`);
+          triedIds.add(venue.id);
+          skipped++;
+          continue;
+        }
+        await updateVenueCoverImage(venue.id, photoUrl);
+        console.log(`  [ok]   ${venue.name}`);
+        updated++;
+      } catch (err) {
+        console.error(`  [err]  ${venue.name}:`, err);
+        triedIds.add(venue.id);
+        errors++;
       }
-      await updateVenueCoverImage(venue.id, photoUrl);
-      console.log(`  [ok]   ${venue.name}`);
-      updated++;
-    } catch (err) {
-      console.error(`  [err]  ${venue.name}:`, err);
-      skipped++;
     }
   }
 
-  console.log(`\nDone. Updated: ${updated}, Skipped: ${skipped}`);
+  console.log(`\nDone. Updated: ${updated}, Skipped (no photo): ${skipped}, Errors: ${errors}`);
 }
 
 main().catch((err) => {

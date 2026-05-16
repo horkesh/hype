@@ -67,3 +67,28 @@ test('matchVenue: short raw signals (< 4 chars) do not reverse-match', () => {
   // It can still hit an exact or forward partial, but reverse must not kick in
   assert.notEqual(result?.strategy, 'partial_reverse');
 });
+
+test('matchVenue: address-shaped raw uses first comma chunk', () => {
+  // AllEvents.in often returns full addresses as venue_name_raw — we need
+  // to peel off the first chunk to find the venue.
+  const result = matchVenue('Skenderija, 71000 Sarajevo, Bosna i Hercegovina', VENUES);
+  assert.ok(result, 'should match Dom Mladih Skenderija via first comma chunk');
+  assert.equal(result?.venue.id, 'v-dom-mladih');
+});
+
+test('matchVenue: token-overlap finds BKC when raw is "Bosanski kulturni centar KS"', () => {
+  // No substring overlap (KS suffix, different word order), but 3 shared
+  // 4+ char tokens with BKC. Only one event-category candidate has them.
+  // (Bilingual i18n — e.g. "Bosnian Cultural Center" English raw vs Bosnian
+  // canonical — is a separate problem not solved here.)
+  const result = matchVenue('Bosanski kulturni centar KS', VENUES);
+  assert.ok(result, 'token overlap should find BKC');
+  assert.equal(result?.venue.id, 'v-bkc');
+  assert.equal(result?.strategy, 'token_overlap');
+});
+
+test('matchVenue: token-overlap requires 2+ shared tokens', () => {
+  // "Restoran" doesn't share enough tokens with any event venue
+  const result = matchVenue('Restoran negde u centru', VENUES);
+  assert.equal(result, null, 'single-word "centru" is not enough overlap');
+});

@@ -20,17 +20,16 @@ export interface VenueMatchResult {
     | 'partial_reverse'
     | 'fuzzy_exact'
     | 'fuzzy_partial'
-    | 'fuzzy_partial_reverse';
+    | 'fuzzy_partial_reverse'
+    | 'token_overlap';
 }
 
+// Venue matching uses a deliberately narrower noise list than event dedupe.
+// Tokens like "bkc", "centar", "kulturni" are part of canonical venue names
+// (e.g. "BKC (Bosanski Kulturni Centar)") — stripping them on this side leaves
+// nothing to match against. Only the city qualifier is safe to drop.
 const NOISE_TOKENS = [
   /\bsarajevo\b/gi,
-  /\bbkc\b/gi,
-  /\bkc\b/gi,
-  /\bcentar\b/gi,
-  /\bcenter\b/gi,
-  /\bkulturni\b/gi,
-  /\bcultural\b/gi,
 ];
 
 // Categories where it's reasonable to host a ticketed event. When a raw name
@@ -110,6 +109,20 @@ export function matchVenue(
     if (picked) return { venue: picked, strategy: 'partial_reverse' };
   }
 
+  // For address-shaped raws ("Skenderija, 71000 Sarajevo, Bosnia and..."),
+  // try the first comma-separated chunk in addition to the full string. Lets
+  // forward/reverse partial pick up the venue name buried inside the address.
+  const firstChunk = raw.split(',')[0]?.trim();
+  if (firstChunk && firstChunk !== raw) {
+    const chunkNorm = normalise(firstChunk);
+    if (chunkNorm && chunkNorm.length >= 4) {
+      // Reverse partial against the first chunk
+      const reverseMatches = venues.filter((v) => normalise(v.name).includes(chunkNorm));
+      const picked = pickByEventCategory(reverseMatches);
+      if (picked) return { venue: picked, strategy: 'partial_reverse' };
+    }
+  }
+
   // 4-6. Same three strategies with noise tokens stripped from both sides
   const rawStripped = normalise(stripNoise(raw));
   if (rawStripped && rawStripped !== rawNorm) {
@@ -131,6 +144,39 @@ export function matchVenue(
       );
       const picked = pickByEventCategory(reverseMatches);
       if (picked) return { venue: picked, strategy: 'fuzzy_partial_reverse' };
+    }
+  }
+
+  // 7. Token-overlap fallback. For raws that are neither exact nor a clean
+  //    substring ("Bosnian Cultural Center" vs "BKC (Bosanski Kulturni Centar)",
+  //    or "Asim Ferhatović Hase Olympic Stadium" vs "Stadion Asim Ferhatović
+  //    Hase"), count overlapping 4+ char tokens against each event-category
+  //    venue. Requires at least 2 shared tokens AND a clear leader.
+  const rawTokens = new Set(
+    rawNorm.split(/\s+/).filter((t) => t.length >= 4),
+  );
+  if (rawTokens.size >= 2) {
+    let best: { venue: VenueRow; matches: number } | null = null;
+    let tieAtBest = false;
+    for (const v of venues) {
+      if (!v.category || !EVENT_CATEGORIES.has(v.category.toLowerCase())) continue;
+      const vTokens = new Set(
+        normalise(v.name).split(/\s+/).filter((t) => t.length >= 4),
+      );
+      let overlap = 0;
+      for (const t of rawTokens) {
+        if (vTokens.has(t)) overlap++;
+      }
+      if (overlap < 2) continue;
+      if (!best || overlap > best.matches) {
+        best = { venue: v, matches: overlap };
+        tieAtBest = false;
+      } else if (overlap === best.matches) {
+        tieAtBest = true;
+      }
+    }
+    if (best && !tieAtBest) {
+      return { venue: best.venue, strategy: 'token_overlap' };
     }
   }
 

@@ -453,6 +453,13 @@ Status:
   - raw-intake enrichment, detail enrichment, and parse-preview scaffolding now exist for the first active sources
   - Sarajevo city filter is now strict (default-reject) for national sources (Pozorista, KupiKartu, Ulaznice fallback) — only positive evidence of Sarajevo in title/venue/city retains a candidate; AllEvents stays URL-scoped
   - cross-source dedupe now exists at promotion: `canonicalEventKey(title+date+venue)` collapses the same concert listed on multiple ticket sites into one canonical event row instead of three
+  - `extractRawEventCandidates` no longer falls through to the generic anchor harvester when a source-specific extractor returns empty — fixes nav/footer pollution (the original 32-row ulaznice run was 21 anchor-junk + 11 real events; now zero anchor leakage for sources with parsers)
+  - `parseRawDate` extracted to a testable service with Bosnian "DD. MonAbbrev YYYY" + abbreviations (Maj/Jun/Avg/Okt/Nov/Dec) + date ranges (`12 - 14 Jun 2026` takes first day); fixed silent mis-parses where "19. Dec 2026" was treated as Dec 20
+  - `scrapeAndPromote.ts` wrapper chains scrape→promote in one invocation; underlying scripts stay separately invokable so anchor-pollution and date-parser defects can be caught before promotion
+  - `matchVenue` extracted to a testable service with reverse-substring + `EVENT_CATEGORIES` disambiguation — "Skenderija" now links to "Dom Mladih Skenderija" (concert_hall) instead of leaving the event venue-less
+  - 6 missing event venues seeded (Zetra, Stadion Grbavica, Stadion FK Slavija, AQUA CLUB, Coloseum Club, Kino Igman Ilidža) and fully enriched with Google ratings, review snippets, websites, phones, addresses, and cover photos via the `seed → findGooglePlaceIds → enrichFromGoogle → scrapeGooglePhotos` pipeline
+  - new `findGooglePlaceIds.ts` script closes the gap between freshly-seeded venues and the existing enrichment pipeline (which requires `google_place_id IS NOT NULL`)
+  - All 11 ulaznice events are now `type='venue_linked'` in production with correct dates, correct venues, and full Google enrichment
   - repo-native SQL and architecture notes now exist for reconciling live `venues`, `events`, `event_series`, and `daily_specials` before import or promotion work
   - repo-native publishability rules now exist for promotion workflow, venue matching, and canonical event updates, so the next backend wave can move toward promotion-preview logic instead of just expanding source breadth
 
