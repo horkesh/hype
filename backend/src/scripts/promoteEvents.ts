@@ -23,6 +23,7 @@ import {
 } from '../lib/supabaseAdmin.js';
 import { canonicalEventKey } from '../services/eventDedupe.js';
 import { parseRawDate } from '../services/dateParse.js';
+import { matchVenue, type VenueRow } from '../services/venueMatch.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -103,75 +104,8 @@ function inferCategory(title: string | null): string {
 // Date parsing extracted to backend/src/services/dateParse.ts so it can be
 // unit-tested independently. See parseRawDate for supported formats.
 
-// ---------------------------------------------------------------------------
-// Venue matching
-// ---------------------------------------------------------------------------
-
-const NOISE_TOKENS = [
-  /\bsarajevo\b/gi,
-  /\bbkc\b/gi,
-  /\bkc\b/gi,
-  /\bcentar\b/gi,
-  /\bcenter\b/gi,
-  /\bkulturni\b/gi,
-  /\bcultural\b/gi,
-];
-
-function stripNoise(s: string): string {
-  let out = s;
-  for (const re of NOISE_TOKENS) {
-    out = out.replace(re, ' ');
-  }
-  return out.replace(/\s{2,}/g, ' ').trim();
-}
-
-function normalise(s: string): string {
-  return s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s{2,}/g, ' ').trim();
-}
-
-function matchVenue(
-  venueNameRaw: string | null,
-  venues: Venue[],
-): { venue: Venue; strategy: string } | null {
-  if (!venueNameRaw) return null;
-
-  const raw = venueNameRaw.trim();
-  const rawNorm = normalise(raw);
-
-  // 1. Exact match (case-insensitive)
-  for (const v of venues) {
-    if (normalise(v.name) === rawNorm) {
-      return { venue: v, strategy: 'exact' };
-    }
-  }
-
-  // 2. Partial: venue name appears inside venue_name_raw
-  for (const v of venues) {
-    const vNorm = normalise(v.name);
-    if (vNorm.length >= 4 && rawNorm.includes(vNorm)) {
-      return { venue: v, strategy: 'partial' };
-    }
-  }
-
-  // 3. Fuzzy: strip noise tokens and retry exact / partial
-  const strippedNorm = normalise(stripNoise(raw));
-  if (strippedNorm && strippedNorm !== rawNorm) {
-    for (const v of venues) {
-      const vStripped = normalise(stripNoise(v.name));
-      if (vStripped && vStripped === strippedNorm) {
-        return { venue: v, strategy: 'fuzzy_exact' };
-      }
-    }
-    for (const v of venues) {
-      const vStripped = normalise(stripNoise(v.name));
-      if (vStripped.length >= 4 && strippedNorm.includes(vStripped)) {
-        return { venue: v, strategy: 'fuzzy_partial' };
-      }
-    }
-  }
-
-  return null;
-}
+// Venue matching extracted to backend/src/services/venueMatch.ts. See matchVenue
+// there — strategies are: exact → partial → partial_reverse → fuzzy_* variants.
 
 // ---------------------------------------------------------------------------
 // Data fetching
@@ -328,7 +262,7 @@ export async function promoteEvents(): Promise<void> {
         venueId = match.venue.id;
         locationName = match.venue.name;
         if (match.strategy === 'exact') stats.venueExact++;
-        else if (match.strategy === 'partial') stats.venuePartial++;
+        else if (match.strategy === 'partial' || match.strategy === 'partial_reverse') stats.venuePartial++;
         else stats.venueFuzzy++;
         log(
           `  VENUE [${match.strategy}] "${raw.venue_name_raw}" → "${match.venue.name}" (${venueId})`,
