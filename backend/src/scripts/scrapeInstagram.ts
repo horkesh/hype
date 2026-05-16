@@ -59,7 +59,7 @@ async function loadHandlesFromDb(): Promise<string[]> {
   const res = await fetch(`${supabaseUrl}/rest/v1/venues?select=website&website=ilike.*instagram*`, {
     headers: { apikey: supabaseServiceRoleKey, Authorization: `Bearer ${supabaseServiceRoleKey}` },
   });
-  const venues: Array<{ website: string }> = await res.json();
+  const venues = (await res.json()) as Array<{ website: string }>;
   const handles: string[] = [];
   for (const v of venues) {
     const match = v.website?.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
@@ -164,7 +164,7 @@ async function scrapeInstagramAccount(username: string): Promise<InstagramPost[]
     throw new Error(`Apify start failed (${runRes.status}): ${errText.slice(0, 300)}`);
   }
 
-  const run: ApifyRunResponse = await runRes.json();
+  const run = (await runRes.json()) as ApifyRunResponse;
   const runId = run.data.id;
   const datasetId = run.data.defaultDatasetId;
 
@@ -186,7 +186,7 @@ async function scrapeInstagramAccount(username: string): Promise<InstagramPost[]
       continue;
     }
 
-    const checkData: ApifyRunStatus = await checkRes.json();
+    const checkData = (await checkRes.json()) as ApifyRunStatus;
     status = checkData.data.status;
   }
 

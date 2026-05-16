@@ -106,7 +106,7 @@ async function fetchVenuesWithoutIG(offset: number, limit: number): Promise<Venu
     },
   });
   const range = res.headers.get('content-range');
-  const data = await res.json();
+  const data = (await res.json()) as Venue[];
   if (offset === 0) console.log(`Venues to process: ${range}`);
   return data;
 }
@@ -164,7 +164,7 @@ async function googleSearchForIG(venueName: string): Promise<{ handle: string; c
       // If no CX or quota exceeded, fall back to scraping Google directly
       return await directGoogleSearch(venueName);
     }
-    const data = await res.json();
+    const data = (await res.json()) as { items?: Array<{ link?: string; title?: string }> };
     if (!data.items?.length) return null;
 
     // Look through results for instagram.com links

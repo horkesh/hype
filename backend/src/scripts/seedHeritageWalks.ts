@@ -2,7 +2,7 @@
  * Seed heritage walks from Visit Sarajevo content.
  * Run: node --env-file=backend/.env --import tsx backend/src/scripts/seedHeritageWalks.ts
  */
-import { requestSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin';
+import { requestSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
 
 interface Walk {
   slug: string;

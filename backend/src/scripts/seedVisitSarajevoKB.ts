@@ -3,7 +3,7 @@
  * This is manually curated content from visitsarajevo.ba for the Ask Sarajevo AI.
  * Run: node --env-file=backend/.env --import tsx backend/src/scripts/seedVisitSarajevoKB.ts
  */
-import { requestSupabaseAdminNoContent } from '../lib/supabaseAdmin';
+import { requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
 
 interface KBEntry {
   page_url: string;

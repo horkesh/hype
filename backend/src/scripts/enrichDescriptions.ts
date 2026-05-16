@@ -29,7 +29,11 @@ async function callEnrichDescriptions(batchSize: number): Promise<{ enriched: nu
     throw new Error(`Edge function returned ${res.status}: ${await res.text()}`);
   }
 
-  const json = await res.json();
+  const json = (await res.json()) as {
+    success: boolean;
+    error?: string;
+    data: { enriched: number; message?: string };
+  };
   if (!json.success) {
     throw new Error(json.error ?? 'Unknown error from enrich-descriptions');
   }

@@ -89,13 +89,13 @@ async function fetchVenues(offset: number, limit: number): Promise<Venue[]> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/venues?${params}`, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
-  return res.json();
+  return (await res.json()) as Venue[];
 }
 
 async function getGoogleTypes(placeId: string): Promise<string[]> {
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=types&key=${GOOGLE_KEY}`;
   const res = await fetch(url);
-  const data = await res.json();
+  const data = (await res.json()) as { result?: { types?: string[] } };
   return (data.result?.types ?? []).filter((t: string) => !IGNORE_TYPES.has(t));
 }
 
