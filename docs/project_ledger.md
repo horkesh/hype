@@ -2083,11 +2083,40 @@ After committing the 10 commits above, kept iterating without manual checkpoint:
 - Production: 46 upcoming events, 30 venue-linked (65%). 497 venues with IG handles (40%). All seeded venues have Google enrichment.
 - Cron: live, every 6h, validated.
 
+#### Venue cover-image rescue (final session task)
+
+User reported all venue images had disappeared from the app. Root cause: Google Place Photo API photo_references are time-limited (hours to days). Every one of the 1,107 venues with covers was storing a URL like `https://maps.googleapis.com/.../photo?photo_reference=X&key=Y` directly. Once Google retired the references, every URL started returning 400 Bad Request. The fix needed three layers because losing 1,000+ venue photos silently is a P0 the system shouldn't allow to recur.
+
+##### Layer 1: Storage-hosted URLs
+- Rewrote `scrapeGooglePhotos.ts` to download photo bytes via the Place Photo API and upload to the new `venue-photos` Supabase Storage bucket (public, x-upsert=true). The permanent `<project>.supabase.co/storage/v1/object/public/venue-photos/<venueId>.jpg` URL goes into `cover_image_url`.
+- Increased maxwidth from 800 → 1200 for better app display.
+- Migrated all 1,107 venues with the new `--refresh-broken` flag (one-time backfill mode). 40 hit 413 Payload Too Large; raised the bucket file_size_limit from 1MB to 5MB and re-ran. 9 unrecoverable (Google no longer surfaces a photo for them) → nulled their `cover_image_url`.
+
+##### Layer 2: Self-healing cron
+- Added Phase 6 to `.github/workflows/scrape-and-promote.yml`: `tsx backend/src/scripts/scrapeGooglePhotos.ts --refresh-broken`. Runs every 6h. No-op when clean (~1s). If any future code regression introduces a Google URL, the next tick rewrites it to Storage.
+
+##### Layer 3: DB CHECK constraint
+- Migration `20260516030000_venues_cover_url_not_google.sql` adds `CHECK (cover_image_url IS NULL OR cover_image_url NOT LIKE 'https://maps.googleapis.com/%')` on `public.venues`. Fail-fast at the DB if any code path ever tries to write a Google direct URL into `cover_image_url`.
+
+##### Deactivate 136 cover-less venues
+- User directive: "Remove the venues with no cover from the app, but keep them in the DB for the future."
+- SET `is_active = false` on the 136 venues without `cover_image_url`. Set `curator_notes` to `'auto-deactivated 2026-05-16: no cover image (will auto-reactivate when scrapeGooglePhotos finds one)'` so future re-activation logic can identify the reason.
+- Verified zero of those venues hosted upcoming events before deactivating (no event-link breakage).
+
+##### Auto-reactivation
+- `scrapeGooglePhotos.ts` now runs a final PATCH that flips `is_active = true` + clears the marker for any venue with `cover_image_url IS NOT NULL` + the `auto-deactivated...no cover` marker. Manual deactivations don't carry the marker and are left untouched.
+- Effect: each 6h cron tick automatically restores venues to the app as soon as Google starts serving a photo for them.
+
+##### Final state
+- Active venues: 1,098 — all with Storage-hosted covers
+- Hidden (cover pending): 136 — auto-revival wired
+- Broken Google URLs in DB: 0
+- 25 commits this session (`0dd3f0e..98e5bb5`)
+
 #### Follow-ups still deferred
 - Pre-existing typecheck errors: down to 2 (`@specific-dev/framework` private package, needs `NPM_TOKEN`). 18 of the original 20 fixed in-session.
 - 21 duplicate-place-id constraint violations during `findGooglePlaceIds` — pre-existing venue duplicates worth a cleanup pass.
 - BKC bilingual EN↔BS token-overlap (`"Bosnian Cultural Center"` ↔ `"BKC (Bosanski Kulturni Centar)"`) — would need a translation alias map. The alias table handles short abbreviations like BKC; full bilingual matching is a separate problem.
 - 737 venues still without IG handles (mostly bakeries, small kiosks, outdoor spots with no IG presence). Apify confirmed they have no good search match.
-- ~100 venues without `cover_image_url` because Google has no photo (scrapeGooglePhotos correctly reports `skipped: no photo` rather than looping).
 - The newly-discovered IG handles aren't yet feeding into `scrapeInstagram.ts` — that script uses a hardcoded `SARAJEVO_ACCOUNTS` list. Wiring handles → scrape_sources for post extraction is the next strategic step but requires Apify credit discipline.
 - Pre-existing `integration.test.ts` `bun:` ESM scheme error.

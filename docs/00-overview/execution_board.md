@@ -468,6 +468,9 @@ Status:
   - 26 legacy events explicitly in non-Sarajevo cities (Jajce, Gradiška, Zavidovići, Mostar, Tuzla, etc.) deactivated — predated the strict filter
   - 18 of 20 pre-existing backend typecheck errors fixed (all `await res.json()` narrowing + 2 missing `.js` extensions). Remaining 2 errors are missing `@specific-dev/framework` private package — needs `NPM_TOKEN`, not code work
   - Final production state: 46 upcoming events across 3 active direct-html sources (AllEvents.in 26 / Ulaznice 11 / KupiKartu 9), 30 venue-linked (65% link rate). Ulaznice.org at 100%.
+  - periodic refresh now runs automatically on GitHub Actions every 6h (`.github/workflows/scrape-and-promote.yml`), 5 phases (scrape → enrich AllEvents/Pozorista → enrich KupiKartu → re-promote → backfill venues) plus a Phase 6 self-heal for venue cover images
+  - Instagram handle discovery added via Apify search scraper (`discoverInstagramHandlesApify.ts`); legacy `findInstagramHandles.ts` superseded due to Google search CAPTCHA-blocking and false-positive sponsor-link extraction. Coverage went from 189 → 497 venues with handles (40% of active)
+  - venue cover images migrated off time-limited Google URLs onto Supabase Storage (`venue-photos` bucket). Three-layer defense: byte-download in `scrapeGooglePhotos.ts`, Phase 6 cron self-heal, DB `CHECK` constraint blocking `maps.googleapis.com` URLs. 136 cover-less venues deactivated with auto-reactivation marker.
   - repo-native SQL and architecture notes now exist for reconciling live `venues`, `events`, `event_series`, and `daily_specials` before import or promotion work
   - repo-native publishability rules now exist for promotion workflow, venue matching, and canonical event updates, so the next backend wave can move toward promotion-preview logic instead of just expanding source breadth
 
