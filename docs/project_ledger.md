@@ -2034,10 +2034,36 @@ Added Ulaznice.org as a fourth direct-html ingestion source, then closed two cro
 - New migrations: `20260516_ulaznice_scrape_source.sql`, `20260516010000_seed_event_venues.sql` (both applied to live Supabase via MCP).
 - Modified: `sourceExtractors.ts`, `ingestionFetch.ts`, `promoteEvents.ts`, `runScraper.ts`.
 
-#### Follow-ups deferred
-- `scrapeGooglePhotos.ts` has a stuck-loop bug: no ORDER BY + no "tried" tracking, so when a batch of 20 all return "no photo from Google", the same 20 get returned on every run forever. ~218 venues still need covers; the script can't make progress for them without intervention.
+#### Continuation pass (same day)
+
+After committing the 10 commits above, kept iterating without manual checkpoint:
+
+##### scrapeGooglePhotos.ts stuck-loop fix
+- Added internal looping with an in-process Set tracking "tried this run" + `ORDER BY id` for determinism. Single invocation backfilled 118 venue covers across the whole table (was previously stuck — same 20 venues returned forever when Google had no photo for them).
+
+##### Venue matcher: 3 more strategies
+- Narrowed the noise-stripper to only `sarajevo` (was over-stripping `bkc`, `centar`, `kulturni` which are venue identifiers, not noise).
+- Added first-comma-chunk preprocessing — address-shaped raws like `"Skenderija, 71000 Sarajevo, Bosna i Hercegovina"` (AllEvents location.name format) now match `"Dom Mladih Skenderija"` via reverse partial on the leading chunk.
+- Added token-overlap fallback (≥2 shared 4+ char tokens, event-category only, returns null on ties). Catches same-language paraphrases like `"Bosanski kulturni centar KS"` → `"BKC (Bosanski Kulturni Centar)"`.
+- 4 new tests in `venueMatch.test.ts` (11/11 total now passing).
+
+##### Two more seeded venues
+- `Stadion Asim Ferhatović Hase (Koševo)` and `Metalac` (Vogošća) — added via migration `20260516020000_seed_stadion_kosevo_metalac.sql`. Both ran through the full enrichment pipeline (Place ID + ratings + reviews + photos + AI descriptions). Total 8 seeded venues this session.
+
+##### Backfill + dedup
+- New `backend/src/scripts/backfillEventVenues.ts` re-runs `matchVenue` against every event where `venue_id IS NULL` and `location_name` has a usable signal. Caught 11 additional venue links across historical events. One false positive ("FUNGI IN FOCUS" → "Drama Kids Academy" from HTML-poisoned location_name) cleaned up.
+- Soft-deduped 13 historical duplicate events (same venue + same calendar day; kept the longest title_bs, deactivated the rest, excluded `FESTIVAL` rows where multi-artist on the same stage is legitimate).
+- Renamed legacy lowercase `source='kupikartu'` to `'KupiKartu.ba'` for consistency.
+
+##### Final state in production
+- 105 active canonical events across 4 direct-html sources + 2 legacy (manual/demo). 56 venue-linked (53%).
+- All 11 ulaznice events: venue_linked, fully enriched, correct dates.
+- AllEvents.in: 48 active, 29 venue-linked (60%). KupiKartu.ba: 37 active, 5 venue-linked. Pozorista.ba: 7 active, 0 venue-linked (all past, no location_name captured by old extractor).
+- 12 total commits today on `origin/main`: `0dd3f0e..78896ca` and following.
+
+#### Follow-ups still deferred
 - Pre-existing typecheck errors in `src/scripts/*.ts`, `src/db/migrate.ts`, `src/index.ts` (Apify response narrowing, missing `@specific-dev/framework` types) — none in files this session changed.
 - 21 duplicate-place-id constraint violations during `findGooglePlaceIds` — pre-existing venue duplicates worth a cleanup pass.
-- 17 raw_events with `date_raw IS NULL` from earlier kupikartu/ulaznice runs (mostly anchor-pollution; one real event `MAYA BEROVIĆ - OTKAZANO` would need detail-page enrichment).
-- The 6 new venues have no `description_bs`/`description_en` — `enrichDescriptions.ts` would generate them.
+- BKC (Bosanski Kulturni Centar) still doesn't auto-match raws like `"BKC - SARAJEVO"` — bilingual EN/BS token-overlap (Bosnian/Bosanski, Cultural/Kulturni, Center/Centar) would need a translation alias map or stemmer. Token-overlap fallback only handles same-language paraphrases.
+- 100+ venues still without `cover_image_url` because Google has no photo for them (scrapeGooglePhotos now correctly reports `skipped: no photo` rather than looping).
 - Pre-existing `integration.test.ts` `bun:` ESM scheme error.
