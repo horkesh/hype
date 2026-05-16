@@ -92,3 +92,12 @@ test('matchVenue: token-overlap requires 2+ shared tokens', () => {
   const result = matchVenue('Restoran negde u centru', VENUES);
   assert.equal(result, null, 'single-word "centru" is not enough overlap');
 });
+
+test('matchVenue: BKC alias resolves "BKC - SARAJEVO" to BKC venue', () => {
+  // 3-char abbreviation that can't reverse-match (length threshold) and has
+  // no token overlap with the Bosnian-only canonical name. The alias table
+  // bridges the gap.
+  const result = matchVenue('BKC - SARAJEVO', VENUES);
+  assert.equal(result?.strategy, 'alias');
+  assert.equal(result?.venue.id, 'v-bkc');
+});

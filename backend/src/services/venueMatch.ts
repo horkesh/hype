@@ -21,8 +21,18 @@ export interface VenueMatchResult {
     | 'fuzzy_exact'
     | 'fuzzy_partial'
     | 'fuzzy_partial_reverse'
-    | 'token_overlap';
+    | 'token_overlap'
+    | 'alias';
 }
+
+// Canonical aliases for venue abbreviations / shorthands the matcher can't
+// derive structurally. Each entry maps a normalized raw form to a canonical
+// venue name substring; the matcher resolves via exact-or-partial match on
+// that substring.
+const CANONICAL_ALIASES: Array<{ rawForm: RegExp; canonicalSubstring: string }> = [
+  // BKC abbreviation — full canonical is "BKC (Bosanski Kulturni Centar)"
+  { rawForm: /^bkc(?:\s|-|$|\W)/i, canonicalSubstring: 'bkc' },
+];
 
 // Venue matching uses a deliberately narrower noise list than event dedupe.
 // Tokens like "bkc", "centar", "kulturni" are part of canonical venue names
@@ -84,6 +94,22 @@ export function matchVenue(
 
   const rawNorm = normalise(raw);
   if (!rawNorm) return null;
+
+  // 0. Canonical aliases — short abbreviations the matcher can't derive
+  //    structurally (BKC, etc.). When a rawForm matches, look for any venue
+  //    whose normalized name contains canonicalSubstring as a whole word.
+  for (const alias of CANONICAL_ALIASES) {
+    if (!alias.rawForm.test(raw)) continue;
+    const needle = alias.canonicalSubstring.toLowerCase();
+    const candidates = venues.filter((v) => {
+      const tokens = normalise(v.name).split(/\s+/);
+      return tokens.includes(needle);
+    });
+    const picked = pickByEventCategory(candidates);
+    if (picked) {
+      return { venue: picked, strategy: 'alias' };
+    }
+  }
 
   // 1. Exact (case-insensitive, punctuation-normalized)
   for (const v of venues) {
