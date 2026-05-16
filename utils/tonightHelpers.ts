@@ -29,22 +29,11 @@ const TONIGHT_PLAN_OFFSETS = [
   { latitude: -0.007, longitude: -0.003 },
 ];
 
-export function getInitialTonightSegment(date: Date): TimeSegment {
-  const currentHour = date.getHours();
-
-  if (currentHour >= 6 && currentHour < 12) {
-    return 'morning';
-  }
-
-  if (currentHour >= 12 && currentHour < 17) {
-    return 'lunch';
-  }
-
-  if (currentHour >= 17 && currentHour < 22) {
-    return 'evening';
-  }
-
-  return 'night';
+export function getInitialTonightSegment(_date: Date): TimeSegment {
+  // Land on the full upcoming list so users can browse every event. The
+  // time-of-day chips (morning/lunch/evening/night) remain available for
+  // narrowing to today.
+  return 'all';
 }
 
 export function getTonightSegmentRange(
@@ -52,6 +41,14 @@ export function getTonightSegmentRange(
   segments: TimeSegmentConfig[],
   now: Date = new Date()
 ): { startTime: Date; endTime: Date } | null {
+  // "All" returns every upcoming event from now forward (1y horizon).
+  if (activeSegment === 'all') {
+    const startTime = new Date(now);
+    const endTime = new Date(now);
+    endTime.setFullYear(endTime.getFullYear() + 1);
+    return { startTime, endTime };
+  }
+
   const segment = segments.find((entry) => entry.key === activeSegment);
 
   if (!segment) {

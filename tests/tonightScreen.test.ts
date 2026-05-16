@@ -18,8 +18,12 @@ test('TONIGHT_MOODS and segments expose clean emojis instead of mojibake', () =>
   assert.equal(TONIGHT_MOODS[11]?.emoji, '\u{1F379}');
 
   const segments = buildTonightSegments(translate);
-  assert.equal(segments[0]?.emoji, '\u2615');
-  assert.equal(segments[3]?.emoji, '\u{1F319}');
+  // [0] is the "all" segment (calendar emoji), then morning (coffee), lunch
+  // (plate), evening (sunset), night (moon).
+  assert.equal(segments[0]?.key, 'all');
+  assert.equal(segments[0]?.emoji, '\u{1F4C5}');
+  assert.equal(segments[1]?.emoji, '\u2615');
+  assert.equal(segments[4]?.emoji, '\u{1F319}');
 });
 
 test('Tonight share text uses cleaned Bosnian copy', () => {

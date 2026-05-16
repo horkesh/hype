@@ -37,7 +37,7 @@ export interface AIPlan {
   total: number;
 }
 
-export type TimeSegment = 'morning' | 'lunch' | 'evening' | 'night';
+export type TimeSegment = 'all' | 'morning' | 'lunch' | 'evening' | 'night';
 
 export interface TimeSegmentConfig {
   key: TimeSegment;
@@ -158,6 +158,10 @@ export function isFreeEvent(price: number | null): boolean {
 
 export function buildTonightSegments(t: (key: string) => string): TimeSegmentConfig[] {
   return [
+    // "All" leads so users discover the full upcoming list \u2014 Tonight tab is
+    // the only events surface in the app right now, and time-of-day segments
+    // for today alone hide the 40+ events scheduled later in the year.
+    { key: 'all', emoji: '\u{1F4C5}', label: t('all'), startHour: 0, endHour: 0 },
     { key: 'morning', emoji: '\u2615', label: t('morning'), startHour: 6, endHour: 12 },
     { key: 'lunch', emoji: '\u{1F37D}', label: t('lunch'), startHour: 12, endHour: 17 },
     { key: 'evening', emoji: '\u{1F306}', label: t('evening'), startHour: 17, endHour: 22 },

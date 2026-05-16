@@ -1,16 +1,11 @@
 
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
-
-const visitSarajevoLogo = require('@/assets/visit-sarajevo.png');
-
-const VISIT_SARAJEVO_URL_EN = 'https://www.visitsarajevo.ba/';
-const VISIT_SARAJEVO_URL_BS = 'https://www.visitsarajevo.ba/bs/pocetna/';
 
 export function HypeHeader() {
   const { language, setLanguage } = useApp();
@@ -29,8 +24,6 @@ export function HypeHeader() {
   const isDetailPage = /^\/(venue|event|series|heritage)\//.test(pathname);
   const canGoBack = router.canGoBack();
   const showBack = isDetailPage && canGoBack;
-
-  const visitUrl = language === 'bs' ? VISIT_SARAJEVO_URL_BS : VISIT_SARAJEVO_URL_EN;
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border, paddingTop: Math.max(insets.top, 12) }]}>
@@ -59,14 +52,6 @@ export function HypeHeader() {
           <Text style={[styles.logoCity, { color: colors.textSecondary }]}> - Sarajevo</Text>
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.visitLogoContainer}
-        onPress={() => Linking.openURL(visitUrl)}
-        activeOpacity={0.7}
-      >
-        <Image source={visitSarajevoLogo} style={styles.visitLogo} resizeMode="contain" />
-      </TouchableOpacity>
 
       <View style={styles.headerRight}>
         <TouchableOpacity
@@ -112,14 +97,6 @@ const styles = StyleSheet.create({
   logoCity: {
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-  },
-  visitLogoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  visitLogo: {
-    height: 32,
-    width: 100,
   },
   headerRight: {
     flexDirection: 'row',

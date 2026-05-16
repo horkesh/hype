@@ -16,11 +16,22 @@ import { buildTonightSegments } from '@/utils/tonightScreen';
 
 const translate = (key: string): string => key;
 
-test('getInitialTonightSegment maps hours into the expected segment', () => {
-  assert.equal(getInitialTonightSegment(new Date('2026-03-12T07:00:00')), 'morning');
-  assert.equal(getInitialTonightSegment(new Date('2026-03-12T13:00:00')), 'lunch');
-  assert.equal(getInitialTonightSegment(new Date('2026-03-12T18:00:00')), 'evening');
-  assert.equal(getInitialTonightSegment(new Date('2026-03-12T23:00:00')), 'night');
+test('getInitialTonightSegment defaults to "all" so users land on the full upcoming list', () => {
+  // Previously this returned a time-of-day segment based on the current hour,
+  // which hid all events not happening today. The Tonight tab is the only
+  // browse-all-events surface, so "all" is the right entry point.
+  assert.equal(getInitialTonightSegment(new Date('2026-03-12T07:00:00')), 'all');
+  assert.equal(getInitialTonightSegment(new Date('2026-03-12T23:00:00')), 'all');
+});
+
+test('getTonightSegmentRange "all" covers the next year', () => {
+  const segments = buildTonightSegments(translate);
+  const now = new Date(2026, 4, 16, 12, 0, 0);
+  const range = getTonightSegmentRange('all', segments, now);
+  assert.ok(range);
+  assert.equal(range?.startTime.getTime(), now.getTime());
+  assert.equal(range?.endTime.getFullYear(), 2027);
+  assert.equal(range?.endTime.getMonth(), 4);
 });
 
 test('getTonightSegmentRange rolls night into the next day', () => {
