@@ -72,8 +72,12 @@ export function extractRawEventCandidates(
   maxCandidates = 25,
   sourcePageUrl = source.sourceUrl,
 ): RawEventCandidate[] {
+  // When a source-specific extractor exists, trust its result even if empty.
+  // Falling through to the generic anchor extractor would let nav/footer links
+  // slip past the source's filters (e.g. a category page with no Sarajevo
+  // events would pollute raw_events with "Muzika", "Kontakt", etc.).
   const sourceSpecificCandidates = extractCandidatesForSource(html, source, sourcePageUrl);
-  if (sourceSpecificCandidates && sourceSpecificCandidates.length > 0) {
+  if (sourceSpecificCandidates !== null) {
     return sourceSpecificCandidates.slice(0, maxCandidates);
   }
 
