@@ -2061,9 +2061,33 @@ After committing the 10 commits above, kept iterating without manual checkpoint:
 - AllEvents.in: 48 active, 29 venue-linked (60%). KupiKartu.ba: 37 active, 5 venue-linked. Pozorista.ba: 7 active, 0 venue-linked (all past, no location_name captured by old extractor).
 - 12 total commits today on `origin/main`: `0dd3f0e..78896ca` and following.
 
+#### Periodic cron + Instagram handle discovery (final continuation pass)
+
+##### Cron pipeline (every 6h via GitHub Actions)
+- `.github/workflows/scrape-and-promote.yml` runs scrape → enrich (AllEvents/Pozorista + KupiKartu detail pages) → promote → backfill.
+- Required secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Set via `gh secret set NAME --repo horkesh/hype` reading from stdin. **Trap**: gh CLI has no `--body-file` flag; passing `--body -` stores the literal string `-`. Omit `--body` entirely to read stdin (cost me a debug round to figure out).
+- Cleanest dependency: pipeline scripts use only Node built-ins + local source. Skip `npm install` of the full `backend/package.json` (private `@specific-dev/framework` would fail without `NPM_TOKEN`). Just `npm install -g tsx@4` and invoke `tsx <script>` directly (not `node --import tsx` — global install isn't in local node_modules).
+- Manual trigger validated: 20s successful run, all 5 phases green.
+
+##### Instagram handle discovery
+- New `discoverInstagramHandlesApify.ts` (operator-triggered, NOT on cron). Uses Apify `apify/instagram-search-scraper`. The legacy `findInstagramHandles.ts` was effectively dead: 1 of 100 on dry-run, and that 1 was a false positive (sponsor link).
+- Scoring: handle/fullName ≈ name + explicit Sarajevo signal (bio mentions Sarajevo/Bosnia/neighborhood, handle has `_sa`/`_ba` suffix, fullName contains Sarajevo, account verified) → high. Just name match → medium. Generic-name guard: names <5 chars OR single-word ("Art", "Birtija", "GU") require Sarajevo signal regardless of confidence — prevents Cologne/Belgrade collisions.
+- Concurrency 10, ~5s/query. 1000 venues queried in ~95 min.
+- Results: **316 saved**, 676 low-confidence (didn't pass threshold), 8 errors (mostly venue names with reserved punctuation per the actor's regex; sanitization stripped most).
+- Cleanup: 17 false positives reverted across 4 audit passes (`oma`/`pizza`/Cologne galleries/etc.). Audit query: handles whose normalized form shares <4-char overlap with venue name in either direction.
+- **Final coverage: 497 venues with Instagram handles (40% of active table). Was 189 at session start → +308 net.**
+- Per-category coverage: theatre 89%, cinema 83%, bar 57%, cultural_center 54%, concert_hall 50%, club 48%, restaurant 43%, cafe 38%, gallery 37%, bakery 23%, outdoor 12%.
+
+##### Final state on origin/main
+- 21 commits this session: ulaznice ingestion + strict filter + cross-source dedupe + Bosnian date parser + venue matcher with EVENT_CATEGORIES + Google enrichment pipeline + cron + Instagram discovery.
+- Production: 46 upcoming events, 30 venue-linked (65%). 497 venues with IG handles (40%). All seeded venues have Google enrichment.
+- Cron: live, every 6h, validated.
+
 #### Follow-ups still deferred
-- Pre-existing typecheck errors in `src/scripts/*.ts`, `src/db/migrate.ts`, `src/index.ts` (Apify response narrowing, missing `@specific-dev/framework` types) — none in files this session changed.
+- Pre-existing typecheck errors: down to 2 (`@specific-dev/framework` private package, needs `NPM_TOKEN`). 18 of the original 20 fixed in-session.
 - 21 duplicate-place-id constraint violations during `findGooglePlaceIds` — pre-existing venue duplicates worth a cleanup pass.
-- BKC (Bosanski Kulturni Centar) still doesn't auto-match raws like `"BKC - SARAJEVO"` — bilingual EN/BS token-overlap (Bosnian/Bosanski, Cultural/Kulturni, Center/Centar) would need a translation alias map or stemmer. Token-overlap fallback only handles same-language paraphrases.
-- 100+ venues still without `cover_image_url` because Google has no photo for them (scrapeGooglePhotos now correctly reports `skipped: no photo` rather than looping).
+- BKC bilingual EN↔BS token-overlap (`"Bosnian Cultural Center"` ↔ `"BKC (Bosanski Kulturni Centar)"`) — would need a translation alias map. The alias table handles short abbreviations like BKC; full bilingual matching is a separate problem.
+- 737 venues still without IG handles (mostly bakeries, small kiosks, outdoor spots with no IG presence). Apify confirmed they have no good search match.
+- ~100 venues without `cover_image_url` because Google has no photo (scrapeGooglePhotos correctly reports `skipped: no photo` rather than looping).
+- The newly-discovered IG handles aren't yet feeding into `scrapeInstagram.ts` — that script uses a hardcoded `SARAJEVO_ACCOUNTS` list. Wiring handles → scrape_sources for post extraction is the next strategic step but requires Apify credit discipline.
 - Pre-existing `integration.test.ts` `bun:` ESM scheme error.
