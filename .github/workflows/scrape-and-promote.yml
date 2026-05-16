@@ -1,0 +1,79 @@
+name: Scrape and promote events
+
+# Runs the ingestion pipeline against the live Supabase project on a schedule.
+# Frequency matches the lowest frequency_hours set on any active scrape_source.
+#
+# Required repo secrets:
+#   SUPABASE_URL                  e.g. https://kyfoqltmkqwtnrdlacqv.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY     service role secret (server-only, never client-side)
+#
+# Manual run: Actions → Scrape and promote events → Run workflow
+
+on:
+  schedule:
+    # Every 6 hours at the top of the hour, UTC
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    # Manual trigger from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  # Don't overlap runs — if a scheduled tick fires while a previous run is
+  # still going, queue it but cancel the older one (in-progress wins).
+  group: scrape-and-promote
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        # Backend's full package.json has a private GitHub Packages dependency
+        # (@specific-dev/framework) that's only used by src/db/migrate.ts and
+        # src/index.ts — neither of which we run here. Installing just tsx
+        # globally avoids needing an NPM_TOKEN secret.
+        run: npm install -g tsx@4
+
+      - name: Verify env vars are set
+        run: |
+          test -n "$SUPABASE_URL" || { echo "::error::SUPABASE_URL secret is missing"; exit 1; }
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is missing"; exit 1; }
+          echo "OK"
+
+      - name: Phase 1 — Scrape + promote new candidates
+        run: node --import tsx backend/src/scripts/scrapeAndPromote.ts
+
+      - name: Phase 2 — Detail-page enrichment for AllEvents + Pozorista
+        # Fills date_raw / venue_name_raw / description_raw / image_url for
+        # listing-page candidates that didn't include them. Also dismisses
+        # KupiKartu navigation false positives.
+        run: node --import tsx backend/src/scripts/enrichAllSources.ts
+
+      - name: Phase 3 — Detail-page enrichment for KupiKartu
+        run: node --import tsx backend/src/scripts/enrichKupikartuDetails.ts
+
+      - name: Phase 4 — Re-promote enriched rows
+        # The enrichment phases above add dates/venues to raw_events that
+        # were skipped on the first pass. Promote those now.
+        run: node --import tsx backend/src/scripts/promoteEvents.ts
+
+      - name: Phase 5 — Backfill venue links on existing events
+        # Catches any historical events whose location_name now matches a
+        # newly-seeded venue, and any alias-table additions.
+        run: node --import tsx backend/src/scripts/backfillEventVenues.ts
