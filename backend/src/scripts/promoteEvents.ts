@@ -18,6 +18,7 @@ import {
   requestSupabaseAdminJson,
 } from '../lib/supabaseAdmin.js';
 import { canonicalEventKey } from '../services/eventDedupe.js';
+import { parseRawDate } from '../services/dateParse.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -95,102 +96,8 @@ function inferCategory(title: string | null): string {
 // Date parsing
 // ---------------------------------------------------------------------------
 
-/**
- * Attempts to parse date_raw into an ISO 8601 datetime string.
- * Returns null if parsing fails.
- *
- * Supported formats:
- *   "DD.MM.YYYY"          → midnight
- *   "DD.MM.YYYY HH:MM"    → exact time
- *   "DD/MM"               → current year, midnight
- *   "YYYY-MM-DD"          → midnight
- *   "YYYY-MM-DDTHH:MM…"   → ISO passthrough
- */
-function parseDateRaw(dateRaw: string | null): string | null {
-  if (!dateRaw) return null;
-
-  const s = dateRaw.trim();
-
-  // ISO passthrough (YYYY-MM-DDTHH:MM…)
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d.toISOString();
-  }
-
-  // YYYY-MM-DD
-  const isoDate = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (isoDate) {
-    const [, y, m, d] = isoDate;
-    return buildDatetime(Number(y), Number(m), Number(d));
-  }
-
-  // DD.MM.YYYY HH:MM
-  const dotDatetime = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})$/);
-  if (dotDatetime) {
-    const [, d, m, y, hh, mm] = dotDatetime;
-    return buildDatetime(Number(y), Number(m), Number(d), Number(hh), Number(mm));
-  }
-
-  // DD.MM.YYYY
-  const dotDate = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if (dotDate) {
-    const [, d, m, y] = dotDate;
-    return buildDatetime(Number(y), Number(m), Number(d));
-  }
-
-  // DD/MM (assume current year)
-  const slashDate = s.match(/^(\d{1,2})\/(\d{1,2})$/);
-  if (slashDate) {
-    const [, d, m] = slashDate;
-    const year = new Date().getFullYear();
-    return buildDatetime(year, Number(m), Number(d));
-  }
-
-  // Bosnian month names: "17 Mart 2026 20:00" or "23 Mart 2026"
-  const bosnianMonths: Record<string, number> = {
-    januar: 1, februar: 2, mart: 3, april: 4, maj: 5, juni: 6,
-    juli: 7, august: 8, septembar: 9, oktobar: 10, novembar: 11, decembar: 12,
-  };
-  const bsMatch = s.match(/^(\d{1,2})\s+([a-zA-Zčćšžđ]+)\s+(\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/);
-  if (bsMatch) {
-    const [, d, monthName, y, hh, mm] = bsMatch;
-    const month = bosnianMonths[monthName.toLowerCase()];
-    if (month) {
-      return buildDatetime(Number(y), month, Number(d), Number(hh ?? 0), Number(mm ?? 0));
-    }
-  }
-
-  // English month abbrevs: "Sat Mar 22 2026" or "Mar 22, 2026"
-  const enMonths: Record<string, number> = {
-    jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-    jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
-  };
-  const enMatch = s.match(/(?:\w+\s+)?([A-Za-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?(?:\s+(\d{1,2}):(\d{2}))?/);
-  if (enMatch) {
-    const [, monthStr, d, y, hh, mm] = enMatch;
-    const month = enMonths[monthStr.toLowerCase().slice(0, 3)];
-    if (month) {
-      const year = y ? Number(y) : new Date().getFullYear();
-      return buildDatetime(year, month, Number(d), Number(hh ?? 0), Number(mm ?? 0));
-    }
-  }
-
-  return null;
-}
-
-function buildDatetime(
-  year: number,
-  month: number,
-  day: number,
-  hour = 0,
-  minute = 0,
-): string | null {
-  // Month is 1-based coming in
-  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-  const d = new Date(year, month - 1, day, hour, minute, 0, 0);
-  if (isNaN(d.getTime())) return null;
-  return d.toISOString();
-}
+// Date parsing extracted to backend/src/services/dateParse.ts so it can be
+// unit-tested independently. See parseRawDate for supported formats.
 
 // ---------------------------------------------------------------------------
 // Venue matching
@@ -391,7 +298,7 @@ async function main() {
       }
 
       // Must have a parseable date
-      const startDatetime = parseDateRaw(raw.date_raw);
+      const startDatetime = parseRawDate(raw.date_raw);
       if (!startDatetime) {
         log(`  SKIP [no date] "${raw.title_raw}" (date_raw="${raw.date_raw}")`);
         stats.skippedNoDate++;
