@@ -17,14 +17,39 @@ export function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h1>Look Admin</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-        {error && <p className="error">{error}</p>}
-        <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
-      </form>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-logo">L</div>
+        <h1 className="login-title">Look Admin</h1>
+        <p className="login-subtitle">Prijavite se da pristupite panelu</p>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="login-field">
+            <label>Email adresa</label>
+            <input
+              type="email"
+              placeholder="vas@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="login-field">
+            <label>Lozinka</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="login-error">{error}</p>}
+          <button type="submit" disabled={loading} className="login-btn">
+            {loading ? 'Prijavljivanje...' : 'Prijava'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

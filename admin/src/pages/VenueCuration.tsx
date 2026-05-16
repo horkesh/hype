@@ -1,0 +1,529 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase } from '../supabase';
+import { canAdmin } from '../hooks/useAuth';
+import type { UserRole } from '../hooks/useAuth';
+
+const PAGE_SIZE = 50;
+
+const KNOWN_MOODS = [
+  { id: 'party', label: 'Party' },
+  { id: 'chill', label: 'Chill' },
+  { id: 'girls_night', label: 'Girls Night' },
+  { id: 'date_night', label: 'Date Night' },
+  { id: 'music', label: 'Muzika' },
+  { id: 'romance', label: 'Romantika' },
+  { id: 'culture', label: 'Kultura' },
+  { id: 'foodie', label: 'Foodie' },
+  { id: 'brunch', label: 'Brunch' },
+  { id: 'after_work', label: 'After Work' },
+  { id: 'outdoor', label: 'Outdoor' },
+  { id: 'tourist', label: 'Turista' },
+];
+
+type FilterStatus = 'all' | 'curated' | 'uncurated' | 'no_bs' | 'no_en';
+type LangTab = 'bs' | 'en';
+
+interface Venue {
+  id: string;
+  name: string;
+  category: string;
+  neighborhood: string | null;
+  address: string | null;
+  instagram_handle: string | null;
+  google_rating: number | null;
+  cover_image_url: string | null;
+  description_bs: string | null;
+  description_en: string | null;
+  insider_tip_bs: string | null;
+  insider_tip_en: string | null;
+  moods: string[] | null;
+  is_hidden_gem: boolean | null;
+  is_curated: boolean;
+  curator_notes: string | null;
+}
+
+interface EditState {
+  description_bs: string;
+  description_en: string;
+  insider_tip_bs: string;
+  insider_tip_en: string;
+  moods: string[];
+  curator_notes: string;
+  is_curated: boolean;
+  // admin-only fields
+  name: string;
+  category: string;
+  neighborhood: string;
+  address: string;
+  instagram_handle: string;
+  is_hidden_gem: boolean;
+}
+
+function venueToEdit(v: Venue): EditState {
+  return {
+    description_bs: v.description_bs ?? '',
+    description_en: v.description_en ?? '',
+    insider_tip_bs: v.insider_tip_bs ?? '',
+    insider_tip_en: v.insider_tip_en ?? '',
+    moods: v.moods ?? [],
+    curator_notes: v.curator_notes ?? '',
+    is_curated: v.is_curated ?? false,
+    name: v.name,
+    category: v.category,
+    neighborhood: v.neighborhood ?? '',
+    address: v.address ?? '',
+    instagram_handle: v.instagram_handle ?? '',
+    is_hidden_gem: v.is_hidden_gem ?? false,
+  };
+}
+
+interface Props {
+  role: UserRole;
+}
+
+export function VenueCuration({ role }: Props) {
+  const isAdmin = canAdmin(role);
+
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
+
+  const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [allNeighborhoods, setAllNeighborhoods] = useState<string[]>([]);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [edit, setEdit] = useState<EditState | null>(null);
+  const [langTab, setLangTab] = useState<LangTab>('bs');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [dirty, setDirty] = useState(false);
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase
+      .from('venues')
+      .select('category, neighborhood')
+      .then(({ data }) => {
+        if (!data) return;
+        setAllCategories([...new Set(data.map(v => v.category).filter(Boolean))].sort() as string[]);
+        setAllNeighborhoods([...new Set(data.map(v => v.neighborhood).filter(Boolean))].sort() as string[]);
+      });
+  }, []);
+
+  const loadVenues = useCallback(async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('venues')
+        .select(
+          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_curated, curator_notes',
+          { count: 'exact' }
+        )
+        .order('name');
+
+      if (search) query = query.ilike('name', `%${search}%`);
+      if (categoryFilter) query = query.eq('category', categoryFilter);
+      if (neighborhoodFilter) query = query.eq('neighborhood', neighborhoodFilter);
+      if (statusFilter === 'curated') query = query.eq('is_curated', true);
+      else if (statusFilter === 'uncurated') query = query.eq('is_curated', false);
+      else if (statusFilter === 'no_bs') query = query.is('description_bs', null);
+      else if (statusFilter === 'no_en') query = query.is('description_en', null);
+
+      query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+
+      const { data, count, error } = await query;
+      if (error) console.error('Failed to load venues:', error.message);
+      if (data) setVenues(data as Venue[]);
+      setTotal(count ?? 0);
+    } catch (err) {
+      console.error('Failed to load venues:', err);
+    }
+    setLoading(false);
+  }, [search, categoryFilter, neighborhoodFilter, statusFilter, page]);
+
+  // Reset to page 0 whenever filters change
+  useEffect(() => { setPage(0); }, [search, categoryFilter, neighborhoodFilter, statusFilter]);
+
+  useEffect(() => { loadVenues(); }, [loadVenues]);
+
+  const handleSelect = useCallback((venue: Venue) => {
+    setSelectedId(venue.id);
+    setEdit(venueToEdit(venue));
+    setSaveMsg('');
+    setDirty(false);
+  }, []);
+
+  const updateEdit = (patch: Partial<EditState>) => {
+    setEdit(prev => prev ? { ...prev, ...patch } : null);
+    setDirty(true);
+    setSaveMsg('');
+  };
+
+  const toggleMood = (moodId: string) => {
+    if (!edit) return;
+    const next = edit.moods.includes(moodId)
+      ? edit.moods.filter(m => m !== moodId)
+      : [...edit.moods, moodId];
+    updateEdit({ moods: next });
+  };
+
+  const handleSave = async () => {
+    if (!selectedId || !edit) return;
+    setSaving(true);
+    setSaveMsg('');
+
+    const update: Record<string, unknown> = {
+      description_bs: edit.description_bs || null,
+      description_en: edit.description_en || null,
+      insider_tip_bs: edit.insider_tip_bs || null,
+      insider_tip_en: edit.insider_tip_en || null,
+      moods: edit.moods,
+      curator_notes: edit.curator_notes || null,
+      is_curated: edit.is_curated,
+    };
+
+    if (isAdmin) {
+      update.name = edit.name;
+      update.category = edit.category;
+      update.neighborhood = edit.neighborhood || null;
+      update.address = edit.address || null;
+      update.instagram_handle = edit.instagram_handle || null;
+      update.is_hidden_gem = edit.is_hidden_gem;
+    }
+
+    const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
+
+    if (error) {
+      setSaveMsg('Greška: ' + error.message);
+    } else {
+      setSaveMsg('Sačuvano!');
+      setDirty(false);
+      setVenues(prev => prev.map(v =>
+        v.id === selectedId ? { ...v, ...update } as Venue : v
+      ));
+    }
+    setSaving(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!selectedId || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+    const idx = venues.findIndex(v => v.id === selectedId);
+    if (e.key === 'ArrowDown' && idx < venues.length - 1) {
+      e.preventDefault();
+      handleSelect(venues[idx + 1]);
+    }
+    if (e.key === 'ArrowUp' && idx > 0) {
+      e.preventDefault();
+      handleSelect(venues[idx - 1]);
+    }
+  };
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const selected = venues.find(v => v.id === selectedId);
+
+  return (
+    <div className="page venue-curation" onKeyDown={handleKeyDown} tabIndex={0} ref={wrapRef}>
+      <div className="page-header">
+        <h1 className="page-title">Lokacije</h1>
+        <div className="page-stats">
+          <span>{total} lokacija</span>
+          {venues.some(v => v.is_curated) && (
+            <span className="stat-green">
+              {venues.filter(v => v.is_curated).length} pregledano na ovoj stranici
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="filters">
+        <input
+          className="search"
+          type="text"
+          placeholder="Pretraži lokacije..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          <option value="">Sve kategorije</option>
+          {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={neighborhoodFilter} onChange={e => setNeighborhoodFilter(e.target.value)}>
+          <option value="">Svi kvartovi</option>
+          {allNeighborhoods.map(n => <option key={n} value={n}>{n}</option>)}
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as FilterStatus)}>
+          <option value="all">Sve</option>
+          <option value="uncurated">Nije pregledano</option>
+          <option value="curated">Pregledano</option>
+          <option value="no_bs">Nema opisa (BS)</option>
+          <option value="no_en">Nema opisa (EN)</option>
+        </select>
+      </div>
+
+      <div className="main-layout">
+        {/* List */}
+        <div className="venue-list">
+          {loading ? (
+            <div className="loading">Učitavanje...</div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Naziv</th>
+                  <th>Kategorija</th>
+                  <th>Kvart</th>
+                  <th>Ocjena</th>
+                  <th>BS</th>
+                  <th>EN</th>
+                  <th>✓</th>
+                </tr>
+              </thead>
+              <tbody>
+                {venues.map(v => (
+                  <tr
+                    key={v.id}
+                    className={`venue-row ${v.id === selectedId ? 'selected' : ''}`}
+                    onClick={() => handleSelect(v)}
+                  >
+                    <td className="venue-name">{v.name}</td>
+                    <td><span className="badge cat">{v.category}</span></td>
+                    <td className="muted-cell">{v.neighborhood ?? '—'}</td>
+                    <td className="muted-cell">{v.google_rating ? `${v.google_rating}★` : '—'}</td>
+                    <td>{v.description_bs ? <span className="dot green" /> : <span className="dot red" />}</td>
+                    <td>{v.description_en ? <span className="dot green" /> : <span className="dot red" />}</td>
+                    <td>{(v.is_curated ?? false) ? <span className="curated-check">✓</span> : <span className="dot gray" />}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button className="page-btn" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+                ← Prethodna
+              </button>
+              <span className="page-info">Stranica {page + 1} od {totalPages}</span>
+              <button className="page-btn" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+                Sljedeća →
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Edit panel */}
+        {selected && edit && (
+          <div className="edit-panel">
+            {/* Header */}
+            <div className="edit-header">
+              {isAdmin ? (
+                <input
+                  className="edit-input edit-title-input"
+                  value={edit.name}
+                  onChange={e => updateEdit({ name: e.target.value })}
+                />
+              ) : (
+                <h2>{selected.name}</h2>
+              )}
+              <div className="edit-header-meta">
+                {isAdmin ? (
+                  <input
+                    className="edit-input"
+                    value={edit.category}
+                    onChange={e => updateEdit({ category: e.target.value })}
+                    placeholder="Kategorija"
+                    style={{ width: 140 }}
+                  />
+                ) : (
+                  <span className="badge cat">{selected.category}</span>
+                )}
+                {selected.google_rating && <span className="badge">{selected.google_rating}★</span>}
+                {edit.is_hidden_gem && <span className="badge gem">Hidden gem</span>}
+              </div>
+            </div>
+
+            {selected.cover_image_url && (
+              <img
+                src={selected.cover_image_url}
+                alt={selected.name}
+                className="venue-photo"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            )}
+
+            {/* Admin-only core fields */}
+            {isAdmin && (
+              <div className="admin-fields">
+                <div className="field-row">
+                  <div className="field">
+                    <label>Kvart</label>
+                    <input
+                      className="edit-input"
+                      value={edit.neighborhood}
+                      onChange={e => updateEdit({ neighborhood: e.target.value })}
+                      placeholder="Kvart"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Instagram</label>
+                    <input
+                      className="edit-input"
+                      value={edit.instagram_handle}
+                      onChange={e => updateEdit({ instagram_handle: e.target.value })}
+                      placeholder="@handle"
+                    />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Adresa</label>
+                  <input
+                    className="edit-input"
+                    value={edit.address}
+                    onChange={e => updateEdit({ address: e.target.value })}
+                    placeholder="Adresa"
+                  />
+                </div>
+                <label className="toggle-field">
+                  <input
+                    type="checkbox"
+                    checked={edit.is_hidden_gem}
+                    onChange={e => updateEdit({ is_hidden_gem: e.target.checked })}
+                  />
+                  <span>Obilježi kao hidden gem</span>
+                </label>
+              </div>
+            )}
+
+            {!isAdmin && selected.instagram_handle && (
+              <div className="info-row">
+                <span className="info-label">Instagram</span>
+                <span className="info-value">@{selected.instagram_handle}</span>
+              </div>
+            )}
+
+            {/* Language tabs */}
+            <div className="lang-tabs">
+              <button
+                className={`lang-tab ${langTab === 'bs' ? 'active' : ''}`}
+                onClick={() => setLangTab('bs')}
+                type="button"
+              >
+                Bosanski
+              </button>
+              <button
+                className={`lang-tab ${langTab === 'en' ? 'active' : ''}`}
+                onClick={() => setLangTab('en')}
+                type="button"
+              >
+                English
+              </button>
+            </div>
+
+            <div className="edit-fields">
+              {langTab === 'bs' ? (
+                <>
+                  <div className="field">
+                    <label>Opis (Bosanski)</label>
+                    <textarea
+                      value={edit.description_bs}
+                      onChange={e => updateEdit({ description_bs: e.target.value })}
+                      rows={5}
+                      placeholder="Opis lokacije na bosanskom..."
+                    />
+                    <div className="char-count">{edit.description_bs.length} znakova</div>
+                  </div>
+                  <div className="field">
+                    <label>Insajderski savjet (Bosanski)</label>
+                    <textarea
+                      value={edit.insider_tip_bs}
+                      onChange={e => updateEdit({ insider_tip_bs: e.target.value })}
+                      rows={3}
+                      placeholder="Savjet za posjetitelje..."
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="field">
+                    <label>Description (English)</label>
+                    <textarea
+                      value={edit.description_en}
+                      onChange={e => updateEdit({ description_en: e.target.value })}
+                      rows={5}
+                      placeholder="Venue description in English..."
+                    />
+                    <div className="char-count">{edit.description_en.length} characters</div>
+                  </div>
+                  <div className="field">
+                    <label>Insider Tip (English)</label>
+                    <textarea
+                      value={edit.insider_tip_en}
+                      onChange={e => updateEdit({ insider_tip_en: e.target.value })}
+                      rows={3}
+                      placeholder="Tip for visitors..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Moods */}
+              <div className="field">
+                <label>Raspoloženja</label>
+                <div className="mood-chips">
+                  {KNOWN_MOODS.map(mood => (
+                    <button
+                      key={mood.id}
+                      type="button"
+                      className={`mood-chip ${edit.moods.includes(mood.id) ? 'active' : ''}`}
+                      onClick={() => toggleMood(mood.id)}
+                    >
+                      {mood.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Curator notes */}
+              <div className="field">
+                <label>Napomene kustosa</label>
+                <textarea
+                  value={edit.curator_notes}
+                  onChange={e => updateEdit({ curator_notes: e.target.value })}
+                  rows={2}
+                  placeholder="Interne napomene (nisu vidljive korisnicima)..."
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="edit-actions">
+              <label className="curated-toggle">
+                <input
+                  type="checkbox"
+                  checked={edit.is_curated}
+                  onChange={e => updateEdit({ is_curated: e.target.checked })}
+                />
+                <span>Pregledano</span>
+              </label>
+              <button onClick={handleSave} disabled={saving || !dirty} className="save-btn">
+                {saving ? 'Čuvanje...' : 'Sačuvaj'}
+              </button>
+              {saveMsg && (
+                <span className={saveMsg.startsWith('Greška') ? 'error' : 'success'}>
+                  {saveMsg}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
