@@ -57,23 +57,23 @@ jobs:
           echo "OK"
 
       - name: Phase 1 — Scrape + promote new candidates
-        run: node --import tsx backend/src/scripts/scrapeAndPromote.ts
+        run: tsx backend/src/scripts/scrapeAndPromote.ts
 
       - name: Phase 2 — Detail-page enrichment for AllEvents + Pozorista
         # Fills date_raw / venue_name_raw / description_raw / image_url for
         # listing-page candidates that didn't include them. Also dismisses
         # KupiKartu navigation false positives.
-        run: node --import tsx backend/src/scripts/enrichAllSources.ts
+        run: tsx backend/src/scripts/enrichAllSources.ts
 
       - name: Phase 3 — Detail-page enrichment for KupiKartu
-        run: node --import tsx backend/src/scripts/enrichKupikartuDetails.ts
+        run: tsx backend/src/scripts/enrichKupikartuDetails.ts
 
       - name: Phase 4 — Re-promote enriched rows
         # The enrichment phases above add dates/venues to raw_events that
         # were skipped on the first pass. Promote those now.
-        run: node --import tsx backend/src/scripts/promoteEvents.ts
+        run: tsx backend/src/scripts/promoteEvents.ts
 
       - name: Phase 5 — Backfill venue links on existing events
         # Catches any historical events whose location_name now matches a
         # newly-seeded venue, and any alias-table additions.
-        run: node --import tsx backend/src/scripts/backfillEventVenues.ts
+        run: tsx backend/src/scripts/backfillEventVenues.ts
