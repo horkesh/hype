@@ -2113,10 +2113,48 @@ User reported all venue images had disappeared from the app. Root cause: Google 
 - Broken Google URLs in DB: 0
 - 25 commits this session (`0dd3f0e..98e5bb5`)
 
+#### User-facing UI cleanup (continuation pass)
+
+Three things the user reported missing/wrong on the Home + Tonight tabs:
+
+##### Visit Sarajevo logo removed from header
+- `components/HypeHeader.tsx` — image asset, URL constants, `Linking` and `Image` imports, `visitLogoContainer`/`visitLogo` styles all dropped. Look brand + language toggle + back-button behavior retained.
+
+##### "What's New in Town" section removed from Home
+- `components/home/HomeContentSections.tsx` — `HomeNewInTownSection` import and render block removed. Component file kept in case the section returns later.
+
+##### Tonight tab now opens on "All upcoming"
+- User complaint: "currently I can't see how to look through all events." The Tonight tab segmented events by time-of-day (morning/lunch/evening/night) for TODAY only, hiding the 40+ events scheduled later in the year.
+- New `'all'` TimeSegment (`📅 Sve / All`) leads the chip row.
+- `getInitialTonightSegment` now returns `'all'` so the tab lands on the full upcoming list.
+- `getTonightSegmentRange` handles `'all'` as "now → +1 year" so the existing `loadTonightEvents` query naturally returns everything upcoming.
+- Time-of-day chips remain available for narrowing to today.
+
+#### Cross-source date-drift duplicates + price display (final pass)
+
+User reported: still seeing duplicates, and every event showed as "Free" despite needing tickets.
+
+##### Duplicates
+- 3 confirmed cross-source pairs where the same concert had `start_datetime` off by ±1 day: WHO SEE (KupiKartu May 21 "PROLONGIRANO" vs AllEvents May 22), NIKOLA ROKVIĆ (Ulaznice May 29 vs AllEvents May 30), The Prodigy (Ulaznice Aug 12 vs AllEvents Aug 13). Kept the row from the ticket-source side (authoritative date), deactivated the AllEvents off-by-one row. 43 → 40 upcoming events.
+- `canonicalEventKey` uses exact YYYY-MM-DD so these slipped through. Added `fuzzyCrossSourceKey` (first 2 title tokens + venue, no date) and `dayDelta` helper. `promoteEvents.ts` indexes existing events by fuzzy key and rejects new candidates within ±2 days of a fuzzy match. Catches PROLONGIRANO reschedules and source-disagreement-on-date going forward.
+
+##### Pricing
+- All 40 upcoming events had `price_bam = NULL` and `ticket_url IS NOT NULL`. `getTonightPriceText` returned "Besplatan/Free" for any NULL price — actively misleading for paid ticketed events.
+- New four-branch decision: explicit price → "from X KM"; explicit 0 → "Free"; null + ticket_url → "Karte u prodaji / Tickets"; null + no ticket_url → "Free". Tests cover all four.
+
+#### Final state
+- **27 commits this session** (`0dd3f0e..32c2d06`)
+- Active venues: 1,098 (all with Storage-hosted covers); 136 hidden pending cover (auto-revival wired)
+- Upcoming events: 40 — all venue-linked or labeled with their location, all correctly showing "Tickets" vs "Free"
+- 497 venues with Instagram handles (40%)
+- Cron live, every 6h, validated
+- Tests: 36/36 backend, 194/194 app
+
 #### Follow-ups still deferred
 - Pre-existing typecheck errors: down to 2 (`@specific-dev/framework` private package, needs `NPM_TOKEN`). 18 of the original 20 fixed in-session.
 - 21 duplicate-place-id constraint violations during `findGooglePlaceIds` — pre-existing venue duplicates worth a cleanup pass.
 - BKC bilingual EN↔BS token-overlap (`"Bosnian Cultural Center"` ↔ `"BKC (Bosanski Kulturni Centar)"`) — would need a translation alias map. The alias table handles short abbreviations like BKC; full bilingual matching is a separate problem.
 - 737 venues still without IG handles (mostly bakeries, small kiosks, outdoor spots with no IG presence). Apify confirmed they have no good search match.
 - The newly-discovered IG handles aren't yet feeding into `scrapeInstagram.ts` — that script uses a hardcoded `SARAJEVO_ACCOUNTS` list. Wiring handles → scrape_sources for post extraction is the next strategic step but requires Apify credit discipline.
+- Real ticket prices: the new fallback shows "Tickets" when `price_bam` is null but `ticket_url` is set. Actual price extraction from Ulaznice/KupiKartu detail pages is a future enhancement.
 - Pre-existing `integration.test.ts` `bun:` ESM scheme error.
