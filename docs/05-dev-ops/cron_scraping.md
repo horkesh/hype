@@ -33,13 +33,14 @@ No Google Maps or Apify keys are needed for the periodic refresh — those are o
 
 ## Pipeline order
 
-Each scheduled run executes these five steps in sequence:
+Each scheduled run executes these six steps in sequence:
 
 1. **`scrapeAndPromote.ts`** — fetches each due source's listing pages, extracts candidates, inserts new `raw_events`, then promotes anything with usable date/title into `events` (with `canonicalEventKey` dedup).
 2. **`enrichAllSources.ts`** — fetches detail pages for AllEvents.in and Pozorista.ba `raw_events` that are missing date/venue/description. Dismisses KupiKartu navigation false positives.
 3. **`enrichKupikartuDetails.ts`** — fetches detail pages for KupiKartu.ba `raw_events` missing description/date.
 4. **`promoteEvents.ts`** — re-runs promotion now that detail enrichment filled in dates. Pulls in everything that the first pass had to skip.
 5. **`backfillEventVenues.ts`** — re-runs the venue matcher against any existing event with `venue_id IS NULL`. Catches events that should now link to recently-seeded venues.
+6. **`scrapeGooglePhotos.ts --refresh-broken`** — self-heal venue covers. If any `venues.cover_image_url` has drifted back to a `maps.googleapis.com` URL (Google's photo_references are time-limited, so the raw URLs break after hours/days), re-downloads bytes to Supabase Storage. No-op when nothing's broken.
 
 ## Concurrency
 

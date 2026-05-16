@@ -77,3 +77,10 @@ jobs:
         # Catches any historical events whose location_name now matches a
         # newly-seeded venue, and any alias-table additions.
         run: tsx backend/src/scripts/backfillEventVenues.ts
+
+      - name: Phase 6 — Self-heal venue cover images
+        # Google Place Photo API photo_references are time-limited. If any
+        # cover_image_url has drifted back to a googleapis.com URL (bug
+        # regression, manual SQL edit, etc.), this re-downloads bytes to
+        # Supabase Storage. No-op when nothing's broken (~1s).
+        run: tsx backend/src/scripts/scrapeGooglePhotos.ts --refresh-broken
