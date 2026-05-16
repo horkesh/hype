@@ -122,6 +122,34 @@ async function updateVenueCoverImage(venueId: string, publicUrl: string): Promis
   });
 }
 
+// Venues hidden by the 2026-05-16 backfill (or by this script) carry a
+// `curator_notes` marker. Whenever they regain a cover, flip them back to
+// active and clear the marker. Manual deactivations don't carry the marker.
+async function reactivateNewlyCoveredVenues(): Promise<number> {
+  const { supabaseUrl, supabaseServiceRoleKey } = requireSupabaseAdminConfig();
+  const filter = new URLSearchParams({
+    is_active: 'eq.false',
+    cover_image_url: 'not.is.null',
+    curator_notes: 'like.*auto-deactivated*no cover*',
+  });
+  const res = await fetch(`${supabaseUrl}/rest/v1/venues?${filter}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: supabaseServiceRoleKey,
+      Authorization: `Bearer ${supabaseServiceRoleKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation',
+    },
+    body: JSON.stringify({ is_active: true, curator_notes: null }),
+  });
+  if (!res.ok) {
+    log(`  reactivation PATCH failed: ${res.status} ${await res.text()}`);
+    return 0;
+  }
+  const rows = (await res.json()) as Array<{ id: string }>;
+  return rows.length;
+}
+
 async function main() {
   log(`=== scrapeGooglePhotos starting (mode: ${REFRESH_BROKEN ? 'REFRESH-BROKEN' : 'fill-missing'}) ===`);
   let updated = 0;
@@ -161,8 +189,10 @@ async function main() {
     }
   }
 
+  const reactivated = await reactivateNewlyCoveredVenues();
+
   log('');
-  log(`Done. Updated: ${updated}, Skipped: ${skipped}, Errors: ${errors}`);
+  log(`Done. Updated: ${updated}, Skipped: ${skipped}, Errors: ${errors}, Reactivated: ${reactivated}`);
 }
 
 main().catch((err) => {
