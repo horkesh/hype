@@ -8,29 +8,43 @@ const NON_SARAJEVO_CITIES = [
   'cazin', 'živinice', 'zivinice', 'lukavac', 'goražde', 'gorazde',
   'visoko', 'konjic', 'bugojno', 'gradačac', 'gradacac', 'gračanica',
   'gracanica', 'srebrenik', 'ključ', 'kljuc', 'neum', 'stolac',
-  'trebinje', 'bijeljina', 'dvorana borik',
+  'trebinje', 'bijeljina', 'dvorana borik', 'busovaca', 'busovača',
 ];
 
-function isLikelySarajevo(titleRaw: string, venueNameRaw: string | null): boolean {
-  const text = `${titleRaw} ${venueNameRaw ?? ''}`.toLowerCase();
-  // Reject if contains a non-Sarajevo city name
+const SARAJEVO_VENUE_HINTS = [
+  'cinemas sloga', 'dom mladih', 'skenderija', 'kamerni teatar',
+  'narodno pozorište sarajevo', 'narodno pozoriste sarajevo',
+  'bkc', 'vijećnica', 'vijecnica', 'zetra',
+  'hotel europe', 'olympic hall', 'pozorište mladih', 'pozoriste mladih',
+  'sartr', 'sarajevski ratni teatar', 'hacienda', 'underground',
+  'baščaršija', 'bascarsija', 'ilidža', 'ilidza', 'grbavica',
+];
+
+type CityClass = 'sarajevo' | 'other_city' | 'unknown';
+
+function classifyCity(titleRaw: string, venueOrCityRaw: string | null): CityClass {
+  const text = `${titleRaw} ${venueOrCityRaw ?? ''}`.toLowerCase();
   for (const city of NON_SARAJEVO_CITIES) {
-    if (text.includes(city)) return false;
+    if (text.includes(city)) {
+      return 'other_city';
+    }
   }
-  // Accept if explicitly mentions Sarajevo or a known Sarajevo venue/area
-  if (text.includes('sarajevo') || text.includes('baščaršija') || text.includes('bascarsija')) return true;
-  // Accept if venue is a known Sarajevo venue (check common ones)
-  const sarajevoVenues = [
-    'cinemas sloga', 'dom mladih', 'skenderija', 'kamerni teatar',
-    'narodno pozorište', 'bkc', 'vijećnica', 'vijecnica', 'zetra',
-    'hotel europe', 'olympic hall', 'pozorište mladih', 'sartr',
-    'sloga', 'hacienda', 'underground',
-  ];
-  for (const venue of sarajevoVenues) {
-    if (text.includes(venue)) return true;
+  // 'sarajev' catches sarajevo, sarajevski/sarajevska/sarajevsko (Bosnian inflections)
+  if (text.includes('sarajev')) {
+    return 'sarajevo';
   }
-  // No city signal either way — accept (better to include than miss)
-  return true;
+  for (const hint of SARAJEVO_VENUE_HINTS) {
+    if (text.includes(hint)) {
+      return 'sarajevo';
+    }
+  }
+  return 'unknown';
+}
+
+// Strict: keep only when we have positive evidence the event is in Sarajevo.
+// Use for national sources where ambiguous candidates would otherwise leak.
+function isStrictlySarajevo(titleRaw: string, venueOrCityRaw: string | null): boolean {
+  return classifyCity(titleRaw, venueOrCityRaw) === 'sarajevo';
 }
 
 function stripHtml(value: string): string {
@@ -145,6 +159,12 @@ function extractPozoristaCandidates(
     const metadataContext = html.slice(match.index + match[0].length, match.index + match[0].length + 500);
     const metadata = extractPozoristaMetadata(metadataContext);
 
+    // pozorista.ba aggregates theatres across BiH. Require a Sarajevo signal
+    // (in title or captured venue) — otherwise we'd promote Mostar/Tuzla shows.
+    if (!isStrictlySarajevo(titleRaw, metadata.venueNameRaw)) {
+      continue;
+    }
+
     seen.add(resolvedUrl);
     candidates.push({
       sourceUrl: resolvedUrl,
@@ -219,6 +239,97 @@ function extractAllEventsCandidates(
   return candidates;
 }
 
+function extractUlazniceCardMetadata(
+  beforeWindow: string,
+  afterWindow: string,
+  baseUrl: string,
+): {
+  dateRaw: string | null;
+  venueNameRaw: string | null;
+  cityRaw: string | null;
+  imageUrl: string | null;
+} {
+  const imageMatch = beforeWindow.match(/data-bkgimg=["']([^"']+)["']/i);
+  const imageUrl = imageMatch?.[1] ? resolveUrl(imageMatch[1], baseUrl) : null;
+
+  const dateMatch = afterWindow.match(
+    /<i\b[^>]*la-calendar[^>]*><\/i>\s*([^<]+?)\s*<\/span>/i,
+  );
+  const dateRaw = dateMatch?.[1] ? dateMatch[1].replace(/\s+/g, ' ').trim() : null;
+
+  const venueMatch = afterWindow.match(
+    /<b>\s*([^<]+?)\s*<\/b>\s*<span\s+class=["']smallinfo["']>\s*[,\s]*([^<]*?)\s*<\/span>/i,
+  );
+  const venueNameRaw = venueMatch?.[1] ? stripHtml(venueMatch[1]) : null;
+  const cityRaw = venueMatch?.[2] ? stripHtml(venueMatch[2]) : null;
+
+  return { dateRaw, venueNameRaw, cityRaw, imageUrl };
+}
+
+function extractUlazniceCandidates(
+  html: string,
+  source: IngestionSourceSummary,
+): RawEventCandidate[] {
+  const titleLinkRegex =
+    /<h5\b[^>]*event-title-front[^>]*>\s*<a\b[^>]*href=["'](\/(?:[a-z0-9_-]+\/)?tickets\/\d+\/[a-z0-9-]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const candidates: RawEventCandidate[] = [];
+  const seen = new Set<string>();
+
+  for (const match of html.matchAll(titleLinkRegex)) {
+    const rawHref = match[1]?.trim();
+    if (!rawHref) {
+      continue;
+    }
+
+    const resolvedUrl = resolveUrl(rawHref, source.sourceUrl);
+    if (!resolvedUrl || seen.has(resolvedUrl)) {
+      continue;
+    }
+
+    const titleRaw = stripHtml(match[2] ?? '') || null;
+    if (!titleRaw || titleRaw.length < 4) {
+      continue;
+    }
+
+    const matchEnd = match.index + match[0].length;
+    const beforeWindow = html.slice(Math.max(0, match.index - 600), match.index);
+    const afterWindow = html.slice(matchEnd, matchEnd + 800);
+    const metadata = extractUlazniceCardMetadata(beforeWindow, afterWindow, source.sourceUrl);
+
+    // ulaznice.org lists nationwide events. Trust the explicit smallinfo city
+    // when present; otherwise require a positive Sarajevo signal in title/venue.
+    const cityLower = metadata.cityRaw?.toLowerCase() ?? null;
+    if (cityLower !== null && !cityLower.includes('sarajevo')) {
+      continue;
+    }
+    if (cityLower === null && !isStrictlySarajevo(titleRaw, metadata.venueNameRaw)) {
+      continue;
+    }
+
+    seen.add(resolvedUrl);
+    candidates.push({
+      sourceUrl: resolvedUrl,
+      titleRaw,
+      descriptionRaw: null,
+      dateRaw: metadata.dateRaw,
+      imageUrl: metadata.imageUrl,
+      venueRaw: metadata.venueNameRaw,
+      venueNameRaw: metadata.venueNameRaw,
+      rawHtml: match[0].slice(0, 4000),
+      rawJson: {
+        sourcePageUrl: source.sourceUrl,
+        extractedFrom: 'ulaznice_event_card',
+        fetchMethod: 'direct_html',
+        parsedDateFrom: metadata.dateRaw ? 'listing_card' : null,
+        parsedVenueFrom: metadata.venueNameRaw ? 'listing_card' : null,
+        parsedCityFrom: metadata.cityRaw ? 'listing_card_smallinfo' : null,
+      },
+    });
+  }
+
+  return candidates;
+}
+
 function extractKupikartuCandidates(
   html: string,
   source: IngestionSourceSummary,
@@ -252,8 +363,9 @@ function extractKupikartuCandidates(
     const venueNameRaw = extractKupikartuVenue(strippedContent);
     const imageUrl = extractImageSrc(rawInnerHtml, source.sourceUrl);
 
-    // Filter: only Sarajevo events from national sources
-    if (!isLikelySarajevo(titleRaw, venueNameRaw)) {
+    // Filter: only Sarajevo events from national sources. Strict — drop when
+    // there's no positive Sarajevo signal in title/venue.
+    if (!isStrictlySarajevo(titleRaw, venueNameRaw)) {
       continue;
     }
 
@@ -304,6 +416,13 @@ export function extractCandidatesForSource(
 
   if (parserHint === 'kupikartu_listing' || sourceUrl.includes('kupikartu.ba')) {
     return extractKupikartuCandidates(html, {
+      ...source,
+      sourceUrl: sourcePageUrl,
+    });
+  }
+
+  if (parserHint === 'ulaznice_listing' || sourceUrl.includes('ulaznice.org')) {
+    return extractUlazniceCandidates(html, {
       ...source,
       sourceUrl: sourcePageUrl,
     });

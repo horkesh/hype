@@ -43,8 +43,8 @@
    Do instead: always use `Prefer: count=exact` header and check `content-range` to verify you're seeing all rows. Our DB has 1,226 venues.
 3. **[2026-03-17] PostgREST POST with ?select= returns existing rows instead of inserting**
    Do instead: use `requestSupabaseAdminNoContent` for bulk inserts, not `fetchSupabaseAdminJson` with `?select=` param.
-4. **[2026-03-17] National sources need Sarajevo city filter**
-   Do instead: for sources like KupiKartu that cover all of BiH, add a city rejection list + known Sarajevo venue matching before inserting candidates.
+4. **[2026-05-16] National sources need a *strict* Sarajevo filter — default-reject when ambiguous**
+   Do instead: for BiH-wide sources (KupiKartu, Ulaznice, Pozorista), use `isStrictlySarajevo` in `backend/src/services/sourceExtractors.ts` — it returns true only on positive evidence (`sarajev` prefix, known Sarajevo venue/neighborhood, or an explicit `smallinfo` city of Sarajevo). The earlier lenient `isLikelySarajevo` defaulted to accept when no city signal was present, which leaked Tuzla/Mostar/Busovaca events. AllEvents stays URL-scoped (`/sarajevo/*`) and needs no filter. When adding a new national source, prefer an explicit per-card city signal (like Ulaznice's `smallinfo` span) and fall back to the strict heuristic only when missing.
 5. **[2026-03-20] Browser `toLocaleDateString('bs-BA')` is unreliable**
    Do instead: use explicit Bosnian month/day name arrays for date formatting instead of relying on browser Intl support for `bs-BA` locale, which produces broken output like "M03" in many browsers.
 6. **[2026-03-20] App is dark-mode-only — no light mode, no theme toggle**
@@ -85,6 +85,8 @@
    Do instead: after running AI venue enrichment, audit mood tag distribution. If any mood covers >15% of venues, it's inflated and useless as a filter. Strip generic tags (e.g. every cafe is not "chill", every restaurant is not "foodie"). Keep tags only where genuinely distinctive (name contains "lounge", "jazz", tags contain "gourmet", etc.).
 2. **[2026-03-22] Category + mood must be AND filter, not sort boost**
    Do instead: when both a category and mood are selected on Home, show ONLY venues matching both. Never show all category venues with mood-tagged ones sorted to top — users expect hard filtering. Use `.filter()` not sort-and-append.
+3. **[2026-05-16] Same concert listed on multiple ticket sites must collapse to one canonical event**
+   Do instead: in `promoteEvents.ts`, dedupe by both `(source_name, ticket_url)` (within-source fast path) AND `canonicalEventKey({title, startDatetime, venueId, locationName})` from `backend/src/services/eventDedupe.ts` (cross-source). The canonical key strips diacritics + noise tokens, truncates start to YYYY-MM-DD, and falls back to normalized `location_name` when `venue_id` is null. When a duplicate is found, mark the raw row promoted so it doesn't get retried on every run.
 
 ## Execution & Validation
 1. **[2026-03-22] Never test on localhost — always push, deploy, and verify on production**

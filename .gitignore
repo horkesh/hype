@@ -2,7 +2,7 @@ node_modules/
 
 .git/
 .expo/
-.claude/
+.claude/settings.local.json
 
 dist/
 web-build/

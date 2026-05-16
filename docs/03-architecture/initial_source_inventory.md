@@ -38,6 +38,7 @@ The backend currently supports:
   - Pozorista
   - AllEvents
   - KupiKartu
+  - Ulaznice
 
 The backend does not yet reliably support:
 
@@ -186,6 +187,51 @@ Home-machine verification value:
 
 - best ticketing-platform verification source
 
+### 4. Ulaznice
+
+Role:
+
+- secondary ticketing coverage for concerts and theater, complements KupiKartu
+
+Why it belongs in the first active set:
+
+- explicit per-card city signal (`<span class="smallinfo">, Sarajevo</span>`) is the cleanest geographic filter we have across any source
+- stable `/tickets/{id}/{slug}` and `/{vendor}/tickets/{id}/{slug}` event-link structure
+- direct-html fetch path works without a headless browser
+- different vendor mix (t4f, beral, coloseum) catches concerts that don't appear on KupiKartu
+
+Recommended seed:
+
+```json
+{
+  "name": "Ulaznice.org Sarajevo",
+  "source_key": "ulaznice",
+  "source_url": "https://www.ulaznice.org/cat/1/muzika",
+  "source_type": "ticketing_platform",
+  "tier": 1,
+  "frequency_hours": 6,
+  "is_active": true,
+  "category_hint": null,
+  "scrape_config": {
+    "fetch_method": "direct_html",
+    "list_url": "https://www.ulaznice.org/cat/1/muzika",
+    "category_urls": [
+      "https://www.ulaznice.org/cat/3/pozoriste"
+    ],
+    "parser_hint": "ulaznice_listing",
+    "event_url_pattern": "/{vendor}/tickets/{id}/{slug}",
+    "city_filter": "Sarajevo",
+    "seed_origin": "manual_addition_2026_05_16",
+    "seed_confidence": "high"
+  }
+}
+```
+
+Filter behavior:
+
+- the parser reads the explicit city in the listing card's `smallinfo` span when present and drops anything outside Sarajevo
+- when a card has no city span, falls back to the same strict title/venue Sarajevo signal used by KupiKartu
+
 ## Recommended seeded but inactive sources
 
 These are good candidates to seed now, but not activate until the pipeline or fetch method is stronger.
@@ -296,6 +342,7 @@ Activate now:
 - Pozorista
 - AllEvents
 - KupiKartu
+- Ulaznice
 
 Seed but inactive:
 

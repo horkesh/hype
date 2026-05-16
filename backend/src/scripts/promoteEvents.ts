@@ -17,6 +17,7 @@ import {
   requestSupabaseAdminNoContent,
   requestSupabaseAdminJson,
 } from '../lib/supabaseAdmin.js';
+import { canonicalEventKey } from '../services/eventDedupe.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -283,17 +284,39 @@ async function fetchVenues(): Promise<Venue[]> {
   );
 }
 
-async function fetchExistingEventKeys(): Promise<Set<string>> {
-  const rows = await fetchSupabaseAdminJson<Array<{ source: string; ticket_url: string }>>(
-    '/rest/v1/events?select=source,ticket_url&limit=10000',
+interface ExistingEventRow {
+  source: string | null;
+  ticket_url: string | null;
+  title_bs: string | null;
+  start_datetime: string | null;
+  venue_id: string | null;
+  location_name: string | null;
+}
+
+async function fetchExistingEventKeys(): Promise<{
+  sourceUrlKeys: Set<string>;
+  canonicalKeys: Set<string>;
+}> {
+  const rows = await fetchSupabaseAdminJson<ExistingEventRow[]>(
+    '/rest/v1/events?select=source,ticket_url,title_bs,start_datetime,venue_id,location_name&limit=10000',
   );
-  const keys = new Set<string>();
+  const sourceUrlKeys = new Set<string>();
+  const canonicalKeys = new Set<string>();
   for (const r of rows) {
     if (r.source && r.ticket_url) {
-      keys.add(`${r.source}::${r.ticket_url}`);
+      sourceUrlKeys.add(`${r.source}::${r.ticket_url}`);
+    }
+    const canonical = canonicalEventKey({
+      title: r.title_bs,
+      startDatetime: r.start_datetime,
+      venueId: r.venue_id,
+      locationName: r.location_name,
+    });
+    if (canonical) {
+      canonicalKeys.add(canonical);
     }
   }
-  return keys;
+  return { sourceUrlKeys, canonicalKeys };
 }
 
 // ---------------------------------------------------------------------------
@@ -337,8 +360,8 @@ async function main() {
   log(`  ${venues.length} venues loaded`);
 
   log('Loading existing event keys for dedup...');
-  const existingKeys = await fetchExistingEventKeys();
-  log(`  ${existingKeys.size} existing events indexed`);
+  const { sourceUrlKeys, canonicalKeys } = await fetchExistingEventKeys();
+  log(`  ${sourceUrlKeys.size} source+ticket_url keys, ${canonicalKeys.size} canonical keys indexed`);
 
   log('Fetching raw_events to promote...');
   const rawEvents = await fetchRawEvents();
@@ -349,6 +372,7 @@ async function main() {
     promoted: 0,
     skippedNoDate: 0,
     skippedDuplicate: 0,
+    skippedCrossSourceDuplicate: 0,
     skippedNoTitle: 0,
     venueExact: 0,
     venuePartial: 0,
@@ -374,12 +398,13 @@ async function main() {
         continue;
       }
 
-      // Dedup: source + ticket_url
+      // Same-source dedup: source_name + ticket_url
       const ticketUrl = raw.source_url ?? null;
-      const dedupKey = `${raw.source_name ?? ''}::${ticketUrl ?? ''}`;
-      if (ticketUrl && existingKeys.has(dedupKey)) {
+      const sourceUrlKey = `${raw.source_name ?? ''}::${ticketUrl ?? ''}`;
+      if (ticketUrl && sourceUrlKeys.has(sourceUrlKey)) {
         log(`  SKIP [duplicate] "${raw.title_raw}"`);
         stats.skippedDuplicate++;
+        await markRawEventPromoted(raw.id, null);
         continue;
       }
 
@@ -407,6 +432,22 @@ async function main() {
 
       const title = raw.title_raw.trim();
 
+      // Cross-source dedup: same canonical key (title+date+venue) already promoted
+      // from a different ticket site. Mark this raw row promoted so we don't keep
+      // retrying it on every run.
+      const canonical = canonicalEventKey({
+        title,
+        startDatetime,
+        venueId,
+        locationName,
+      });
+      if (canonical && canonicalKeys.has(canonical)) {
+        log(`  SKIP [cross-source duplicate] "${title}" (${canonical})`);
+        stats.skippedCrossSourceDuplicate++;
+        await markRawEventPromoted(raw.id, venueId);
+        continue;
+      }
+
       const eventInsert: EventInsert = {
         title_bs: title,
         title_en: title,
@@ -428,8 +469,13 @@ async function main() {
 
       await insertEvent(eventInsert);
 
-      // Track dedup key so subsequent iterations in this run also deduplicate
-      if (ticketUrl) existingKeys.add(dedupKey);
+      // Track both keys so subsequent iterations in this run also deduplicate
+      if (ticketUrl) {
+        sourceUrlKeys.add(sourceUrlKey);
+      }
+      if (canonical) {
+        canonicalKeys.add(canonical);
+      }
 
       await markRawEventPromoted(raw.id, venueId);
 
@@ -447,7 +493,8 @@ async function main() {
   log(`  Total raw events processed : ${stats.total}`);
   log(`  Promoted                   : ${stats.promoted}`);
   log(`  Skipped — no date          : ${stats.skippedNoDate}`);
-  log(`  Skipped — duplicate        : ${stats.skippedDuplicate}`);
+  log(`  Skipped — same-source dup  : ${stats.skippedDuplicate}`);
+  log(`  Skipped — cross-source dup : ${stats.skippedCrossSourceDuplicate}`);
   log(`  Skipped — no title         : ${stats.skippedNoTitle}`);
   log(`  Errors                     : ${stats.errors}`);
   log('');

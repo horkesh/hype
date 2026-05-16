@@ -35,13 +35,20 @@ Use when:
 After parsing, compare event candidates using:
 
 - normalized title
-- start datetime
-- venue match or venue name
-- source type
+- start datetime (calendar day)
+- venue match or normalized venue/location name
+
+Implementation:
+
+- `backend/src/services/eventDedupe.ts` exposes `canonicalEventKey({ title, startDatetime, venueId, locationName })`
+- normalization strips diacritics, lowercases, removes punctuation, and removes noise tokens (`sarajevo`, `bkc`, `kc`, `centar`, `kulturni`)
+- key shape: `<normalized title>|YYYY-MM-DD|id:<venueId>` or `<normalized title>|YYYY-MM-DD|loc:<normalized location>` when venue is unmatched
+- returns `null` when the date is missing/malformed or the title is sub-3-chars so the caller falls back to the source+ticket_url key instead of grouping by garbage
 
 Recommended rule:
 
-- if title + start_datetime + venue confidently match an existing canonical event, treat as duplicate or enrichment rather than a new event
+- if `canonicalEventKey` matches an existing canonical event, mark the raw row promoted and skip insertion — the same concert listed on KupiKartu, Ulaznice, and AllEvents collapses to one canonical event row, not three
+- this runs in `promoteEvents.ts` after `(source_name, ticket_url)` fast-path dedupe and after venue matching, since the canonical key depends on the resolved `venue_id` or `location_name`
 
 ### Layer 3: Venue matching
 

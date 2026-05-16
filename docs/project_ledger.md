@@ -1962,3 +1962,40 @@ Full findings saved in `docs/08-reference/code_quality_audit_2026_04_10.md`.
 #### Totals
 - ~80+ files changed, 9 deleted, 3 created
 - 193/193 tests passing throughout
+
+### Session 2026-05-16 — Ulaznice source + strict Sarajevo filter + cross-source dedupe
+
+#### Scope
+Added Ulaznice.org as a fourth direct-html ingestion source, then closed two cross-cutting gaps the user raised before letting it ship: national sources were leaking non-Sarajevo events, and cross-source duplicates (same concert on KupiKartu + Ulaznice + AllEvents) were promoting as three canonical event rows instead of one.
+
+#### Ulaznice source
+- Added `extractUlazniceCandidates` + `extractUlazniceCardMetadata` in `backend/src/services/sourceExtractors.ts` matching `/{vendor?}/tickets/{id}/{slug}` event links inside `<h5 class="…event-title-front">`. Pulls date from the calendar-icon span, venue from `<b>…</b>`, city from `<span class="smallinfo">`, image from `data-bkgimg`.
+- Wired `parser_hint=ulaznice_listing` / URL containing `ulaznice.org` into `extractCandidatesForSource`.
+- Migration `supabase/migrations/20260516_ulaznice_scrape_source.sql` adds the source row (tier 1, 6h frequency, music + theater category URLs). Idempotent via `NOT EXISTS`.
+
+#### Strict Sarajevo filter
+- Replaced lenient `isLikelySarajevo` (default-accept on ambiguous) with `classifyCity` + `isStrictlySarajevo` (default-reject). Broadened the Sarajevo prefix from `'sarajevo'` to `'sarajev'` to catch Bosnian inflections (sarajevski/sarajevska/sarajevsko). Added Baščaršija, Ilidža, Grbavica, SARTR, and Sarajevski ratni teatar to the venue-hint list; added Busovača to the reject list.
+- Applied strict filter to **Pozorista** (was unfiltered — biggest leak; would have promoted Tuzla/Mostar theaters), **KupiKartu** (was lenient), and the **Ulaznice** fallback. AllEvents stays URL-scoped.
+
+#### Cross-source dedupe
+- New `backend/src/services/eventDedupe.ts` exposes `canonicalEventKey({title, startDatetime, venueId, locationName})`. Strips diacritics, lowercases, removes punctuation, drops noise tokens (`sarajevo`, `bkc`, `kc`, `centar`, `kulturni`). Truncates date to `YYYY-MM-DD`. Falls back to normalized `location_name` when `venue_id` is null. Returns null on missing date or sub-3-char title.
+- `promoteEvents.ts` now fetches `title_bs`, `start_datetime`, `venue_id`, `location_name` on existing events, builds both a `(source, ticket_url)` set and a canonical-key set, and checks both before insertion. Same-source duplicates and cross-source duplicates both mark the raw row promoted so they don't keep retrying on every run.
+- New stat: `Skipped — cross-source dup`.
+
+#### Tests
+- 3 new extractor tests (Sarajevo-tagged Pozorista vs Tuzla, Ulaznice card filter + dedupe, Ulaznice vendor-prefixed URLs, strict-reject for KupiKartu cards with no signal); existing pozorista test updated for strict-filter behavior.
+- 6 new `eventDedupe` tests covering: same event across sources collapses, diacritic/case/punctuation insensitivity, different days stay distinct, different venues stay distinct, null on bad date, null on too-short title.
+- Full backend test sweep: 24/25 (one pre-existing failure in `integration.test.ts` due to a `bun:` import — confirmed identical on main, unrelated).
+
+#### Admin app (earlier in session)
+- Admin SPA restructure (Dashboard/VenueCuration/EventManagement/UserManagement pages, Sidebar component, useAuth hook), Bosnian login copy, in-memory Supabase auth lock replacing Web Locks API, role enum migration (`super_admin`/`editor`) and curation columns (`is_curated`/`curator_notes`). Redeployed to https://look-admin.vercel.app.
+
+#### Files
+- New: `backend/src/services/eventDedupe.ts`, `backend/tests/eventDedupe.test.ts`, `supabase/migrations/20260516_ulaznice_scrape_source.sql`
+- Modified: `backend/src/services/sourceExtractors.ts`, `backend/src/scripts/promoteEvents.ts`, `backend/tests/sourceExtractors.test.ts`
+- Docs: `initial_source_inventory.md` (Ulaznice slot 4), `dedupe_and_promotion_policy.md` (Layer 2 canonical key), `execution_board.md` (E5 progress), `.claude/napkin.md` (lessons #4 updated, new cross-source dedupe rule)
+
+#### Follow-ups deferred
+- Apply migration `20260516_ulaznice_scrape_source.sql` to live Supabase before first ingestion run.
+- Pre-existing typecheck errors in `src/scripts/*.ts`, `src/db/migrate.ts`, `src/index.ts` (Apify response narrowing, missing `@specific-dev/framework` types) untouched — none in the files this session changed.
+- Pre-existing `integration.test.ts` `bun:` ESM scheme error untouched (tooling issue, not ulaznice).

@@ -448,9 +448,11 @@ Status:
   - `GET /ingestion/sources` now has an env-driven live-read implementation path for backend/admin use
   - `POST /ingestion/run/:sourceId` now creates a real `scrape_log` row before fetch/parser work exists
   - `POST /ingestion/run/:sourceId` now performs first-pass raw intake for `direct_html` sources, including fetch, candidate extraction, raw-event insert/skip, and `last_scraped_at` updates
-  - source-aware extraction now exists ahead of generic anchor fallback for Pozorista, AllEvents, and KupiKartu event-link patterns
+  - source-aware extraction now exists ahead of generic anchor fallback for Pozorista, AllEvents, KupiKartu, and Ulaznice event-link patterns
   - direct-html ingestion now honors source-configured list and category page URLs instead of assuming one homepage fetch
   - raw-intake enrichment, detail enrichment, and parse-preview scaffolding now exist for the first active sources
+  - Sarajevo city filter is now strict (default-reject) for national sources (Pozorista, KupiKartu, Ulaznice fallback) — only positive evidence of Sarajevo in title/venue/city retains a candidate; AllEvents stays URL-scoped
+  - cross-source dedupe now exists at promotion: `canonicalEventKey(title+date+venue)` collapses the same concert listed on multiple ticket sites into one canonical event row instead of three
   - repo-native SQL and architecture notes now exist for reconciling live `venues`, `events`, `event_series`, and `daily_specials` before import or promotion work
   - repo-native publishability rules now exist for promotion workflow, venue matching, and canonical event updates, so the next backend wave can move toward promotion-preview logic instead of just expanding source breadth
 
