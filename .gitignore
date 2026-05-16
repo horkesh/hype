@@ -33,6 +33,11 @@ yarn-error.*
 .natively/
 expo-*.log
 test-results/
+supabase/.temp/
+
+# Transient discovery script outputs — overwritten on each run, not source
+backend/data/found_instagram_handles.json
+backend/data/no_instagram_found.json
 
 android/
 ios/
