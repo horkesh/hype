@@ -6,12 +6,16 @@
  *   - Parses date_raw → start_datetime
  *   - Infers category from title keywords
  *   - Skips events already promoted or lacking a date
- *   - Deduplicates on (source, ticket_url)
+ *   - Deduplicates on (source, ticket_url) AND (title, date, venue)
  *
  * Usage:
  *   node --env-file=backend/.env --import tsx backend/src/scripts/promoteEvents.ts
+ *
+ * The `promoteEvents()` function is also exported so wrappers like
+ * scrapeAndPromote.ts can chain it without spawning a subprocess.
  */
 
+import { pathToFileURL } from 'node:url';
 import {
   fetchSupabaseAdminJson,
   requestSupabaseAdminNoContent,
@@ -259,8 +263,8 @@ async function markRawEventPromoted(
 // Main
 // ---------------------------------------------------------------------------
 
-async function main() {
-  log('=== promoteEvents.ts starting ===');
+export async function promoteEvents(): Promise<void> {
+  log('=== promoteEvents starting ===');
 
   log('Loading venues...');
   const venues = await fetchVenues();
@@ -412,7 +416,11 @@ async function main() {
   log(`    No match                 : ${stats.venueNone}`);
 }
 
-main().catch((err) => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+// Auto-run only when invoked directly via the CLI. When imported (e.g. by
+// scrapeAndPromote.ts) callers are responsible for invoking promoteEvents().
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  promoteEvents().catch((err) => {
+    console.error('Fatal error:', err);
+    process.exit(1);
+  });
+}

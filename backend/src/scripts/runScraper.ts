@@ -6,8 +6,12 @@
  *
  * Usage:
  *   node --env-file=backend/.env --import tsx backend/src/scripts/runScraper.ts [sourceId]
+ *
+ * The `runScraper(sourceIdArg?)` function is also exported so wrappers like
+ * scrapeAndPromote.ts can chain it without spawning a subprocess.
  */
 
+import { pathToFileURL } from 'node:url';
 import { listIngestionSources, getIngestionSourceById } from '../services/ingestionSources.js';
 import type { IngestionSourceSummary } from '../services/ingestionSources.js';
 import { fetchSourceContent } from '../services/ingestionFetch.js';
@@ -85,16 +89,13 @@ async function scrapeSource(source: IngestionSourceSummary): Promise<void> {
   }
 }
 
-async function main() {
-  const sourceIdArg = process.argv[2];
-
+export async function runScraper(sourceIdArg?: string): Promise<void> {
   if (sourceIdArg) {
     // Scrape a single source
     log(`Running scraper for source: ${sourceIdArg}`);
     const source = await getIngestionSourceById(sourceIdArg);
     if (!source) {
-      console.error(`Source not found: ${sourceIdArg}`);
-      process.exit(1);
+      throw new Error(`Source not found: ${sourceIdArg}`);
     }
     await scrapeSource(source);
   } else {
@@ -124,7 +125,11 @@ async function main() {
   log('Scraper run complete.');
 }
 
-main().catch((err) => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+// Auto-run only when invoked directly via the CLI. When imported (e.g. by
+// scrapeAndPromote.ts) callers are responsible for invoking runScraper().
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  runScraper(process.argv[2]).catch((err) => {
+    console.error('Fatal error:', err);
+    process.exit(1);
+  });
+}

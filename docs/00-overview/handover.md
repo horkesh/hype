@@ -50,7 +50,9 @@ If you are continuing work, resume with this exact focus:
 
 ## Key scripts (all run from repo root)
 ```
+node --env-file=backend/.env --import tsx backend/src/scripts/scrapeAndPromote.ts [sourceId]
 node --env-file=backend/.env --import tsx backend/src/scripts/runScraper.ts [sourceId]
+node --env-file=backend/.env --import tsx backend/src/scripts/promoteEvents.ts
 node --env-file=backend/.env --import tsx backend/src/scripts/scrapeInstagram.ts
 node --env-file=backend/.env --import tsx backend/src/scripts/enrichDescriptions.ts
 node --env-file=backend/.env --import tsx backend/src/scripts/scrapeGooglePhotos.ts

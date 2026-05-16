@@ -25,8 +25,8 @@
    Do instead: once Apify credits are topped up, update `scrapeInstagram.ts` to pull from `instagram_handle` column (189 venues) instead of hardcoded lists, then run the full scrape.
 2. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
    Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
-3. **[2026-03-21] Periodic event re-scrape**
-   Do instead: re-run `runScraper.ts` + `enrichAllSources.ts` + `promoteEvents.ts` weekly to pick up new events from all three sources.
+3. **[2026-05-16] Periodic event re-scrape — chained via scrapeAndPromote.ts**
+   Do instead: re-run `scrapeAndPromote.ts` (chains runScraper → promoteEvents in one invocation) for the periodic refresh of all active sources. Pass an optional `[sourceId]` to scope to one source. Run `enrichAllSources.ts` separately when detail-page enrichment is needed (Instagram/AllEvents JSON-LD/Pozorista datetime attrs). Steps stay separately invokable so a scraper failure on one source doesn't block promotion of others, and so date-parser bugs in promotion can't silently inject wrong data without a chance to inspect raw_events first.
 4. **[2026-03-21] Deactivate past events on schedule**
    Do instead: run a deactivation pass (`is_active = false` for `start_datetime < now()`) before each re-scrape or on a cron.
 
