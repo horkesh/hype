@@ -56,9 +56,28 @@ test('formatEventTime returns a zero-padded hour and minute', () => {
   assert.equal(formatEventTime('2026-03-12T08:05:00'), '08:05');
 });
 
-test('getTonightPriceText returns localized free and paid labels', () => {
-  assert.equal(getTonightPriceText({ price_bam: null } as any, 'bs'), 'Besplatan');
+test('getTonightPriceText differentiates free, paid, and ticketed events', () => {
+  // Explicit price set
   assert.equal(getTonightPriceText({ price_bam: 12 } as any, 'en'), 'from 12 KM');
+  assert.equal(getTonightPriceText({ price_bam: 25 } as any, 'bs'), 'od 25 KM');
+
+  // Explicit zero is free
+  assert.equal(getTonightPriceText({ price_bam: 0 } as any, 'bs'), 'Besplatan');
+
+  // Null price + ticket_url → "Tickets" (NOT "Free", which was the bug —
+  // 43/43 ticketed events were showing as Free because price wasn't extracted)
+  assert.equal(
+    getTonightPriceText({ price_bam: null, ticket_url: 'https://kupikartu.ba/x' } as any, 'bs'),
+    'Karte u prodaji',
+  );
+  assert.equal(
+    getTonightPriceText({ price_bam: null, ticket_url: 'https://kupikartu.ba/x' } as any, 'en'),
+    'Tickets',
+  );
+
+  // Null price + no ticket_url → community/free event
+  assert.equal(getTonightPriceText({ price_bam: null, ticket_url: null } as any, 'bs'), 'Besplatan');
+  assert.equal(getTonightPriceText({ price_bam: null } as any, 'en'), 'Free');
 });
 
 test('toggleTonightSelection respects the four-item cap', () => {

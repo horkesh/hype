@@ -125,14 +125,26 @@ export function formatEventTime(dateString: string): string {
 }
 
 export function getTonightPriceText(event: Event, language: string): string {
-  const isFree = event.price_bam === null || event.price_bam === 0;
+  // Explicit paid price → show it
+  if (event.price_bam != null && event.price_bam > 0) {
+    const fromText = language === 'bs' ? 'od' : 'from';
+    return `${fromText} ${event.price_bam} KM`;
+  }
 
-  if (isFree) {
+  // Explicit zero → free
+  if (event.price_bam === 0) {
     return language === 'bs' ? 'Besplatan' : 'Free';
   }
 
-  const fromText = language === 'bs' ? 'od' : 'from';
-  return `${fromText} ${event.price_bam} KM`;
+  // Null price + ticket_url → ticketed event, price not yet extracted. Don't
+  // call this "Free" — it's actively misleading for paid ticket-source events
+  // (Ulaznice/KupiKartu/Entrio). Show "Tickets" / "Karte u prodaji" instead.
+  if (event.ticket_url) {
+    return language === 'bs' ? 'Karte u prodaji' : 'Tickets';
+  }
+
+  // Null price + no ticket_url → genuinely free or community event
+  return language === 'bs' ? 'Besplatan' : 'Free';
 }
 
 export function toggleTonightSelection(selectedEvents: string[], eventId: string): string[] {

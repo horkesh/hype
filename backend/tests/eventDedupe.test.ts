@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalEventKey } from '../src/services/eventDedupe.js';
+import { canonicalEventKey, fuzzyCrossSourceKey, dayDelta } from '../src/services/eventDedupe.js';
 
 test('canonicalEventKey collapses the same event across sources', () => {
   const kupikartu = canonicalEventKey({
@@ -101,4 +101,35 @@ test('canonicalEventKey returns null when title is too short to be meaningful', 
     }),
     null,
   );
+});
+
+test('fuzzyCrossSourceKey ignores date and short noise tokens', () => {
+  // "WHO SEE - PROLONGIRANO @Cinemas Sloga" and "WHO SEE @ CINEMAS SLOGA SARAJEVO"
+  // at the same venue collapse to the same key — only the first 3 significant
+  // tokens drive it, so "prolongirano" / "sarajevo" suffixes don't fragment.
+  const a = fuzzyCrossSourceKey({
+    title: 'WHO SEE - PROLONGIRANO @Cinemas Sloga',
+    venueId: 'v-cinemas-sloga',
+    locationName: 'Cinemas Sloga',
+  });
+  const b = fuzzyCrossSourceKey({
+    title: 'WHO SEE @ CINEMAS SLOGA SARAJEVO',
+    venueId: 'v-cinemas-sloga',
+    locationName: 'Cinemas Sloga',
+  });
+  assert.equal(a, b);
+});
+
+test('fuzzyCrossSourceKey differs when the venue differs', () => {
+  const a = fuzzyCrossSourceKey({ title: 'Concert X', venueId: 'venue-1', locationName: null });
+  const b = fuzzyCrossSourceKey({ title: 'Concert X', venueId: 'venue-2', locationName: null });
+  assert.notEqual(a, b);
+});
+
+test('dayDelta returns calendar-day distance', () => {
+  assert.equal(dayDelta('2026-05-21T19:00:00Z', '2026-05-22T19:00:00Z'), 1);
+  assert.equal(dayDelta('2026-05-22T00:00:00Z', '2026-05-22T23:59:00Z'), 0);
+  assert.equal(dayDelta('2026-08-12T19:00:00Z', '2026-08-13T19:00:00Z'), 1);
+  assert.equal(dayDelta(null, '2026-05-22'), Infinity);
+  assert.equal(dayDelta('not-a-date', '2026-05-22'), Infinity);
 });

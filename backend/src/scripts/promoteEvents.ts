@@ -21,7 +21,7 @@ import {
   requestSupabaseAdminNoContent,
   requestSupabaseAdminJson,
 } from '../lib/supabaseAdmin.js';
-import { canonicalEventKey } from '../services/eventDedupe.js';
+import { canonicalEventKey, fuzzyCrossSourceKey, dayDelta } from '../services/eventDedupe.js';
 import { parseRawDate } from '../services/dateParse.js';
 import { matchVenue, type VenueRow } from '../services/venueMatch.js';
 
@@ -138,15 +138,24 @@ interface ExistingEventRow {
   location_name: string | null;
 }
 
+interface FuzzyEntry {
+  startDatetime: string;
+  title: string;
+}
+
 async function fetchExistingEventKeys(): Promise<{
   sourceUrlKeys: Set<string>;
   canonicalKeys: Set<string>;
+  fuzzyEntries: Map<string, FuzzyEntry[]>;
 }> {
   const rows = await fetchSupabaseAdminJson<ExistingEventRow[]>(
     '/rest/v1/events?select=source,ticket_url,title_bs,start_datetime,venue_id,location_name&limit=10000',
   );
   const sourceUrlKeys = new Set<string>();
   const canonicalKeys = new Set<string>();
+  // Fuzzy index: same first-token + venue, multiple datetimes (so we can check
+  // ±N-day proximity at insertion time).
+  const fuzzyEntries = new Map<string, FuzzyEntry[]>();
   for (const r of rows) {
     if (r.source && r.ticket_url) {
       sourceUrlKeys.add(`${r.source}::${r.ticket_url}`);
@@ -157,11 +166,19 @@ async function fetchExistingEventKeys(): Promise<{
       venueId: r.venue_id,
       locationName: r.location_name,
     });
-    if (canonical) {
-      canonicalKeys.add(canonical);
+    if (canonical) canonicalKeys.add(canonical);
+    const fuzzy = fuzzyCrossSourceKey({
+      title: r.title_bs,
+      venueId: r.venue_id,
+      locationName: r.location_name,
+    });
+    if (fuzzy && r.start_datetime && r.title_bs) {
+      const arr = fuzzyEntries.get(fuzzy) ?? [];
+      arr.push({ startDatetime: r.start_datetime, title: r.title_bs });
+      fuzzyEntries.set(fuzzy, arr);
     }
   }
-  return { sourceUrlKeys, canonicalKeys };
+  return { sourceUrlKeys, canonicalKeys, fuzzyEntries };
 }
 
 // ---------------------------------------------------------------------------
@@ -205,8 +222,8 @@ export async function promoteEvents(): Promise<void> {
   log(`  ${venues.length} venues loaded`);
 
   log('Loading existing event keys for dedup...');
-  const { sourceUrlKeys, canonicalKeys } = await fetchExistingEventKeys();
-  log(`  ${sourceUrlKeys.size} source+ticket_url keys, ${canonicalKeys.size} canonical keys indexed`);
+  const { sourceUrlKeys, canonicalKeys, fuzzyEntries } = await fetchExistingEventKeys();
+  log(`  ${sourceUrlKeys.size} source+ticket_url keys, ${canonicalKeys.size} canonical keys, ${fuzzyEntries.size} fuzzy clusters`);
 
   log('Fetching raw_events to promote...');
   const rawEvents = await fetchRawEvents();
@@ -293,6 +310,21 @@ export async function promoteEvents(): Promise<void> {
         continue;
       }
 
+      // Near-duplicate dedup: same first-significant-tokens + same venue,
+      // existing event within ±2 days. Catches the case where sources
+      // disagree on the date (PROLONGIRANO reschedules, timezone bugs, etc.).
+      const fuzzy = fuzzyCrossSourceKey({ title, venueId, locationName });
+      if (fuzzy) {
+        const existing = fuzzyEntries.get(fuzzy) ?? [];
+        const near = existing.find((e) => dayDelta(e.startDatetime, startDatetime) <= 2);
+        if (near) {
+          log(`  SKIP [near-day duplicate] "${title}" ≈ "${near.title}" (${dayDelta(near.startDatetime, startDatetime)}d apart)`);
+          stats.skippedCrossSourceDuplicate++;
+          await markRawEventPromoted(raw.id, venueId);
+          continue;
+        }
+      }
+
       const eventInsert: EventInsert = {
         title_bs: title,
         title_en: title,
@@ -314,12 +346,18 @@ export async function promoteEvents(): Promise<void> {
 
       await insertEvent(eventInsert);
 
-      // Track both keys so subsequent iterations in this run also deduplicate
+      // Track all three indexes so subsequent iterations in this run also
+      // dedupe against what we just inserted.
       if (ticketUrl) {
         sourceUrlKeys.add(sourceUrlKey);
       }
       if (canonical) {
         canonicalKeys.add(canonical);
+      }
+      if (fuzzy) {
+        const arr = fuzzyEntries.get(fuzzy) ?? [];
+        arr.push({ startDatetime, title });
+        fuzzyEntries.set(fuzzy, arr);
       }
 
       await markRawEventPromoted(raw.id, venueId);
