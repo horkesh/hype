@@ -460,6 +460,14 @@ Status:
   - 6 missing event venues seeded (Zetra, Stadion Grbavica, Stadion FK Slavija, AQUA CLUB, Coloseum Club, Kino Igman Ilidža) and fully enriched with Google ratings, review snippets, websites, phones, addresses, and cover photos via the `seed → findGooglePlaceIds → enrichFromGoogle → scrapeGooglePhotos` pipeline
   - new `findGooglePlaceIds.ts` script closes the gap between freshly-seeded venues and the existing enrichment pipeline (which requires `google_place_id IS NOT NULL`)
   - All 11 ulaznice events are now `type='venue_linked'` in production with correct dates, correct venues, and full Google enrichment
+  - `scrapeGooglePhotos.ts` stuck-loop fixed (in-process Set tracking "tried this run" + ORDER BY id); single invocation backfills the entire venue table
+  - venue matcher gained 3 more strategies: first-comma-chunk preprocessing for address-shaped raws, token-overlap fallback for same-language paraphrases, and a `CANONICAL_ALIASES` table for abbreviations like BKC (catches the 3-char gap that no structural strategy can close)
+  - 2 more event venues seeded (Stadion Asim Ferhatović Hase / Koševo and Metalac) with full Google enrichment pipeline applied — 8 new event venues total this session
+  - `backfillEventVenues.ts` script re-runs `matchVenue` against historical events with `venue_id IS NULL` (caught 11 + 7 additional matches)
+  - 13 historical duplicate events soft-deactivated (same venue + same day, kept longest title_bs, excluded FESTIVAL multi-artist rows)
+  - 26 legacy events explicitly in non-Sarajevo cities (Jajce, Gradiška, Zavidovići, Mostar, Tuzla, etc.) deactivated — predated the strict filter
+  - 18 of 20 pre-existing backend typecheck errors fixed (all `await res.json()` narrowing + 2 missing `.js` extensions). Remaining 2 errors are missing `@specific-dev/framework` private package — needs `NPM_TOKEN`, not code work
+  - Final production state: 46 upcoming events across 3 active direct-html sources (AllEvents.in 26 / Ulaznice 11 / KupiKartu 9), 30 venue-linked (65% link rate). Ulaznice.org at 100%.
   - repo-native SQL and architecture notes now exist for reconciling live `venues`, `events`, `event_series`, and `daily_specials` before import or promotion work
   - repo-native publishability rules now exist for promotion workflow, venue matching, and canonical event updates, so the next backend wave can move toward promotion-preview logic instead of just expanding source breadth
 
