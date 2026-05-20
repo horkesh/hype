@@ -223,6 +223,7 @@ export function VenueCuration({ role }: Props) {
       description_en: edit.description_en || null,
       insider_tip_bs: edit.insider_tip_bs || null,
       insider_tip_en: edit.insider_tip_en || null,
+      category: edit.category,
       moods: edit.moods,
       curator_notes: edit.curator_notes || null,
       is_curated: edit.is_curated,
@@ -230,7 +231,6 @@ export function VenueCuration({ role }: Props) {
 
     if (isAdmin) {
       update.name = edit.name;
-      update.category = edit.category;
       update.neighborhood = edit.neighborhood || null;
       update.address = edit.address || null;
       update.instagram_handle = edit.instagram_handle || null;
@@ -377,23 +377,19 @@ export function VenueCuration({ role }: Props) {
                 <h2>{selected.name}</h2>
               )}
               <div className="edit-header-meta">
-                {isAdmin ? (
-                  <select
-                    className="edit-input"
-                    value={edit.category}
-                    onChange={e => updateEdit({ category: e.target.value })}
-                    style={{ width: 180, cursor: 'pointer' }}
-                  >
-                    {!VENUE_CATEGORIES.some(c => c.value === edit.category) && edit.category && (
-                      <option value={edit.category}>{edit.category} (nepoznata)</option>
-                    )}
-                    {VENUE_CATEGORIES.map(c => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className="badge cat">{selected.category}</span>
-                )}
+                <select
+                  className="edit-input"
+                  value={edit.category}
+                  onChange={e => updateEdit({ category: e.target.value })}
+                  style={{ width: 180, cursor: 'pointer' }}
+                >
+                  {!VENUE_CATEGORIES.some(c => c.value === edit.category) && edit.category && (
+                    <option value={edit.category}>{edit.category} (nepoznata)</option>
+                  )}
+                  {VENUE_CATEGORIES.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
                 {selected.google_rating && <span className="badge">{selected.google_rating}★</span>}
                 {edit.is_hidden_gem && <span className="badge gem">Hidden gem</span>}
                 {edit.is_featured && <span className="badge" style={{ background: '#D4A056', color: '#000' }}>★ Istaknuto</span>}
