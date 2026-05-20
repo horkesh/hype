@@ -1,0 +1,98 @@
+name: Scrape Instagram + promote events
+
+# Weekly scrape of curated Instagram event sources, followed by promotion
+# of any new raw_events to canonical events. Each source has its own
+# `frequency_hours` (168/336/720 for tiers 1/2/3), so the script only
+# touches sources that are actually due — this workflow can fire weekly
+# without burning Apify credits on bi-weekly/monthly sources.
+#
+# Required repo secrets:
+#   SUPABASE_URL                  e.g. https://kyfoqltmkqwtnrdlacqv.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY     service role (server-only, never client-side)
+#   APIFY_API_TOKEN               Apify console → Account → Integrations
+#
+# Optional repo secret:
+#   ADMIN_FUNCTION_SECRET         Required once parse-instagram is redeployed with
+#                                 verifyAdminAuth enforcement (currently the deployed
+#                                 function pre-dates the 2026-04-10 auth hardening so
+#                                 it accepts the service role key alone). Set this on
+#                                 both Supabase Edge Function env and GH Actions for
+#                                 forward-compat.
+#
+# Manual run: Actions → Scrape Instagram + promote events → Run workflow
+
+on:
+  schedule:
+    # Sunday 02:00 UTC (Sunday 03:00 / 04:00 Sarajevo depending on DST)
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: 'Limit to a specific tier (1, 2, or 3). Leave empty for all due sources.'
+        required: false
+        type: string
+      force:
+        description: 'Ignore last_scraped_at gating'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scrape-instagram
+  cancel-in-progress: false
+
+jobs:
+  scrape-instagram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90  # tier 1+2+3 = ~91 sources × ~30s/source = ~45 min worst case
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+      ADMIN_FUNCTION_SECRET: ${{ secrets.ADMIN_FUNCTION_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        # Same pattern as scrape-and-promote.yml: skip the full backend install
+        # to avoid the private @specific-dev/framework dependency.
+        run: npm install -g tsx@4
+
+      - name: Verify required env vars are set
+        run: |
+          test -n "$SUPABASE_URL" || { echo "::error::SUPABASE_URL secret missing"; exit 1; }
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "::error::SUPABASE_SERVICE_ROLE_KEY secret missing"; exit 1; }
+          test -n "$APIFY_API_TOKEN" || { echo "::error::APIFY_API_TOKEN secret missing"; exit 1; }
+          test -n "$ADMIN_FUNCTION_SECRET" || echo "::warning::ADMIN_FUNCTION_SECRET not set — OK while parse-instagram is on pre-2026-04-10 deploy, but required after a redeploy"
+
+      - name: Phase 1 — Scrape due Instagram sources
+        run: |
+          TIER_FLAG=""
+          FORCE_FLAG=""
+          if [ -n "${{ inputs.tier }}" ]; then
+            TIER_FLAG="--tier=${{ inputs.tier }}"
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          tsx backend/src/scripts/scrapeInstagram.ts $TIER_FLAG $FORCE_FLAG
+
+      - name: Phase 2 — Promote new raw_events to canonical events
+        # parse-instagram inserts into raw_events with parsed=true. promoteEvents
+        # then runs venue matching + date parsing + dedupe to land them in events.
+        run: tsx backend/src/scripts/promoteEvents.ts
+
+      - name: Phase 3 — Backfill venue links
+        # Catches IG events whose venue_raw maps to a newly-seeded venue or alias.
+        run: tsx backend/src/scripts/backfillEventVenues.ts

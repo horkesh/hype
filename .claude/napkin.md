@@ -21,8 +21,8 @@
    Do instead: on the home machine, sign in, change the selected moods in the Profile screen, reload, and confirm `profiles.taste_moods` persists correctly before broadening profile-based personalization work.
 
 ## Pending Execution
-1. **[2026-03-21] Apify Instagram — 189 venues with handles, ready to scrape**
-   Do instead: once Apify credits are topped up, update `scrapeInstagram.ts` to pull from `instagram_handle` column (189 venues) instead of hardcoded lists, then run the full scrape.
+1. **[2026-05-19] Instagram scraping is live — curated 91 sources in `scrape_sources`, weekly cron**
+   Do instead: the IG pipeline now reads from `scrape_sources` where `scrape_config->>'fetch_method'='apify_instagram'`. 91 curated sources across tier 1 (44 weekly: proven hosts + live-music bars + clubs + festivals + tourism), tier 2 (25 bi-weekly: pubs with secondary signal), and tier 3 (22 monthly: galleries/museums). Migration: `20260519000000_instagram_curated_sources.sql`. Workflow: `.github/workflows/scrape-instagram.yml` runs Sunday 02:00 UTC, only touches sources whose `last_scraped_at` is older than their `frequency_hours`. Required GH secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APIFY_API_TOKEN`. Optional `ADMIN_FUNCTION_SECRET` (will become required when parse-instagram is redeployed with verifyAdminAuth enforcement — currently the deployed edge function pre-dates the 2026-04-10 auth hardening so it accepts the service role key alone). For manual runs: `tsx backend/src/scripts/scrapeInstagram.ts [--tier=N] [--limit=N] [--dry-run] [--force]`. Cost ~$5.60/mo at ~$2.30/1k Apify posts.
 2. **[2026-03-17] GlassMoodChip and GlassCategoryChip are near-duplicates**
    Do instead: in a follow-up cleanup pass, consider merging. Low urgency.
 3. **[2026-05-16] Periodic event re-scrape runs automatically via GitHub Actions every 6 hours**
