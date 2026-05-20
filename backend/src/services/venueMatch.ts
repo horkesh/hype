@@ -42,6 +42,24 @@ const NOISE_TOKENS = [
   /\bsarajevo\b/gi,
 ];
 
+// Generic venue-type words. Token-overlap that only matches on these is not
+// distinctive enough to claim a venue link — "Bambus Club Sarajevo" and "Club
+// Mash Sarajevo" both contain "club" and "sarajevo" but are totally different
+// venues. Token-overlap requires at least one non-generic overlap to fire.
+const GENERIC_VENUE_TOKENS = new Set([
+  'sarajevo',
+  'club',
+  'klub',
+  'pub',
+  'bar',
+  'lounge',
+  'cafe',
+  'kafe',
+  'caffe',
+  'restaurant',
+  'restoran',
+]);
+
 // Categories where it's reasonable to host a ticketed event. When a raw name
 // is a substring of multiple venue names, the matcher prefers these over
 // restaurants/bakeries/cafes/etc. — otherwise "Stadion Grbavica" might link to
@@ -177,12 +195,14 @@ export function matchVenue(
   //    substring ("Bosnian Cultural Center" vs "BKC (Bosanski Kulturni Centar)",
   //    or "Asim Ferhatović Hase Olympic Stadium" vs "Stadion Asim Ferhatović
   //    Hase"), count overlapping 4+ char tokens against each event-category
-  //    venue. Requires at least 2 shared tokens AND a clear leader.
+  //    venue. Requires at least 2 shared tokens including at least one that's
+  //    NOT in GENERIC_VENUE_TOKENS — otherwise "Bambus Club Sarajevo" trivially
+  //    matches "Club Mash Sarajevo" on club+sarajevo with zero real overlap.
   const rawTokens = new Set(
     rawNorm.split(/\s+/).filter((t) => t.length >= 4),
   );
   if (rawTokens.size >= 2) {
-    let best: { venue: VenueRow; matches: number } | null = null;
+    let best: { venue: VenueRow; matches: number; distinctive: number } | null = null;
     let tieAtBest = false;
     for (const v of venues) {
       if (!v.category || !EVENT_CATEGORIES.has(v.category.toLowerCase())) continue;
@@ -190,14 +210,17 @@ export function matchVenue(
         normalise(v.name).split(/\s+/).filter((t) => t.length >= 4),
       );
       let overlap = 0;
+      let distinctive = 0;
       for (const t of rawTokens) {
-        if (vTokens.has(t)) overlap++;
+        if (!vTokens.has(t)) continue;
+        overlap++;
+        if (!GENERIC_VENUE_TOKENS.has(t)) distinctive++;
       }
-      if (overlap < 2) continue;
-      if (!best || overlap > best.matches) {
-        best = { venue: v, matches: overlap };
+      if (overlap < 2 || distinctive < 1) continue;
+      if (!best || distinctive > best.distinctive || (distinctive === best.distinctive && overlap > best.matches)) {
+        best = { venue: v, matches: overlap, distinctive };
         tieAtBest = false;
-      } else if (overlap === best.matches) {
+      } else if (distinctive === best.distinctive && overlap === best.matches) {
         tieAtBest = true;
       }
     }

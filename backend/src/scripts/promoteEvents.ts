@@ -233,6 +233,7 @@ export async function promoteEvents(): Promise<void> {
     total: rawEvents.length,
     promoted: 0,
     skippedNoDate: 0,
+    skippedPastDate: 0,
     skippedDuplicate: 0,
     skippedCrossSourceDuplicate: 0,
     skippedNoTitle: 0,
@@ -257,6 +258,19 @@ export async function promoteEvents(): Promise<void> {
       if (!startDatetime) {
         log(`  SKIP [no date] "${raw.title_raw}" (date_raw="${raw.date_raw}")`);
         stats.skippedNoDate++;
+        continue;
+      }
+
+      // Must not be in the past. Allow a 24h grace window so events that
+      // started earlier today still surface (and so timezone drift doesn't
+      // silently drop today's evening events when the cron runs in UTC).
+      // Mark the raw row promoted so we don't keep re-evaluating it on
+      // every cron tick.
+      const gracePast = Date.now() - 24 * 60 * 60 * 1000;
+      if (new Date(startDatetime).getTime() < gracePast) {
+        log(`  SKIP [past date] "${raw.title_raw}" (start=${startDatetime})`);
+        stats.skippedPastDate++;
+        await markRawEventPromoted(raw.id, null);
         continue;
       }
 
@@ -376,6 +390,7 @@ export async function promoteEvents(): Promise<void> {
   log(`  Total raw events processed : ${stats.total}`);
   log(`  Promoted                   : ${stats.promoted}`);
   log(`  Skipped — no date          : ${stats.skippedNoDate}`);
+  log(`  Skipped — past date        : ${stats.skippedPastDate}`);
   log(`  Skipped — same-source dup  : ${stats.skippedDuplicate}`);
   log(`  Skipped — cross-source dup : ${stats.skippedCrossSourceDuplicate}`);
   log(`  Skipped — no title         : ${stats.skippedNoTitle}`);

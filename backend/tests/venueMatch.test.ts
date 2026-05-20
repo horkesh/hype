@@ -13,6 +13,8 @@ const VENUES: VenueRow[] = [
   { id: 'v-montana-grbavica', name: 'Montana Grbavica', category: 'restaurant' },
   { id: 'v-pekara-grbavica', name: 'Pekara GRBAVICA', category: 'bakery' },
   { id: 'v-stadion-grbavica', name: 'Stadion Grbavica', category: 'outdoor' },
+  { id: 'v-club-mash', name: 'Club Mash Sarajevo', category: 'club' },
+  { id: 'v-bambuss', name: 'Bambuss Club', category: 'club' },
 ];
 
 test('matchVenue: exact case-insensitive match', () => {
@@ -91,6 +93,22 @@ test('matchVenue: token-overlap requires 2+ shared tokens', () => {
   // "Restoran" doesn't share enough tokens with any event venue
   const result = matchVenue('Restoran negde u centru', VENUES);
   assert.equal(result, null, 'single-word "centru" is not enough overlap');
+});
+
+test('matchVenue: token-overlap rejects matches on only generic tokens (club + sarajevo)', () => {
+  // Regression: "Bambus Club Sarajevo" (raw from IG) used to match "Club Mash
+  // Sarajevo" because both share {club, sarajevo} — both generic. Now requires
+  // at least one distinctive (non-generic) token overlap.
+  const result = matchVenue('Bambus Club Sarajevo', VENUES);
+  assert.equal(result, null, 'generic-only overlap should not match');
+});
+
+test('matchVenue: token-overlap still works when at least one distinctive token overlaps', () => {
+  // "Mash Club Sarajevo" → "Club Mash Sarajevo": shares {mash, club, sarajevo}.
+  // mash is distinctive; club + sarajevo are generic. Should match.
+  const result = matchVenue('Mash Club Sarajevo', VENUES);
+  assert.equal(result?.venue.id, 'v-club-mash');
+  assert.equal(result?.strategy, 'token_overlap');
 });
 
 test('matchVenue: BKC alias resolves "BKC - SARAJEVO" to BKC venue', () => {
