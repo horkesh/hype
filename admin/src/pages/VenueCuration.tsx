@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase';
-import { canAdmin } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { withTimeout } from '../lib/withTimeout';
@@ -114,9 +113,7 @@ interface Props {
   role: UserRole;
 }
 
-export function VenueCuration({ role }: Props) {
-  const isAdmin = canAdmin(role);
-
+export function VenueCuration(_props: Props) {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -219,24 +216,21 @@ export function VenueCuration({ role }: Props) {
     setSaveMsg('');
 
     const update: Record<string, unknown> = {
+      name: edit.name,
+      category: edit.category,
+      neighborhood: edit.neighborhood || null,
+      address: edit.address || null,
+      instagram_handle: edit.instagram_handle || null,
       description_bs: edit.description_bs || null,
       description_en: edit.description_en || null,
       insider_tip_bs: edit.insider_tip_bs || null,
       insider_tip_en: edit.insider_tip_en || null,
-      category: edit.category,
       moods: edit.moods,
       curator_notes: edit.curator_notes || null,
       is_curated: edit.is_curated,
+      is_hidden_gem: edit.is_hidden_gem,
+      is_featured: edit.is_featured,
     };
-
-    if (isAdmin) {
-      update.name = edit.name;
-      update.neighborhood = edit.neighborhood || null;
-      update.address = edit.address || null;
-      update.instagram_handle = edit.instagram_handle || null;
-      update.is_hidden_gem = edit.is_hidden_gem;
-      update.is_featured = edit.is_featured;
-    }
 
     const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
 
@@ -367,15 +361,11 @@ export function VenueCuration({ role }: Props) {
           <div className="edit-panel">
             {/* Header */}
             <div className="edit-header">
-              {isAdmin ? (
-                <input
-                  className="edit-input edit-title-input"
-                  value={edit.name}
-                  onChange={e => updateEdit({ name: e.target.value })}
-                />
-              ) : (
-                <h2>{selected.name}</h2>
-              )}
+              <input
+                className="edit-input edit-title-input"
+                value={edit.name}
+                onChange={e => updateEdit({ name: e.target.value })}
+              />
               <div className="edit-header-meta">
                 <select
                   className="edit-input"
@@ -405,63 +395,53 @@ export function VenueCuration({ role }: Props) {
               />
             )}
 
-            {/* Admin-only core fields */}
-            {isAdmin && (
-              <div className="admin-fields">
-                <div className="field-row">
-                  <div className="field">
-                    <label>Kvart</label>
-                    <input
-                      className="edit-input"
-                      value={edit.neighborhood}
-                      onChange={e => updateEdit({ neighborhood: e.target.value })}
-                      placeholder="Kvart"
-                    />
-                  </div>
-                  <div className="field">
-                    <label>Instagram</label>
-                    <input
-                      className="edit-input"
-                      value={edit.instagram_handle}
-                      onChange={e => updateEdit({ instagram_handle: e.target.value })}
-                      placeholder="@handle"
-                    />
-                  </div>
-                </div>
+            <div className="admin-fields">
+              <div className="field-row">
                 <div className="field">
-                  <label>Adresa</label>
+                  <label>Kvart</label>
                   <input
                     className="edit-input"
-                    value={edit.address}
-                    onChange={e => updateEdit({ address: e.target.value })}
-                    placeholder="Adresa"
+                    value={edit.neighborhood}
+                    onChange={e => updateEdit({ neighborhood: e.target.value })}
+                    placeholder="Kvart"
                   />
                 </div>
-                <label className="toggle-field">
+                <div className="field">
+                  <label>Instagram</label>
                   <input
-                    type="checkbox"
-                    checked={edit.is_hidden_gem}
-                    onChange={e => updateEdit({ is_hidden_gem: e.target.checked })}
+                    className="edit-input"
+                    value={edit.instagram_handle}
+                    onChange={e => updateEdit({ instagram_handle: e.target.value })}
+                    placeholder="@handle"
                   />
-                  <span>Obilježi kao hidden gem</span>
-                </label>
-                <label className="toggle-field">
-                  <input
-                    type="checkbox"
-                    checked={edit.is_featured}
-                    onChange={e => updateEdit({ is_featured: e.target.checked })}
-                  />
-                  <span>★ Istaknuto (pojavljuje se na Home rail-u)</span>
-                </label>
+                </div>
               </div>
-            )}
-
-            {!isAdmin && selected.instagram_handle && (
-              <div className="info-row">
-                <span className="info-label">Instagram</span>
-                <span className="info-value">@{selected.instagram_handle}</span>
+              <div className="field">
+                <label>Adresa</label>
+                <input
+                  className="edit-input"
+                  value={edit.address}
+                  onChange={e => updateEdit({ address: e.target.value })}
+                  placeholder="Adresa"
+                />
               </div>
-            )}
+              <label className="toggle-field">
+                <input
+                  type="checkbox"
+                  checked={edit.is_hidden_gem}
+                  onChange={e => updateEdit({ is_hidden_gem: e.target.checked })}
+                />
+                <span>Obilježi kao hidden gem</span>
+              </label>
+              <label className="toggle-field">
+                <input
+                  type="checkbox"
+                  checked={edit.is_featured}
+                  onChange={e => updateEdit({ is_featured: e.target.checked })}
+                />
+                <span>★ Istaknuto (pojavljuje se na Home rail-u)</span>
+              </label>
+            </div>
 
             {/* Language tabs */}
             <div className="lang-tabs">
