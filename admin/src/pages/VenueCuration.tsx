@@ -8,6 +8,33 @@ import { withTimeout } from '../lib/withTimeout';
 const PAGE_SIZE = 50;
 const QUERY_TIMEOUT_MS = 15_000;
 
+// Mirror of utils/categoryLabels.ts CATEGORY_LABELS. Keep in sync when adding
+// new venue categories — the Look app's getCategoryLabel() falls back to a
+// pretty-printed raw value if the category isn't in its table, so a missing
+// entry only affects polish, not function.
+const VENUE_CATEGORIES: Array<{ value: string; label: string }> = [
+  { value: 'restaurant',      label: 'Restoran' },
+  { value: 'bar',             label: 'Bar' },
+  { value: 'cafe',            label: 'Kafić' },
+  { value: 'club',            label: 'Klub' },
+  { value: 'pub',             label: 'Pub' },
+  { value: 'bakery',          label: 'Pekara' },
+  { value: 'fast_food',       label: 'Brza hrana' },
+  { value: 'hookah',          label: 'Nargila bar' },
+  { value: 'ice_cream',       label: 'Sladoled' },
+  { value: 'dessert',         label: 'Slastičarna' },
+  { value: 'cinema',          label: 'Kino' },
+  { value: 'theatre',         label: 'Pozorište' },
+  { value: 'concert_hall',    label: 'Koncertna dvorana' },
+  { value: 'museum',          label: 'Muzej' },
+  { value: 'gallery',         label: 'Galerija' },
+  { value: 'cultural_center', label: 'Kulturni centar' },
+  { value: 'park',            label: 'Park' },
+  { value: 'outdoor',         label: 'Na otvorenom' },
+  { value: 'landmark',        label: 'Znamenitost' },
+  { value: 'spa',             label: 'Spa' },
+];
+
 const KNOWN_MOODS = [
   { id: 'party', label: 'Party' },
   { id: 'chill', label: 'Chill' },
@@ -351,13 +378,19 @@ export function VenueCuration({ role }: Props) {
               )}
               <div className="edit-header-meta">
                 {isAdmin ? (
-                  <input
+                  <select
                     className="edit-input"
                     value={edit.category}
                     onChange={e => updateEdit({ category: e.target.value })}
-                    placeholder="Kategorija"
-                    style={{ width: 140 }}
-                  />
+                    style={{ width: 180, cursor: 'pointer' }}
+                  >
+                    {!VENUE_CATEGORIES.some(c => c.value === edit.category) && edit.category && (
+                      <option value={edit.category}>{edit.category} (nepoznata)</option>
+                    )}
+                    {VENUE_CATEGORIES.map(c => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
                 ) : (
                   <span className="badge cat">{selected.category}</span>
                 )}
