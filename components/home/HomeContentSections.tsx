@@ -6,6 +6,7 @@ import { HomeCategoryGrid } from '@/components/home/HomeCategoryGrid';
 import { HomeCityPulse } from '@/components/home/HomeCityPulse';
 import { HomeEventsSection } from '@/components/home/HomeEventsSection';
 import { HomeHeroPhoto } from '@/components/home/HomeHeroPhoto';
+import { HomeFeaturedVenues } from '@/components/home/HomeFeaturedVenues';
 import { HomeHiddenGems } from '@/components/home/HomeHiddenGems';
 import { HomeMoodFeed } from '@/components/home/HomeMoodFeed';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
@@ -126,6 +127,10 @@ export function HomeContentSections({
       ) : (
         /* Default editorial magazine sections */
         <>
+          <View style={styles.section}>
+            <HomeFeaturedVenues language={language} selectedMood={selectedMood} />
+          </View>
+
           <View style={styles.section}>
             <HomeFeaturedSection language={language} colors={colors} onEventPress={onEventPress} />
           </View>

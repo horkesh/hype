@@ -23,7 +23,7 @@ const KNOWN_MOODS = [
   { id: 'tourist', label: 'Turista' },
 ];
 
-type FilterStatus = 'all' | 'curated' | 'uncurated' | 'no_bs' | 'no_en';
+type FilterStatus = 'all' | 'curated' | 'uncurated' | 'no_bs' | 'no_en' | 'featured';
 type LangTab = 'bs' | 'en';
 
 interface Venue {
@@ -41,6 +41,7 @@ interface Venue {
   insider_tip_en: string | null;
   moods: string[] | null;
   is_hidden_gem: boolean | null;
+  is_featured: boolean | null;
   is_curated: boolean;
   curator_notes: string | null;
 }
@@ -60,6 +61,7 @@ interface EditState {
   address: string;
   instagram_handle: string;
   is_hidden_gem: boolean;
+  is_featured: boolean;
 }
 
 function venueToEdit(v: Venue): EditState {
@@ -77,6 +79,7 @@ function venueToEdit(v: Venue): EditState {
     address: v.address ?? '',
     instagram_handle: v.instagram_handle ?? '',
     is_hidden_gem: v.is_hidden_gem ?? false,
+    is_featured: v.is_featured ?? false,
   };
 }
 
@@ -128,7 +131,7 @@ export function VenueCuration({ role }: Props) {
       let query = supabase
         .from('venues')
         .select(
-          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_curated, curator_notes',
+          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_featured, is_curated, curator_notes',
           { count: 'exact' }
         )
         .order('name');
@@ -140,6 +143,7 @@ export function VenueCuration({ role }: Props) {
       else if (statusFilter === 'uncurated') query = query.eq('is_curated', false);
       else if (statusFilter === 'no_bs') query = query.is('description_bs', null);
       else if (statusFilter === 'no_en') query = query.is('description_en', null);
+      else if (statusFilter === 'featured') query = query.eq('is_featured', true);
 
       query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
@@ -204,6 +208,7 @@ export function VenueCuration({ role }: Props) {
       update.address = edit.address || null;
       update.instagram_handle = edit.instagram_handle || null;
       update.is_hidden_gem = edit.is_hidden_gem;
+      update.is_featured = edit.is_featured;
     }
 
     const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
@@ -269,6 +274,7 @@ export function VenueCuration({ role }: Props) {
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as FilterStatus)}>
           <option value="all">Sve</option>
+          <option value="featured">Istaknuto</option>
           <option value="uncurated">Nije pregledano</option>
           <option value="curated">Pregledano</option>
           <option value="no_bs">Nema opisa (BS)</option>
@@ -291,6 +297,7 @@ export function VenueCuration({ role }: Props) {
                   <th>Ocjena</th>
                   <th>BS</th>
                   <th>EN</th>
+                  <th>★</th>
                   <th>✓</th>
                 </tr>
               </thead>
@@ -307,6 +314,7 @@ export function VenueCuration({ role }: Props) {
                     <td className="muted-cell">{v.google_rating ? `${v.google_rating}★` : '—'}</td>
                     <td>{v.description_bs ? <span className="dot green" /> : <span className="dot red" />}</td>
                     <td>{v.description_en ? <span className="dot green" /> : <span className="dot red" />}</td>
+                    <td>{v.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> : <span className="dot gray" />}</td>
                     <td>{(v.is_curated ?? false) ? <span className="curated-check">✓</span> : <span className="dot gray" />}</td>
                   </tr>
                 ))}
@@ -355,6 +363,7 @@ export function VenueCuration({ role }: Props) {
                 )}
                 {selected.google_rating && <span className="badge">{selected.google_rating}★</span>}
                 {edit.is_hidden_gem && <span className="badge gem">Hidden gem</span>}
+                {edit.is_featured && <span className="badge" style={{ background: '#D4A056', color: '#000' }}>★ Istaknuto</span>}
               </div>
             </div>
 
@@ -406,6 +415,14 @@ export function VenueCuration({ role }: Props) {
                     onChange={e => updateEdit({ is_hidden_gem: e.target.checked })}
                   />
                   <span>Obilježi kao hidden gem</span>
+                </label>
+                <label className="toggle-field">
+                  <input
+                    type="checkbox"
+                    checked={edit.is_featured}
+                    onChange={e => updateEdit({ is_featured: e.target.checked })}
+                  />
+                  <span>★ Istaknuto (pojavljuje se na Home rail-u)</span>
                 </label>
               </div>
             )}

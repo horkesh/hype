@@ -113,6 +113,27 @@ export async function loadHomeNewInTown(): Promise<NewInTownVenue[]> {
   return (data ?? []) as NewInTownVenue[];
 }
 
+export interface FeaturedVenue {
+  id: string;
+  name: string;
+  cover_image_url: string | null;
+  category: string;
+  neighborhood: string | null;
+  google_rating: number | null;
+}
+
+export async function loadHomeFeaturedVenues(): Promise<FeaturedVenue[]> {
+  const { data, error } = await supabase
+    .from('venues')
+    .select('id, name, cover_image_url, category, neighborhood, google_rating')
+    .eq('is_featured', true)
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+    .limit(12);
+  if (error) { console.error('loadHomeFeaturedVenues error:', error); return []; }
+  return (data ?? []) as FeaturedVenue[];
+}
+
 export async function loadHomeWeather(): Promise<{ temp: number; weatherCondition: string } | null> {
   try {
     const result = await invokeEdgeFunction<{ temp: number; weatherCondition: string }>('weather-proxy', {

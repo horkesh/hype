@@ -19,6 +19,7 @@ interface Event {
   cover_image_url: string | null;
   venue_id: string | null;
   venue_name: string | null;
+  is_featured: boolean | null;
 }
 
 const STATUS_OPTIONS = [
@@ -48,6 +49,7 @@ export function EventManagement() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [upcomingOnly, setUpcomingOnly] = useState(false);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const [editTitleBs, setEditTitleBs] = useState('');
@@ -58,6 +60,7 @@ export function EventManagement() {
   const [editDatetime, setEditDatetime] = useState('');
   const [editTicketUrl, setEditTicketUrl] = useState('');
   const [editStatus, setEditStatus] = useState('');
+  const [editFeatured, setEditFeatured] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [langTab, setLangTab] = useState<'bs' | 'en'>('bs');
@@ -68,7 +71,7 @@ export function EventManagement() {
     try {
       const query = supabase
         .from('events')
-        .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, venues(name)')
+        .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, is_featured, venues(name)')
         .order('start_datetime', { ascending: true });
 
       const { data, error } = await withTimeout(query, QUERY_TIMEOUT_MS, 'events');
@@ -93,6 +96,7 @@ export function EventManagement() {
     if (categoryFilter && e.category !== categoryFilter) return false;
     if (statusFilter && e.status !== statusFilter) return false;
     if (upcomingOnly && e.start_datetime && e.start_datetime < now) return false;
+    if (featuredOnly && !e.is_featured) return false;
     return true;
   });
 
@@ -106,6 +110,7 @@ export function EventManagement() {
     setEditDatetime(ev.start_datetime ? ev.start_datetime.slice(0, 16) : '');
     setEditTicketUrl(ev.ticket_url ?? '');
     setEditStatus(ev.status ?? '');
+    setEditFeatured(ev.is_featured ?? false);
     setSaveMsg('');
   };
 
@@ -122,6 +127,7 @@ export function EventManagement() {
       start_datetime: editDatetime ? new Date(editDatetime).toISOString() : null,
       ticket_url: editTicketUrl || null,
       status: editStatus || null,
+      is_featured: editFeatured,
     };
     const { error } = await supabase.from('events').update(update).eq('id', selectedId);
 
@@ -165,6 +171,14 @@ export function EventManagement() {
           />
           Samo predstojeći
         </label>
+        <label className="toggle">
+          <input
+            type="checkbox"
+            checked={featuredOnly}
+            onChange={e => setFeaturedOnly(e.target.checked)}
+          />
+          ★ Samo istaknuti
+        </label>
       </div>
 
       <div className="main-layout">
@@ -181,6 +195,7 @@ export function EventManagement() {
                   <th>Datum</th>
                   <th>Lokacija</th>
                   <th>Status</th>
+                  <th>★</th>
                   <th>Foto</th>
                 </tr>
               </thead>
@@ -200,6 +215,7 @@ export function EventManagement() {
                         {STATUS_OPTIONS.find(s => s.value === ev.status)?.label ?? ev.status ?? '—'}
                       </span>
                     </td>
+                    <td>{ev.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> : <span className="dot gray" />}</td>
                     <td>{ev.cover_image_url ? <span className="dot green" /> : <span className="dot red" />}</td>
                   </tr>
                 ))}
@@ -303,6 +319,15 @@ export function EventManagement() {
                 <label>URL za karte</label>
                 <input type="url" className="edit-input" value={editTicketUrl} onChange={e => setEditTicketUrl(e.target.value)} placeholder="https://..." />
               </div>
+
+              <label className="toggle-field" style={{ marginTop: 12 }}>
+                <input
+                  type="checkbox"
+                  checked={editFeatured}
+                  onChange={e => setEditFeatured(e.target.checked)}
+                />
+                <span>★ Istaknuto (pojavljuje se na Home rail-u)</span>
+              </label>
             </div>
 
             <div className="edit-actions">
