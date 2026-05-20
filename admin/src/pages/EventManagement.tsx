@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { RawEventReview } from '../components/RawEventReview';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { withTimeout } from '../lib/withTimeout';
+
+const QUERY_TIMEOUT_MS = 15_000;
 
 interface Event {
   id: string;
@@ -62,19 +66,20 @@ export function EventManagement() {
     setLoading(true);
     setFetchError('');
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('events')
         .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, venues(name)')
         .order('start_datetime', { ascending: true });
 
+      const { data, error } = await withTimeout(query, QUERY_TIMEOUT_MS, 'events');
+
       if (error) {
-        setFetchError('events: ' + error.message + ' (code: ' + error.code + ')');
-      }
-      if (data) {
+        setFetchError('Greška pri učitavanju događaja: ' + error.message + ' (code: ' + error.code + ')');
+      } else if (data) {
         setEvents(data.map((e: any) => ({ ...e, venue_name: e.venues?.name ?? null })));
       }
     } catch (err: any) {
-      setFetchError('catch: ' + (err?.message ?? String(err)));
+      setFetchError(err?.message ?? String(err));
     }
     setLoading(false);
   }, []);
@@ -133,11 +138,7 @@ export function EventManagement() {
 
   return (
     <div className="page">
-      {fetchError && (
-        <div style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontFamily: 'monospace', marginBottom: 12, flexShrink: 0 }}>
-          {fetchError}
-        </div>
-      )}
+      {fetchError && <ErrorBanner error={fetchError} onRetry={fetchEvents} />}
       <div className="page-header">
         <h1 className="page-title">Događaji</h1>
         <div className="page-stats">

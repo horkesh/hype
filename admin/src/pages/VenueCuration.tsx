@@ -2,8 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase';
 import { canAdmin } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { withTimeout } from '../lib/withTimeout';
 
 const PAGE_SIZE = 50;
+const QUERY_TIMEOUT_MS = 15_000;
 
 const KNOWN_MOODS = [
   { id: 'party', label: 'Party' },
@@ -88,6 +91,7 @@ export function VenueCuration({ role }: Props) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -119,6 +123,7 @@ export function VenueCuration({ role }: Props) {
 
   const loadVenues = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       let query = supabase
         .from('venues')
@@ -138,12 +143,15 @@ export function VenueCuration({ role }: Props) {
 
       query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
-      const { data, count, error } = await query;
-      if (error) console.error('Failed to load venues:', error.message);
-      if (data) setVenues(data as Venue[]);
-      setTotal(count ?? 0);
+      const { data, count, error: qError } = await withTimeout(query, QUERY_TIMEOUT_MS, 'venues');
+      if (qError) {
+        setError(`Greška pri učitavanju lokacija: ${qError.message} (code: ${qError.code})`);
+      } else {
+        if (data) setVenues(data as Venue[]);
+        setTotal(count ?? 0);
+      }
     } catch (err) {
-      console.error('Failed to load venues:', err);
+      setError(err instanceof Error ? err.message : String(err));
     }
     setLoading(false);
   }, [search, categoryFilter, neighborhoodFilter, statusFilter, page]);
@@ -230,6 +238,7 @@ export function VenueCuration({ role }: Props) {
 
   return (
     <div className="page venue-curation" onKeyDown={handleKeyDown} tabIndex={0} ref={wrapRef}>
+      {error && <ErrorBanner error={error} onRetry={loadVenues} />}
       <div className="page-header">
         <h1 className="page-title">Lokacije</h1>
         <div className="page-stats">

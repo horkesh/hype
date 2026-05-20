@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { ROLE_LABELS } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { withTimeout } from '../lib/withTimeout';
+
+const QUERY_TIMEOUT_MS = 15_000;
 
 interface Profile {
   id: string;
@@ -26,19 +30,32 @@ const ROLE_COLORS: Record<UserRole, string> = {
 export function UserManagement() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [updating, setUpdating] = useState<string | null>(null);
   const [msg, setMsg] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    supabase
-      .rpc('get_admin_user_list')
-      .then(({ data, error }) => {
-        if (data) setProfiles(data as Profile[]);
-        if (error) console.error('Failed to load profiles:', error.message);
-        setLoading(false);
-      });
+  const loadProfiles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: qError } = await withTimeout(
+        supabase.rpc('get_admin_user_list'),
+        QUERY_TIMEOUT_MS,
+        'get_admin_user_list',
+      );
+      if (qError) {
+        setError(`Greška pri učitavanju korisnika: ${qError.message}`);
+      } else if (data) {
+        setProfiles(data as Profile[]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => { loadProfiles(); }, [loadProfiles]);
 
   const handleRoleChange = async (id: string, newRole: UserRole) => {
     setUpdating(id);
@@ -84,6 +101,7 @@ export function UserManagement() {
 
   return (
     <div className="page">
+      {error && <ErrorBanner error={error} onRetry={loadProfiles} />}
       <div className="page-header">
         <h1 className="page-title">Korisnici</h1>
         <div className="page-stats">
