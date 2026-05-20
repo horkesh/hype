@@ -538,6 +538,16 @@ Status:
   - HomeSurpriseMe stops already had onPress — now actually work because venue IDs are populated
   - raw JSON no longer leaks during streaming (shimmer + status text only)
 
+#### B20. Instagram handle → venue resolver
+
+- Status: `Backlog`
+- Goal:
+  - resolve IG-sourced raw events to venues via `venues.instagram_handle` lookup when the structural matcher fails on the caption-extracted `venue_name_raw`
+- Plan: `docs/03-architecture/instagram_handle_venue_resolver.md`
+- Drivers:
+  - first IG cron run (2026-05-20) surfaced ~50 unmatched raw events that the existing structural matcher couldn't link; the IG handle already encodes the answer one column lookup away
+  - target: land before 2026-05-24 02:00 UTC Sunday auto-tick so the next 91-source run benefits
+
 #### B9. Public web and city pulse expansion
 
 - Status: `Deferred`
