@@ -35,6 +35,7 @@ const VENUE_CATEGORIES: Array<{ value: string; label: string }> = [
   { value: 'outdoor',         label: 'Na otvorenom' },
   { value: 'landmark',        label: 'Znamenitost' },
   { value: 'spa',             label: 'Spa' },
+  { value: 'wellness',        label: 'Wellness' },
 ];
 
 const KNOWN_MOODS = [

@@ -35,6 +35,7 @@ export default function ExploreScreen() {
       filterOpenNow={controller.filterOpenNow}
       filterPriceLevel={controller.filterPriceLevel}
       filters={controller.menuFilters}
+      language={language as 'bs' | 'en'}
       loading={controller.loading}
       moods={EXPLORE_MOODS}
       noResultsLabel={t('noResults')}

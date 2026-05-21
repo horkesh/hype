@@ -24,6 +24,7 @@ const CATEGORY_LABELS: Record<string, { bs: string; en: string }> = {
   outdoor:         { bs: 'Na otvorenom',     en: 'Outdoor' },
   landmark:        { bs: 'Znamenitost',      en: 'Landmark' },
   spa:             { bs: 'Spa',              en: 'Spa' },
+  wellness:        { bs: 'Wellness',         en: 'Wellness' },
 };
 
 /**

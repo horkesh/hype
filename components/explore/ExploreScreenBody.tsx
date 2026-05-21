@@ -7,6 +7,7 @@ import { ExploreModalStack } from '@/components/explore/ExploreModalStack';
 import { ExploreResultsSection } from '@/components/explore/ExploreResultsSection';
 import { ExploreSearchSection } from '@/components/explore/ExploreSearchSection';
 import { ExploreSmartSearch } from '@/components/explore/ExploreSmartSearch';
+import { ExploreWellnessCard } from '@/components/explore/ExploreWellnessCard';
 import { DailySpecial, ExploreLookupItem, SearchResult, Venue } from '@/utils/exploreScreen';
 import { ExploreMenuFilterOption, getPriceLevelDisplay } from '@/utils/exploreHelpers';
 
@@ -31,6 +32,7 @@ interface ExploreScreenBodyProps {
   filterOpenNow: boolean;
   filterPriceLevel: number;
   filters: ExploreMenuFilterOption[];
+  language: 'bs' | 'en';
   loading: boolean;
   moods: ExploreLookupItem[];
   noResultsLabel: string;
@@ -94,6 +96,7 @@ export function ExploreScreenBody({
   filterOpenNow,
   filterPriceLevel,
   filters,
+  language,
   loading,
   moods,
   noResultsLabel,
@@ -172,6 +175,11 @@ export function ExploreScreenBody({
           response={aiResponse}
           isLoading={aiLoading}
           venueCount={aiVenueCount}
+        />
+
+        <ExploreWellnessCard
+          language={language}
+          onPress={() => onSelectCategory('wellness')}
         />
 
         <ExploreControls
