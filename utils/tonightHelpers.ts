@@ -69,24 +69,39 @@ export function getTonightSegmentRange(
   return { startTime, endTime };
 }
 
+// Read the YYYY-MM-DD calendar date in Sarajevo TZ from any Date.
+// `.toDateString()` uses browser-local, so a traveler with their phone clock
+// in another TZ would see "Tonight"/"Tomorrow" badges flipped on edge events
+// (e.g. a 23:00 Sarajevo show appears the next day to a Tokyo-zoned device).
+const SARAJEVO_YMD_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Sarajevo',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+});
+
+function sarajevoDateKey(d: Date): string {
+  return SARAJEVO_YMD_FMT.format(d);
+}
+
 export function getUrgencyBadge(
   eventDate: string,
   labels: { tonight: string; tomorrow: string },
   now: Date = new Date()
 ): TonightUrgencyBadge | null {
   const eventDateTime = new Date(eventDate);
-  const today = new Date(now);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (Number.isNaN(eventDateTime.getTime())) return null;
 
-  if (eventDateTime.toDateString() === today.toDateString()) {
+  const todayKey = sarajevoDateKey(now);
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowKey = sarajevoDateKey(tomorrowDate);
+  const eventKey = sarajevoDateKey(eventDateTime);
+
+  if (eventKey === todayKey) {
     return { label: labels.tonight, color: '#EF4444' };
   }
-
-  if (eventDateTime.toDateString() === tomorrow.toDateString()) {
+  if (eventKey === tomorrowKey) {
     return { label: labels.tomorrow, color: '#F97316' };
   }
-
   return null;
 }
 

@@ -21,6 +21,7 @@ function normalize(s: string): string {
 export function CommandPalette({ open, onClose, onSelect }: Props) {
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,31 +30,38 @@ export function CommandPalette({ open, onClose, onSelect }: Props) {
   // is fine to hold in memory; pre-normalized for fast filtering.
   const ensureLoaded = useCallback(async () => {
     if (loaded) return;
-    const [venuesRes, eventsRes] = await Promise.all([
-      supabase.from('venues').select('id, name, category').order('name').limit(2000),
-      supabase
-        .from('events')
-        .select('id, title_bs, title_en, start_datetime, venues(name)')
-        .order('start_datetime', { ascending: false })
-        .limit(500),
-    ]);
-    const venueItems: Item[] = (venuesRes.data ?? []).map((v: any) => ({
-      kind: 'venue',
-      id: v.id,
-      label: v.name,
-      sub: v.category ?? undefined,
-    }));
-    const eventItems: Item[] = (eventsRes.data ?? []).map((e: any) => ({
-      kind: 'event',
-      id: e.id,
-      label: e.title_bs || e.title_en || '(bez naslova)',
-      sub: [
-        e.start_datetime ? new Date(e.start_datetime).toLocaleDateString('bs-BA') : null,
-        e.venues?.name ?? null,
-      ].filter(Boolean).join(' · ') || undefined,
-    }));
-    setItems([...venueItems, ...eventItems]);
-    setLoaded(true);
+    setLoadError(null);
+    try {
+      const [venuesRes, eventsRes] = await Promise.all([
+        supabase.from('venues').select('id, name, category').order('name').limit(2000),
+        supabase
+          .from('events')
+          .select('id, title_bs, title_en, start_datetime, venues(name)')
+          .order('start_datetime', { ascending: false })
+          .limit(500),
+      ]);
+      if (venuesRes.error) throw venuesRes.error;
+      if (eventsRes.error) throw eventsRes.error;
+      const venueItems: Item[] = (venuesRes.data ?? []).map((v: any) => ({
+        kind: 'venue',
+        id: v.id,
+        label: v.name,
+        sub: v.category ?? undefined,
+      }));
+      const eventItems: Item[] = (eventsRes.data ?? []).map((e: any) => ({
+        kind: 'event',
+        id: e.id,
+        label: e.title_bs || e.title_en || '(bez naslova)',
+        sub: [
+          e.start_datetime ? new Date(e.start_datetime).toLocaleDateString('bs-BA') : null,
+          e.venues?.name ?? null,
+        ].filter(Boolean).join(' · ') || undefined,
+      }));
+      setItems([...venueItems, ...eventItems]);
+      setLoaded(true);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : String(err));
+    }
   }, [loaded]);
 
   useEffect(() => {
@@ -152,7 +160,20 @@ export function CommandPalette({ open, onClose, onSelect }: Props) {
           }}
         />
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          {!loaded ? (
+          {loadError ? (
+            <div style={{ padding: 24, textAlign: 'center' }}>
+              <div style={{ color: '#EF4444', fontSize: 13, marginBottom: 12 }}>Greška: {loadError}</div>
+              <button
+                onClick={() => { setLoaded(false); void ensureLoaded(); }}
+                style={{
+                  padding: '6px 14px', fontSize: 12, background: '#D4A056', color: '#000',
+                  border: 'none', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                Pokušaj ponovo
+              </button>
+            </div>
+          ) : !loaded ? (
             <div className="loading" style={{ padding: 24, textAlign: 'center' }}>Učitavanje...</div>
           ) : filtered.length === 0 ? (
             <div style={{ padding: 24, color: '#A0A0A0', fontSize: 13, textAlign: 'center' }}>

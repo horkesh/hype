@@ -168,6 +168,13 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
   const [error, setError] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  // 250ms debounce on the search input — without this every keystroke
+  // re-runs loadVenues (typing "sarajevo" = 8 queries).
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 250);
+    return () => clearTimeout(t);
+  }, [search]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
@@ -207,7 +214,7 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
         )
         .order('name');
 
-      if (search) query = query.ilike('name', `%${search}%`);
+      if (debouncedSearch) query = query.ilike('name', `%${debouncedSearch}%`);
       if (categoryFilter) query = query.eq('category', categoryFilter);
       if (neighborhoodFilter) query = query.eq('neighborhood', neighborhoodFilter);
       if (statusFilter === 'curated') query = query.eq('is_curated', true);
@@ -230,10 +237,10 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
       setError(err instanceof Error ? err.message : String(err));
     }
     setLoading(false);
-  }, [search, categoryFilter, neighborhoodFilter, statusFilter, page]);
+  }, [debouncedSearch, categoryFilter, neighborhoodFilter, statusFilter, page]);
 
   // Reset to page 0 whenever filters change
-  useEffect(() => { setPage(0); }, [search, categoryFilter, neighborhoodFilter, statusFilter]);
+  useEffect(() => { setPage(0); }, [debouncedSearch, categoryFilter, neighborhoodFilter, statusFilter]);
 
   useEffect(() => { loadVenues(); }, [loadVenues]);
 
@@ -381,15 +388,26 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
       return;
     }
 
-    const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
+    // Chain .select() so PostgREST returns the affected rows. RLS row-filters
+    // silently — without this, an editor blocked from updating a column gets
+    // {error: null, data: null}, the UI shows "Sačuvano!", and the local
+    // state diverges from the server until the next reload.
+    const { data, error } = await supabase
+      .from('venues')
+      .update(update)
+      .eq('id', selectedId)
+      .select()
+      .maybeSingle();
 
     if (error) {
       setSaveMsg('Greška: ' + error.message);
+    } else if (!data) {
+      setSaveMsg('Greška: izmjene su odbijene (nemate ovlasti).');
     } else {
       setSaveMsg('Sačuvano!');
       setDirty(false);
       setVenues(prev => prev.map(v =>
-        v.id === selectedId ? { ...v, ...update } as Venue : v
+        v.id === selectedId ? { ...v, ...(data as Venue) } : v
       ));
       if (opts?.advance) {
         // Use setTimeout so the saved indicator is briefly visible.

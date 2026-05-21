@@ -57,15 +57,22 @@ export function UserManagement() {
 
   useEffect(() => { loadProfiles(); }, [loadProfiles]);
 
+  // .select() forces PostgREST to return the affected row so we can detect
+  // RLS-silent denials (editor tries to bump someone to admin → no error, but
+  // zero rows mutated and the UI used to show a misleading "Sačuvano").
   const handleRoleChange = async (id: string, newRole: UserRole) => {
     setUpdating(id);
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update({ role: newRole })
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .maybeSingle();
 
     if (error) {
       setMsg(prev => ({ ...prev, [id]: 'Greška: ' + error.message }));
+    } else if (!data) {
+      setMsg(prev => ({ ...prev, [id]: 'Greška: nemate ovlasti za ovu izmjenu.' }));
     } else {
       setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p));
       setMsg(prev => ({ ...prev, [id]: 'Sačuvano' }));
@@ -76,13 +83,17 @@ export function UserManagement() {
 
   const handleBanToggle = async (id: string, currentBanned: boolean) => {
     setUpdating(id);
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update({ is_banned: !currentBanned })
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .maybeSingle();
 
     if (error) {
       setMsg(prev => ({ ...prev, [id]: 'Greška: ' + error.message }));
+    } else if (!data) {
+      setMsg(prev => ({ ...prev, [id]: 'Greška: nemate ovlasti za ovu izmjenu.' }));
     } else {
       setProfiles(prev => prev.map(p => p.id === id ? { ...p, is_banned: !currentBanned } : p));
     }

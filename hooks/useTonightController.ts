@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Alert, Linking, Share } from 'react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { loadTonightEvents, loadTonightVenues } from '@/utils/tonightData';
 import {
@@ -72,27 +72,36 @@ export function useTonightController({
   const voteLabels = useMemo(() => getTonightVoteLabels(isBosnian), [isBosnian]);
   const actionLabels = useMemo(() => getTonightActionLabels(isBosnian), [isBosnian]);
 
+  // Guard against setState-after-unmount when the user navigates away while
+  // an event/venue load is in flight. Without this, the late setState fires
+  // a React warning and ties the listener to memory.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
   const loadEventsForSegment = useCallback(async () => {
-    setLoading(true);
+    if (mountedRef.current) setLoading(true);
 
     try {
       const nextEvents = await loadTonightEvents(activeSegment, segments);
-      setEvents(nextEvents);
+      if (mountedRef.current) setEvents(nextEvents);
     } catch (error) {
       console.error('Error loading tonight events:', error);
-      setEvents([]);
+      if (mountedRef.current) setEvents([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [activeSegment, segments]);
 
   const loadPlannerVenues = useCallback(async () => {
     try {
       const nextVenues = await loadTonightVenues();
-      setVenues(nextVenues);
+      if (mountedRef.current) setVenues(nextVenues);
     } catch (error) {
       console.error('Error loading tonight venues:', error);
-      setVenues([]);
+      if (mountedRef.current) setVenues([]);
     }
   }, []);
 

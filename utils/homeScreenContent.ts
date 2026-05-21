@@ -107,31 +107,57 @@ export function getCafeDescription(
   return language === 'bs' ? (descriptionBs ?? descriptionEn) : (descriptionEn ?? descriptionBs);
 }
 
+// Sarajevo-anchored calendar date (YYYY-MM-DD) so the "Danas/Sutra" label
+// matches the local Sarajevo day regardless of the user's device timezone.
+const SARAJEVO_YMD_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Sarajevo',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+});
+const SARAJEVO_PARTS_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Sarajevo',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+});
+
+function sarajevoDateKey(d: Date): string {
+  return SARAJEVO_YMD_FMT.format(d);
+}
+
 export function formatEventDateLabel(
   language: HomeLanguage,
   dateString: string,
   now: Date = new Date()
 ): string {
   const date = new Date(dateString);
-  const today = new Date(now);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (Number.isNaN(date.getTime())) return '';
 
-  if (date.toDateString() === today.toDateString()) {
+  const todayKey = sarajevoDateKey(now);
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowKey = sarajevoDateKey(tomorrowDate);
+  const eventKey = sarajevoDateKey(date);
+
+  if (eventKey === todayKey) {
     return language === 'bs' ? 'Danas' : 'Today';
   }
-
-  if (date.toDateString() === tomorrow.toDateString()) {
+  if (eventKey === tomorrowKey) {
     return language === 'bs' ? 'Sutra' : 'Tomorrow';
   }
 
+  // Get day + month numbers as they fall in Sarajevo, not browser-local.
+  const [, sarajevoMonth, sarajevoDay] = SARAJEVO_PARTS_FMT.format(date).split('-');
+  const day = parseInt(sarajevoDay, 10);
+  const monthIdx = parseInt(sarajevoMonth, 10) - 1;
+
   if (language === 'bs') {
-    return `${date.getDate()}. ${BS_MONTHS[date.getMonth()]}`;
+    return `${day}. ${BS_MONTHS[monthIdx]}`;
   }
 
+  // For English, use the same Sarajevo-anchored parts via toLocaleDateString
+  // with explicit timeZone.
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
+    timeZone: 'Europe/Sarajevo',
   });
 }
 

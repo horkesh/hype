@@ -26,16 +26,21 @@ export interface EveningPlan {
  */
 type VenueRef = { id: string; name: string; category?: string; neighborhood?: string };
 
-let cachedVenues: VenueRef[] | null = null;
+// 10-minute TTL on the venue lookup cache. Long enough that repeated plan
+// generations within a session reuse the same fetch, short enough that admin
+// edits to venues propagate without requiring an app restart.
+const VENUE_CACHE_TTL_MS = 10 * 60 * 1000;
+
 let cachedVenueMap: Map<string, VenueRef> | null = null;
-// Pre-computed lowercase names to avoid repeated .toLowerCase() in partial matching
 let cachedVenueLower: Array<{ lower: string; venue: VenueRef }> | null = null;
+let cachedAt = 0;
 
 async function getVenueLookup(): Promise<{
   map: Map<string, VenueRef>;
   lowerList: Array<{ lower: string; venue: VenueRef }>;
 }> {
-  if (cachedVenueMap && cachedVenueLower) {
+  const stale = Date.now() - cachedAt > VENUE_CACHE_TTL_MS;
+  if (cachedVenueMap && cachedVenueLower && !stale) {
     return { map: cachedVenueMap, lowerList: cachedVenueLower };
   }
 
@@ -46,11 +51,19 @@ async function getVenueLookup(): Promise<{
 
   if (!venues?.length) return { map: new Map(), lowerList: [] };
 
-  cachedVenues = venues as VenueRef[];
-  cachedVenueMap = new Map(cachedVenues.map((v) => [v.name.toLowerCase(), v]));
-  cachedVenueLower = cachedVenues.map((v) => ({ lower: v.name.toLowerCase(), venue: v }));
+  const venueRefs = venues as VenueRef[];
+  cachedVenueMap = new Map(venueRefs.map((v) => [v.name.toLowerCase(), v]));
+  cachedVenueLower = venueRefs.map((v) => ({ lower: v.name.toLowerCase(), venue: v }));
+  cachedAt = Date.now();
 
   return { map: cachedVenueMap, lowerList: cachedVenueLower };
+}
+
+// Allow callers to force-invalidate (e.g. from sign-out / cache-bust hooks).
+export function clearVenueLookupCache(): void {
+  cachedVenueMap = null;
+  cachedVenueLower = null;
+  cachedAt = 0;
 }
 
 async function enrichStopsWithVenueIds(stops: PlanStop[]): Promise<PlanStop[]> {
