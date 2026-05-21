@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
+import { renderInlineMarkdown } from '../lib/markdown';
 
 type NoteKind = 'venue' | 'event' | 'idea';
 
@@ -216,7 +217,7 @@ export function NotesSection({ kind, venueId, eventId, currentUserId, isAdmin }:
                     </button>
                   )}
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap', color: '#E5E5E5' }}>{n.body}</div>
+                <div style={{ color: '#E5E5E5' }}>{renderInlineMarkdown(n.body)}</div>
               </div>
             );
           })}

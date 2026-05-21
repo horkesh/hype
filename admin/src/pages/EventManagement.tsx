@@ -7,6 +7,8 @@ import { withTimeout } from '../lib/withTimeout';
 
 interface Props {
   currentUserId: string | null;
+  pendingSelectionId?: string | null;
+  onPendingHandled?: () => void;
 }
 
 const QUERY_TIMEOUT_MS = 15_000;
@@ -49,7 +51,7 @@ function formatDate(iso: string | null): string {
   });
 }
 
-export function EventManagement({ currentUserId }: Props) {
+export function EventManagement({ currentUserId, pendingSelectionId, onPendingHandled }: Props) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -99,6 +101,30 @@ export function EventManagement({ currentUserId }: Props) {
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
+  // Cmd+K jump-to-event from anywhere in the admin app.
+  useEffect(() => {
+    if (!pendingSelectionId) return;
+    const inList = events.find(e => e.id === pendingSelectionId);
+    if (inList) {
+      handleSelect(inList);
+      onPendingHandled?.();
+      return;
+    }
+    supabase
+      .from('events')
+      .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, is_featured, needs_review, review_notes, venues(name)')
+      .eq('id', pendingSelectionId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) { onPendingHandled?.(); return; }
+        const event = { ...(data as any), venue_name: (data as any).venues?.name ?? null } as Event;
+        setEvents(prev => [event, ...prev]);
+        handleSelect(event);
+        onPendingHandled?.();
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSelectionId]);
+
   const categories = [...new Set(events.map(e => e.category).filter(Boolean) as string[])].sort();
   const now = new Date().toISOString();
 
@@ -127,7 +153,15 @@ export function EventManagement({ currentUserId }: Props) {
     setSaveMsg('');
   };
 
-  const handleSave = async () => {
+  const selectNext = () => {
+    if (!selectedId) return;
+    const idx = filtered.findIndex(e => e.id === selectedId);
+    if (idx < 0) return;
+    const next = filtered[(idx + 1) % filtered.length];
+    if (next) handleSelect(next);
+  };
+
+  const handleSave = async (opts?: { advance?: boolean }) => {
     if (!selectedId) return;
     setSaving(true);
     setSaveMsg('');
@@ -165,14 +199,24 @@ export function EventManagement({ currentUserId }: Props) {
     } else {
       setSaveMsg('Sačuvano!');
       setEvents(prev => prev.map(e => e.id === selectedId ? { ...e, ...update } : e));
+      if (opts?.advance) {
+        setTimeout(() => selectNext(), 200);
+      }
     }
     setSaving(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's' && selectedId) {
+      e.preventDefault();
+      void handleSave();
+    }
   };
 
   const selected = events.find(e => e.id === selectedId);
 
   return (
-    <div className="page">
+    <div className="page" onKeyDown={handleKeyDown} tabIndex={0}>
       {fetchError && <ErrorBanner error={fetchError} onRetry={fetchEvents} />}
       <div className="page-header">
         <h1 className="page-title">Događaji</h1>
@@ -413,8 +457,23 @@ export function EventManagement({ currentUserId }: Props) {
             />
 
             <div className="edit-actions">
-              <button onClick={handleSave} disabled={saving} className="save-btn">
-                {saving ? 'Čuvanje...' : 'Sačuvaj'}
+              <button onClick={() => handleSave()} disabled={saving} className="save-btn">
+                {saving ? 'Čuvanje...' : 'Sačuvaj (⌘S)'}
+              </button>
+              <button
+                onClick={() => handleSave({ advance: true })}
+                disabled={saving || filtered.length < 2}
+                className="save-btn"
+                style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
+              >
+                Sačuvaj i sljedeća →
+              </button>
+              <button
+                onClick={selectNext}
+                disabled={saving || filtered.length < 2}
+                className="page-btn"
+              >
+                Sljedeća →
               </button>
               {saveMsg && (
                 <span className={saveMsg.startsWith('Greška') ? 'error' : 'success'}>{saveMsg}</span>

@@ -8,8 +8,10 @@ import { UserManagement } from './pages/UserManagement';
 import { AuditLog } from './pages/AuditLog';
 import { ReviewQueue } from './pages/ReviewQueue';
 import { NotesPage } from './pages/NotesPage';
+import { SeriesManagement } from './pages/SeriesManagement';
+import { CommandPalette } from './components/CommandPalette';
 import { Login } from './Login';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Page } from './components/Sidebar';
 
 function DebugBanner({ info }: { info: string }) {
@@ -26,7 +28,21 @@ function DebugBanner({ info }: { info: string }) {
 export function App() {
   const { session, role, loading, error } = useAuth();
   const [activePage, setActivePage] = useState<Page>('dashboard');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [pendingVenueId, setPendingVenueId] = useState<string | null>(null);
+  const [pendingEventId, setPendingEventId] = useState<string | null>(null);
   const currentUserId = session?.user?.id ?? null;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   if (loading) {
     return (
@@ -77,17 +93,45 @@ export function App() {
         onNavigate={setActivePage}
         role={role!}
         email={session.user.email}
+        currentUserId={currentUserId}
         onSignOut={handleSignOut}
       />
       <main className="main-content">
-        {activePage === 'dashboard' && <Dashboard />}
-        {activePage === 'venues' && <VenueCuration role={role!} currentUserId={currentUserId} />}
-        {activePage === 'events' && <EventManagement currentUserId={currentUserId} />}
+        {activePage === 'dashboard' && <Dashboard currentUserId={currentUserId} />}
+        {activePage === 'venues' && (
+          <VenueCuration
+            role={role!}
+            currentUserId={currentUserId}
+            pendingSelectionId={pendingVenueId}
+            onPendingHandled={() => setPendingVenueId(null)}
+          />
+        )}
+        {activePage === 'events' && (
+          <EventManagement
+            currentUserId={currentUserId}
+            pendingSelectionId={pendingEventId}
+            onPendingHandled={() => setPendingEventId(null)}
+          />
+        )}
+        {activePage === 'series' && <SeriesManagement />}
         {activePage === 'review' && <ReviewQueue onNavigate={setActivePage} />}
         {activePage === 'audit' && <AuditLog />}
         {activePage === 'notes' && <NotesPage role={role!} currentUserId={currentUserId} />}
         {activePage === 'users' && <UserManagement />}
       </main>
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onSelect={(item) => {
+          if (item.kind === 'venue') {
+            setPendingVenueId(item.id);
+            setActivePage('venues');
+          } else {
+            setPendingEventId(item.id);
+            setActivePage('events');
+          }
+        }}
+      />
     </div>
   );
 }

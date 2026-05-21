@@ -12,8 +12,19 @@ interface Stats {
   rawEventsPending: number;
 }
 
-export function Dashboard() {
+interface ActivityToday {
+  edits: number;
+  notes: number;
+  reviewsFlagged: number;
+}
+
+interface Props {
+  currentUserId: string | null;
+}
+
+export function Dashboard({ currentUserId }: Props) {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [activity, setActivity] = useState<ActivityToday | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -58,6 +69,30 @@ export function Dashboard() {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const startIso = startOfDay.toISOString();
+
+    Promise.all([
+      supabase.from('audit_log').select('*', { count: 'exact', head: true })
+        .eq('actor_id', currentUserId).gte('created_at', startIso),
+      supabase.from('notes').select('*', { count: 'exact', head: true })
+        .eq('author_id', currentUserId).gte('created_at', startIso),
+      // Flags raised by this user today, found via audit_log: actor=me + after diff contains needs_review:true
+      supabase.from('audit_log').select('*', { count: 'exact', head: true })
+        .eq('actor_id', currentUserId).gte('created_at', startIso)
+        .filter('after->needs_review', 'eq', 'true'),
+    ]).then(([editsRes, notesRes, reviewsRes]) => {
+      setActivity({
+        edits: editsRes.count ?? 0,
+        notes: notesRes.count ?? 0,
+        reviewsFlagged: reviewsRes.count ?? 0,
+      });
+    });
+  }, [currentUserId]);
+
   if (loading) return <div className="loading">Učitavanje...</div>;
 
   return (
@@ -69,6 +104,17 @@ export function Dashboard() {
       {error && (
         <div style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontFamily: 'monospace', marginBottom: 12 }}>
           {error}
+        </div>
+      )}
+
+      {activity && (
+        <div className="dashboard-section">
+          <h2 className="section-title">Vaša aktivnost danas</h2>
+          <div className="stat-cards">
+            <StatCard label="Izmjena" value={activity.edits} color={activity.edits > 0 ? 'green' : undefined} />
+            <StatCard label="Bilješki" value={activity.notes} color={activity.notes > 0 ? 'green' : undefined} />
+            <StatCard label="Prijavljeno za reviziju" value={activity.reviewsFlagged} color={activity.reviewsFlagged > 0 ? 'orange' : undefined} />
+          </div>
         </div>
       )}
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase';
 import type { UserRole } from '../hooks/useAuth';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { ImageUpload } from '../components/ImageUpload';
 import { NotesSection } from '../components/NotesSection';
 import { canAdmin } from '../hooks/useAuth';
 import { withTimeout } from '../lib/withTimeout';
@@ -74,6 +75,7 @@ interface Venue {
   curator_notes: string | null;
   needs_review: boolean | null;
   review_notes: string | null;
+  // cover_image_url shown directly; editable via ImageUpload
 }
 
 interface EditState {
@@ -94,6 +96,7 @@ interface EditState {
   is_featured: boolean;
   needs_review: boolean;
   review_notes: string;
+  cover_image_url: string;
 }
 
 function venueToEdit(v: Venue): EditState {
@@ -114,15 +117,18 @@ function venueToEdit(v: Venue): EditState {
     is_featured: v.is_featured ?? false,
     needs_review: v.needs_review ?? false,
     review_notes: v.review_notes ?? '',
+    cover_image_url: v.cover_image_url ?? '',
   };
 }
 
 interface Props {
   role: UserRole;
   currentUserId: string | null;
+  pendingSelectionId?: string | null;
+  onPendingHandled?: () => void;
 }
 
-export function VenueCuration({ role, currentUserId }: Props) {
+export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendingHandled }: Props) {
   const isAdmin = canAdmin(role);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [total, setTotal] = useState(0);
@@ -200,6 +206,38 @@ export function VenueCuration({ role, currentUserId }: Props) {
 
   useEffect(() => { loadVenues(); }, [loadVenues]);
 
+  // Cmd+K command palette jumps here with a pending venue ID. Fetch that row
+  // directly so it can be selected even if it's not in the current filter.
+  useEffect(() => {
+    if (!pendingSelectionId) return;
+    const inList = venues.find(v => v.id === pendingSelectionId);
+    if (inList) {
+      setSelectedId(inList.id);
+      setEdit(venueToEdit(inList));
+      setSaveMsg('');
+      setDirty(false);
+      onPendingHandled?.();
+      return;
+    }
+    supabase
+      .from('venues')
+      .select(
+        'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_featured, is_curated, curator_notes, needs_review, review_notes'
+      )
+      .eq('id', pendingSelectionId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) { onPendingHandled?.(); return; }
+        const venue = data as Venue;
+        setVenues(prev => [venue, ...prev]);
+        setSelectedId(venue.id);
+        setEdit(venueToEdit(venue));
+        setSaveMsg('');
+        setDirty(false);
+        onPendingHandled?.();
+      });
+  }, [pendingSelectionId, venues, onPendingHandled]);
+
   const handleSelect = useCallback((venue: Venue) => {
     setSelectedId(venue.id);
     setEdit(venueToEdit(venue));
@@ -221,7 +259,15 @@ export function VenueCuration({ role, currentUserId }: Props) {
     updateEdit({ moods: next });
   };
 
-  const handleSave = async () => {
+  const selectNext = useCallback(() => {
+    if (!selectedId) return;
+    const idx = venues.findIndex(v => v.id === selectedId);
+    if (idx < 0) return;
+    const next = venues[(idx + 1) % venues.length];
+    if (next) handleSelect(next);
+  }, [selectedId, venues, handleSelect]);
+
+  const handleSave = async (opts?: { advance?: boolean }) => {
     if (!selectedId || !edit) return;
     setSaving(true);
     setSaveMsg('');
@@ -243,6 +289,7 @@ export function VenueCuration({ role, currentUserId }: Props) {
       is_featured: edit.is_featured,
       needs_review: edit.needs_review,
       review_notes: edit.needs_review ? (edit.review_notes || null) : null,
+      cover_image_url: edit.cover_image_url || null,
     };
 
     // Stamp review metadata on transitions: false → true sets requested_at/by,
@@ -267,11 +314,22 @@ export function VenueCuration({ role, currentUserId }: Props) {
       setVenues(prev => prev.map(v =>
         v.id === selectedId ? { ...v, ...update } as Venue : v
       ));
+      if (opts?.advance) {
+        // Use setTimeout so the saved indicator is briefly visible.
+        setTimeout(() => selectNext(), 200);
+      }
     }
     setSaving(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Cmd/Ctrl+S works from any field
+    if ((e.metaKey || e.ctrlKey) && e.key === 's' && selectedId && edit && dirty) {
+      e.preventDefault();
+      void handleSave();
+      return;
+    }
+    // Arrow nav only when not typing in a field
     if (!selectedId || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
     const idx = venues.findIndex(v => v.id === selectedId);
     if (e.key === 'ArrowDown' && idx < venues.length - 1) {
@@ -417,14 +475,11 @@ export function VenueCuration({ role, currentUserId }: Props) {
               </div>
             </div>
 
-            {selected.cover_image_url && (
-              <img
-                src={selected.cover_image_url}
-                alt={selected.name}
-                className="venue-photo"
-                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
-            )}
+            <ImageUpload
+              pathPrefix={selected.id}
+              currentUrl={edit.cover_image_url || null}
+              onUploaded={(url) => updateEdit({ cover_image_url: url })}
+            />
 
             <div className="admin-fields">
               <div className="field-row">
@@ -619,8 +674,24 @@ export function VenueCuration({ role, currentUserId }: Props) {
                 />
                 <span>Pregledano</span>
               </label>
-              <button onClick={handleSave} disabled={saving || !dirty} className="save-btn">
-                {saving ? 'Čuvanje...' : 'Sačuvaj'}
+              <button onClick={() => handleSave()} disabled={saving || !dirty} className="save-btn">
+                {saving ? 'Čuvanje...' : 'Sačuvaj (⌘S)'}
+              </button>
+              <button
+                onClick={() => handleSave({ advance: true })}
+                disabled={saving || !dirty}
+                className="save-btn"
+                style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
+              >
+                Sačuvaj i sljedeća →
+              </button>
+              <button
+                onClick={selectNext}
+                disabled={saving || dirty || venues.length === 0}
+                className="page-btn"
+                title="Preskoči i idi na sljedeću (ako nema izmjena)"
+              >
+                Sljedeća →
               </button>
               {saveMsg && (
                 <span className={saveMsg.startsWith('Greška') ? 'error' : 'success'}>

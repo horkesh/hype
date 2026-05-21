@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../supabase';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { withTimeout } from '../lib/withTimeout';
+import { renderInlineMarkdown } from '../lib/markdown';
 import { canAdmin } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
 
@@ -380,8 +381,8 @@ export function NotesPage({ role, currentUserId }: Props) {
                     </button>
                   )}
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap', color: '#E5E5E5', fontSize: 14 }}>
-                  {n.body}
+                <div style={{ color: '#E5E5E5', fontSize: 14 }}>
+                  {renderInlineMarkdown(n.body)}
                 </div>
               </div>
             );
