@@ -49,7 +49,7 @@ const KNOWN_MOODS = [
   { id: 'tourist', label: 'Turista' },
 ];
 
-type FilterStatus = 'all' | 'curated' | 'uncurated' | 'no_bs' | 'no_en' | 'featured';
+type FilterStatus = 'all' | 'curated' | 'uncurated' | 'no_bs' | 'no_en' | 'featured' | 'needs_review';
 type LangTab = 'bs' | 'en';
 
 interface Venue {
@@ -70,6 +70,8 @@ interface Venue {
   is_featured: boolean | null;
   is_curated: boolean;
   curator_notes: string | null;
+  needs_review: boolean | null;
+  review_notes: string | null;
 }
 
 interface EditState {
@@ -88,6 +90,8 @@ interface EditState {
   instagram_handle: string;
   is_hidden_gem: boolean;
   is_featured: boolean;
+  needs_review: boolean;
+  review_notes: string;
 }
 
 function venueToEdit(v: Venue): EditState {
@@ -106,6 +110,8 @@ function venueToEdit(v: Venue): EditState {
     instagram_handle: v.instagram_handle ?? '',
     is_hidden_gem: v.is_hidden_gem ?? false,
     is_featured: v.is_featured ?? false,
+    needs_review: v.needs_review ?? false,
+    review_notes: v.review_notes ?? '',
   };
 }
 
@@ -155,7 +161,7 @@ export function VenueCuration(_props: Props) {
       let query = supabase
         .from('venues')
         .select(
-          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_featured, is_curated, curator_notes',
+          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_featured, is_curated, curator_notes, needs_review, review_notes',
           { count: 'exact' }
         )
         .order('name');
@@ -168,6 +174,7 @@ export function VenueCuration(_props: Props) {
       else if (statusFilter === 'no_bs') query = query.is('description_bs', null);
       else if (statusFilter === 'no_en') query = query.is('description_en', null);
       else if (statusFilter === 'featured') query = query.eq('is_featured', true);
+      else if (statusFilter === 'needs_review') query = query.eq('needs_review', true);
 
       query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
@@ -230,7 +237,21 @@ export function VenueCuration(_props: Props) {
       is_curated: edit.is_curated,
       is_hidden_gem: edit.is_hidden_gem,
       is_featured: edit.is_featured,
+      needs_review: edit.needs_review,
+      review_notes: edit.needs_review ? (edit.review_notes || null) : null,
     };
+
+    // Stamp review metadata on transitions: false → true sets requested_at/by,
+    // true → false clears them. Selected reflects the row's current DB state.
+    const wasFlagged = selected?.needs_review ?? false;
+    if (edit.needs_review && !wasFlagged) {
+      const { data: { user } } = await supabase.auth.getUser();
+      update.review_requested_at = new Date().toISOString();
+      update.review_requested_by = user?.id ?? null;
+    } else if (!edit.needs_review && wasFlagged) {
+      update.review_requested_at = null;
+      update.review_requested_by = null;
+    }
 
     const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
 
@@ -295,6 +316,7 @@ export function VenueCuration(_props: Props) {
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as FilterStatus)}>
           <option value="all">Sve</option>
+          <option value="needs_review">⚠ Za reviziju</option>
           <option value="featured">Istaknuto</option>
           <option value="uncurated">Nije pregledano</option>
           <option value="curated">Pregledano</option>
@@ -335,7 +357,11 @@ export function VenueCuration(_props: Props) {
                     <td className="muted-cell">{v.google_rating ? `${v.google_rating}★` : '—'}</td>
                     <td>{v.description_bs ? <span className="dot green" /> : <span className="dot red" />}</td>
                     <td>{v.description_en ? <span className="dot green" /> : <span className="dot red" />}</td>
-                    <td>{v.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> : <span className="dot gray" />}</td>
+                    <td>
+                      {v.needs_review ? <span title="Detaljnija provjera" style={{ color: '#F59E0B', fontWeight: 700 }}>⚠</span> :
+                       v.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> :
+                       <span className="dot gray" />}
+                    </td>
                     <td>{(v.is_curated ?? false) ? <span className="curated-check">✓</span> : <span className="dot gray" />}</td>
                   </tr>
                 ))}
@@ -383,6 +409,7 @@ export function VenueCuration(_props: Props) {
                 {selected.google_rating && <span className="badge">{selected.google_rating}★</span>}
                 {edit.is_hidden_gem && <span className="badge gem">Hidden gem</span>}
                 {edit.is_featured && <span className="badge" style={{ background: '#D4A056', color: '#000' }}>★ Istaknuto</span>}
+                {edit.needs_review && <span className="badge" style={{ background: '#F59E0B', color: '#000' }}>⚠ Za reviziju</span>}
               </div>
             </div>
 
@@ -534,6 +561,39 @@ export function VenueCuration(_props: Props) {
                   rows={2}
                   placeholder="Interne napomene (nisu vidljive korisnicima)..."
                 />
+              </div>
+
+              {/* Detaljnija provjera — flag for closer review */}
+              <div
+                className="field"
+                style={{
+                  background: edit.needs_review ? 'rgba(245,158,11,0.08)' : 'transparent',
+                  border: edit.needs_review ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
+                  borderRadius: 8,
+                  padding: edit.needs_review ? 12 : 0,
+                  marginTop: 8,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <label className="toggle-field">
+                  <input
+                    type="checkbox"
+                    checked={edit.needs_review}
+                    onChange={e => updateEdit({ needs_review: e.target.checked })}
+                  />
+                  <span style={{ color: edit.needs_review ? '#F59E0B' : undefined, fontWeight: edit.needs_review ? 600 : undefined }}>
+                    ⚠ Detaljnija provjera — sakrij iz aplikacije dok se ne provjeri
+                  </span>
+                </label>
+                {edit.needs_review && (
+                  <textarea
+                    value={edit.review_notes}
+                    onChange={e => updateEdit({ review_notes: e.target.value })}
+                    rows={3}
+                    placeholder="Šta je sumnjivo ili pogrešno? (npr. duplikat, pogrešna lokacija, sadržaj koji ne odgovara)..."
+                    style={{ marginTop: 8 }}
+                  />
+                )}
               </div>
             </div>
 

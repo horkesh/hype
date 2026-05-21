@@ -20,6 +20,8 @@ interface Event {
   venue_id: string | null;
   venue_name: string | null;
   is_featured: boolean | null;
+  needs_review: boolean | null;
+  review_notes: string | null;
 }
 
 const STATUS_OPTIONS = [
@@ -50,6 +52,7 @@ export function EventManagement() {
   const [statusFilter, setStatusFilter] = useState('');
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const [editTitleBs, setEditTitleBs] = useState('');
@@ -61,6 +64,8 @@ export function EventManagement() {
   const [editTicketUrl, setEditTicketUrl] = useState('');
   const [editStatus, setEditStatus] = useState('');
   const [editFeatured, setEditFeatured] = useState(false);
+  const [editNeedsReview, setEditNeedsReview] = useState(false);
+  const [editReviewNotes, setEditReviewNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [langTab, setLangTab] = useState<'bs' | 'en'>('bs');
@@ -71,7 +76,7 @@ export function EventManagement() {
     try {
       const query = supabase
         .from('events')
-        .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, is_featured, venues(name)')
+        .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, is_featured, needs_review, review_notes, venues(name)')
         .order('start_datetime', { ascending: true });
 
       const { data, error } = await withTimeout(query, QUERY_TIMEOUT_MS, 'events');
@@ -97,6 +102,7 @@ export function EventManagement() {
     if (statusFilter && e.status !== statusFilter) return false;
     if (upcomingOnly && e.start_datetime && e.start_datetime < now) return false;
     if (featuredOnly && !e.is_featured) return false;
+    if (needsReviewOnly && !e.needs_review) return false;
     return true;
   });
 
@@ -111,6 +117,8 @@ export function EventManagement() {
     setEditTicketUrl(ev.ticket_url ?? '');
     setEditStatus(ev.status ?? '');
     setEditFeatured(ev.is_featured ?? false);
+    setEditNeedsReview(ev.needs_review ?? false);
+    setEditReviewNotes(ev.review_notes ?? '');
     setSaveMsg('');
   };
 
@@ -118,7 +126,11 @@ export function EventManagement() {
     if (!selectedId) return;
     setSaving(true);
     setSaveMsg('');
-    const update = {
+
+    const selected = events.find(e => e.id === selectedId);
+    const wasFlagged = selected?.needs_review ?? false;
+
+    const update: Record<string, unknown> = {
       title_bs: editTitleBs || null,
       title_en: editTitleEn || null,
       description_bs: editDescBs || null,
@@ -128,7 +140,19 @@ export function EventManagement() {
       ticket_url: editTicketUrl || null,
       status: editStatus || null,
       is_featured: editFeatured,
+      needs_review: editNeedsReview,
+      review_notes: editNeedsReview ? (editReviewNotes || null) : null,
     };
+
+    if (editNeedsReview && !wasFlagged) {
+      const { data: { user } } = await supabase.auth.getUser();
+      update.review_requested_at = new Date().toISOString();
+      update.review_requested_by = user?.id ?? null;
+    } else if (!editNeedsReview && wasFlagged) {
+      update.review_requested_at = null;
+      update.review_requested_by = null;
+    }
+
     const { error } = await supabase.from('events').update(update).eq('id', selectedId);
 
     if (error) {
@@ -179,6 +203,14 @@ export function EventManagement() {
           />
           ★ Samo istaknuti
         </label>
+        <label className="toggle">
+          <input
+            type="checkbox"
+            checked={needsReviewOnly}
+            onChange={e => setNeedsReviewOnly(e.target.checked)}
+          />
+          ⚠ Samo za reviziju
+        </label>
       </div>
 
       <div className="main-layout">
@@ -215,7 +247,11 @@ export function EventManagement() {
                         {STATUS_OPTIONS.find(s => s.value === ev.status)?.label ?? ev.status ?? '—'}
                       </span>
                     </td>
-                    <td>{ev.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> : <span className="dot gray" />}</td>
+                    <td>
+                      {ev.needs_review ? <span title="Za reviziju" style={{ color: '#F59E0B', fontWeight: 700 }}>⚠</span> :
+                       ev.is_featured ? <span style={{ color: '#D4A056', fontWeight: 700 }}>★</span> :
+                       <span className="dot gray" />}
+                    </td>
                     <td>{ev.cover_image_url ? <span className="dot green" /> : <span className="dot red" />}</td>
                   </tr>
                 ))}
@@ -238,6 +274,7 @@ export function EventManagement() {
               <div className="edit-header-meta">
                 {selected.category && <span className="badge cat">{selected.category}</span>}
                 {selected.venue_name && <span className="badge">{selected.venue_name}</span>}
+                {editNeedsReview && <span className="badge" style={{ background: '#F59E0B', color: '#000' }}>⚠ Za reviziju</span>}
               </div>
             </div>
 
@@ -328,6 +365,38 @@ export function EventManagement() {
                 />
                 <span>★ Istaknuto (pojavljuje se na Home rail-u)</span>
               </label>
+
+              {/* Detaljnija provjera — hides from app until admin reviews */}
+              <div
+                style={{
+                  marginTop: 12,
+                  background: editNeedsReview ? 'rgba(245,158,11,0.08)' : 'transparent',
+                  border: editNeedsReview ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
+                  borderRadius: 8,
+                  padding: editNeedsReview ? 12 : 0,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <label className="toggle-field">
+                  <input
+                    type="checkbox"
+                    checked={editNeedsReview}
+                    onChange={e => setEditNeedsReview(e.target.checked)}
+                  />
+                  <span style={{ color: editNeedsReview ? '#F59E0B' : undefined, fontWeight: editNeedsReview ? 600 : undefined }}>
+                    ⚠ Detaljnija provjera — sakrij iz aplikacije dok se ne provjeri
+                  </span>
+                </label>
+                {editNeedsReview && (
+                  <textarea
+                    value={editReviewNotes}
+                    onChange={e => setEditReviewNotes(e.target.value)}
+                    rows={3}
+                    placeholder="Šta je sumnjivo ili pogrešno? (npr. duplikat, pogrešan datum, otkazano)..."
+                    style={{ marginTop: 8, width: '100%' }}
+                  />
+                )}
+              </div>
             </div>
 
             <div className="edit-actions">
