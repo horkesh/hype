@@ -23,7 +23,7 @@ import {
 } from '../lib/supabaseAdmin.js';
 import { canonicalEventKey, fuzzyCrossSourceKey, dayDelta } from '../services/eventDedupe.js';
 import { parseRawDate } from '../services/dateParse.js';
-import { matchVenue, type VenueRow } from '../services/venueMatch.js';
+import { matchVenue, resolveInstagramHandle, type VenueRow } from '../services/venueMatch.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -125,7 +125,7 @@ async function fetchRawEvents(): Promise<RawEvent[]> {
 
 async function fetchVenues(): Promise<Venue[]> {
   return fetchSupabaseAdminJson<Venue[]>(
-    '/rest/v1/venues?select=id,name,category,neighborhood&limit=2000',
+    '/rest/v1/venues?select=id,name,category,neighborhood,instagram_handle&limit=2000',
   );
 }
 
@@ -240,6 +240,7 @@ export async function promoteEvents(): Promise<void> {
     venueExact: 0,
     venuePartial: 0,
     venueFuzzy: 0,
+    venueByHandle: 0,
     venueNone: 0,
     errors: 0,
   };
@@ -284,8 +285,15 @@ export async function promoteEvents(): Promise<void> {
         continue;
       }
 
-      // Venue matching
-      const match = matchVenue(raw.venue_name_raw, venues);
+      // Venue matching: structural match on caption-extracted venue_name_raw
+      // first (lets a festival account's post correctly attribute to the
+      // *named* venue rather than the festival account's home venue). Falls
+      // back to instagram-handle lookup when there's no structural match,
+      // which recovers IG posts that don't name a venue in the caption.
+      let match = matchVenue(raw.venue_name_raw, venues);
+      if (!match) {
+        match = resolveInstagramHandle(raw.source_name, venues);
+      }
       let venueId: string | null = null;
       let locationName: string | null = null;
 
@@ -294,9 +302,10 @@ export async function promoteEvents(): Promise<void> {
         locationName = match.venue.name;
         if (match.strategy === 'exact') stats.venueExact++;
         else if (match.strategy === 'partial' || match.strategy === 'partial_reverse') stats.venuePartial++;
+        else if (match.strategy === 'instagram_handle') stats.venueByHandle++;
         else stats.venueFuzzy++;
         log(
-          `  VENUE [${match.strategy}] "${raw.venue_name_raw}" → "${match.venue.name}" (${venueId})`,
+          `  VENUE [${match.strategy}] "${raw.venue_name_raw ?? raw.source_name}" → "${match.venue.name}" (${venueId})`,
         );
       } else {
         locationName = raw.venue_name_raw ?? null;
@@ -400,6 +409,7 @@ export async function promoteEvents(): Promise<void> {
   log(`    Exact                    : ${stats.venueExact}`);
   log(`    Partial                  : ${stats.venuePartial}`);
   log(`    Fuzzy                    : ${stats.venueFuzzy}`);
+  log(`    By IG handle             : ${stats.venueByHandle}`);
   log(`    No match                 : ${stats.venueNone}`);
 }
 

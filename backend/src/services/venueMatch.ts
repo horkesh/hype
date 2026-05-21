@@ -10,6 +10,7 @@ export interface VenueRow {
   name: string;
   category: string | null;
   neighborhood?: string | null;
+  instagram_handle?: string | null;
 }
 
 export interface VenueMatchResult {
@@ -22,7 +23,8 @@ export interface VenueMatchResult {
     | 'fuzzy_partial'
     | 'fuzzy_partial_reverse'
     | 'token_overlap'
-    | 'alias';
+    | 'alias'
+    | 'instagram_handle';
 }
 
 // Canonical aliases for venue abbreviations / shorthands the matcher can't
@@ -230,4 +232,27 @@ export function matchVenue(
   }
 
   return null;
+}
+
+// Resolve an Instagram-sourced raw event to a venue by `source_name` →
+// `venues.instagram_handle`. Designed as a fallback to matchVenue when the
+// caption-extracted venue_name_raw doesn't structurally match anything: the
+// handle already encodes which venue owns the post.
+//
+// Returns null on 0 matches (no link), null on >1 match (chain handles like
+// slatkoislano.ba on 5 rows are ambiguous and shouldn't auto-resolve).
+export function resolveInstagramHandle(
+  sourceName: string | null | undefined,
+  venues: VenueRow[],
+): VenueMatchResult | null {
+  if (!sourceName) return null;
+  const m = sourceName.match(/^instagram:@([a-zA-Z0-9._]+)$/);
+  if (!m) return null;
+  const handle = m[1].toLowerCase();
+
+  const candidates = venues.filter(
+    (v) => v.instagram_handle?.toLowerCase() === handle,
+  );
+  if (candidates.length !== 1) return null;
+  return { venue: candidates[0], strategy: 'instagram_handle' };
 }

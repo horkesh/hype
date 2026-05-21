@@ -1,20 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { matchVenue, type VenueRow } from '../src/services/venueMatch.js';
+import {
+  matchVenue,
+  resolveInstagramHandle,
+  type VenueRow,
+} from '../src/services/venueMatch.js';
 
 const VENUES: VenueRow[] = [
   { id: 'v-dom-mladih', name: 'Dom Mladih Skenderija', category: 'concert_hall' },
   { id: 'v-coffee-skenderija', name: 'Coffee Station Skenderija', category: 'restaurant' },
   { id: 'v-euphoria-skenderija', name: 'Euphoria Lounge Bar Skenderija', category: 'bar' },
-  { id: 'v-narodno', name: 'Narodno Pozorište Sarajevo', category: 'theatre' },
+  { id: 'v-narodno', name: 'Narodno Pozorište Sarajevo', category: 'theatre', instagram_handle: 'nps_sarajevo' },
   { id: 'v-kamerni', name: 'Kamerni Teatar 55', category: 'theatre' },
-  { id: 'v-bkc', name: 'BKC (Bosanski Kulturni Centar)', category: 'cultural_center' },
+  { id: 'v-bkc', name: 'BKC (Bosanski Kulturni Centar)', category: 'cultural_center', instagram_handle: 'bkc_sarajevo' },
   { id: 'v-hacienda', name: 'Hacienda', category: 'club' },
   { id: 'v-montana-grbavica', name: 'Montana Grbavica', category: 'restaurant' },
   { id: 'v-pekara-grbavica', name: 'Pekara GRBAVICA', category: 'bakery' },
   { id: 'v-stadion-grbavica', name: 'Stadion Grbavica', category: 'outdoor' },
   { id: 'v-club-mash', name: 'Club Mash Sarajevo', category: 'club' },
-  { id: 'v-bambuss', name: 'Bambuss Club', category: 'club' },
+  { id: 'v-bambuss', name: 'Bambuss Club', category: 'club', instagram_handle: 'bambusclubsarajevo' },
+  // Chain handle on 2 rows — handle resolver must return null (ambiguous)
+  { id: 'v-chain-a', name: 'Slatko i Slano Čaršija', category: 'bakery', instagram_handle: 'slatkoislano.ba' },
+  { id: 'v-chain-b', name: 'Slatko i Slano Dobrinja', category: 'bakery', instagram_handle: 'slatkoislano.ba' },
 ];
 
 test('matchVenue: exact case-insensitive match', () => {
@@ -118,4 +125,36 @@ test('matchVenue: BKC alias resolves "BKC - SARAJEVO" to BKC venue', () => {
   const result = matchVenue('BKC - SARAJEVO', VENUES);
   assert.equal(result?.strategy, 'alias');
   assert.equal(result?.venue.id, 'v-bkc');
+});
+
+// ---------------------------------------------------------------------------
+// resolveInstagramHandle
+// ---------------------------------------------------------------------------
+
+test('resolveInstagramHandle: maps source_name to the venue with matching handle', () => {
+  const result = resolveInstagramHandle('instagram:@bambusclubsarajevo', VENUES);
+  assert.equal(result?.venue.id, 'v-bambuss');
+  assert.equal(result?.strategy, 'instagram_handle');
+});
+
+test('resolveInstagramHandle: case-insensitive handle match', () => {
+  const result = resolveInstagramHandle('instagram:@BKC_Sarajevo', VENUES);
+  assert.equal(result?.venue.id, 'v-bkc');
+});
+
+test('resolveInstagramHandle: returns null on chain handles (>1 venue shares handle)', () => {
+  const result = resolveInstagramHandle('instagram:@slatkoislano.ba', VENUES);
+  assert.equal(result, null, 'chain handle should be ambiguous → no match');
+});
+
+test('resolveInstagramHandle: ignores non-instagram source_names', () => {
+  assert.equal(resolveInstagramHandle('KupiKartu.ba', VENUES), null);
+  assert.equal(resolveInstagramHandle('AllEvents.in Sarajevo', VENUES), null);
+  assert.equal(resolveInstagramHandle(null, VENUES), null);
+  assert.equal(resolveInstagramHandle(undefined, VENUES), null);
+});
+
+test('resolveInstagramHandle: returns null when no venue has the handle', () => {
+  const result = resolveInstagramHandle('instagram:@some_random_handle', VENUES);
+  assert.equal(result, null);
 });
