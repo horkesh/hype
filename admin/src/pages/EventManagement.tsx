@@ -57,6 +57,20 @@ function formatDate(iso: string | null): string {
   });
 }
 
+// Convert a UTC ISO timestamp to the local YYYY-MM-DDTHH:mm format that
+// <input type="datetime-local"> expects. The previous code sliced the ISO
+// string directly, which treated UTC as local — DADO TOPIĆ stored at
+// 2026-05-23T18:00Z showed as "6:00 PM" in the editor (instead of 20:00,
+// Sarajevo local), and saving without changing the time drifted the UTC
+// down by the local offset each save.
+function isoToLocalDatetimeInput(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function EventManagement({ currentUserId, pendingSelectionId, onPendingHandled }: Props) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,7 +180,7 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
     setEditDescBs(ev.description_bs ?? '');
     setEditDescEn(ev.description_en ?? '');
     setEditCategory(ev.category ?? 'other');
-    setEditDatetime(ev.start_datetime ? ev.start_datetime.slice(0, 16) : '');
+    setEditDatetime(isoToLocalDatetimeInput(ev.start_datetime));
     setEditTicketUrl(ev.ticket_url ?? '');
     setEditStatus(ev.status ?? '');
     setEditFeatured(ev.is_featured ?? false);
