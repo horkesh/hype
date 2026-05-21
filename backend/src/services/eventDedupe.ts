@@ -70,28 +70,48 @@ export function canonicalEventKey(input: {
   return `${titleKey}|${date}|${venueKey}`;
 }
 
-// Looser cross-source key that ignores the day. Used to detect near-duplicates
-// where sources disagree by ±1-2 days (PROLONGIRANO reschedules, timezone bugs,
-// venue date confusion). The caller pairs this with a date-proximity check.
+// Stopwords for the fuzzy dedup key. These are common event-title words that
+// don't identify a specific event — they're prefixes ("premijera predstave",
+// "live music"), status markers ("rasprodano", "prolongirano"), or generic
+// descriptors ("godisnjica", "nights"). Removing them lets us key on the
+// actual distinctive token (artist/play name) regardless of where it sits
+// in the title.
+const FUZZY_STOPWORDS = new Set([
+  // Bosnian theatrical/concert qualifiers
+  'premijera', 'predstave', 'predstava', 'koncert', 'koncerta', 'koncertu',
+  'koncerti', 'festival', 'festivala', 'dogadjaj', 'dogadjaji', 'jubilej',
+  // Venue / scene qualifiers
+  'dvorana', 'dvorane', 'dvorani', 'scena', 'scene', 'klub', 'kluba',
+  'klubu', 'pozoriste', 'pozorista', 'pozoristu',
+  // Status / state markers
+  'rasprodano', 'rasprodana', 'otkazano', 'otkazana', 'prolongirano',
+  'prebaceno', 'preneseno', 'posebno', 'special', 'specijal',
+  // Date/anniversary fillers
+  'godisnjica', 'godisnjicu', 'godisnjice', 'premiere', 'anniversary',
+  // English generics
+  'nights', 'evening', 'party', 'concert', 'tonight', 'stage', 'tribute',
+  'matinee', 'comedy',
+]);
+
+// Looser cross-source key set that ignores the day. Used to detect
+// near-duplicates where sources disagree by ±1-2 days (PROLONGIRANO
+// reschedules, timezone bugs) or where titles have different framings
+// ("PREMIJERA PREDSTAVE ŽENOMRZAC" vs "ŽENOMRZAC - RASPRODANO @venue").
+// Returns one key per distinctive title token. Two events match fuzzily
+// when their key sets intersect; caller pairs that with a ±2-day date
+// proximity check.
 //
-// Same shape as canonicalEventKey but with no date component, so a single
-// "WHO SEE" concert on May 21 (KupiKartu) and May 22 (AllEvents) at the same
-// venue gets the same fuzzy key.
-export function fuzzyCrossSourceKey(input: {
+// Distinctive = length ≥ 5 chars AND not in FUZZY_STOPWORDS. Fallback for
+// short artist names like "WHO SEE": when no distinctive token exists, key
+// on the first 2 tokens (preserves prior behavior on real concert titles).
+export function fuzzyCrossSourceKeys(input: {
   title: string | null;
   venueId: string | null;
   locationName: string | null;
-}): string | null {
-  const titleKey = input.title ? normalizeForKey(input.title) : '';
-  if (titleKey.length < 3) return null;
-
-  // First two title tokens are usually the artist/show name ("WHO SEE",
-  // "Dino Merlin", "Nikola Rokvić"). Keeping that prefix lets variants like
-  // "WHO SEE - PROLONGIRANO @Cinemas Sloga" match "WHO SEE @ CINEMAS SLOGA
-  // SARAJEVO" because both reduce to "who see" + same venue. No length
-  // filter — short artist names like "WHO" or "SEE" are real signal.
-  const firstTokens = titleKey.split(/\s+/).filter(Boolean).slice(0, 2).join(' ');
-  if (firstTokens.length < 3) return null;
+}): string[] {
+  if (!input.title) return [];
+  const titleKey = normalizeForKey(input.title);
+  if (titleKey.length < 3) return [];
 
   const venueKey = input.venueId
     ? `id:${input.venueId}`
@@ -99,7 +119,21 @@ export function fuzzyCrossSourceKey(input: {
       ? `loc:${normalizeForKey(input.locationName)}`
       : 'venue:none';
 
-  return `${firstTokens}|${venueKey}`;
+  const allTokens = titleKey.split(/\s+/).filter(Boolean);
+  const distinctive = allTokens.filter(
+    (t) => t.length >= 5 && !FUZZY_STOPWORDS.has(t),
+  );
+
+  if (distinctive.length > 0) {
+    return distinctive.map((t) => `${t}|${venueKey}`);
+  }
+
+  // Fallback: short artist names (WHO SEE, U2, ABBA, etc.) — use first
+  // 2 tokens as a single key so the WHO SEE / Dino Merlin / etc. cases
+  // still dedupe across sources.
+  const firstTwo = allTokens.slice(0, 2).join(' ');
+  if (firstTwo.length < 3) return [];
+  return [`${firstTwo}|${venueKey}`];
 }
 
 // Difference in calendar days between two ISO datetimes. Returns Infinity

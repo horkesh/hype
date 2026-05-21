@@ -21,7 +21,7 @@ import {
   requestSupabaseAdminNoContent,
   requestSupabaseAdminJson,
 } from '../lib/supabaseAdmin.js';
-import { canonicalEventKey, fuzzyCrossSourceKey, dayDelta } from '../services/eventDedupe.js';
+import { canonicalEventKey, fuzzyCrossSourceKeys, dayDelta } from '../services/eventDedupe.js';
 import { parseRawDate } from '../services/dateParse.js';
 import { matchVenue, resolveInstagramHandle, type VenueRow } from '../services/venueMatch.js';
 
@@ -167,15 +167,17 @@ async function fetchExistingEventKeys(): Promise<{
       locationName: r.location_name,
     });
     if (canonical) canonicalKeys.add(canonical);
-    const fuzzy = fuzzyCrossSourceKey({
+    const fuzzyKeys = fuzzyCrossSourceKeys({
       title: r.title_bs,
       venueId: r.venue_id,
       locationName: r.location_name,
     });
-    if (fuzzy && r.start_datetime && r.title_bs) {
-      const arr = fuzzyEntries.get(fuzzy) ?? [];
-      arr.push({ startDatetime: r.start_datetime, title: r.title_bs });
-      fuzzyEntries.set(fuzzy, arr);
+    if (fuzzyKeys.length > 0 && r.start_datetime && r.title_bs) {
+      for (const key of fuzzyKeys) {
+        const arr = fuzzyEntries.get(key) ?? [];
+        arr.push({ startDatetime: r.start_datetime, title: r.title_bs });
+        fuzzyEntries.set(key, arr);
+      }
     }
   }
   return { sourceUrlKeys, canonicalKeys, fuzzyEntries };
@@ -333,19 +335,26 @@ export async function promoteEvents(): Promise<void> {
         continue;
       }
 
-      // Near-duplicate dedup: same first-significant-tokens + same venue,
-      // existing event within ±2 days. Catches the case where sources
-      // disagree on the date (PROLONGIRANO reschedules, timezone bugs, etc.).
-      const fuzzy = fuzzyCrossSourceKey({ title, venueId, locationName });
-      if (fuzzy) {
-        const existing = fuzzyEntries.get(fuzzy) ?? [];
+      // Near-duplicate dedup: shared distinctive title token + same venue,
+      // existing event within ±2 days. Catches sources disagreeing on the
+      // date (PROLONGIRANO reschedules, timezone bugs) AND on title framing
+      // ("PREMIJERA PREDSTAVE X" vs "X - RASPRODANO" both produce a key
+      // containing "x" so they collide).
+      const fuzzyKeys = fuzzyCrossSourceKeys({ title, venueId, locationName });
+      let fuzzyDup: { title: string; startDatetime: string; key: string } | null = null;
+      for (const key of fuzzyKeys) {
+        const existing = fuzzyEntries.get(key) ?? [];
         const near = existing.find((e) => dayDelta(e.startDatetime, startDatetime) <= 2);
         if (near) {
-          log(`  SKIP [near-day duplicate] "${title}" ≈ "${near.title}" (${dayDelta(near.startDatetime, startDatetime)}d apart)`);
-          stats.skippedCrossSourceDuplicate++;
-          await markRawEventPromoted(raw.id, venueId);
-          continue;
+          fuzzyDup = { title: near.title, startDatetime: near.startDatetime, key };
+          break;
         }
+      }
+      if (fuzzyDup) {
+        log(`  SKIP [near-day duplicate] "${title}" ≈ "${fuzzyDup.title}" (${dayDelta(fuzzyDup.startDatetime, startDatetime)}d apart) via "${fuzzyDup.key}"`);
+        stats.skippedCrossSourceDuplicate++;
+        await markRawEventPromoted(raw.id, venueId);
+        continue;
       }
 
       const eventInsert: EventInsert = {
@@ -377,10 +386,10 @@ export async function promoteEvents(): Promise<void> {
       if (canonical) {
         canonicalKeys.add(canonical);
       }
-      if (fuzzy) {
-        const arr = fuzzyEntries.get(fuzzy) ?? [];
+      for (const key of fuzzyKeys) {
+        const arr = fuzzyEntries.get(key) ?? [];
         arr.push({ startDatetime, title });
-        fuzzyEntries.set(fuzzy, arr);
+        fuzzyEntries.set(key, arr);
       }
 
       await markRawEventPromoted(raw.id, venueId);
