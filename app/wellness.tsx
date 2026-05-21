@@ -4,7 +4,6 @@ import {
   Image,
   Platform,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -146,11 +145,7 @@ export default function WellnessScreen() {
         </View>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipsRow}
-      >
+      <View style={styles.chipsRow}>
         {subKeys.map((k) => {
           const isActive = active === k;
           return (
@@ -161,7 +156,7 @@ export default function WellnessScreen() {
                 styles.chip,
                 isActive
                   ? { backgroundColor: colors.accent, borderColor: colors.accent }
-                  : { backgroundColor: 'transparent', borderColor: colors.border },
+                  : { backgroundColor: 'transparent', borderColor: colors.border ?? 'rgba(255,255,255,0.15)' },
               ]}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
@@ -175,7 +170,7 @@ export default function WellnessScreen() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
       {loading ? (
         <View style={styles.center}>
@@ -313,10 +308,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   chipsRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 8,
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   chip: {
     paddingHorizontal: 14,
@@ -324,6 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     marginRight: 8,
+    marginBottom: 8,
   },
   chipText: {
     fontFamily: 'DMSans_500Medium',
