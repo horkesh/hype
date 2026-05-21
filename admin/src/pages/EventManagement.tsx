@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { RawEventReview } from '../components/RawEventReview';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { NotesSection } from '../components/NotesSection';
 import { withTimeout } from '../lib/withTimeout';
+
+interface Props {
+  currentUserId: string | null;
+}
 
 const QUERY_TIMEOUT_MS = 15_000;
 
@@ -44,7 +49,7 @@ function formatDate(iso: string | null): string {
   });
 }
 
-export function EventManagement() {
+export function EventManagement({ currentUserId }: Props) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -398,6 +403,14 @@ export function EventManagement() {
                 )}
               </div>
             </div>
+
+            {/* Notes (per-event, admin-tier only) */}
+            <NotesSection
+              kind="event"
+              eventId={selected.id}
+              currentUserId={currentUserId}
+              isAdmin={true /* event page is shown to all admin tiers; show all-author notes inline */}
+            />
 
             <div className="edit-actions">
               <button onClick={handleSave} disabled={saving} className="save-btn">

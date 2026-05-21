@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabase';
 import type { UserRole } from '../hooks/useAuth';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { NotesSection } from '../components/NotesSection';
+import { canAdmin } from '../hooks/useAuth';
 import { withTimeout } from '../lib/withTimeout';
 
 const PAGE_SIZE = 50;
@@ -117,9 +119,11 @@ function venueToEdit(v: Venue): EditState {
 
 interface Props {
   role: UserRole;
+  currentUserId: string | null;
 }
 
-export function VenueCuration(_props: Props) {
+export function VenueCuration({ role, currentUserId }: Props) {
+  const isAdmin = canAdmin(role);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -596,6 +600,14 @@ export function VenueCuration(_props: Props) {
                 )}
               </div>
             </div>
+
+            {/* Notes (per-venue, admin-tier only) */}
+            <NotesSection
+              kind="venue"
+              venueId={selected.id}
+              currentUserId={currentUserId}
+              isAdmin={isAdmin}
+            />
 
             {/* Actions */}
             <div className="edit-actions">

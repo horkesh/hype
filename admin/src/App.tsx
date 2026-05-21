@@ -7,6 +7,7 @@ import { EventManagement } from './pages/EventManagement';
 import { UserManagement } from './pages/UserManagement';
 import { AuditLog } from './pages/AuditLog';
 import { ReviewQueue } from './pages/ReviewQueue';
+import { NotesPage } from './pages/NotesPage';
 import { Login } from './Login';
 import { useState } from 'react';
 import type { Page } from './components/Sidebar';
@@ -25,6 +26,7 @@ function DebugBanner({ info }: { info: string }) {
 export function App() {
   const { session, role, loading, error } = useAuth();
   const [activePage, setActivePage] = useState<Page>('dashboard');
+  const currentUserId = session?.user?.id ?? null;
 
   if (loading) {
     return (
@@ -79,10 +81,11 @@ export function App() {
       />
       <main className="main-content">
         {activePage === 'dashboard' && <Dashboard />}
-        {activePage === 'venues' && <VenueCuration role={role!} />}
-        {activePage === 'events' && <EventManagement />}
+        {activePage === 'venues' && <VenueCuration role={role!} currentUserId={currentUserId} />}
+        {activePage === 'events' && <EventManagement currentUserId={currentUserId} />}
         {activePage === 'review' && <ReviewQueue onNavigate={setActivePage} />}
         {activePage === 'audit' && <AuditLog />}
+        {activePage === 'notes' && <NotesPage role={role!} currentUserId={currentUserId} />}
         {activePage === 'users' && <UserManagement />}
       </main>
     </div>
