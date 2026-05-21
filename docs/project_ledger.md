@@ -2233,3 +2233,61 @@ User reported: still seeing duplicates, and every event showed as "Free" despite
 - Hardenings in place for the next Sunday cron (2026-05-24 02:00 UTC): past-date guard, distinctive-token fuzzy dedup, IG handle resolver fallback, generic-token rejection.
 - Tests: 31/31 backend matcher + dedupe + 36/36 backend + 194/194 app.
 - 9 commits this two-day arc on `origin/main` (`32c2d06..4d96824`).
+
+### 2026-05-21 (continued) — Admin productivity buildout + Wellness vertical
+
+#### Promjene tab — audit log with revert
+- Migration `20260521000000_audit_log.sql`: `audit_log` table (table_name, row_id, row_label snapshot, action, actor_id, actor_role, before/after jsonb of changed columns only, reverted_at/by). `log_admin_changes()` AFTER UPDATE trigger on venues + events. Skips unauthenticated writes (service-role) and super_admin actions — only editor + admin actions are reviewable noise.
+- `list_audit_log(p_limit, p_editor_only)` SECURITY DEFINER RPC joins actor profile + email.
+- `revert_audit_change(audit_id)` SECURITY DEFINER RPC uses dynamic SQL with per-column type casts (handles text[], jsonb, bool, timestamp). Idempotent — returns `already_reverted` / `row_not_found` instead of failing.
+- New AuditLog page ("Promjene", admin+ only). Click row to expand red/green before→after diff per field. Three action buttons: Pokušaj ponovo / Osvježi / Odjava i ponovna prijava on errors.
+- Verified end-to-end via SQL impersonation: simulated Tanja's editor session edited Hemingway's, trigger captured row 1, revert RPC restored, audit row marked reverted_by=haris.
+
+#### "Detaljnija provjera" review flag + Za reviziju priority queue
+- Migration `20260521010000_needs_review_flag.sql`: `needs_review boolean + review_notes text + review_requested_by uuid + review_requested_at timestamptz` on both venues and events. Partial indexes on `(review_requested_at DESC) WHERE needs_review`.
+- Critical RLS change: public-read policies on venues + events updated to require `needs_review = false`. Curator-tier RLS unchanged — admin panel keeps seeing flagged items. So a flagged item disappears from look-alpha.vercel.app the moment it's saved.
+- Edit panels: orange "⚠ Detaljnija provjera" toggle with inline notes textarea. False→true save stamps requested_at/by from current session; true→false clears.
+- New ReviewQueue page ("Za reviziju", admin+ only). Card view of all flagged items with requester name, the explanation, "Otvori detalje →" + "✓ Vrati u aplikaciju" one-click resolve.
+
+#### Notes — three kinds (venue / event / idea), admin-tier internal only
+- Migration `20260521020000_notes.sql`: notes table with kind/venue_id/event_id CHECK constraint enforcing the three-shape invariant. RLS: read own + admin+ reads all. Insert restricted to author_id = auth.uid(). Update/delete restricted to author or admin+.
+- `list_notes(p_kind, p_venue_id, p_event_id, p_all_authors, p_limit)` SECURITY DEFINER RPC.
+- NotesSection component (per-row, inline in venue + event edit panels). New Bilješke sidebar tab (visible to all admin tiers) with three sub-tabs (Lokacije / Događaji / Ideje) + "+ Nova bilješka" with HTML datalist target picker (handles 1000+ venues without virtualization).
+- "Svi autori" toggle on Bilješke visible only to admin+ (editor sees own notes only — RLS enforces regardless of UI).
+- End-app users never see notes (no public read policy).
+
+#### Editor activity visible to admin+
+- New `list_editor_activity(p_since)` RPC joins audit_log + notes + flag-set events per editor. Client passes local start-of-day so "danas" matches user timezone, not UTC midnight. Gated on `is_admin_or_above()`.
+- Pregled gets two cards: existing "Vaša aktivnost danas" (own counts) + new "Aktivnost urednika danas" table (admin+ only) showing every editor/admin with today's edits, notes, review-flag counts + last-active timestamp. Inactive users dimmed.
+
+#### Editor productivity wave (9 features)
+- **Sljedeća navigation**: "Sačuvaj i sljedeća →" + "Sljedeća →" buttons on both editors. After save, the next row in the current filter is selected automatically. Wrap-around at end.
+- **Cmd+K / Ctrl+K global quick-jump**: modal palette searches all venues + events by name with token-prefix scoring, arrow-key nav, Enter to open. App threads `pendingSelectionId` through VenueCuration / EventManagement which auto-fetch + select even if the item isn't in the current filter.
+- **Image upload**: ImageUpload component (file picker + drag-drop) uploads to venue-photos Storage bucket. Migration `20260521030000_storage_admin_uploads.sql` adds curator-tier RLS policies on storage.objects (`Public read venue-photos` + curator INSERT/UPDATE/DELETE). Cron writes still bypass RLS via service-role key. Cache-busting query string on the new URL so the editor sees the new bytes immediately.
+- **Serije page**: full CRUD for event_series. Lists with start/end dates, category, child event count (joined from events.series_id), ★ featured + active flags. Sidebar visible to all admin tiers.
+- **Bulk raw event actions**: RawEventReview gets per-card checkboxes, "Odaberi sve", source filter dropdown, "Promoviraj odabrane" / "Odbaci odabrane" with `.in('id', ids)` batch UPDATE. Confirmation prompt before destructive.
+- **Cmd/Ctrl+S** saves in both editors (works even from inside inputs/textareas).
+- **Sidebar badges**: Za reviziju shows orange count of needs_review items; Promjene shows red count of THIS user's changes reverted in last 24h. Polls every 60s.
+- **Markdown rendering**: tiny inline parser in lib/markdown.tsx (bold/italic/line breaks only). Applied to NotesSection + NotesPage bodies.
+- **Permission cleanup**: dropped all isAdmin field gates in VenueCuration — editor now has full edit access to every column. Tier separation lives entirely at RLS (is_admin_or_above for profile mutations) + sidebar (Korisnici still super_admin-only).
+
+#### Wellness vertical — 136 new venues + dedicated screen
+- New `backend/src/scripts/discoverWellnessVenues.ts`: runs 17 Google Places Text Search queries across Sarajevo in BS + EN (beauty salon, hair salon, frizerski salon, nail salon, salon ljepote, kozmeticki salon, spa, wellness, massage, masaža, gym, fitness, yoga, pilates, aesthetic clinic, estetska klinika, medical spa). Dedupes by place_id across queries; skips anything already in venues. Filters obvious mismatches (restaurants, lodgings) via Google place types + a name signal regex.
+- Live run inserted 136 unique venues with `category='wellness'` and subtype tags (beauty_salon, hair_salon, nails, spa, massage, fitness, yoga, pilates, aesthetic). After enrichFromGoogle.ts + scrapeGooglePhotos.ts: 100% with covers, 99% with Google rating, average **4.80★**.
+- Look app: `utils/categoryLabels.ts` gets `wellness` entry. HomeCategoryGrid intentionally unchanged — wellness stays off the front page per the brief.
+- `components/explore/ExploreWellnessCard.tsx`: backdrop image from one top-rated wellness venue + total count. Tap pushes to `/wellness`.
+- `app/wellness.tsx`: dedicated root-stack screen. Seven horizontal subcategory chips (Sve / Saloni ljepote / Frizeri / Spa & masaža / Fitness / Yoga & pilates / Estetska klinika). Chips filter the 136-venue set client-side by intersecting `tags[]` with each chip's tag group (`spa` → `['spa', 'massage']`). FlatList of cards with cover, name, ★ rating + count, neighborhood, 2 subtype tag pills. Tap → existing `/venue/[id]`. Pull-to-refresh.
+- Admin: VenueCuration dropdown gains a Wellness option so editors can re-classify existing venues.
+
+#### Tanja's password
+- Earlier in the day: created Tanja's account (`desilvatanja@gmail.com`, editor role) via Supabase Admin REST API, password set to `TanyaLook2026!`. Forgot-password link not yet exposed on the admin login page (small follow-up).
+- Berina's password reset to `BerinaLook2026!` (was forgotten) via the same admin API.
+
+#### Final state end of 2026-05-21 (second checkpoint)
+- 14 additional commits since the first 2026-05-21 checkpoint: audit log, review queue, notes, editor-activity-to-admin RPC, 9-feature productivity wave, wellness discovery + screen, doc commits.
+- 136 wellness venues live (100% covered, avg 4.80★). Total venue count now 1,098 active non-wellness + 136 wellness = 1,234 active. Total venues table count now ~1,360.
+- 7 migrations applied: audit_log + RLS + revert RPC, needs_review schema + RLS change, notes table + RPCs, storage admin uploads RLS, list_editor_activity RPC. All tracked in `supabase/migrations/`.
+- Admin app feature surface: Pregled (with editor-activity card) · Lokacije · Događaji · **Serije** · Bilješke · **Za reviziju** (admin+) · **Promjene** (admin+) · Korisnici (super_admin). Cmd+K available everywhere.
+- Tanja's permission surface: full edit on every venue + event field, can flag for review, add notes, see her own activity. Cannot promote users or revert.
+- Berina's permission surface: same as Tanja + sees other editors' notes, the Za reviziju + Promjene queues, the Aktivnost urednika roll-up. Cannot promote to super_admin.
+- All work pushed; hype + look-admin Vercel projects both green at `4b09645`.
