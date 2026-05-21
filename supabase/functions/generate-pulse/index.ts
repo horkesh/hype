@@ -3,6 +3,7 @@ import { callGemini } from '../_shared/ai-clients.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
 import { verifyUserAuth } from '../_shared/auth.ts';
+import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -94,9 +95,11 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Fetch context in parallel: events, venues, klix headlines
+    // Fetch context in parallel: events, venues, klix headlines.
+    // `today` must be the Sarajevo-local date — using UTC silently shifts
+    // events by a day late at night (e.g. 00:30 local = 22:30 UTC prev day).
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const today = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Sarajevo' });
 
     const [eventsResult, venuesResult, klixHeadlines] = await Promise.all([
       supabaseAdmin
@@ -118,9 +121,8 @@ Deno.serve(async (req: Request) => {
     const events = eventsResult.data;
     const venues = venuesResult.data;
 
-    // Time context — use Sarajevo timezone, not server-local (UTC on edge)
-    const sarajevoTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' }));
-    const hour = sarajevoTime.getHours();
+    // Time context — Sarajevo wall-clock via Intl (edge runtime is UTC)
+    const hour = getSarajevoHour(now);
     const time_of_day = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
     const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Sarajevo' });
     const fullDate = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Europe/Sarajevo' });
@@ -165,7 +167,17 @@ Deno.serve(async (req: Request) => {
       ? `\n⚠️ TODAY IS A HOLIDAY: ${todayHoliday}\nThis MUST be the primary theme of the pulse. Everything else is secondary.\n`
       : '';
 
-    const prompt = `You are a local Sarajevo friend writing a 1-2 sentence "City Pulse" for a going-out app. Today is ${fullDate}, ${time_of_day}.
+    // Bosnian day-of-week mapping so the prompt can give the model a same-day
+    // anchor (avoids the AI echoing the example day from a hardcoded line).
+    const BS_DAY: Record<string, string> = {
+      Monday: 'Ponedjeljak', Tuesday: 'Utorak', Wednesday: 'Srijeda',
+      Thursday: 'Četvrtak', Friday: 'Petak', Saturday: 'Subota', Sunday: 'Nedjelja',
+    };
+    const bsDay = BS_DAY[dayOfWeek] ?? dayOfWeek;
+
+    const prompt = `You are a local Sarajevo friend writing a 1-2 sentence "City Pulse" for a going-out app.
+
+CRITICAL: Today is ${dayOfWeek} (${bsDay}), ${fullDate}, ${time_of_day} in Sarajevo. Do NOT confuse the day — if the day is ${dayOfWeek}, write about ${dayOfWeek} (${bsDay}), not any other day. Examples below may show different days; ignore the day in the examples and use ${bsDay} / ${dayOfWeek}.
 ${holidayBlock}
 WHAT MATTERS TODAY:
 - If a holiday is marked above, it MUST dominate the pulse — greetings, what people are doing at this time of day
@@ -194,13 +206,13 @@ RULES:
 - Never use: "vibrant", "bustling", "immerse", "tapestry", "heartbeat of the city", "hidden gem", "discover"
 - Under 160 characters per language
 
-Great examples (use venue names from the APPROVED list, not these):
+Great examples (templates only — substitute today's actual day "${bsDay}" / "${dayOfWeek}", not these days):
   BS: "Bajram mubarek! Poslije ručka, šetnja i kafu. Grad miriše na baklavu."
   EN: "Bajram mubarek! Post-lunch walk and coffee. The whole city smells like baklava."
   BS: "Kiša pada, idealno za toplu čorbu i kafu. Zagrij se."
   EN: "Rainy afternoon — warm up with čorba and coffee somewhere cozy."
-  BS: "Petak popodne, sunce sija. Navrati na [venue from list] prije večernje gužve."
-  EN: "Friday afternoon sun. Drop by [venue from list] before the evening rush."
+  BS: "${bsDay} popodne, sunce sija. Navrati na [venue from list] prije večernje gužve."
+  EN: "${dayOfWeek} afternoon sun. Drop by [venue from list] before the evening rush."
 
 IMPORTANT — WRITE BOSNIAN FIRST:
 1. Write pulse_bs FIRST — this is the primary output. Think in Bosnian, write in Bosnian. Use LATIN SCRIPT only. Never Cyrillic. Use Sarajevo Bosnian — "uvijek" not "uvek", "kafa" not "kava", "vrijedi" not "vredi". Sound like a Sarajlija texting a friend.

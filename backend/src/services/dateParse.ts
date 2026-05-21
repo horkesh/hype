@@ -19,6 +19,24 @@ function lookupMonth(name: string): number | null {
   return monthNumbers[name.toLowerCase().replace(/\.$/, '')] ?? null;
 }
 
+// Sarajevo TZ hour formatter reused across calls.
+const SARAJEVO_HOUR_FMT = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Europe/Sarajevo',
+  hour: 'numeric',
+  hour12: false,
+});
+
+// Interpret (year, month, day, hour, minute) as Sarajevo wall-clock time and
+// return the corresponding UTC ISO string. Sarajevo is CET (+1) or CEST (+2)
+// depending on the date — try both offsets and pick whichever lands the
+// wall-clock back on the requested hour when displayed in Sarajevo.
+//
+// Why this exists: the previous implementation used `new Date(year, month-1,
+// day, hour, minute)` which constructs in the runtime timezone. On the GH
+// Actions cron (UTC) that stored "20:00 Sarajevo" scraped strings as 20:00
+// UTC = 22:00 Sarajevo — every cron-scraped event drifted +2h during CEST.
+// Locally-run scrapes on Sarajevo machines happened to produce correct
+// values, which is why the bug took a while to surface.
 function buildDatetime(
   year: number,
   month: number,
@@ -27,9 +45,34 @@ function buildDatetime(
   minute = 0,
 ): string | null {
   if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-  const d = new Date(year, month - 1, day, hour, minute, 0, 0);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString();
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+  const naiveUtc = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+  if (Number.isNaN(naiveUtc)) return null;
+
+  // Reject silent rollovers (Feb 30 → Mar 1, Apr 31 → May 1). Date.UTC
+  // accepts overflowing day numbers and rolls them forward — we want a
+  // hard rejection so the caller sees the date as unparseable instead of
+  // getting a wrong-day event in the DB.
+  const probe = new Date(naiveUtc);
+  if (probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== day) {
+    return null;
+  }
+
+  for (const offsetHours of [2, 1] as const) {
+    const candidate = new Date(naiveUtc - offsetHours * 3_600_000);
+    if (Number.isNaN(candidate.getTime())) continue;
+    // Intl formats midnight as "24" in some locales; normalize.
+    const formattedHour = parseInt(SARAJEVO_HOUR_FMT.format(candidate), 10) % 24;
+    if (formattedHour === hour) {
+      return candidate.toISOString();
+    }
+  }
+
+  // Spring-forward gap (e.g. 2:30 on the Sunday clocks jump ahead doesn't
+  // exist as a real moment). Fall back to the +2 candidate so we at least
+  // produce a valid timestamp.
+  return new Date(naiveUtc - 2 * 3_600_000).toISOString();
 }
 
 // Supported formats:
@@ -47,10 +90,25 @@ export function parseRawDate(dateRaw: string | null): string | null {
   const s = dateRaw.trim();
   if (!s) return null;
 
-  // ISO passthrough
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const d = new Date(s);
-    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  // ISO passthrough — but only when the string has a timezone designator.
+  // `new Date("2026-05-22T20:30")` (no offset, no Z) is parsed as runtime-
+  // local, so on UTC edge that's UTC, in Sarajevo it's Sarajevo → 2h drift.
+  // If there's no offset/Z we strip the T and re-route through buildDatetime.
+  const isoLike = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/);
+  if (isoLike) {
+    const [, y, m, d, hh, mm, offset] = isoLike;
+    if (offset) {
+      const parsed = new Date(s);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    }
+    return buildDatetime(Number(y), Number(m), Number(d), Number(hh), Number(mm));
+  }
+
+  // YYYY-MM-DD HH:MM  (parse-instagram joins date+time with a space)
+  const isoDateSpace = s.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})$/);
+  if (isoDateSpace) {
+    const [, y, m, d, hh, mm] = isoDateSpace;
+    return buildDatetime(Number(y), Number(m), Number(d), Number(hh), Number(mm));
   }
 
   // YYYY-MM-DD

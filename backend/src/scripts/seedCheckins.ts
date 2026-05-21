@@ -10,7 +10,6 @@
 
 import {
   fetchSupabaseAdminJson,
-  requestSupabaseAdminJson,
   requestSupabaseAdminNoContent,
 } from '../lib/supabaseAdmin.js';
 

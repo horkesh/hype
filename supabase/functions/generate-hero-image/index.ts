@@ -2,6 +2,7 @@ import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
 import { verifyUserAuth } from '../_shared/auth.ts';
+import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 const CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -202,8 +203,8 @@ Deno.serve(async (req) => {
     const weather = body.weather ?? null;
 
     const now = new Date();
-    // Sarajevo is UTC+1 (CET) / UTC+2 (CEST)
-    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    // Sarajevo wall-clock via Intl (edge runtime is UTC).
+    const sarajevoHour = getSarajevoHour(now);
     const timeOfDay = getTimeOfDay(sarajevoHour);
     const holiday = getActiveHoliday(now);
 

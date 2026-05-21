@@ -21,9 +21,14 @@ import {
   requestSupabaseAdminNoContent,
   requestSupabaseAdminJson,
 } from '../lib/supabaseAdmin.js';
-import { canonicalEventKey, fuzzyCrossSourceKeys, dayDelta } from '../services/eventDedupe.js';
+import {
+  canonicalEventKey,
+  fuzzyCrossSourceKeys,
+  fuzzyEventsMatch,
+  dayDelta,
+} from '../services/eventDedupe.js';
 import { parseRawDate } from '../services/dateParse.js';
-import { matchVenue, resolveInstagramHandle, type VenueRow } from '../services/venueMatch.js';
+import { matchVenue, resolveInstagramHandle } from '../services/venueMatch.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -78,21 +83,55 @@ function log(msg: string) {
 
 // ---------------------------------------------------------------------------
 // Category inference
+//
+// Maps free-text titles + descriptions to one of the event_category enum
+// values: music, food, culture, sport, nightlife, art, film, theatre,
+// festival, market, workshop, charity, other.
+//
+// Order matters — narrower rules first (festival before film before drama),
+// stronger signals over weaker ones (koncert > matine). Patterns match both
+// Bosnian and English forms. Caller passes title + description; we match
+// against the concatenation so a generic title like "Sladjana Mandić" can
+// still pick up "koncert" from the description.
 // ---------------------------------------------------------------------------
 
 const CATEGORY_RULES: Array<{ pattern: RegExp; category: string }> = [
-  { pattern: /stand[-\s]?up|komedija|comedy/i, category: 'other' },
-  { pattern: /koncert|concert|dj\b|live\s+music/i, category: 'music' },
-  { pattern: /balet|ballet/i, category: 'other' },
-  { pattern: /opera/i, category: 'other' },
-  { pattern: /drama|predstava|teatar|theatre|theater/i, category: 'other' },
-  { pattern: /izložba|exhibition|galerija/i, category: 'other' },
+  // Festival (specific multi-day events) — match early to win over "concert"
+  // mentions inside a festival listing. Allow bare "Fest" with word boundary
+  // ("Wine Fest", "Beer Fest") but not "Cinemas Sloga" or "Manifest".
+  { pattern: /\bfestivala?\b|\bfest\b|\bSFF\b|jazz\s*fest|MESS\b/i, category: 'festival' },
+  // Film / cinema — require an action word, not just venue mentions.
+  // Sarajevo has "Cinemas Sloga" (a music venue in a former cinema), so bare
+  // "kino" / "cinemas" matches venue history rather than the event.
+  { pattern: /\bfilmska\s+projekcija|projekcija\s+filma|premijera\s+filma|kino\s+projekcija|movie\s+night|film\s+screening|\bSFF\b.*film|\bfilm\s+festival/i, category: 'film' },
+  // Theatre — drama, opera, balet all live here per the enum
+  { pattern: /\bdrama\b|predstava|premijera\s+predstave|teatar|theatre|theater|opera|balet|ballet/i, category: 'theatre' },
+  // Art / exhibitions
+  { pattern: /izložba|izlozba|exhibition|galerija|gallery|umjetnost|art\s+show|vernisaž/i, category: 'art' },
+  // Workshop / educational
+  { pattern: /radionica|workshop|kurs\b|trening|seminar|tečaj/i, category: 'workshop' },
+  // Market / fair
+  { pattern: /\bpijaca\b|sajam|market\b|bazaar|bazar/i, category: 'market' },
+  // Charity
+  { pattern: /humanitar|charity|donacij/i, category: 'charity' },
+  // Sport
+  { pattern: /utakmica|fudbal|košarka|kosarka|football|basketball|maraton|marathon|turnir|tournament|liga|league/i, category: 'sport' },
+  // Food
+  { pattern: /gastronom|food\s+(?:fest|tasting|night)|kulinar|degustacij|wine\s+tasting/i, category: 'food' },
+  // Nightlife — clubs, DJ sets, late parties (and Bosnian/Latin transliterations)
+  { pattern: /\bdj\s+|nightclub|noćni\s+klub|nocni\s+klub|after\s*party|\btechno\b|house\s+party|club\s+night/i, category: 'nightlife' },
+  // Stand-up / comedy → culture (no dedicated 'comedy' enum value)
+  { pattern: /stand[-\s]?up|komedija|comedy/i, category: 'culture' },
+  // Music — broadest catch-all, runs last so festival/film/nightlife above
+  // can claim more specific matches first.
+  { pattern: /\bkoncert\b|\bconcert\b|live\s+music|akustič|akustic|recital|orkestar|orchestra|band\b/i, category: 'music' },
 ];
 
-function inferCategory(title: string | null): string {
-  if (!title) return 'other';
+export function inferCategory(title: string | null, description: string | null = null): string {
+  const haystack = [title, description].filter(Boolean).join(' ');
+  if (!haystack) return 'other';
   for (const { pattern, category } of CATEGORY_RULES) {
-    if (pattern.test(title)) return category;
+    if (pattern.test(haystack)) return category;
   }
   return 'other';
 }
@@ -130,17 +169,26 @@ async function fetchVenues(): Promise<Venue[]> {
 }
 
 interface ExistingEventRow {
+  id: string;
   source: string | null;
   ticket_url: string | null;
   title_bs: string | null;
   start_datetime: string | null;
   venue_id: string | null;
   location_name: string | null;
+  cover_image_url: string | null;
+  description_bs: string | null;
 }
 
 interface FuzzyEntry {
-  startDatetime: string;
+  id: string;
   title: string;
+  startDatetime: string;
+  venueId: string | null;
+  locationName: string | null;
+  ticketUrl: string | null;
+  coverImageUrl: string | null;
+  descriptionBs: string | null;
 }
 
 async function fetchExistingEventKeys(): Promise<{
@@ -149,12 +197,14 @@ async function fetchExistingEventKeys(): Promise<{
   fuzzyEntries: Map<string, FuzzyEntry[]>;
 }> {
   const rows = await fetchSupabaseAdminJson<ExistingEventRow[]>(
-    '/rest/v1/events?select=source,ticket_url,title_bs,start_datetime,venue_id,location_name&limit=10000',
+    '/rest/v1/events?select=id,source,ticket_url,title_bs,start_datetime,venue_id,location_name,cover_image_url,description_bs&limit=10000',
   );
   const sourceUrlKeys = new Set<string>();
   const canonicalKeys = new Set<string>();
-  // Fuzzy index: same first-token + venue, multiple datetimes (so we can check
-  // ±N-day proximity at insertion time).
+  // Fuzzy index: bucket by distinctive title token (NO venue in the key, so
+  // the same event ingested in different venue states still falls into the
+  // same bucket). Per-row venue compatibility is enforced by fuzzyEventsMatch
+  // at lookup time.
   const fuzzyEntries = new Map<string, FuzzyEntry[]>();
   for (const r of rows) {
     if (r.source && r.ticket_url) {
@@ -167,15 +217,21 @@ async function fetchExistingEventKeys(): Promise<{
       locationName: r.location_name,
     });
     if (canonical) canonicalKeys.add(canonical);
-    const fuzzyKeys = fuzzyCrossSourceKeys({
-      title: r.title_bs,
-      venueId: r.venue_id,
-      locationName: r.location_name,
-    });
+    const fuzzyKeys = fuzzyCrossSourceKeys({ title: r.title_bs });
     if (fuzzyKeys.length > 0 && r.start_datetime && r.title_bs) {
+      const entry: FuzzyEntry = {
+        id: r.id,
+        title: r.title_bs,
+        startDatetime: r.start_datetime,
+        venueId: r.venue_id,
+        locationName: r.location_name,
+        ticketUrl: r.ticket_url,
+        coverImageUrl: r.cover_image_url,
+        descriptionBs: r.description_bs,
+      };
       for (const key of fuzzyKeys) {
         const arr = fuzzyEntries.get(key) ?? [];
-        arr.push({ startDatetime: r.start_datetime, title: r.title_bs });
+        arr.push(entry);
         fuzzyEntries.set(key, arr);
       }
     }
@@ -187,12 +243,61 @@ async function fetchExistingEventKeys(): Promise<{
 // DB writes
 // ---------------------------------------------------------------------------
 
-async function insertEvent(event: EventInsert): Promise<void> {
-  await requestSupabaseAdminNoContent('/rest/v1/events', {
+async function insertEvent(event: EventInsert): Promise<string> {
+  const rows = await requestSupabaseAdminJson<Array<{ id: string }>>('/rest/v1/events', {
     method: 'POST',
-    headers: { Prefer: 'return=minimal' },
+    headers: { Prefer: 'return=representation' },
     body: JSON.stringify(event),
   });
+  if (!rows[0]?.id) throw new Error('insertEvent returned no id');
+  return rows[0].id;
+}
+
+// Build a merge patch: fill null fields in `existing` from `incoming`, and
+// upgrade midnight start_datetime to a real time when incoming has one.
+// Returns the field set to PATCH; empty object means nothing to do.
+function buildMergePatch(
+  existing: FuzzyEntry,
+  incoming: EventInsert,
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
+  if (!existing.coverImageUrl && incoming.cover_image_url) {
+    patch.cover_image_url = incoming.cover_image_url;
+  }
+  if (!existing.ticketUrl && incoming.ticket_url) {
+    patch.ticket_url = incoming.ticket_url;
+  }
+  if (!existing.descriptionBs && incoming.description_bs) {
+    patch.description_bs = incoming.description_bs;
+  }
+  if (!existing.venueId && incoming.venue_id) {
+    patch.venue_id = incoming.venue_id;
+    patch.type = 'venue_linked';
+  }
+  if (!existing.locationName && incoming.location_name) {
+    patch.location_name = incoming.location_name;
+  }
+  // Time upgrade: existing at 00:00 (date-only ingest), incoming has a real
+  // time on the same calendar day → adopt the real time.
+  if (existing.startDatetime.endsWith('T00:00:00.000Z') || existing.startDatetime.endsWith('T00:00:00Z')) {
+    if (!incoming.start_datetime.endsWith('T00:00:00.000Z') && !incoming.start_datetime.endsWith('T00:00:00Z')) {
+      if (dayDelta(existing.startDatetime, incoming.start_datetime) === 0) {
+        patch.start_datetime = incoming.start_datetime;
+      }
+    }
+  }
+  return patch;
+}
+
+async function patchEvent(id: string, patch: Record<string, unknown>): Promise<void> {
+  await requestSupabaseAdminNoContent(
+    `/rest/v1/events?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify(patch),
+    },
+  );
 }
 
 async function markRawEventPromoted(
@@ -238,6 +343,7 @@ export async function promoteEvents(): Promise<void> {
     skippedPastDate: 0,
     skippedDuplicate: 0,
     skippedCrossSourceDuplicate: 0,
+    mergedIntoExisting: 0,
     skippedNoTitle: 0,
     venueExact: 0,
     venuePartial: 0,
@@ -335,35 +441,13 @@ export async function promoteEvents(): Promise<void> {
         continue;
       }
 
-      // Near-duplicate dedup: shared distinctive title token + same venue,
-      // existing event within ±2 days. Catches sources disagreeing on the
-      // date (PROLONGIRANO reschedules, timezone bugs) AND on title framing
-      // ("PREMIJERA PREDSTAVE X" vs "X - RASPRODANO" both produce a key
-      // containing "x" so they collide).
-      const fuzzyKeys = fuzzyCrossSourceKeys({ title, venueId, locationName });
-      let fuzzyDup: { title: string; startDatetime: string; key: string } | null = null;
-      for (const key of fuzzyKeys) {
-        const existing = fuzzyEntries.get(key) ?? [];
-        const near = existing.find((e) => dayDelta(e.startDatetime, startDatetime) <= 2);
-        if (near) {
-          fuzzyDup = { title: near.title, startDatetime: near.startDatetime, key };
-          break;
-        }
-      }
-      if (fuzzyDup) {
-        log(`  SKIP [near-day duplicate] "${title}" ≈ "${fuzzyDup.title}" (${dayDelta(fuzzyDup.startDatetime, startDatetime)}d apart) via "${fuzzyDup.key}"`);
-        stats.skippedCrossSourceDuplicate++;
-        await markRawEventPromoted(raw.id, venueId);
-        continue;
-      }
-
       const eventInsert: EventInsert = {
         title_bs: title,
         title_en: title,
         description_bs: raw.description_raw ?? null,
         description_en: null,
         type: venueId ? 'venue_linked' : 'standalone',
-        category: inferCategory(title),
+        category: inferCategory(title, raw.description_raw),
         cover_image_url: raw.image_url ?? null,
         ticket_url: ticketUrl,
         source: raw.source_name ?? null,
@@ -376,7 +460,47 @@ export async function promoteEvents(): Promise<void> {
         location_name: locationName,
       };
 
-      await insertEvent(eventInsert);
+      // Near-duplicate dedup: shared distinctive title token + venue compat +
+      // within ±2 days. The lookup bucket is now venue-agnostic; per-row
+      // venue compatibility is enforced by fuzzyEventsMatch. On collision we
+      // MERGE — fill null fields in the existing row, upgrade midnight time
+      // to a real time when available — instead of skipping (which would
+      // permanently lock the first/poorest ingest).
+      const fuzzyKeys = fuzzyCrossSourceKeys({ title });
+      let fuzzyDup: FuzzyEntry | null = null;
+      for (const key of fuzzyKeys) {
+        const candidates = fuzzyEntries.get(key) ?? [];
+        const match = candidates.find((e) =>
+          fuzzyEventsMatch(
+            { title: e.title, startDatetime: e.startDatetime, venueId: e.venueId, locationName: e.locationName },
+            { title, startDatetime, venueId, locationName },
+          ),
+        );
+        if (match) { fuzzyDup = match; break; }
+      }
+      if (fuzzyDup) {
+        const patch = buildMergePatch(fuzzyDup, eventInsert);
+        if (Object.keys(patch).length > 0) {
+          await patchEvent(fuzzyDup.id, patch);
+          // Reflect the merge in the in-memory index so subsequent rows in
+          // this same run dedupe against the upgraded row.
+          if ('start_datetime' in patch) fuzzyDup.startDatetime = String(patch.start_datetime);
+          if ('venue_id' in patch) fuzzyDup.venueId = (patch.venue_id as string | null) ?? null;
+          if ('location_name' in patch) fuzzyDup.locationName = (patch.location_name as string | null) ?? null;
+          if ('ticket_url' in patch) fuzzyDup.ticketUrl = (patch.ticket_url as string | null) ?? null;
+          if ('cover_image_url' in patch) fuzzyDup.coverImageUrl = (patch.cover_image_url as string | null) ?? null;
+          if ('description_bs' in patch) fuzzyDup.descriptionBs = (patch.description_bs as string | null) ?? null;
+          log(`  MERGE → "${fuzzyDup.title}" filled ${Object.keys(patch).join(', ')} from "${title}"`);
+          stats.mergedIntoExisting++;
+        } else {
+          log(`  SKIP [near-day duplicate, nothing to merge] "${title}" ≈ "${fuzzyDup.title}"`);
+          stats.skippedCrossSourceDuplicate++;
+        }
+        await markRawEventPromoted(raw.id, venueId);
+        continue;
+      }
+
+      const insertedId = await insertEvent(eventInsert);
 
       // Track all three indexes so subsequent iterations in this run also
       // dedupe against what we just inserted.
@@ -386,9 +510,19 @@ export async function promoteEvents(): Promise<void> {
       if (canonical) {
         canonicalKeys.add(canonical);
       }
+      const newEntry: FuzzyEntry = {
+        id: insertedId,
+        title,
+        startDatetime,
+        venueId,
+        locationName,
+        ticketUrl,
+        coverImageUrl: eventInsert.cover_image_url,
+        descriptionBs: eventInsert.description_bs,
+      };
       for (const key of fuzzyKeys) {
         const arr = fuzzyEntries.get(key) ?? [];
-        arr.push({ startDatetime, title });
+        arr.push(newEntry);
         fuzzyEntries.set(key, arr);
       }
 
@@ -403,6 +537,29 @@ export async function promoteEvents(): Promise<void> {
     }
   }
 
+  // Post-event cleanup: flip is_active=false on rows whose start_datetime is
+  // more than 4h in the past. The cron runs every 6h so 4h gives a small
+  // buffer for late-night events that ended just before the previous tick.
+  // Without this, past events stay visible in the user app and the admin
+  // queues until someone notices them manually.
+  log('');
+  log('Deactivating past events...');
+  try {
+    const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
+    const deactivated = await requestSupabaseAdminJson<Array<{ id: string }>>(
+      `/rest/v1/events?is_active=eq.true&start_datetime=lt.${encodeURIComponent(fourHoursAgo)}`,
+      {
+        method: 'PATCH',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify({ is_active: false }),
+      },
+    );
+    log(`  Deactivated ${deactivated.length} past event(s)`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log(`  Cleanup phase errored (non-fatal): ${msg}`);
+  }
+
   log('');
   log('=== Promotion complete ===');
   log(`  Total raw events processed : ${stats.total}`);
@@ -411,6 +568,7 @@ export async function promoteEvents(): Promise<void> {
   log(`  Skipped — past date        : ${stats.skippedPastDate}`);
   log(`  Skipped — same-source dup  : ${stats.skippedDuplicate}`);
   log(`  Skipped — cross-source dup : ${stats.skippedCrossSourceDuplicate}`);
+  log(`  Merged into existing       : ${stats.mergedIntoExisting}`);
   log(`  Skipped — no title         : ${stats.skippedNoTitle}`);
   log(`  Errors                     : ${stats.errors}`);
   log('');

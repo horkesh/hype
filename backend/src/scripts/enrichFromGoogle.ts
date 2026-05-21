@@ -99,23 +99,9 @@ async function updateVenue(venueId: string, details: any) {
 }
 
 async function main() {
-  // First ensure columns exist
-  console.log('Adding Google enrichment columns if missing...');
-  const alterSql = `
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS google_rating numeric;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS google_ratings_count integer;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS google_price_level integer;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS google_editorial_summary text;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS google_top_reviews text[];
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS website text;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS phone text;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS address text;
-    ALTER TABLE venues ADD COLUMN IF NOT EXISTS opening_hours_json jsonb;
-  `;
-
-  // Run via Supabase RPC or just patch — we'll use the REST API
-  // Actually we need to run SQL. Let's use the management API.
-  // For now, assume columns exist or were added via migration.
+  // Column additions are now handled by the supabase/migrations/ tree,
+  // not by this script. (Previous inline `ALTER TABLE ...` lived here but
+  // was never executed — the management API call was a TODO.)
 
   console.log('Fetching venues needing Google enrichment...\n');
 

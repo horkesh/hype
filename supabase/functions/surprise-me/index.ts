@@ -3,6 +3,7 @@ import { callClaude } from '../_shared/ai-clients.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
 import { verifyUserAuth } from '../_shared/auth.ts';
+import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
@@ -18,9 +19,9 @@ Deno.serve(async (req: Request) => {
   try {
     const { moods = [], language = 'en' } = await req.json();
 
-    // Determine time of day in Sarajevo
+    // Determine time of day in Sarajevo (edge runtime is UTC)
     const now = new Date();
-    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    const sarajevoHour = getSarajevoHour(now);
     let timeOfDay: string;
     let timeContext: string;
     if (sarajevoHour < 11) {

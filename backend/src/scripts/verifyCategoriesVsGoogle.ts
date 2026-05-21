@@ -115,7 +115,7 @@ async function main() {
     // Check in batches of 5 to avoid rate limits
     for (let i = 0; i < venues.length; i += 5) {
       const batch = venues.slice(i, i + 5);
-      const results = await Promise.allSettled(
+      await Promise.allSettled(
         batch.map(async (v) => {
           const googleTypes = await getGoogleTypes(v.google_place_id);
           const expected = CATEGORY_TO_GOOGLE[v.category] ?? [];

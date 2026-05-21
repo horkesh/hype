@@ -31,7 +31,19 @@ Deno.serve(async (req: Request) => {
     }
 
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-    const response = await fetch(url);
+
+    // 10s timeout — without this an OpenWeather hang would block the edge
+    // function instance until the platform 60s kill, letting one slow upstream
+    // pin a worker.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
+    let response: Response;
+    try {
+      response = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
     if (!response.ok) {
       return new Response(
         JSON.stringify({ success: false, error: 'Weather API error' }),
@@ -51,9 +63,16 @@ Deno.serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   } catch (err: any) {
+    // Log internally; return a generic message so we don't leak abort reasons
+    // or upstream error shapes.
+    console.error('weather-proxy error:', err);
+    const isTimeout = err?.name === 'AbortError';
     return new Response(
-      JSON.stringify({ success: false, error: err.message ?? 'Internal error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      JSON.stringify({
+        success: false,
+        error: isTimeout ? 'Weather service timed out' : 'Internal error',
+      }),
+      { status: isTimeout ? 504 : 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

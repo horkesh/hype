@@ -2,6 +2,7 @@ import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
 import { verifyUserAuth } from '../_shared/auth.ts';
+import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 const STREAM_TIMEOUT_MS = 45_000;
 
@@ -19,9 +20,9 @@ Deno.serve(async (req: Request) => {
   try {
     const { moods = [], groupSize = 2, budget = 'mid', language = 'en' } = await req.json();
 
-    // Determine time of day in Sarajevo
+    // Determine time of day in Sarajevo (edge runtime is UTC)
     const now = new Date();
-    const sarajevoHour = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Sarajevo' })).getHours();
+    const sarajevoHour = getSarajevoHour(now);
     let timeOfDay: string;
     let timeContext: string;
     if (sarajevoHour < 11) {
@@ -42,8 +43,9 @@ Deno.serve(async (req: Request) => {
     const holiday = getActiveHoliday(now);
     const holidayContext = holiday ? `\nToday is ${holiday} — incorporate this festive context into the plan.` : '';
 
-    // Fetch venues and events in parallel
-    const today = now.toISOString().split('T')[0];
+    // Fetch venues and events in parallel — `today` must be Sarajevo-local
+    // so late-night users (00:00–02:00 local) see today's events, not yesterday's.
+    const today = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Sarajevo' });
     const [venuesResult, eventsResult] = await Promise.all([
       supabaseAdmin
         .from('venues')

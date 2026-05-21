@@ -1,13 +1,8 @@
-import { fetchSupabaseAdminJson, requestSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
+import { fetchSupabaseAdminJson, requestSupabaseAdminNoContent } from '../lib/supabaseAdmin.js';
 import type { RawEventCandidate } from './ingestionFetch.js';
 import type { IngestionSourceSummary } from './ingestionSources.js';
 
 interface ExistingRawEventRow {
-  source_url: string;
-}
-
-interface RawEventInsertRow {
-  id: string;
   source_url: string;
 }
 

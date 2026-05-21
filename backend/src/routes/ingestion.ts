@@ -7,6 +7,15 @@ import { getIngestionSourceById, listIngestionSources } from '../services/ingest
 import { buildRecentParsePreview, listRecentRawEvents } from '../services/parsePreview.js';
 import { insertRawEventCandidates, updateSourceLastScrapedAt } from '../services/rawEvents.js';
 
+// Minimal local shape — the host framework's request type can't be imported
+// because @specific-dev/framework isn't on this machine. We only use these
+// three fields and explicitly typing them silences strict-mode implicit-any.
+interface RouteRequest {
+  query: Record<string, string | undefined>;
+  params?: Record<string, string | undefined>;
+  body?: unknown;
+}
+
 export function registerIngestionRoutes(app: App) {
   app.get('/ingestion/health', async () => {
     return {
@@ -51,7 +60,7 @@ export function registerIngestionRoutes(app: App) {
     */
   });
 
-  app.get('/ingestion/raw/recent', async (request) => {
+  app.get('/ingestion/raw/recent', async (request: RouteRequest) => {
     const query = request.query as { limit?: string; sourceName?: string };
 
     if (!hasSupabaseAdminConfig()) {
@@ -81,7 +90,7 @@ export function registerIngestionRoutes(app: App) {
     }
   });
 
-  app.get('/ingestion/parse-preview', async (request) => {
+  app.get('/ingestion/parse-preview', async (request: RouteRequest) => {
     const query = request.query as { limit?: string; sourceName?: string };
 
     if (!hasSupabaseAdminConfig()) {
@@ -111,7 +120,7 @@ export function registerIngestionRoutes(app: App) {
     }
   });
 
-  app.post('/ingestion/run/:sourceId', async (request) => {
+  app.post('/ingestion/run/:sourceId', async (request: RouteRequest) => {
     const params = request.params as { sourceId?: string };
     const body = (request.body ?? {}) as {
       mode?: string;
