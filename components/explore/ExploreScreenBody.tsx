@@ -177,10 +177,7 @@ export function ExploreScreenBody({
           venueCount={aiVenueCount}
         />
 
-        <ExploreWellnessCard
-          language={language}
-          onPress={() => onSelectCategory('wellness')}
-        />
+        <ExploreWellnessCard language={language} />
 
         <ExploreControls
           accentColor={accentColor}

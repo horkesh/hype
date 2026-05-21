@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { supabase } from '@/integrations/supabase/client';
 import { designTokens } from '@/styles/designTokens';
 
 interface ExploreWellnessCardProps {
   language: 'bs' | 'en';
-  onPress: () => void;
 }
 
 // Self-contained Explore-tab card for the Wellness vertical. Loads one
 // highly-rated wellness venue's cover as backdrop and a count chip showing
 // "X mjesta". Tap navigates to the filtered Wellness view.
-export function ExploreWellnessCard({ language, onPress }: ExploreWellnessCardProps) {
+export function ExploreWellnessCard({ language }: ExploreWellnessCardProps) {
+  const router = useRouter();
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [count, setCount] = useState<number | null>(null);
 
@@ -73,7 +74,7 @@ export function ExploreWellnessCard({ language, onPress }: ExploreWellnessCardPr
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={onPress}
+      onPress={() => router.push('/wellness' as never)}
       style={styles.container}
       accessibilityLabel={title}
       accessibilityRole="button"

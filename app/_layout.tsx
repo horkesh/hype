@@ -82,6 +82,7 @@ export default function RootLayout() {
                 <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="wellness" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
               </Stack>
               <SystemBars style="light" />
