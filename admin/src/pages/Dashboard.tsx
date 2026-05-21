@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
+import { canAdmin } from '../hooks/useAuth';
+import type { UserRole } from '../hooks/useAuth';
 
 interface Stats {
   venuesTotal: number;
@@ -18,13 +20,47 @@ interface ActivityToday {
   reviewsFlagged: number;
 }
 
-interface Props {
-  currentUserId: string | null;
+interface EditorActivity {
+  editor_id: string;
+  display_name: string | null;
+  email: string | null;
+  role: string;
+  edits: number;
+  notes: number;
+  reviews_flagged: number;
+  last_active: string | null;
 }
 
-export function Dashboard({ currentUserId }: Props) {
+interface Props {
+  currentUserId: string | null;
+  role: UserRole;
+}
+
+const ROLE_COLORS: Record<string, string> = {
+  editor: '#60A5FA',
+  admin: '#D4A056',
+  super_admin: '#A855F7',
+};
+
+function formatRelative(iso: string | null): string {
+  if (!iso) return 'nikad';
+  const d = new Date(iso);
+  const now = Date.now();
+  const diffMin = Math.round((now - d.getTime()) / 60_000);
+  if (diffMin < 1) return 'sada';
+  if (diffMin < 60) return `prije ${diffMin} min`;
+  const diffH = Math.round(diffMin / 60);
+  if (diffH < 24) return `prije ${diffH} h`;
+  const diffD = Math.round(diffH / 24);
+  if (diffD < 30) return `prije ${diffD} d`;
+  return d.toLocaleDateString('bs-BA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+export function Dashboard({ currentUserId, role }: Props) {
+  const isAdmin = canAdmin(role);
   const [stats, setStats] = useState<Stats | null>(null);
   const [activity, setActivity] = useState<ActivityToday | null>(null);
+  const [editorActivity, setEditorActivity] = useState<EditorActivity[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -93,6 +129,22 @@ export function Dashboard({ currentUserId }: Props) {
     });
   }, [currentUserId]);
 
+  // Admin+ see all editor+admin activity in one card.
+  useEffect(() => {
+    if (!isAdmin) return;
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    supabase
+      .rpc('list_editor_activity', { p_since: startOfDay.toISOString() })
+      .then(({ data, error: qError }) => {
+        if (qError) {
+          console.error('list_editor_activity:', qError.message);
+          return;
+        }
+        setEditorActivity((data ?? []) as EditorActivity[]);
+      });
+  }, [isAdmin]);
+
   if (loading) return <div className="loading">Učitavanje...</div>;
 
   return (
@@ -114,6 +166,50 @@ export function Dashboard({ currentUserId }: Props) {
             <StatCard label="Izmjena" value={activity.edits} color={activity.edits > 0 ? 'green' : undefined} />
             <StatCard label="Bilješki" value={activity.notes} color={activity.notes > 0 ? 'green' : undefined} />
             <StatCard label="Prijavljeno za reviziju" value={activity.reviewsFlagged} color={activity.reviewsFlagged > 0 ? 'orange' : undefined} />
+          </div>
+        </div>
+      )}
+
+      {isAdmin && editorActivity && editorActivity.length > 0 && (
+        <div className="dashboard-section">
+          <h2 className="section-title">Aktivnost urednika danas</h2>
+          <div className="user-table-wrap">
+            <table className="user-table">
+              <thead>
+                <tr>
+                  <th>Urednik</th>
+                  <th>Uloga</th>
+                  <th>Izmjene</th>
+                  <th>Bilješke</th>
+                  <th>Prijave</th>
+                  <th>Posljednja aktivnost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {editorActivity.map((e) => {
+                  const isActive = e.edits > 0 || e.notes > 0 || e.reviews_flagged > 0;
+                  return (
+                    <tr key={e.editor_id} style={{ opacity: isActive ? 1 : 0.55 }}>
+                      <td className="user-name">
+                        {e.display_name || e.email || e.editor_id.slice(0, 8)}
+                        {e.email && e.display_name && (
+                          <div className="muted-text" style={{ fontSize: 11, fontWeight: 400 }}>{e.email}</div>
+                        )}
+                      </td>
+                      <td>
+                        <span style={{ color: ROLE_COLORS[e.role] ?? '#A0A0A0', fontSize: 12, fontWeight: 600 }}>
+                          {e.role}
+                        </span>
+                      </td>
+                      <td className={e.edits > 0 ? 'stat-green' : 'muted-cell'}>{e.edits}</td>
+                      <td className={e.notes > 0 ? 'stat-green' : 'muted-cell'}>{e.notes}</td>
+                      <td className={e.reviews_flagged > 0 ? 'stat-orange' : 'muted-cell'}>{e.reviews_flagged}</td>
+                      <td className="muted-cell">{formatRelative(e.last_active)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

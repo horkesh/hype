@@ -97,7 +97,7 @@ export function App() {
         onSignOut={handleSignOut}
       />
       <main className="main-content">
-        {activePage === 'dashboard' && <Dashboard currentUserId={currentUserId} />}
+        {activePage === 'dashboard' && <Dashboard currentUserId={currentUserId} role={role!} />}
         {activePage === 'venues' && (
           <VenueCuration
             role={role!}
