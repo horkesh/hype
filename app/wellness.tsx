@@ -138,38 +138,49 @@ export default function WellnessScreen() {
             {lang === 'en' ? 'Wellness in Sarajevo' : 'Wellness u Sarajevu'}
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {lang === 'en'
-              ? `${filtered.length} of ${venues.length} venues`
-              : `${filtered.length} od ${venues.length} mjesta`}
+            {active === 'all'
+              ? (lang === 'en' ? `${venues.length} venues` : `${venues.length} mjesta`)
+              : (lang === 'en'
+                  ? `${filtered.length} of ${venues.length} venues`
+                  : `${filtered.length} od ${venues.length} mjesta`)}
           </Text>
         </View>
       </View>
 
-      <View style={styles.chipsRow}>
-        {subKeys.map((k) => {
-          const isActive = active === k;
-          return (
-            <TouchableOpacity
-              key={k}
-              onPress={() => setActive(k)}
-              style={[
-                styles.chip,
-                isActive
-                  ? { backgroundColor: colors.accent, borderColor: colors.accent }
-                  : { backgroundColor: 'transparent', borderColor: colors.border ?? 'rgba(255,255,255,0.15)' },
-              ]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-            >
-              <Text style={[
-                styles.chipText,
-                { color: isActive ? '#000' : colors.text },
-              ]}>
-                {labels[k]}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+      {/* Chip row — horizontal FlatList matches the proven HomeHiddenGems
+          pattern. Plain View + flexWrap was disappearing on web because the
+          FlatList sibling below was claiming flex space and collapsing it. */}
+      <View style={styles.chipsContainer}>
+        <FlatList
+          horizontal
+          data={subKeys}
+          keyExtractor={(k) => k}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsListContent}
+          renderItem={({ item: k }) => {
+            const isActive = active === k;
+            return (
+              <TouchableOpacity
+                onPress={() => setActive(k)}
+                style={[
+                  styles.chip,
+                  isActive
+                    ? { backgroundColor: colors.accent, borderColor: colors.accent }
+                    : { backgroundColor: 'transparent', borderColor: colors.border ?? 'rgba(255,255,255,0.2)' },
+                ]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+              >
+                <Text style={[
+                  styles.chipText,
+                  { color: isActive ? '#000' : colors.text },
+                ]}>
+                  {labels[k]}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
       </View>
 
       {loading ? (
@@ -307,12 +318,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  chipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  chipsContainer: {
+    // Explicit fixed height so the sibling FlatList can't squeeze the
+    // chip row out of layout on react-native-web. 52 = chip vertical
+    // padding (14) + text (~18) + chip border (2) + container padding (~18).
+    height: 52,
+    flexShrink: 0,
+  },
+  chipsListContent: {
     paddingHorizontal: 16,
-    paddingTop: 4,
-    paddingBottom: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
   },
   chip: {
     paddingHorizontal: 14,
@@ -320,7 +336,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     marginRight: 8,
-    marginBottom: 8,
   },
   chipText: {
     fontFamily: 'DMSans_500Medium',

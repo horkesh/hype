@@ -20,12 +20,19 @@ export function ExploreWellnessCard({ language }: ExploreWellnessCardProps) {
   useEffect(() => {
     let mounted = true;
     Promise.all([
+      // Bias hero pick toward spa/aesthetic/beauty venues (upscale, polished
+      // photography) over hair salons + gyms (functional interior shots).
+      // Within that pool, ratings_count signals established/flagship venues
+      // that tend to have a real curated photo, not just a phone snap.
       supabase
         .from('venues')
         .select('cover_image_url')
         .eq('category', 'wellness')
         .eq('is_active', true)
         .not('cover_image_url', 'is', null)
+        .overlaps('tags', ['spa', 'aesthetic', 'beauty_salon'])
+        .gte('google_rating', 4.5)
+        .order('google_ratings_count', { ascending: false, nullsFirst: false })
         .order('google_rating', { ascending: false, nullsFirst: false })
         .limit(1)
         .maybeSingle(),
