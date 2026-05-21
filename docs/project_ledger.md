@@ -2158,3 +2158,78 @@ User reported: still seeing duplicates, and every event showed as "Free" despite
 - The newly-discovered IG handles aren't yet feeding into `scrapeInstagram.ts` — that script uses a hardcoded `SARAJEVO_ACCOUNTS` list. Wiring handles → scrape_sources for post extraction is the next strategic step but requires Apify credit discipline.
 - Real ticket prices: the new fallback shows "Tickets" when `price_bam` is null but `ticket_url` is set. Actual price extraction from Ulaznice/KupiKartu detail pages is a future enhancement.
 - Pre-existing `integration.test.ts` `bun:` ESM scheme error.
+
+### 2026-05-19 — Instagram event scraping goes live + admin hardening
+
+#### Apify Instagram pipeline curated and wired into a weekly cron
+- Migration `20260519000000_instagram_curated_sources.sql`: replaced the 62-source unstructured IG seed with **91 curated sources across three tiers** — tier 1 (44, weekly: proven event hosts + live-music bars + clubs + festivals + tourism), tier 2 (25, bi-weekly: pubs with secondary signal), tier 3 (22, monthly: galleries + museums).
+- Same migration scrubbed 14 polluted `lounge_` handles from the discovery wave and added Coloseum (`coloseumclubcasinos`) + Zetra (`zetraolimpijskarena`) handles found via WebSearch (Instagram blocked all anonymous validation paths, so per-handle WebFetch was abandoned in favor of runtime error logging).
+- Rewrote `scrapeInstagram.ts` to read from `scrape_sources` (not the legacy `venues.website ILIKE '%instagram%'` regex) with `--tier`, `--limit`, `--dry-run`, `--force` flags and per-source `last_scraped_at`-based due-time gating. Failed handles get `scrape_log` entries with the error message but still get `last_scraped_at` updated so the cron doesn't pound dead handles every tick.
+- New workflow `.github/workflows/scrape-instagram.yml` runs Sundays 02:00 UTC — phases: scrape due sources → promote new raw_events → backfill venue links.
+- End-to-end smoke run with `--tier=1 --limit=1` on @cinemas.sloga: pipeline scraped, parsed, logged `scrape_log` row, updated `last_scraped_at`. Working.
+- Required new GH secret: `APIFY_API_TOKEN`. `ADMIN_FUNCTION_SECRET` optional — the deployed parse-instagram edge function pre-dates the 2026-04-10 auth hardening, so the service-role key alone gets through today. Will be required after a redeploy.
+- Cost projection at ~$2.30/1k Apify posts: T1 weekly + T2 bi-weekly + T3 monthly ≈ ~$5.60/mo on the user's $29 plan.
+
+#### Admin app hardened: visible errors + 15s timeouts
+- Created `admin/src/lib/withTimeout.ts` and `admin/src/components/ErrorBanner.tsx`. Each data-loading admin page (VenueCuration, EventManagement, UserManagement) now races its main fetch against a 15s timeout and surfaces any Supabase error or timeout as a red banner with "Pokušaj ponovo" / "Osvježi" / "Odjava i ponovna prijava" actions.
+- Root cause of the symptom that triggered this: VenueCuration was stuck "0 + loading" earlier — a stale JWT in localStorage made queries hang silently because the existing code path only called `console.error` and never surfaced a banner. The new pattern will catch the next occurrence visibly.
+- Background: the `useAuth.ts` lock comment ("ignore TOKEN_REFRESHED to avoid races") hinted this pattern would recur. Now the failure mode degrades to a visible error + sign-out button.
+
+### 2026-05-20 — First IG cron + featured system + editor role unlock
+
+#### Instagram cron first scheduled-equivalent run (manual workflow_dispatch tier=1)
+- 43 of 44 tier-1 sources (1 already scraped during smoke test). Wall-clock: 23m 25s. Spend: ~$1. Zero scrape errors — every IG account responded.
+- **97 raw events detected** by Claude Haiku from captions. 26 venue-matched at promotion time. **29 promoted to canonical events.**
+- Top producers: @hemingways387 (10), @bambusclubsarajevo (9), @festivalsvjetlasarajevo (9), @pozoristemladihsarajevo (8), @dasistwalterclub (8), @club.monument (6).
+- Real Sarajevo events surfaced and venue-linked correctly: Peđa Medenica + Seka Aleksić at AQUA CLUB, Vesna Zmijanac at Zetra, International Museum Day at War Childhood Museum, Ahlelele Nights at Hemingway's.
+
+#### Two real data-quality issues found in the first run
+- **All 29 promoted events had past `start_datetime`s** (some 2018, 2023, 2024, 2025). Apify returns the *latest 10 posts* per account — for low-frequency posters (festivals, museums), those latest 10 span years back. Claude Haiku correctly extracts the date from the caption, but promoteEvents inserted all of them as `is_active=true`. Fixed two ways: (a) one-time SQL deactivation of 26 past IG events (3 legit upcoming events remained); (b) **new `skippedPastDate` guard in `promoteEvents.ts`** refusing dates older than `now() − 24h`. Grace window keeps today's evening events visible even when the cron runs in UTC. Raw row is still marked promoted to avoid re-evaluation.
+- **Venue matcher mis-matched on generic tokens.** "Bambus Club Sarajevo" was claiming "Club Mash Sarajevo" because both share {club, sarajevo} — both generic. Fix: `GENERIC_VENUE_TOKENS` set in `venueMatch.ts` ({sarajevo, club, klub, pub, bar, lounge, cafe, kafe, caffe, restaurant, restoran}). Token-overlap now requires ≥2 shared tokens AND ≥1 distinctive (non-generic) overlap. Tie-breaks prefer higher distinctive-overlap.
+
+#### B20: IG handle → venue resolver written up
+- Spec at `docs/03-architecture/instagram_handle_venue_resolver.md`. Captures motivation (Bambuss Club's 9 events mis-matched/unmatched), proposed two-step chain (structural matcher first, handle resolver fallback so festival accounts posting at named venues correctly attribute to the named venue), integration sketch in `promoteEvents.ts`, test plan (5 tests), recovery estimate (~30–50 events per cron). Wired into `execution_board.md` as backlog B20 with "land before next Sunday cron" target. Actually landed 2026-05-21.
+
+#### Featured venues + featured events as admin toggles
+- New `venues.is_featured` column via migration `20260520000000_venues_is_featured.sql` with a partial index. Events already had it (consumed by `loadHomeFeaturedEvent`).
+- VenueCuration: admin checkbox `★ Istaknuto` + ★ list column + "Istaknuto" filter dropdown + gold badge in edit header.
+- EventManagement: edit-panel checkbox + ★ list column + "Samo istaknuti" toolbar toggle.
+- New `HomeFeaturedVenues` rail at the top of the Home editorial cluster (BS "Istaknuto u Sarajevu" / EN "Featured in Sarajevo"). Queries `is_featured=true AND is_active=true`, limit 12, mood-aware filter matching `HomeHiddenGems` pattern. Section header position puts featured venues above the existing featured-event card.
+- New `loadHomeFeaturedVenues()` helper in `utils/homeData.ts` feeds the rail.
+
+#### Editor role was completely powerless on RLS — fixed
+- The 2026-04-10 admin_roles_curation migration added `editor` to the `user_role` enum but never updated `is_admin_or_curator()` to include it. The function kept checking for a `curator` role that doesn't exist in the enum. **End result: every RLS-gated table (19 tables / 24 policies) refused the editor role entirely.**
+- Migration `20260520010000_editor_role_unlock.sql`: redefined `is_admin_or_curator()` to actually include editor (alongside admin and super_admin). Added new `is_admin_or_above()` (admin + super_admin only) and switched the `profiles UPDATE` policy to use the stricter function so editors can curate content but can't promote themselves or ban other users.
+- Sidebar now uses `hasAccess(role)` (editor + admin + super_admin) for the Događaji tab instead of `canAdmin(role)` so editors see + can use the events page they now have RLS access to.
+- Editor (Tanja, `desilvatanja@gmail.com`) created earlier this week via admin API + service role; got bumped to `editor` role.
+
+#### Editor field gates dropped — all venue fields editable
+- Followup correction: when I moved venue category to a dropdown, I implicitly left it in the admin-only branch. Then when "editor should have access to events too" came in, the venue page still had `isAdmin` gates on name / IG / address / hidden_gem / featured. Pulled all of them out — editor now has full edit access to every column the venue curation page exposes. Tier separation now lives entirely at the RLS layer (`is_admin_or_above` for profile mutations) and at the sidebar (Korisnici tab stays super_admin-only).
+- Venue category dropdown: replaced free-text input with a 20-option select mirroring `utils/categoryLabels.ts`. Falls back to showing the raw value with `(nepoznata)` suffix if a venue's current category isn't in the canonical list — so old or out-of-sync rows don't silently get blanked.
+
+### 2026-05-21 — IG handle resolver lands + fuzzy dedup hardened
+
+#### B20 implemented: instagram-handle venue resolver
+- `resolveInstagramHandle()` in `venueMatch.ts`: regex-parses `instagram:@<handle>` from `source_name`, looks up `venues.instagram_handle = <handle>`, returns null on chain handles (>1 row) so ambiguous mappings stay null.
+- `promoteEvents.ts`: chains `matchVenue` → `resolveInstagramHandle`. Structural match on caption-extracted `venue_name_raw` still wins (festival accounts posting at named venues correctly attribute to the named venue); handle resolver only fires when the structural match returns null. Adds `venueByHandle` stat + expands the venues SELECT to include `instagram_handle`.
+- `VenueRow` gained `instagram_handle?: string | null`; `VenueMatchResult.strategy` gained `'instagram_handle'`.
+- Tests: +5 resolver tests + fixtures gained Hemingway's, Bambuss Club, BKC, and a 2-venue chain. **19/19 venueMatch tests pass.**
+- One-time SQL backfill against existing IG canonical events with `venue_id IS NULL` linked **6 more rows**, including the real active "Ahlelele Nights" event to Hemingway's Bar & Kitchen.
+
+#### Fuzzy cross-source dedup rewritten to use distinctive tokens
+- Two cross-source duplicates slipped through the IG cron: ŽENOMRZAC at Dom Mladih (AllEvents "PREMIJERA PREDSTAVE ŽENOMRZAC" vs KupiKartu "ŽENOMRZAC - RASPRODANO") and Seka Aleksić at AQUA CLUB (Ulaznice "SEKA ALEKSIĆ" vs IG "Aqua Club - Prvu Godišnjica sa Sekom Aleksić").
+- Root cause: `fuzzyCrossSourceKey` compared the **first 2 title tokens**. The moment two sources frame the same event differently, the first-2 tokens diverge ("premijera predstave" ≠ "ženomrzac rasprodano") and the keys miss each other.
+- Rewrote as `fuzzyCrossSourceKeys` (plural) — returns one key per distinctive title token. Distinctive = length ≥ 5 chars AND not in `FUZZY_STOPWORDS` (covers theatrical/concert prefixes like premijera/predstave/koncert, status markers like rasprodano/prolongirano, anniversary fillers like godisnjica, venue/scene qualifiers, and English generics like nights/party/stage/tribute). Two events fuzzy-match when their key sets intersect.
+- Short artist names like WHO SEE / Dino Merlin / U2 hit a first-2-tokens fallback so the existing WHO SEE / PROLONGIRANO dedup behavior still works.
+- `promoteEvents.ts`: 3 call sites updated to iterate over key arrays. Initial fuzzy index build, the per-raw-event dup check, and the post-insert index update all index/check under all derived keys.
+- Tests: 6 new regression tests including the ŽENOMRZAC and Aleksić cases plus a negative test ensuring ZOSTER + SKROZ co-headlining at Metalac on the same festival day stay separate. **31/31 dedupe + venueMatch tests pass.**
+- 2 active duplicates deactivated via SQL (kept the ticket-source version with the buy link in each pair).
+
+#### Final state end of 2026-05-21
+- Active upcoming events: **38** (40 after the IG run, minus 2 cross-source duplicates).
+- Active venues: 1,098 (unchanged).
+- IG sources: 91 curated, 43 actually scraped on first tier-1 run, 3 real upcoming events from that pass (Ahlelele Nights, Seka Aleksić Anniversary, ICEthics Conference) → all venue-linked after the resolver backfill.
+- Admin app: editor role functional end-to-end on Lokacije + Događaji. Tanja's permissions verified.
+- Hardenings in place for the next Sunday cron (2026-05-24 02:00 UTC): past-date guard, distinctive-token fuzzy dedup, IG handle resolver fallback, generic-token rejection.
+- Tests: 31/31 backend matcher + dedupe + 36/36 backend + 194/194 app.
+- 9 commits this two-day arc on `origin/main` (`32c2d06..4d96824`).
