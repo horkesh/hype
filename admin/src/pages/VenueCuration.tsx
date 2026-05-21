@@ -100,6 +100,36 @@ interface EditState {
   cover_image_url: string;
 }
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+const EMPTY_EDIT: EditState = {
+  description_bs: '',
+  description_en: '',
+  insider_tip_bs: '',
+  insider_tip_en: '',
+  moods: [],
+  curator_notes: '',
+  is_curated: false,
+  name: '',
+  category: 'restaurant',
+  neighborhood: '',
+  address: '',
+  instagram_handle: '',
+  is_hidden_gem: false,
+  is_featured: false,
+  needs_review: false,
+  review_notes: '',
+  cover_image_url: '',
+};
+
 function venueToEdit(v: Venue): EditState {
   return {
     description_bs: v.description_bs ?? '',
@@ -246,6 +276,13 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
     setDirty(false);
   }, []);
 
+  const handleNew = () => {
+    setSelectedId('new');
+    setEdit({ ...EMPTY_EDIT });
+    setSaveMsg('');
+    setDirty(true);  // a new venue is implicitly "dirty" so Save is enabled
+  };
+
   const updateEdit = (patch: Partial<EditState>) => {
     setEdit(prev => prev ? { ...prev, ...patch } : null);
     setDirty(true);
@@ -270,8 +307,14 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
 
   const handleSave = async (opts?: { advance?: boolean }) => {
     if (!selectedId || !edit) return;
+    if (!edit.name.trim()) {
+      setSaveMsg('Greška: naziv je obavezan.');
+      return;
+    }
     setSaving(true);
     setSaveMsg('');
+
+    const isNew = selectedId === 'new';
 
     const update: Record<string, unknown> = {
       name: edit.name,
@@ -303,6 +346,39 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
     } else if (!edit.needs_review && wasFlagged) {
       update.review_requested_at = null;
       update.review_requested_by = null;
+    }
+
+    if (isNew) {
+      // INSERT path. Add required defaults that the UPDATE path didn't need.
+      update.slug = slugify(edit.name) + '-' + Math.random().toString(36).slice(2, 8);
+      update.is_active = true;
+      // Initial author-of-flag on new venues created already flagged
+      if (edit.needs_review && !update.review_requested_at) {
+        const { data: { user } } = await supabase.auth.getUser();
+        update.review_requested_at = new Date().toISOString();
+        update.review_requested_by = user?.id ?? null;
+      }
+
+      const { data, error } = await supabase
+        .from('venues')
+        .insert(update)
+        .select(
+          'id, name, category, neighborhood, address, instagram_handle, google_rating, cover_image_url, description_bs, description_en, insider_tip_bs, insider_tip_en, moods, is_hidden_gem, is_featured, is_curated, curator_notes, needs_review, review_notes'
+        )
+        .single();
+
+      if (error) {
+        setSaveMsg('Greška: ' + error.message);
+      } else if (data) {
+        const created = data as Venue;
+        setVenues(prev => [created, ...prev]);
+        setSelectedId(created.id);
+        setEdit(venueToEdit(created));
+        setSaveMsg('Kreirano!');
+        setDirty(false);
+      }
+      setSaving(false);
+      return;
     }
 
     const { error } = await supabase.from('venues').update(update).eq('id', selectedId);
@@ -362,6 +438,9 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
       </div>
 
       <div className="filters">
+        <button onClick={handleNew} className="save-btn" style={{ flexShrink: 0 }}>
+          + Nova lokacija
+        </button>
         <input
           className="search"
           type="text"
@@ -446,7 +525,7 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
         </div>
 
         {/* Edit panel */}
-        {selected && edit && (
+        {(selected || selectedId === 'new') && edit && (
           <div className="edit-panel">
             {/* Header */}
             <div className="edit-header">
@@ -469,18 +548,32 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
                     <option key={c.value} value={c.value}>{c.label}</option>
                   ))}
                 </select>
-                {selected.google_rating && <span className="badge">{selected.google_rating}★</span>}
+                {selected?.google_rating && <span className="badge">{selected.google_rating}★</span>}
                 {edit.is_hidden_gem && <span className="badge gem">Hidden gem</span>}
                 {edit.is_featured && <span className="badge" style={{ background: '#D4A056', color: '#000' }}>★ Istaknuto</span>}
                 {edit.needs_review && <span className="badge" style={{ background: '#F59E0B', color: '#000' }}>⚠ Za reviziju</span>}
               </div>
             </div>
 
-            <ImageUpload
-              pathPrefix={selected.id}
-              currentUrl={edit.cover_image_url || null}
-              onUploaded={(url) => updateEdit({ cover_image_url: url })}
-            />
+            {selected && (
+              <ImageUpload
+                pathPrefix={selected.id}
+                currentUrl={edit.cover_image_url || null}
+                onUploaded={(url) => updateEdit({ cover_image_url: url })}
+              />
+            )}
+            {!selected && selectedId === 'new' && (
+              <div style={{
+                background: 'rgba(212,160,86,0.06)',
+                border: '1px solid rgba(212,160,86,0.2)',
+                borderRadius: 10,
+                padding: 12,
+                fontSize: 12,
+                color: '#A0A0A0',
+              }}>
+                Slika će biti dostupna nakon kreiranja lokacije.
+              </div>
+            )}
 
             <div className="admin-fields">
               <div className="field-row">
@@ -657,13 +750,15 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
               </div>
             </div>
 
-            {/* Notes (per-venue, admin-tier only) */}
-            <NotesSection
-              kind="venue"
-              venueId={selected.id}
-              currentUserId={currentUserId}
-              isAdmin={isAdmin}
-            />
+            {/* Notes (per-venue, admin-tier only). Hidden until the venue exists. */}
+            {selected && (
+              <NotesSection
+                kind="venue"
+                venueId={selected.id}
+                currentUserId={currentUserId}
+                isAdmin={isAdmin}
+              />
+            )}
 
             {/* Actions */}
             <div className="edit-actions">
@@ -676,24 +771,28 @@ export function VenueCuration({ role, currentUserId, pendingSelectionId, onPendi
                 <span>Pregledano</span>
               </label>
               <button onClick={() => handleSave()} disabled={saving || !dirty} className="save-btn">
-                {saving ? 'Čuvanje...' : 'Sačuvaj (⌘S)'}
+                {saving ? 'Čuvanje...' : (selectedId === 'new' ? 'Kreiraj' : 'Sačuvaj (⌘S)')}
               </button>
-              <button
-                onClick={() => handleSave({ advance: true })}
-                disabled={saving || !dirty}
-                className="save-btn"
-                style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
-              >
-                Sačuvaj i sljedeća →
-              </button>
-              <button
-                onClick={selectNext}
-                disabled={saving || dirty || venues.length === 0}
-                className="page-btn"
-                title="Preskoči i idi na sljedeću (ako nema izmjena)"
-              >
-                Sljedeća →
-              </button>
+              {selectedId !== 'new' && (
+                <>
+                  <button
+                    onClick={() => handleSave({ advance: true })}
+                    disabled={saving || !dirty}
+                    className="save-btn"
+                    style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
+                  >
+                    Sačuvaj i sljedeća →
+                  </button>
+                  <button
+                    onClick={selectNext}
+                    disabled={saving || dirty || venues.length === 0}
+                    className="page-btn"
+                    title="Preskoči i idi na sljedeću (ako nema izmjena)"
+                  >
+                    Sljedeća →
+                  </button>
+                </>
+              )}
               {saveMsg && (
                 <span className={saveMsg.startsWith('Greška') ? 'error' : 'success'}>
                   {saveMsg}

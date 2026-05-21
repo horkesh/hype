@@ -37,6 +37,12 @@ const STATUS_OPTIONS = [
   { value: 'approved', label: 'Odobreno' },
 ];
 
+// event_category enum from the live DB.
+const EVENT_CATEGORIES = [
+  'music', 'food', 'culture', 'sport', 'nightlife', 'art', 'film',
+  'theatre', 'festival', 'market', 'workshop', 'charity', 'other',
+] as const;
+
 const STATUS_COLORS: Record<string, string> = {
   approved: '#22C55E',
   pending: '#F59E0B',
@@ -73,6 +79,9 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
   const [editFeatured, setEditFeatured] = useState(false);
   const [editNeedsReview, setEditNeedsReview] = useState(false);
   const [editReviewNotes, setEditReviewNotes] = useState('');
+  const [editVenueId, setEditVenueId] = useState<string | null>(null);
+  const [editLocationName, setEditLocationName] = useState('');
+  const [venueOptions, setVenueOptions] = useState<Array<{ id: string; name: string }>>([]);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [langTab, setLangTab] = useState<'bs' | 'en'>('bs');
@@ -100,6 +109,19 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
   }, []);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+  // Venue picker options for the new-event + re-link flow.
+  useEffect(() => {
+    supabase
+      .from('venues')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name')
+      .limit(2000)
+      .then(({ data }) => {
+        if (data) setVenueOptions(data as Array<{ id: string; name: string }>);
+      });
+  }, []);
 
   // Cmd+K jump-to-event from anywhere in the admin app.
   useEffect(() => {
@@ -143,13 +165,33 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
     setEditTitleEn(ev.title_en ?? '');
     setEditDescBs(ev.description_bs ?? '');
     setEditDescEn(ev.description_en ?? '');
-    setEditCategory(ev.category ?? '');
+    setEditCategory(ev.category ?? 'other');
     setEditDatetime(ev.start_datetime ? ev.start_datetime.slice(0, 16) : '');
     setEditTicketUrl(ev.ticket_url ?? '');
     setEditStatus(ev.status ?? '');
     setEditFeatured(ev.is_featured ?? false);
     setEditNeedsReview(ev.needs_review ?? false);
     setEditReviewNotes(ev.review_notes ?? '');
+    setEditVenueId(ev.venue_id ?? null);
+    setEditLocationName('');  // location_name not on Event interface; only used for new standalone events
+    setSaveMsg('');
+  };
+
+  const handleNew = () => {
+    setSelectedId('new');
+    setEditTitleBs('');
+    setEditTitleEn('');
+    setEditDescBs('');
+    setEditDescEn('');
+    setEditCategory('other');
+    setEditDatetime('');
+    setEditTicketUrl('');
+    setEditStatus('approved');
+    setEditFeatured(false);
+    setEditNeedsReview(false);
+    setEditReviewNotes('');
+    setEditVenueId(null);
+    setEditLocationName('');
     setSaveMsg('');
   };
 
@@ -163,9 +205,18 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
 
   const handleSave = async (opts?: { advance?: boolean }) => {
     if (!selectedId) return;
+    if (!editTitleBs.trim()) {
+      setSaveMsg('Greška: naslov (BS) je obavezan.');
+      return;
+    }
+    if (!editDatetime) {
+      setSaveMsg('Greška: datum i vrijeme su obavezni.');
+      return;
+    }
     setSaving(true);
     setSaveMsg('');
 
+    const isNew = selectedId === 'new';
     const selected = events.find(e => e.id === selectedId);
     const wasFlagged = selected?.needs_review ?? false;
 
@@ -174,13 +225,16 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
       title_en: editTitleEn || null,
       description_bs: editDescBs || null,
       description_en: editDescEn || null,
-      category: editCategory || null,
+      category: editCategory || 'other',
       start_datetime: editDatetime ? new Date(editDatetime).toISOString() : null,
       ticket_url: editTicketUrl || null,
-      status: editStatus || null,
+      status: editStatus || 'approved',
       is_featured: editFeatured,
       needs_review: editNeedsReview,
       review_notes: editNeedsReview ? (editReviewNotes || null) : null,
+      venue_id: editVenueId,
+      type: editVenueId ? 'venue_linked' : 'standalone',
+      location_name: editVenueId ? null : (editLocationName || null),
     };
 
     if (editNeedsReview && !wasFlagged) {
@@ -192,13 +246,36 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
       update.review_requested_by = null;
     }
 
+    if (isNew) {
+      update.is_active = true;
+      update.source = 'manual';
+      const { data, error } = await supabase
+        .from('events')
+        .insert(update)
+        .select('id, title_bs, title_en, description_bs, description_en, category, start_datetime, ticket_url, status, cover_image_url, venue_id, is_featured, needs_review, review_notes, venues(name)')
+        .single();
+      if (error) {
+        setSaveMsg('Greška: ' + error.message);
+      } else if (data) {
+        const created = { ...(data as any), venue_name: (data as any).venues?.name ?? null } as Event;
+        setEvents(prev => [created, ...prev]);
+        setSelectedId(created.id);
+        setSaveMsg('Kreirano!');
+      }
+      setSaving(false);
+      return;
+    }
+
     const { error } = await supabase.from('events').update(update).eq('id', selectedId);
 
     if (error) {
       setSaveMsg('Greška: ' + error.message);
     } else {
       setSaveMsg('Sačuvano!');
-      setEvents(prev => prev.map(e => e.id === selectedId ? { ...e, ...update } : e));
+      const newVenueName = editVenueId ? (venueOptions.find(v => v.id === editVenueId)?.name ?? null) : null;
+      setEvents(prev => prev.map(e =>
+        e.id === selectedId ? { ...e, ...update, venue_name: newVenueName ?? e.venue_name } as Event : e,
+      ));
       if (opts?.advance) {
         setTimeout(() => selectNext(), 200);
       }
@@ -228,6 +305,9 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
       </div>
 
       <div className="filters">
+        <button onClick={handleNew} className="save-btn" style={{ flexShrink: 0 }}>
+          + Novi događaj
+        </button>
         <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
           <option value="">Sve kategorije</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -316,18 +396,18 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
         </div>
 
         {/* Edit panel */}
-        {selected && (
+        {(selected || selectedId === 'new') && (
           <div className="edit-panel">
             <div className="edit-header">
-              <h2>{selected.title_bs ?? selected.title_en ?? '(bez naslova)'}</h2>
+              <h2>{selectedId === 'new' ? 'Novi događaj' : (selected?.title_bs ?? selected?.title_en ?? '(bez naslova)')}</h2>
               <div className="edit-header-meta">
-                {selected.category && <span className="badge cat">{selected.category}</span>}
-                {selected.venue_name && <span className="badge">{selected.venue_name}</span>}
+                {selected?.category && <span className="badge cat">{selected.category}</span>}
+                {selected?.venue_name && <span className="badge">{selected.venue_name}</span>}
                 {editNeedsReview && <span className="badge" style={{ background: '#F59E0B', color: '#000' }}>⚠ Za reviziju</span>}
               </div>
             </div>
 
-            {selected.cover_image_url && (
+            {selected?.cover_image_url && (
               <img
                 src={selected.cover_image_url}
                 alt={selected.title_en ?? ''}
@@ -373,21 +453,57 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
               <div className="field-row">
                 <div className="field">
                   <label>Kategorija</label>
-                  <input type="text" className="edit-input" value={editCategory} onChange={e => setEditCategory(e.target.value)} />
+                  <select
+                    value={editCategory || 'other'}
+                    onChange={e => setEditCategory(e.target.value)}
+                    className="edit-input"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {EVENT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
                 <div className="field">
                   <label>Status</label>
                   <select
-                    value={editStatus}
+                    value={editStatus || 'approved'}
                     onChange={e => setEditStatus(e.target.value)}
                     className="edit-input"
                     style={{ cursor: 'pointer' }}
                   >
-                    <option value="">— odaberi —</option>
                     {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
                 </div>
               </div>
+
+              <div className="field">
+                <label>Lokacija (opciono — ostavi prazno za standalone događaj)</label>
+                <input
+                  list="event-venue-list"
+                  className="edit-input"
+                  value={editVenueId ? (venueOptions.find(v => v.id === editVenueId)?.name ?? '') : ''}
+                  onChange={e => {
+                    const match = venueOptions.find(v => v.name === e.target.value);
+                    setEditVenueId(match?.id ?? null);
+                  }}
+                  placeholder="Počni kucati ime lokacije..."
+                />
+                <datalist id="event-venue-list">
+                  {venueOptions.map(v => <option key={v.id} value={v.name} />)}
+                </datalist>
+              </div>
+
+              {!editVenueId && (
+                <div className="field">
+                  <label>Naziv lokacije (standalone)</label>
+                  <input
+                    type="text"
+                    className="edit-input"
+                    value={editLocationName}
+                    onChange={e => setEditLocationName(e.target.value)}
+                    placeholder="npr. Veliki Park, Sarajevo"
+                  />
+                </div>
+              )}
 
               <div className="field-row">
                 <div className="field">
@@ -448,33 +564,39 @@ export function EventManagement({ currentUserId, pendingSelectionId, onPendingHa
               </div>
             </div>
 
-            {/* Notes (per-event, admin-tier only) */}
-            <NotesSection
-              kind="event"
-              eventId={selected.id}
-              currentUserId={currentUserId}
-              isAdmin={true /* event page is shown to all admin tiers; show all-author notes inline */}
-            />
+            {/* Notes (per-event, admin-tier only). Hidden until the event exists. */}
+            {selected && (
+              <NotesSection
+                kind="event"
+                eventId={selected.id}
+                currentUserId={currentUserId}
+                isAdmin={true /* event page is shown to all admin tiers; show all-author notes inline */}
+              />
+            )}
 
             <div className="edit-actions">
               <button onClick={() => handleSave()} disabled={saving} className="save-btn">
-                {saving ? 'Čuvanje...' : 'Sačuvaj (⌘S)'}
+                {saving ? 'Čuvanje...' : (selectedId === 'new' ? 'Kreiraj' : 'Sačuvaj (⌘S)')}
               </button>
-              <button
-                onClick={() => handleSave({ advance: true })}
-                disabled={saving || filtered.length < 2}
-                className="save-btn"
-                style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
-              >
-                Sačuvaj i sljedeća →
-              </button>
-              <button
-                onClick={selectNext}
-                disabled={saving || filtered.length < 2}
-                className="page-btn"
-              >
-                Sljedeća →
-              </button>
+              {selectedId !== 'new' && (
+                <>
+                  <button
+                    onClick={() => handleSave({ advance: true })}
+                    disabled={saving || filtered.length < 2}
+                    className="save-btn"
+                    style={{ background: 'rgba(212,160,86,0.18)', color: '#D4A056', border: '1px solid rgba(212,160,86,0.4)' }}
+                  >
+                    Sačuvaj i sljedeća →
+                  </button>
+                  <button
+                    onClick={selectNext}
+                    disabled={saving || filtered.length < 2}
+                    className="page-btn"
+                  >
+                    Sljedeća →
+                  </button>
+                </>
+              )}
               {saveMsg && (
                 <span className={saveMsg.startsWith('Greška') ? 'error' : 'success'}>{saveMsg}</span>
               )}
