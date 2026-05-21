@@ -9,6 +9,7 @@ import { AuditLog } from './pages/AuditLog';
 import { ReviewQueue } from './pages/ReviewQueue';
 import { NotesPage } from './pages/NotesPage';
 import { SeriesManagement } from './pages/SeriesManagement';
+import { UserStatistics } from './pages/UserStatistics';
 import { CommandPalette } from './components/CommandPalette';
 import { Login } from './Login';
 import { useEffect, useState } from 'react';
@@ -117,6 +118,7 @@ export function App() {
         {activePage === 'review' && <ReviewQueue onNavigate={setActivePage} />}
         {activePage === 'audit' && <AuditLog />}
         {activePage === 'notes' && <NotesPage role={role!} currentUserId={currentUserId} />}
+        {activePage === 'stats' && <UserStatistics />}
         {activePage === 'users' && <UserManagement />}
       </main>
       <CommandPalette

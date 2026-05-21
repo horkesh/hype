@@ -221,7 +221,7 @@ export function useTonightController({
 
   const renderEventProps = useCallback(
     (event: Event) => ({
-      eventTime: formatEventTime(event.start_datetime),
+      eventTime: formatEventTime(event.start_datetime, isBosnian ? 'bs' : 'en'),
       eventTitle: isBosnian ? event.title_bs : event.title_en || event.title_bs,
       isSelected: selectedEvents.includes(event.id),
       priceText: getTonightPriceText(event, language),

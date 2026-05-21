@@ -116,12 +116,17 @@ export function getTicketButtonText(ticketUrl: string | null, language: string):
   return language === 'bs' ? 'Kupi' : 'Buy';
 }
 
-export function formatEventTime(dateString: string): string {
+export function formatEventTime(dateString: string, language: 'bs' | 'en' = 'bs'): string {
   const date = new Date(dateString);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  return `${hours}:${minutes}`;
+  if (Number.isNaN(date.getTime())) return '';
+  const h = date.getHours();
+  const m = date.getMinutes();
+  // Scrapers that found a date but no time store the event as local midnight.
+  // Showing "00:00" is misleading — surface an explicit "time TBA" instead.
+  if (h === 0 && m === 0) {
+    return language === 'en' ? 'Time TBA' : 'Bez vremena';
+  }
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
 
 export function getTonightPriceText(event: Event, language: string): string {

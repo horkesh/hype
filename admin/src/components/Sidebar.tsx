@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 import { canAdmin, hasAccess, isSuperAdmin, ROLE_LABELS } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
 
-export type Page = 'dashboard' | 'venues' | 'events' | 'series' | 'notes' | 'review' | 'audit' | 'users';
+export type Page = 'dashboard' | 'venues' | 'events' | 'series' | 'notes' | 'review' | 'audit' | 'stats' | 'users';
 
 interface NavItem {
   id: Page;
@@ -68,6 +68,7 @@ export function Sidebar({ activePage, onNavigate, role, email, currentUserId, on
     ...(hasAccess(role) ? [{ id: 'notes' as Page, label: 'Bilješke', icon: '✎' }] : []),
     ...(canAdmin(role) ? [{ id: 'review' as Page, label: 'Za reviziju', icon: '⚠', badge: reviewCount }] : []),
     ...(canAdmin(role) ? [{ id: 'audit' as Page, label: 'Promjene', icon: '⌖', badge: revertedCount }] : []),
+    ...(isSuperAdmin(role) ? [{ id: 'stats' as Page, label: 'Statistike', icon: '▤' }] : []),
     ...(isSuperAdmin(role) ? [{ id: 'users' as Page, label: 'Korisnici', icon: '◎' }] : []),
   ];
 

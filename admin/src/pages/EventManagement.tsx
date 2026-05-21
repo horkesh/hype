@@ -51,10 +51,16 @@ const STATUS_COLORS: Record<string, string> = {
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('bs-BA', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  const dateOnly = d.toLocaleDateString('bs-BA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  // Scrapers that found a date but no time store the event as local midnight.
+  // Showing "00:00" is misleading — replace with an explicit marker. Real NYE
+  // midnight starts are rare and the admin can correct the few false matches.
+  if (d.getHours() === 0 && d.getMinutes() === 0) {
+    return `${dateOnly} · (datum bez vremena)`;
+  }
+  return `${dateOnly} ${d.toLocaleTimeString('bs-BA', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
 // Convert a UTC ISO timestamp to the local YYYY-MM-DDTHH:mm format that
