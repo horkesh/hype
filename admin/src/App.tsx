@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { VenueCuration } from './pages/VenueCuration';
 import { EventManagement } from './pages/EventManagement';
 import { UserManagement } from './pages/UserManagement';
+import { AuditLog } from './pages/AuditLog';
 import { Login } from './Login';
 import { useState } from 'react';
 import type { Page } from './components/Sidebar';
@@ -79,6 +80,7 @@ export function App() {
         {activePage === 'dashboard' && <Dashboard />}
         {activePage === 'venues' && <VenueCuration role={role!} />}
         {activePage === 'events' && <EventManagement />}
+        {activePage === 'audit' && <AuditLog />}
         {activePage === 'users' && <UserManagement />}
       </main>
     </div>

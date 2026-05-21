@@ -1,7 +1,7 @@
-import { hasAccess, isSuperAdmin, ROLE_LABELS } from '../hooks/useAuth';
+import { canAdmin, hasAccess, isSuperAdmin, ROLE_LABELS } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
 
-export type Page = 'dashboard' | 'venues' | 'events' | 'users';
+export type Page = 'dashboard' | 'venues' | 'events' | 'audit' | 'users';
 
 interface NavItem {
   id: Page;
@@ -22,6 +22,7 @@ export function Sidebar({ activePage, onNavigate, role, email, onSignOut }: Side
     { id: 'dashboard', label: 'Pregled', icon: '▦' },
     { id: 'venues', label: 'Lokacije', icon: '⊙' },
     ...(hasAccess(role) ? [{ id: 'events' as Page, label: 'Događaji', icon: '◈' }] : []),
+    ...(canAdmin(role) ? [{ id: 'audit' as Page, label: 'Promjene', icon: '⌖' }] : []),
     ...(isSuperAdmin(role) ? [{ id: 'users' as Page, label: 'Korisnici', icon: '◎' }] : []),
   ];
 
