@@ -9,6 +9,7 @@ export { getSupabaseUrl, getSupabaseAnonKey } from './supabase/config';
 export {
   getVenueBySlug,
   getVenueById,
+  listActiveVenues,
   getVenueDescription,
   getVenueInsiderTip,
 } from './queries/venues';

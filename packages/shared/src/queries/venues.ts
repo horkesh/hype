@@ -28,6 +28,23 @@ export async function getVenueBySlug(supabase: SupabaseClient, slug: string): Pr
   return (data as Venue | null) ?? null;
 }
 
+export async function listActiveVenues(
+  supabase: SupabaseClient,
+  opts: { limit?: number; category?: string | null; neighborhood?: string | null } = {},
+): Promise<Venue[]> {
+  let q = supabase
+    .from('venues')
+    .select(VENUE_SELECT)
+    .eq('is_active', true)
+    .order('google_rating', { ascending: false, nullsFirst: false });
+  if (opts.category) q = q.eq('category', opts.category);
+  if (opts.neighborhood) q = q.eq('neighborhood', opts.neighborhood);
+  q = q.limit(opts.limit ?? 60);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as Venue[];
+}
+
 export async function getVenueById(supabase: SupabaseClient, id: string): Promise<Venue | null> {
   const { data, error } = await supabase
     .from('venues')

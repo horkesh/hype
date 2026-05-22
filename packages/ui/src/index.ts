@@ -39,6 +39,15 @@ export type {
 export { VenueDetailContent } from './venue-detail';
 export type { VenueDetailContentProps, VenueDetailInput } from './venue-detail';
 
+export { EventDetailContent } from './event-detail';
+export type { EventDetailContentProps, EventDetailInput } from './event-detail';
+
+export { VenueCard } from './venue-card';
+export type { VenueCardInput, VenueCardProps } from './venue-card';
+
+export { EventCard } from './event-card';
+export type { EventCardInput } from './event-card';
+
 // Re-export TamaguiProvider so apps don't need to depend on `tamagui` directly.
 export { TamaguiProvider } from 'tamagui';
 export type { TamaguiProviderProps } from 'tamagui';
