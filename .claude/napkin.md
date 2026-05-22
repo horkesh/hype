@@ -99,6 +99,8 @@
    Do instead: Apify's `apify/instagram-scraper` returns the latest 10 posts per account. For low-frequency posters (festivals, museums) those latest 10 can span years back. Claude Haiku correctly extracts the date *from the caption*, but `promoteEvents.ts` will happily insert "New Year's 2023" as `is_active=true` if the guard isn't there. The `skippedPastDate` branch refuses `start_datetime < now() - 24h` and marks the raw row promoted so it doesn't get re-evaluated on every cron tick. 24h grace keeps today's evening events visible when the cron runs in UTC.
 9. **[2026-05-20] Venue-match token overlap requires ≥1 distinctive (non-generic) token**
    Do instead: in `venueMatch.ts`, the token-overlap step's threshold is "≥2 shared 4+ char tokens" but that alone matched "Bambus Club Sarajevo" against "Club Mash Sarajevo" via shared {club, sarajevo} — both generic. The `GENERIC_VENUE_TOKENS` set ({sarajevo, club, klub, pub, bar, lounge, cafe, kafe, caffe, restaurant, restoran}) tracks tokens that don't identify a specific venue. Match requires ≥2 shared tokens AND ≥1 distinctive (non-generic) overlap. Tie-breaks prefer higher distinctive-overlap then higher total overlap.
+10. **[2026-05-22] The price-level column on `venues` is `google_price_level`, not `price_level`**
+   Do instead: the migration `20260318_google_enrichment_columns.sql` added it as `google_price_level`. Code that expects `price_level` (the older universal shared query did) breaks with Postgrest 42703. If you need consumers to keep reading `venue.price_level`, alias via PostgREST: `select=price_level:google_price_level,...`. The mobile data adapter (`apps/mobile/utils/dataAdapters.ts`) reads `price_level` and falls back to `price_range`, so when wiring new code prefer that adapter over raw selects.
 
 ## Execution & Validation
 1. **[2026-03-22] Never test on localhost — always push, deploy, and verify on production**
@@ -141,6 +143,8 @@
    Do instead: tables for admin-only data (notes, audit_log, scrape_log, etc.) should have RLS enabled with policies that only grant access to authenticated curator-tier roles via `is_admin_or_curator()` or stricter. *Don't add a public-read policy*. Look-app users never see these rows even by accident. Note: `audit_log` and `notes` follow this — only `is_admin_or_above()` / `is_admin_or_curator()` reads.
 10. **[2026-05-21] Storage bucket admin uploads need their own RLS — service-role cron bypasses but humans don't**
    Do instead: `venue-photos` (and any future curator-writable bucket) needs explicit policies on `storage.objects` for the bucket: a public read policy if needed (`bucket_id = 'X'`), plus curator INSERT/UPDATE/DELETE gated by `is_admin_or_curator()` + bucket_id match. The cron's service-role key bypasses RLS entirely, which masks the missing policies until a human tries to upload from the admin. See migration `20260521030000_storage_admin_uploads.sql`.
+11. **[2026-05-22] The web build belongs to `apps/mobile`, not a separate Next.js app**
+   Do instead: there is no `apps/web/`, `packages/ui/`, or `packages/shared/` — the website at hype-alpha.vercel.app is the Expo mobile app statically pre-rendered. `expo export -p web` produces `apps/mobile/dist/`, then `scripts/inject-seo.mjs` rewrites every prerendered HTML's `<head>` with per-row metadata. Root `vercel.json` builds via `pnpm --filter @look/mobile build:web`. Don't propose a parallel Next.js site — that path was tried and abandoned (PR #3 → PR #4 → PR #5). See `docs/03-architecture/web_seo_pipeline.md`.
 
 ## Frontend Patterns
 1. **[2026-03-22] Mood chips switch Home between default sections and a unified mood feed**
@@ -195,6 +199,10 @@
    Do instead: when adding a new root-level route (`/wellness`, future `/saved-list`, etc.), create `app/<name>.tsx` AND add `<Stack.Screen name="<name>" options={{ headerShown: false }} />` to the outer Stack in `app/_layout.tsx`. expo-router's strict typed-route literal won't include the new path until `npx expo` regenerates types — cast the push as `'/<name>' as never` to satisfy TS at build time. This is purely a TS escape; the route works at runtime.
 19. **[2026-05-21] Verticals that need a richer UX than category-filter get a dedicated route, not an inline Explore section**
    Do instead: when introducing a new vertical (Wellness, Heritage, etc.) that should have its own subcategory chips / filter logic / layout, build it as a separate `app/<vertical>.tsx` screen with its own data loader, instead of trying to extend Explore. The entry point stays a card on the Home or Explore feed; the destination is a focused screen. See `app/wellness.tsx` for the pattern: one fetch sorted by Google rating, client-side tag-set intersection for chip filtering across ~100-200 venues, FlatList cards with cover + rating + neighborhood + 2 tag pills.
+20. **[2026-05-22] Per-page `<head>` for web comes from `scripts/inject-seo.mjs`, not screen JSX**
+   Do instead: when changing what venues/events expose to crawlers (title, description, OG image, JSON-LD), edit `apps/mobile/scripts/inject-seo.mjs`. Expo's static export renders the `[id]` template *once* and copies the same HTML bytes to every URL produced by `generateStaticParams` — so any `<Head>` inside a screen component lands in the template only and disappears into N identical files. The injector reads from Supabase post-build and personalizes each emitted HTML. New dynamic route needing SEO → add a sibling `inject<Thing>s()` function + per-id rewrite loop in the script, mirroring the venue/event ones.
+21. **[2026-05-22] Expo Router 6 + SDK 54: `web.output: 'server'` is misleading**
+   Do instead: in SDK 54, `output: 'server'` only produces a runtime server bundle when there are `+api.ts` routes. Without them, it degrades to static prerender with empty React-root bodies — same outcome as `output: 'static'`. Real on-demand SSR with data loaders (`unstable_useServerDataLoaders`, `useLoaderData`) is SDK 55 alpha. Don't promise on-demand SSR on SDK 54; use the static-export + post-build injector pattern instead.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**
@@ -241,6 +249,8 @@
    Do instead: when a shared screen body still owns both the top chrome and the result/modal branching, extract named `ResultsSection` and `ModalStack` components before chasing smaller prop cleanups so the body becomes an obvious composition shell.
 16. **[2026-03-12] Source-layer Bosnian copy cleanup should fix diacritics, not just mojibake**
    Do instead: once mojibake is gone, continue the consistency sweep by correcting helper-owned Bosnian strings like `sacuvaj`, `dogadaji`, or `otkazi` to their proper diacritic forms in the source tables and update the adjacent Node-side tests in the same slice.
+17. **[2026-05-22] Vercel `framework: "nextjs"` set at the project level fails any non-Next build**
+   Do instead: if a Vercel project's dashboard has Framework = Next.js but the build produces a non-Next output (e.g. an Expo `dist/`), the deploy fails at packaging because Vercel looks for `.next/`. Either set `framework: null` in the project dashboard's Build & Output settings, or delete the project if it's redundant. Root `vercel.json` framework field doesn't override the dashboard setting consistently. This is why `look-web` had to be deleted on 2026-05-22 after the build target switched from Next.js to Expo.
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**
@@ -277,3 +287,5 @@
    Do instead: use `docs/00-overview/session_start_protocol.md` and `docs/00-overview/developer_workflow.md` as the standard session flow, then apply the relevant role checklist from `docs/09-agents/`.
 6. **[2026-03-12] Napkin updates are part of the slice, not an end-of-day extra**
    Do instead: read `.claude/napkin.md` at the start of each Hype session and update it during the same slice whenever a reusable repo rule becomes clearer.
+7. **[2026-05-22] Validate SDK-level "stable feature" claims against the actual installed version before pivoting architecture**
+   Do instead: when an agent or doc claims a framework supports feature X "as of SDK Y", check the project's actual SDK version AND read the framework's own changelog/docs page for that feature before committing to an architectural pivot on it. On 2026-05-22, a sub-agent confidently recipe'd "Expo Router 6 SSR with output: 'server'" — turned out SDK 54's server mode is static-prerender-only and real SSR is SDK 55 alpha. Two days of work + one merged PR's worth of code had to be undone. Read the linked official docs (in this case `docs.expo.dev/router/web/server-rendering`) before promising it works in the user's version.

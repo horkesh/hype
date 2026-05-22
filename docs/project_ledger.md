@@ -2291,3 +2291,75 @@ User reported: still seeing duplicates, and every event showed as "Free" despite
 - Tanja's permission surface: full edit on every venue + event field, can flag for review, add notes, see her own activity. Cannot promote users or revert.
 - Berina's permission surface: same as Tanja + sees other editors' notes, the Za reviziju + Promjene queues, the Aktivnost urednika roll-up. Cannot promote to super_admin.
 - All work pushed; hype + look-admin Vercel projects both green at `4b09645`.
+
+### 2026-05-22 — Web-first migration: shipped, abandoned, rebuilt on Expo static + post-build SEO injector
+
+Three architectural attempts in one day to land the same goal: the website at hype-alpha must look exactly like the mobile app **and** be crawlable for the tourism-board pitch. Recording the full progression because the dead-ends are the load-bearing context — without them, the final design looks over-engineered.
+
+#### Attempt 1 — Next.js + Tamagui universal monorepo (PR #3 merged + later deleted)
+
+Phases 0–6 of a Solito-style monorepo: pnpm workspaces (`apps/web` Next.js, `apps/mobile` Expo, `packages/ui` Tamagui design system, `packages/shared` universal Supabase queries). Each phase was its own commit on a stacked branch; all merged via PR #3 (`494cc7e`). Look-web Vercel project provisioned with proper env vars; first production deploy returned HTTP 200 with extracted Tamagui CSS.
+
+Problem surfaced when user opened the deployed site: the rendered home was a minimal two-grid layout (`Predstojeći događaji`, `Mjesta za otkriti`), not the mobile app's 22-component home (category grid, Wellness card, hidden gems rail, Sljedeća, hero rails). The Phase 4 work shipped lean SEO-first pages, not a port of the mobile UI. Visual parity would require porting every Home* component to Next.js — a multi-day effort.
+
+Side-quest: while debugging "shows just placeholder entries", uncovered that the shared `VENUE_SELECT` referenced `price_level` but the actual column is `google_price_level` (added by `20260318_google_enrichment_columns`). Postgrest 42703 was killing every page that called `listActiveVenues` — including `/` and `/lokacije` from the moment of merge. Fixed via PostgREST alias `price_level:google_price_level` in `packages/shared/src/queries/venues.ts` (commit `bd92ef5`). Both Next.js prod URLs went green with real venue/event data after that.
+
+#### Attempt 2 — Expo Router `web.output: 'server'` (rejected before deploy)
+
+Surfaced the architecture mismatch to the user honestly: "Next.js gets SEO right but doesn't look like the mobile app." Proposed pivoting to Expo Router 6's `web.output: 'server'` for true on-demand SSR with the mobile components.
+
+Built it on `feat/expo-server-web` branch: set `output: 'server'`, added `api/index.ts` using `expo-server/adapter/vercel`, rewrote `vercel.json`. Build succeeded but produced `dist/server/` full of empty React-root HTML — same shell on every dynamic route, no real SSR. Dug into Expo docs: **`output: 'server'` in SDK 54 only matters for `+api.ts` routes**. Without API routes it degrades to static prerender. Real SSR with data loaders is SDK 55 alpha, not production-ready.
+
+The agent's earlier "stable SDK 54 SSR" recipe was wrong on this — flagged honestly to user.
+
+#### Attempt 3 — Expo static export + post-build SEO injector (PR #4 merged, currently live)
+
+The viable SDK-54 path:
+
+1. `apps/mobile/app.config.ts`: `web.output: 'static'`.
+2. `apps/mobile/app/venue/[id].tsx` + `app/event/[id].tsx`: `generateStaticParams` enumerates every active venue + every upcoming approved event from Supabase. Expo emits one HTML per id at `/venue/<uuid>.html` and `/event/<uuid>.html`. **Caveat:** Expo only renders the `[id]` template once and copies the same bytes to every emitted URL. Per-id metadata cannot come from screen JSX.
+3. `apps/mobile/scripts/inject-seo.mjs`: post-build Node script. Bulk-fetches venues + events, opens each prerendered HTML, replaces the empty `<title data-rh="true"></title>` placeholder with real title + meta description + canonical + OG (title/description/type/url/image) + Twitter card + Schema.org JSON-LD (LocalBusiness / Event). Also rewrites top-level static routes (home, wellness, explore, tonight). Parses `.env` itself because plain Node doesn't auto-load it.
+4. `apps/mobile/package.json` `build:web`: `expo export -p web && node scripts/inject-seo.mjs`.
+5. Root `vercel.json`: `buildCommand: pnpm --filter @look/mobile build:web`, `outputDirectory: apps/mobile/dist`. Same config for the `hype` project — `look-web` later deleted as redundant.
+
+Local build verified: 1000 venue pages, 39 event pages, 4 top-level pages, all with proper SEO content. Sample: `<title>Melia · Look Sarajevo</title>`, real description from `description_bs`, JSON-LD with address + geo coords + image. Production deploy to hype-alpha confirmed live, no robots noindex, Googlebot-readable.
+
+Expo SDK 54 limitation acknowledged: page **body** still client-hydrates from the JS bundle. `<head>` is fully static and correct. Twitter/Facebook OG bots only need `<head>`; Googlebot executes JS and indexes the body. For competitive listing-page ranking, SDK 55 alpha (loaders + real SSR) would be the next step — not adopted today.
+
+#### Cleanup (PR #5 merged, `5f5024a`)
+
+After the pivot settled, deleted ~5000 lines of now-dead code:
+- `apps/web/` — Next.js app
+- `packages/ui/` — Tamagui design system + 12 universal primitives
+- `packages/shared/` — universal Supabase client + queries
+- `apps/mobile/app/_phase1_demo.tsx` + `_phase2_demo.tsx`
+- `docs/03-architecture/phase-7-mobile-handoff.md` (obsolete — described the abandoned universal path)
+- Pulled `<TamaguiProvider>` wrapper from `apps/mobile/app/_layout.tsx` (was only there for the deleted universal components). Pulled the two demo `Stack.Screen` entries.
+- Dropped `@look/ui` + `@look/shared` workspace deps from `apps/mobile/package.json`.
+- `pnpm-workspace.yaml`: dropped `packages/*` (now empty).
+- Root `package.json`: dropped `dev:web` + `build:web` scripts. Description updated.
+- Deleted the `look-web` Vercel project (was failing every deploy after the framework=nextjs setting mismatched the new Expo build output).
+
+#### Final state end of 2026-05-22
+
+- Main is at `9b629a3`. Three merged PRs today: #3 (Next.js Phase 1–6, retroactively superseded but commits stay in history), #4 (Expo static + SEO injector, the actual production path), #5 (delete dead code).
+- Active deploy targets: **hype** (production at `hype-alpha.vercel.app`) and **look-admin** (admin at `look-admin.vercel.app`). Look-web project deleted.
+- New architecture doc: `docs/03-architecture/web_seo_pipeline.md` — explains the static-export + injector flow, gotchas, and where to edit for various SEO changes.
+- Rebuilds: any push to `main` triggers a Vercel build. ~3–4 min wall-clock for ~1040 prerendered HTMLs. Not yet wired to Supabase webhooks — new venues require a rebuild before their page exists.
+- Open question for next session: wire a Supabase webhook → Vercel deploy hook so newly-added venues appear on the web within minutes instead of "next time someone pushes". Low urgency since the curation team is small.
+
+#### Reusable rules captured to napkin
+- Web build belongs to `apps/mobile`, not a separate Next.js app. Always edit `inject-seo.mjs` (not screen JSX) when changing `<head>`.
+- Expo Router 6 + SDK 54: `output: 'server'` is misleading — it's static prerender unless you have `+api.ts` routes. Real SSR with loaders is SDK 55+. Don't promise on-demand SSR without checking the SDK version.
+- Dynamic routes in Expo static export emit one HTML per `generateStaticParams` entry but **the bodies are identical** — only the URL on disk differs. Any per-id customization has to happen post-build.
+- `venues.google_price_level` is the actual column. PostgREST `price_level:google_price_level` aliases it if consumers expect the shorter name.
+- Vercel `framework: "nextjs"` set at the project level will fail any non-Next build with a packaging mismatch. Either set `framework: null` in dashboard or delete the project.
+- When proposing an architectural pivot, validate the SDK-level "stable feature" claim against the actual installed SDK version before committing to it. The agent's "definitive" recipe for SDK 54 SSR was wrong; should have checked Expo's own docs first.
+
+#### Snapshot for next session
+- Last updated: 2026-05-22
+- Active branch: main
+- Web SEO: live, per-page metadata baked, no robots noindex
+- Mobile UI: unchanged on iOS/Android, now also rendering on web at hype-alpha
+- Vercel: hype + look-admin only
+- Tests: 31/31 matcher + dedupe + 36/36 backend + 194/194 app — last verified 2026-05-21
