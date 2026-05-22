@@ -13,6 +13,8 @@
   "dependencies": {
     "@look/shared": "workspace:*",
     "@look/ui": "workspace:*",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.98.0",
     "@tamagui/next-plugin": "1.144.3",
     "next": "^15.1.6",
     "react": "^19.0.0",

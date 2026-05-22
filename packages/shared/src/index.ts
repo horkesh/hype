@@ -1,4 +1,14 @@
-// @look/shared — placeholder. Phase 1 will start populating this with
-// utilities moved out of apps/mobile/utils, the Supabase client wiring,
-// AI prompt templates, formatters, and types used by web + mobile + admin.
-export const PLACEHOLDER = '@look/shared loaded';
+// Public API for @look/shared. Apps import from here, never from internal paths.
+
+export type { Venue, Event, Language } from './types';
+
+export { getBrowserSupabase } from './supabase/browser';
+export { createServerSupabase, type NextCookieStore } from './supabase/server';
+export { getSupabaseUrl, getSupabaseAnonKey } from './supabase/config';
+
+export {
+  getVenueBySlug,
+  getVenueById,
+  getVenueDescription,
+  getVenueInsiderTip,
+} from './queries/venues';

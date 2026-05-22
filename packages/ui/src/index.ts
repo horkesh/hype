@@ -35,6 +35,10 @@ export type {
   InputProps,
 } from './components';
 
+// Universal screens (composed of Phase 1 primitives, no platform-specific code)
+export { VenueDetailContent } from './venue-detail';
+export type { VenueDetailContentProps, VenueDetailInput } from './venue-detail';
+
 // Re-export TamaguiProvider so apps don't need to depend on `tamagui` directly.
 export { TamaguiProvider } from 'tamagui';
 export type { TamaguiProviderProps } from 'tamagui';

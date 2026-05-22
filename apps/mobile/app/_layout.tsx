@@ -86,6 +86,7 @@ export default function RootLayout() {
                   <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
                   <Stack.Screen name="wellness" options={{ headerShown: false }} />
                   <Stack.Screen name="_phase1_demo" options={{ headerShown: true, title: "Phase 1 demo" }} />
+                  <Stack.Screen name="_phase2_demo" options={{ headerShown: true, title: "Phase 2 demo" }} />
                   <Stack.Screen name="+not-found" />
                 </Stack>
                 <SystemBars style="light" />
