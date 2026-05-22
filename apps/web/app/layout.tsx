@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Otkrij Sarajevo. Lokacije, događaji, ljudi.',
   applicationName: 'Look',
   formatDetection: { telephone: false },
-  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
+  icons: { icon: '/icon.svg', apple: '/icon.svg' },
   themeColor: '#121212',
 };
 
