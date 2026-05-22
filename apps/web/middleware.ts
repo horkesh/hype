@@ -37,6 +37,15 @@ export async function middleware(request: NextRequest) {
     response.headers.set('x-robots-tag', 'noindex, nofollow');
   }
 
+  // Optional language hint: if the user lands on / with an English Accept-
+  // Language and no explicit lang cookie, set a one-shot header so the
+  // client can offer a /en switcher. We don't 302 — Google + Sarajevo
+  // diaspora both expect the canonical BS URL to load directly.
+  const acceptLang = request.headers.get('accept-language') ?? '';
+  if (acceptLang.startsWith('en') && !request.cookies.get('look_lang')) {
+    response.headers.set('x-suggest-lang', 'en');
+  }
+
   return response;
 }
 
