@@ -7,7 +7,7 @@
     "android": "EXPO_NO_TELEMETRY=1 expo start --android",
     "ios": "EXPO_NO_TELEMETRY=1 expo start --ios",
     "web": "EXPO_NO_TELEMETRY=1 expo start --web",
-    "build:web": "expo export -p web && npx workbox generateSW workbox-config.js",
+    "build:web": "expo export -p web && node scripts/inject-seo.mjs",
     "build:android": "expo prebuild -p android",
     "test": "node --import tsx --test tests/*.test.ts",
     "lint": "eslint ."
@@ -49,6 +49,7 @@
     "expo-network": "^8.0.7",
     "expo-router": "^6.0.0",
     "expo-secure-store": "^15.0.7",
+    "expo-server": "^56.0.4",
     "expo-splash-screen": "^31.0.8",
     "expo-status-bar": "~3.0.7",
     "expo-symbols": "^1.0.6",
