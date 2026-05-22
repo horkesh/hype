@@ -3,4 +3,3 @@
 # All cron jobs install tsx globally and run scripts directly (see .github/workflows).
 packages:
   - "apps/*"
-  - "packages/*"

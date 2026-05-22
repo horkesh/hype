@@ -2,12 +2,10 @@
   "name": "look-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "Look (Sarajevo city discovery) — pnpm workspace root. Apps: web (Next.js), mobile (Expo), admin (Vite). Shared packages live under packages/.",
+  "description": "Look (Sarajevo city discovery) — pnpm workspace root. Apps: mobile (Expo, served on web via static export), admin (Vite). Backend lives at backend/ outside the workspace.",
   "scripts": {
-    "dev:web": "pnpm --filter @look/web dev",
     "dev:mobile": "pnpm --filter @look/mobile dev",
     "dev:admin": "pnpm --filter @look/admin dev",
-    "build:web": "pnpm --filter @look/web build",
     "build:mobile": "pnpm --filter @look/mobile build:web",
     "build:admin": "pnpm --filter @look/admin build",
     "test:backend": "cd backend && npm test",
