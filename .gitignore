@@ -42,6 +42,13 @@ backend/data/no_instagram_found.json
 android/
 ios/
 
-pnpm-lock.yaml
 package-lock.json
 .vercel
+
+# Next.js build output for apps/web
+.next/
+out/
+
+# Web app local env
+.env*.local
+next-env.d.ts
