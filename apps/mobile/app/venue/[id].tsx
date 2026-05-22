@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createClient } from '@supabase/supabase-js';
 
 import { HypeHeader } from '@/components/HypeHeader';
 import { VenueActionButtons } from '@/components/venue/VenueActionButtons';
@@ -41,6 +42,23 @@ import {
   getVenueTodayHours,
   isVenueOpenNow,
 } from '@/utils/venueDetailScreen';
+
+// Enumerates every active venue ID so Expo Router emits an HTML file at
+// /venue/<id>.html for each. Expo only renders the [id] template once
+// and copies it to all those paths; per-venue title/description/JSON-LD
+// gets injected by scripts/inject-seo.mjs as a post-build step.
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  const supabase = createClient(url, key, { auth: { persistSession: false } });
+  const { data, error } = await supabase
+    .from('venues')
+    .select('id')
+    .eq('is_active', true);
+  if (error) return [];
+  return (data ?? []).map((v) => ({ id: v.id }));
+}
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

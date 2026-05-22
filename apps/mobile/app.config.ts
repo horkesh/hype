@@ -62,6 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     favicon: './assets/images/final_quest_240x240.png',
     bundler: 'metro',
+    output: 'static',
   },
   plugins: ['expo-font', 'expo-router', 'expo-web-browser', '@react-native-community/datetimepicker'],
   scheme: 'look',

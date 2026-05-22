@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { createClient } from '@supabase/supabase-js';
 
 import { HypeHeader } from '@/components/HypeHeader';
 import { EventDetailHero } from '@/components/event/EventDetailHero';
@@ -34,6 +35,25 @@ import {
   isEventFree,
   formatEventDetailDateTime,
 } from '@/utils/eventDetailScreen';
+
+// Enumerates every upcoming approved event so Expo emits an HTML file
+// per /event/<id>.html. scripts/inject-seo.mjs injects per-event title,
+// description, and JSON-LD Event schema in the post-build step.
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  const supabase = createClient(url, key, { auth: { persistSession: false } });
+  const nowIso = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('events')
+    .select('id')
+    .eq('is_active', true)
+    .eq('status', 'approved')
+    .gte('start_datetime', nowIso);
+  if (error) return [];
+  return (data ?? []).map((e) => ({ id: e.id }));
+}
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -1,8 +1,9 @@
 {
-  "buildCommand": "npm run build:web",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm --filter @look/mobile build:web",
+  "installCommand": "pnpm install --frozen-lockfile=false",
   "outputDirectory": "dist",
   "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "cleanUrls": true,
+  "trailingSlash": false
 }
