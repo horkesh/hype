@@ -34,7 +34,12 @@ export default async function Home() {
       listUpcomingEvents(supabase, 12),
     ]);
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message =
+      err instanceof Error
+        ? `${err.name}: ${err.message}\n\n${err.stack ?? ''}`
+        : typeof err === 'object' && err !== null
+          ? JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
+          : String(err);
     return (
       <main style={{ padding: 24, maxWidth: 900, margin: '0 auto', color: '#F5F5F5' }}>
         <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 32, color: '#EF4444' }}>
