@@ -34,12 +34,22 @@ export default async function Home() {
       listUpcomingEvents(supabase, 12),
     ]);
   } catch (err) {
-    const message =
-      err instanceof Error
-        ? `${err.name}: ${err.message}\n\n${err.stack ?? ''}`
-        : typeof err === 'object' && err !== null
-          ? JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
-          : String(err);
+    console.error('[home-page] data fetch failed', err);
+    const inspect = (v: unknown): string => {
+      if (v === null) return 'null';
+      if (typeof v !== 'object') return String(v);
+      const e = v as Record<string, unknown>;
+      const keys = [
+        ...Object.getOwnPropertyNames(e),
+        ...(typeof Object.getOwnPropertySymbols === 'function'
+          ? Object.getOwnPropertySymbols(e).map((s) => s.toString())
+          : []),
+      ];
+      const pairs = keys.map((k) => `  ${k}: ${typeof e[k] === 'object' ? JSON.stringify(e[k]) : String(e[k])}`);
+      const ctor = (v as { constructor?: { name?: string } }).constructor?.name ?? 'Object';
+      return `${ctor} {\n${pairs.join('\n')}\n}`;
+    };
+    const message = inspect(err);
     return (
       <main style={{ padding: 24, maxWidth: 900, margin: '0 auto', color: '#F5F5F5' }}>
         <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 32, color: '#EF4444' }}>
