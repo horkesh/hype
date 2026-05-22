@@ -52,3 +52,8 @@ out/
 # Web app local env
 .env*.local
 next-env.d.ts
+.tamagui/
+
+# Tamagui build artifacts (regenerated each build)
+apps/web/public/tamagui.css
+.tamagui/
