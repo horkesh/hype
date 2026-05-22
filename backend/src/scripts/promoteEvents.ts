@@ -71,6 +71,29 @@ interface EventInsert {
   start_datetime: string;
   venue_id: string | null;
   location_name: string | null;
+  slug: string;
+}
+
+// Build the SEO slug for an event row before insert. Mirrors the SQL backfill
+// (diacritic fold → strip non-alnum → append YYYY-MM-DD). UUID suffix added
+// when the title is empty so we never write an unusable slug.
+function buildEventSlug(title: string, startDatetime: string, uuidHint?: string): string {
+  const DIACRITICS_MAP: Record<string, string> = {
+    'č': 'c', 'ć': 'c', 'š': 's', 'ž': 'z', 'đ': 'd',
+    'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ý': 'y',
+    'ü': 'u', 'ö': 'o', 'ä': 'a', 'ë': 'e', 'ï': 'i',
+    'â': 'a', 'ê': 'e', 'î': 'i', 'ô': 'o', 'û': 'u',
+    'à': 'a', 'è': 'e', 'ì': 'i', 'ò': 'o', 'ù': 'u', 'ÿ': 'y',
+  };
+  const folded = title.toLowerCase().split('').map((c) => DIACRITICS_MAP[c] ?? c).join('');
+  const cleaned = folded.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  // Sarajevo-anchored YYYY-MM-DD so the slug matches what the user expects.
+  const sarajevoDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Sarajevo',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date(startDatetime));
+  const base = cleaned || (uuidHint ? uuidHint.slice(0, 8) : 'event');
+  return `${base}-${sarajevoDate}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -458,6 +481,7 @@ export async function promoteEvents(): Promise<void> {
         start_datetime: startDatetime,
         venue_id: venueId,
         location_name: locationName,
+        slug: buildEventSlug(title, startDatetime, raw.id),
       };
 
       // Near-duplicate dedup: shared distinctive title token + venue compat +

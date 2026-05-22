@@ -31,6 +31,7 @@ export interface Venue {
 
 export interface Event {
   id: string;
+  slug: string | null;
   title_bs: string | null;
   title_en: string | null;
   description_bs: string | null;

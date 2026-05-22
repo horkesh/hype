@@ -12,3 +12,15 @@ export {
   getVenueDescription,
   getVenueInsiderTip,
 } from './queries/venues';
+
+export {
+  getEventBySlug,
+  listUpcomingEvents,
+  getEventTitle,
+  getEventDescription,
+} from './queries/events';
+
+export {
+  listActiveVenueSlugs,
+  listUpcomingEventSlugs,
+} from './queries/sitemap';
