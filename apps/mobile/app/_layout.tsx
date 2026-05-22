@@ -24,6 +24,7 @@ import {
   useFonts as useDMSerif,
   DMSerifDisplay_400Regular,
 } from "@expo-google-fonts/dm-serif-display";
+import { TamaguiProvider, config as tamaguiConfig } from "@look/ui";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -67,29 +68,33 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style="light" animated />
-      <ThemeProvider value={LookDarkTheme}>
-        <ErrorBoundary>
-          <AppProvider>
-            <GestureHandlerRootView style={rootStyles.flex}>
-              <Stack
-                screenOptions={{
-                  animation: "slide_from_right",
-                  animationDuration: 300,
-                }}
-              >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="venue/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="wellness" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-              <SystemBars style="light" />
-            </GestureHandlerRootView>
-          </AppProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
+      <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
+        <ThemeProvider value={LookDarkTheme}>
+          <ErrorBoundary>
+            <AppProvider>
+              <GestureHandlerRootView style={rootStyles.flex}>
+                <Stack
+                  screenOptions={{
+                    animation: "slide_from_right",
+                    animationDuration: 300,
+                  }}
+                >
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="venue/[id]" options={{ headerShown: false }} />
+                  <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+                  <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
+                  <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
+                  <Stack.Screen name="wellness" options={{ headerShown: false }} />
+                  <Stack.Screen name="_phase1_demo" options={{ headerShown: true, title: "Phase 1 demo" }} />
+                  <Stack.Screen name="_phase2_demo" options={{ headerShown: true, title: "Phase 2 demo" }} />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+                <SystemBars style="light" />
+              </GestureHandlerRootView>
+            </AppProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </TamaguiProvider>
     </>
   );
 }

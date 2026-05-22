@@ -2,11 +2,15 @@
   "name": "@look/shared",
   "version": "0.0.0",
   "private": true,
-  "description": "Cross-platform business logic — Supabase client wiring, formatters, types, AI prompts, date helpers. Used by @look/web, @look/mobile, and @look/admin.",
+  "description": "Cross-platform business logic — Supabase client wiring (browser + server + RN), shared types, queries, formatters. Consumed by @look/web, @look/mobile, and @look/admin.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.98.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
