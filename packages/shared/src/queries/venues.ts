@@ -5,11 +5,16 @@
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { type Venue } from '../types';
 
+// price_level is aliased from google_price_level — the table column is
+// google_price_level (Places enrichment), but consumer code historically
+// reads venue.price_level. PostgREST `alias:column` keeps the consumer
+// shape stable.
 const VENUE_SELECT = `
   id, slug, name, category, neighborhood, address, cover_image_url,
   description_bs, description_en, insider_tip_bs, insider_tip_en, moods,
-  google_rating, google_ratings_count, price_level, phone, website,
-  instagram_handle, latitude, longitude, is_active, is_featured, is_hidden_gem
+  google_rating, google_ratings_count, price_level:google_price_level,
+  phone, website, instagram_handle, latitude, longitude,
+  is_active, is_featured, is_hidden_gem
 `;
 
 export async function getVenueBySlug(supabase: SupabaseClient, slug: string): Promise<Venue | null> {
