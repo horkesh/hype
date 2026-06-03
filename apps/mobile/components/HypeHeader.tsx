@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
+import { PoweredByTelemach } from '@/components/telemach/PoweredByTelemach';
 
 export function HypeHeader() {
   const { language, setLanguage } = useApp();
@@ -54,6 +55,7 @@ export function HypeHeader() {
       </View>
 
       <View style={styles.headerRight}>
+        <PoweredByTelemach variant="compact" tone="light" />
         <TouchableOpacity
           onPress={toggleLanguage}
           style={[styles.languageButton, { backgroundColor: colors.card, borderColor: colors.accent }]}

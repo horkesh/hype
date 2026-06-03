@@ -13,7 +13,7 @@ export function HomeHeroSection({ title, subtitle }: HomeHeroSectionProps) {
   return (
     <AnimatedCard style={styles.heroCard}>
       <LinearGradient
-        colors={['#D4A056', '#B8894A']}
+        colors={['#8E2DE2', '#5B16A8']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroGradient}

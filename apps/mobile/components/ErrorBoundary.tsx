@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
-    backgroundColor: "#121212",
+    backgroundColor: "#0F0A17",
   },
   title: {
     fontSize: 24,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     maxHeight: 200,
     width: "100%",
     padding: 16,
-    backgroundColor: "#1E1E1E",
+    backgroundColor: "#1B1426",
     borderRadius: 8,
     marginBottom: 24,
   },
@@ -160,13 +160,13 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
   },
   button: {
-    backgroundColor: "#D4A056",
+    backgroundColor: "#8E2DE2",
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 8,
   },
   buttonText: {
-    color: "#121212",
+    color: "#0F0A17",
     fontSize: 16,
     fontWeight: "600",
   },

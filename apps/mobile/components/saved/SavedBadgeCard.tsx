@@ -25,7 +25,7 @@ export const SavedBadgeCard = React.memo(function SavedBadgeCard({
       style={[
         styles.badgeCard,
         {
-          backgroundColor: badge.isEarned ? '#121212' : backgroundColor,
+          backgroundColor: badge.isEarned ? '#0F0A17' : backgroundColor,
           opacity: badge.isEarned ? 1 : 0.6,
         },
       ]}

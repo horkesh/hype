@@ -20,7 +20,7 @@ export default function TabLayout() {
           paddingBottom: 6,
           paddingTop: 6,
         },
-        tabBarActiveTintColor: '#D4A056',
+        tabBarActiveTintColor: '#8E2DE2',
         tabBarInactiveTintColor: '#98989D',
         tabBarLabelStyle: {
           fontSize: 10,

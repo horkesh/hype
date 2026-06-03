@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   image: { ...StyleSheet.absoluteFillObject, borderRadius: designTokens.radius.card },
   placeholder: { backgroundColor: '#2A2A3E' },
   gradient: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', padding: 16, borderRadius: designTokens.radius.card },
-  time: { fontSize: 12, color: '#D4A056', fontWeight: '700', fontFamily: 'DMSans_700Bold', marginBottom: 4 },
+  time: { fontSize: 12, color: '#8E2DE2', fontWeight: '700', fontFamily: 'DMSans_700Bold', marginBottom: 4 },
   title: { ...designTokens.typography.cardTitle, color: '#FFF' },
   urgencyBadge: { position: 'absolute', top: 12, right: 12 },
 });

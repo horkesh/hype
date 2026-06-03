@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 24,
     alignItems: 'center',
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
   },
   primaryButtonText: {
     color: '#FFFFFF',

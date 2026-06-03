@@ -21,6 +21,7 @@ import { VenueHoursSection } from '@/components/venue/VenueHoursSection';
 import { VenueInfoSection } from '@/components/venue/VenueInfoSection';
 import { VenueSpecialsSection } from '@/components/venue/VenueSpecialsSection';
 import { VenueTransportSection } from '@/components/venue/VenueTransportSection';
+import { TelemachContextBanner } from '@/components/telemach/TelemachContextBanner';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { isFavoritesAuthRequiredError } from '@/utils/favorites';
@@ -215,6 +216,8 @@ export default function VenueDetailScreen() {
 
       <ScrollView style={styles.scrollView}>
         <VenueDetailHeader venue={venue} colors={colors} t={t} />
+
+        <TelemachContextBanner context="venue" language={language as 'bs' | 'en'} />
 
         <VenueHoursSection
           colors={colors}

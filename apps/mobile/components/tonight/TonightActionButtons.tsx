@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 24,
     alignItems: 'center',
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
   },
   primaryActionText: {
     color: '#FFFFFF',
@@ -67,10 +67,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#D4A056',
+    borderColor: '#8E2DE2',
   },
   secondaryActionText: {
-    color: '#D4A056',
+    color: '#8E2DE2',
     fontSize: 15,
     fontWeight: '600',
     fontFamily: 'DMSans_500Medium',

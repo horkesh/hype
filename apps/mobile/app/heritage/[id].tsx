@@ -69,7 +69,7 @@ export default function HeritageWalkDetailScreen() {
                 <Text style={styles.dotText}>{index + 1}</Text>
               </View>
               {index < stops.length - 1 && (
-                <View style={[styles.line, { backgroundColor: 'rgba(212,160,86,0.3)' }]} />
+                <View style={[styles.line, { backgroundColor: 'rgba(142,45,226,0.3)' }]} />
               )}
             </View>
 
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 6,
-    backgroundColor: 'rgba(212,160,86,0.08)',
+    backgroundColor: 'rgba(142,45,226,0.08)',
     borderRadius: 8,
     padding: 8,
     marginBottom: 8,

@@ -43,7 +43,7 @@ export function VenueInfoSection({
             ios_icon_name="location.fill"
             android_material_icon_name="location-on"
             size={20}
-            color={'#D4A056'}
+            color={'#8E2DE2'}
           />
           <View style={styles.contactTextWrap}>
             <Text style={[styles.contactLabel, { color: colors.textSecondary }]}>
@@ -59,7 +59,7 @@ export function VenueInfoSection({
               ios_icon_name="phone.fill"
               android_material_icon_name="phone"
               size={20}
-              color={'#D4A056'}
+              color={'#8E2DE2'}
             />
             <Text style={[styles.contactText, { color: colors.text }]}>{venue.phone}</Text>
           </View>

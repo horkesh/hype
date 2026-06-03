@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     borderWidth: 3,
-    borderColor: '#D4A056',
+    borderColor: '#8E2DE2',
   },
   eventContent: {
     padding: 16,

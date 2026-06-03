@@ -51,7 +51,7 @@ export function EventPurchaseSection({
           onPress={onTicketPress}
           activeOpacity={0.8}
         >
-          <GlassContainer borderRadius={28} glowColor="#D4A056" style={styles.ticketButton}>
+          <GlassContainer borderRadius={28} glowColor="#8E2DE2" style={styles.ticketButton}>
             <Text style={styles.ticketButtonText}>
               {'\ud83c\udf9f\ufe0f'} {ticketButtonText}
             </Text>

@@ -31,7 +31,7 @@ export function ProfileSignOutModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: '#121212' }]}>
+        <View style={[styles.modalContent, { backgroundColor: '#0F0A17' }]}>
           <Text style={[styles.modalTitle, { color: textColor }]}>{title}</Text>
           <Text style={[styles.modalText, { color: textSecondaryColor }]}>{body}</Text>
           <View style={styles.modalButtons}>

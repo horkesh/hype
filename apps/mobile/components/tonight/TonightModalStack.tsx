@@ -168,7 +168,7 @@ export function TonightModalStack({
     <>
       <TonightPlannerModal
         activePlan={activePlan}
-        backgroundColor="#121212"
+        backgroundColor="#0F0A17"
         budget={budget}
         cardColor={cardColor}
         closeLabel={plannerLabels.close}

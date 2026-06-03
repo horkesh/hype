@@ -81,8 +81,8 @@ export function TonightEventCards({
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#D4A056"
-          colors={['#D4A056']}
+          tintColor="#8E2DE2"
+          colors={['#8E2DE2']}
         />
       }
     />

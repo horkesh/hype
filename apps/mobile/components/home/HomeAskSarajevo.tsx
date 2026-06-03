@@ -50,7 +50,7 @@ export function HomeAskSarajevo({ language, colors }: Props) {
 
         <View style={styles.inputRow}>
           <TextInput
-            style={[styles.input, { color: colors.text, borderColor: 'rgba(212,160,86,0.2)' }]}
+            style={[styles.input, { color: colors.text, borderColor: 'rgba(142,45,226,0.2)' }]}
             placeholder={language === 'bs' ? 'Pitaj bilo šta o Sarajevu...' : 'Ask anything about Sarajevo...'}
             placeholderTextColor="rgba(255,255,255,0.3)"
             value={query}

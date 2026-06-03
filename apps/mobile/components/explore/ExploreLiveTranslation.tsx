@@ -81,7 +81,7 @@ export function ExploreLiveTranslation({ visible, onClose }: ExploreLiveTranslat
             <Image source={{ uri: capturedImage }} style={styles.capturedImage} />
             {translating ? (
               <GlassContainer style={styles.resultCard}>
-                <ActivityIndicator size="small" color="#D4A056" />
+                <ActivityIndicator size="small" color="#8E2DE2" />
                 <Text style={styles.translatingText}>Translating...</Text>
               </GlassContainer>
             ) : result ? (
@@ -91,7 +91,7 @@ export function ExploreLiveTranslation({ visible, onClose }: ExploreLiveTranslat
                 <Text style={styles.translationLabel}>Translation:</Text>
                 <Text style={styles.translationText}>{result.translation}</Text>
                 {result.context ? (
-                  <GlassContainer style={styles.contextCard} glowColor="#D4A056">
+                  <GlassContainer style={styles.contextCard} glowColor="#8E2DE2">
                     <Text style={styles.contextText}>{result.context}</Text>
                   </GlassContainer>
                 ) : null}
@@ -117,7 +117,7 @@ export function ExploreLiveTranslation({ visible, onClose }: ExploreLiveTranslat
 const styles = StyleSheet.create({
   permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
   permissionText: { fontSize: 16, textAlign: 'center', marginBottom: 20, fontFamily: 'DMSans_400Regular' },
-  permissionButton: { backgroundColor: '#D4A056', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
+  permissionButton: { backgroundColor: '#8E2DE2', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
   permissionButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700', fontFamily: 'DMSans_700Bold' },
   closeButton: { marginTop: 16 },
   closeText: { fontSize: 14, fontFamily: 'DMSans_400Regular' },
@@ -131,14 +131,14 @@ const styles = StyleSheet.create({
   resultContainer: { flex: 1, justifyContent: 'center', padding: 20 },
   capturedImage: { width: '100%', height: 200, borderRadius: 16, marginBottom: 16 },
   resultCard: { padding: 16, marginBottom: 12 },
-  translatingText: { color: '#D4A056', marginTop: 8, textAlign: 'center', fontFamily: 'DMSans_500Medium' },
+  translatingText: { color: '#8E2DE2', marginTop: 8, textAlign: 'center', fontFamily: 'DMSans_500Medium' },
   originalLabel: { fontSize: 11, color: '#A0A0A0', textTransform: 'uppercase', letterSpacing: 1, fontFamily: 'DMSans_700Bold' },
   originalText: { fontSize: 16, color: '#FAFAF8', marginBottom: 12, fontFamily: 'DMSans_500Medium' },
-  translationLabel: { fontSize: 11, color: '#D4A056', textTransform: 'uppercase', letterSpacing: 1, fontFamily: 'DMSans_700Bold' },
+  translationLabel: { fontSize: 11, color: '#8E2DE2', textTransform: 'uppercase', letterSpacing: 1, fontFamily: 'DMSans_700Bold' },
   translationText: { fontSize: 16, color: '#FAFAF8', fontFamily: 'DMSans_500Medium' },
   contextCard: { marginTop: 12, padding: 10 },
   contextText: { fontSize: 13, color: '#A0A0A0', lineHeight: 18, fontFamily: 'DMSans_400Regular', fontStyle: 'italic' },
   errorText: { color: '#EF4444', textAlign: 'center', fontFamily: 'DMSans_400Regular' },
   retryButton: { alignSelf: 'center', marginTop: 12 },
-  retryText: { color: '#D4A056', fontSize: 14, fontWeight: '600', fontFamily: 'DMSans_700Bold' },
+  retryText: { color: '#8E2DE2', fontSize: 14, fontWeight: '600', fontFamily: 'DMSans_700Bold' },
 });

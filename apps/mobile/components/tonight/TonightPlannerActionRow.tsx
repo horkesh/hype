@@ -57,16 +57,16 @@ const styles = StyleSheet.create({
   },
   secondary: {
     borderWidth: 1,
-    borderColor: '#D4A056',
+    borderColor: '#8E2DE2',
   },
   primary: {
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
   },
   secondaryText: {
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'DMSans_500Medium',
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   primaryText: {
     fontSize: 14,

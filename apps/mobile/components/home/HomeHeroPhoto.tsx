@@ -39,7 +39,7 @@ export function HomeHeroPhoto({ language, heroImageUrl, children }: HomeHeroPhot
         <Image source={{ uri: heroImageUrl }} style={styles.backgroundImage} resizeMode="cover" />
       ) : (
         <LinearGradient
-          colors={['#D4A056', '#121212']}
+          colors={['#8E2DE2', '#0F0A17']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.backgroundImage}

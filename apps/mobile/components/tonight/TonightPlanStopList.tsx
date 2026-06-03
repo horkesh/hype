@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   stopVenue: {
     fontSize: 16,

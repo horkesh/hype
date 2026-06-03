@@ -21,8 +21,8 @@ export const borderColor = "#A1A1AA80";
 export const appleGreen = "#34C759";
 
 // Look brand colors
-export const HYPE_AMBER = "#D4A056";
-export const HYPE_DARK_BG = "#121212";
+export const HYPE_AMBER = "#8E2DE2";
+export const HYPE_DARK_BG = "#0F0A17";
 
 export const Colors = {
   text: "#F5F5F5",
@@ -32,9 +32,9 @@ export const Colors = {
   tabIconDefault: "#9BA1A6",
   tabIconSelected: tintColorDark,
   accent: HYPE_AMBER,
-  card: "#1E1E1E",
+  card: "#1B1426",
   textSecondary: "#a1a1aa",
-  border: "#2A2A2A",
+  border: "#2E2440",
 };
 
 export const backgroundColors = [

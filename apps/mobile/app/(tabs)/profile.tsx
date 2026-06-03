@@ -8,6 +8,7 @@ import { ProfileAuthCard } from '@/components/profile/ProfileAuthCard';
 import { ProfileMoodSection } from '@/components/profile/ProfileMoodSection';
 import { ProfileSettingsSection } from '@/components/profile/ProfileSettingsSection';
 import { ProfileSignOutModal } from '@/components/profile/ProfileSignOutModal';
+import { TelemachPartnerCard } from '@/components/telemach/TelemachPartnerCard';
 import { useApp } from '@/contexts/AppContext';
 import { useProfileController } from '@/hooks/useProfileController';
 import { useTheme } from '@/hooks/useTheme';
@@ -37,6 +38,10 @@ export default function ProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <HypeHeader />
       <ScrollView style={styles.content}>
+        <View style={styles.partnerSection}>
+          <TelemachPartnerCard language={language} />
+        </View>
+
         <View style={styles.section}>
           {!controller.user ? (
             <ProfileAuthCard
@@ -125,5 +130,8 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 20,
+  },
+  partnerSection: {
+    paddingTop: 20,
   },
 });

@@ -31,7 +31,7 @@ export function TonightPlannerMoodGrid({
           return (
             <TouchableOpacity
               key={option.id}
-              style={[styles.chip, { backgroundColor: isSelected ? '#D4A056' : cardColor }]}
+              style={[styles.chip, { backgroundColor: isSelected ? '#8E2DE2' : cardColor }]}
               onPress={() => onSelectMood(option.id)}
               accessibilityRole="button"
               accessibilityLabel={option.label}

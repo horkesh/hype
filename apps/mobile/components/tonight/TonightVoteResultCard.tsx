@@ -60,13 +60,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     fontFamily: 'DMSans_500Medium',
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   button: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
   },
   buttonText: {
     color: '#FFFFFF',

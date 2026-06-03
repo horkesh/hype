@@ -122,7 +122,7 @@ export function TonightPlanStream({
         />
       ))}
 
-      <GlassContainer style={styles.totalCard} glowColor="#D4A056">
+      <GlassContainer style={styles.totalCard} glowColor="#8E2DE2">
         <View style={styles.totalRow}>
           <Text style={[styles.totalLabel, { color: colors.text }]}>
             {language === 'bs' ? 'Ukupno' : 'Total'}
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
     zIndex: 1,
   },
   timeLine: {
@@ -313,13 +313,13 @@ const styles = StyleSheet.create({
   stopTime: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#D4A056',
+    color: '#8E2DE2',
     fontFamily: 'DMSans_700Bold',
   },
   stopCost: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#D4A056',
+    color: '#8E2DE2',
     fontFamily: 'DMSans_500Medium',
   },
   stopVenue: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#D4A056',
+    color: '#8E2DE2',
     fontFamily: 'DMSans_700Bold',
   },
 });

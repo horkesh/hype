@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 24,
     alignItems: 'center',
-    backgroundColor: '#D4A056',
+    backgroundColor: '#8E2DE2',
   },
   primaryButtonText: {
     color: '#FFFFFF',
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'DMSans_500Medium',
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   voteResultsTitle: {
     fontSize: 18,

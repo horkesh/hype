@@ -57,7 +57,7 @@ export function HomeCategoryGrid({
                 styles.cell,
                 {
                   backgroundColor: isSelected
-                    ? 'rgba(212, 160, 86, 0.15)'
+                    ? 'rgba(142, 45, 226, 0.15)'
                     : 'rgba(255, 255, 255, 0.06)',
                   borderColor: isSelected
                     ? colors.accent

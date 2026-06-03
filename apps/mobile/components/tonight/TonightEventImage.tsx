@@ -21,7 +21,7 @@ export function TonightEventImage({ coverImageUrl }: TonightEventImageProps) {
 
   return (
     <LinearGradient
-      colors={['#D4A056', '#B8894A']}
+      colors={['#8E2DE2', '#5B16A8']}
       style={styles.image}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}

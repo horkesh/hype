@@ -15,7 +15,7 @@ export function TonightEventListState({
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#D4A056" />
+        <ActivityIndicator size="large" color="#8E2DE2" />
       </View>
     );
   }

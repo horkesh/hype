@@ -27,8 +27,8 @@ export function FloatingTabButtons({
           key={typeof tab.route === 'string' ? tab.route : `${tab.name}-${index}`}
           tab={tab}
           isActive={activeTabIndex === index}
-          iconColor={activeTabIndex === index ? '#D4A056' : iconColor}
-          labelColor={activeTabIndex === index ? '#D4A056' : labelColor}
+          iconColor={activeTabIndex === index ? '#8E2DE2' : iconColor}
+          labelColor={activeTabIndex === index ? '#8E2DE2' : labelColor}
           onPress={() => onPressTab(tab.route)}
         />
       ))}

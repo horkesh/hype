@@ -3,16 +3,16 @@ import { StyleSheet } from 'react-native';
 
 // Look dark color scheme (Spotify-inspired charcoal)
 export const colors = {
-  background: '#121212',
-  card: '#1E1E1E',
+  background: '#0F0A17',
+  card: '#1B1426',
   text: '#F5F5F5',
   textSecondary: '#A0A0A0',
   textTertiary: '#6B6B6B',
-  accent: '#D4A056',
-  border: '#2A2A2A',
+  accent: '#8E2DE2',
+  border: '#2E2440',
   shadow: 'rgba(0, 0, 0, 0.4)',
-  surface: '#181818',
-  surfaceHover: '#282828',
+  surface: '#150F1F',
+  surfaceHover: '#2A1F3A',
 };
 
 export type ThemeColors = typeof colors;

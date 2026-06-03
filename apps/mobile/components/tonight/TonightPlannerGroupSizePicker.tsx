@@ -28,7 +28,7 @@ export function TonightPlannerGroupSizePicker({
           return (
             <TouchableOpacity
               key={size}
-              style={[styles.button, { backgroundColor: isSelected ? '#D4A056' : cardColor }]}
+              style={[styles.button, { backgroundColor: isSelected ? '#8E2DE2' : cardColor }]}
               onPress={() => onSelectGroupSize(size)}
             >
               <Text style={[styles.text, { color: isSelected ? '#FFFFFF' : colorsText }]}>

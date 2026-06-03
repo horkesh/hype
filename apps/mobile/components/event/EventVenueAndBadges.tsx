@@ -43,7 +43,7 @@ function InfoRow({
 }) {
   const content = (
     <View style={[styles.infoRow, !isLast && styles.infoRowBorder]}>
-      <MaterialIcons name={icon} size={20} color="#D4A056" style={styles.infoIcon} />
+      <MaterialIcons name={icon} size={20} color="#8E2DE2" style={styles.infoIcon} />
       <View style={styles.infoContent}>
         <Text style={styles.infoLabel}>{label}</Text>
         <Text style={[styles.infoValue, valueColor ? { color: valueColor } : null]}>{value}</Text>
@@ -91,7 +91,7 @@ export function EventVenueAndBadges({
             icon="place"
             label={venueLabel.toUpperCase()}
             value={venueName}
-            valueColor={venueEnabled ? '#D4A056' : colors.text}
+            valueColor={venueEnabled ? '#8E2DE2' : colors.text}
             onPress={venueEnabled ? onVenuePress : undefined}
           />
         ) : null}

@@ -14,13 +14,13 @@ export function ExploreSmartSearch({ response, isLoading, venueCount }: ExploreS
   const { colors } = useTheme();
   if (!isLoading && !response) return null;
   return (
-    <GlassContainer style={styles.container} glowColor="#D4A056">
+    <GlassContainer style={styles.container} glowColor="#8E2DE2">
       <View style={styles.header}>
         <GlassBadge label="AI Concierge" variant="accent" size="sm" />
       </View>
       {isLoading ? (
         <View style={styles.loadingRow}>
-          <ActivityIndicator size="small" color="#D4A056" />
+          <ActivityIndicator size="small" color="#8E2DE2" />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Thinking...</Text>
         </View>
       ) : (

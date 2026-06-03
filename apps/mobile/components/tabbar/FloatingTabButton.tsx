@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_500Medium',
   },
   activeLabel: {
-    color: '#D4A056',
+    color: '#8E2DE2',
     fontWeight: '600',
   },
 });

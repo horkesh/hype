@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: '100%',
     minHeight: 200,
-    backgroundColor: '#121212',
+    backgroundColor: '#0F0A17',
     position: 'relative',
   },
   iframe: {

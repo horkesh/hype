@@ -146,7 +146,7 @@ export function HomeSurpriseMe({ language, tasteMoods = [] }: HomeSurpriseMeProp
 const styles = StyleSheet.create({
   container: { padding: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sparkle: { fontSize: 16, color: '#D4A056' },
+  sparkle: { fontSize: 16, color: '#8E2DE2' },
   title: { fontSize: 15, fontWeight: '700', fontFamily: 'DMSans_700Bold', flex: 1 },
   collapseHint: { fontSize: 12, fontFamily: 'DMSans_400Regular' },
   loadingText: { fontSize: 12, fontFamily: 'DMSans_400Regular' },

@@ -1,8 +1,9 @@
 
 import "react-native-reanimated";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Stack } from "expo-router";
+import { TelemachLaunchOverlay } from "@/components/telemach/TelemachLaunchOverlay";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -34,12 +35,12 @@ export const unstable_settings = {
 const LookDarkTheme: Theme = {
   ...DarkTheme,
   colors: {
-    primary: "#D4A056",
-    background: "#121212",
-    card: "#1E1E1E",
+    primary: "#8E2DE2",
+    background: "#0F0A17",
+    card: "#1B1426",
     text: "#F5F5F5",
-    border: "#2A2A2A",
-    notification: "#D4A056",
+    border: "#2E2440",
+    notification: "#8E2DE2",
   },
 };
 
@@ -53,6 +54,8 @@ export default function RootLayout() {
   const [dmSerifLoaded] = useDMSerif({
     DMSerifDisplay_400Regular,
   });
+
+  const [showLaunchOverlay, setShowLaunchOverlay] = useState(true);
 
   useEffect(() => {
     if (dmSansLoaded && dmSerifLoaded) {
@@ -86,6 +89,9 @@ export default function RootLayout() {
                 <Stack.Screen name="+not-found" />
               </Stack>
               <SystemBars style="light" />
+              {showLaunchOverlay && (
+                <TelemachLaunchOverlay onFinish={() => setShowLaunchOverlay(false)} />
+              )}
             </GestureHandlerRootView>
           </AppProvider>
         </ErrorBoundary>

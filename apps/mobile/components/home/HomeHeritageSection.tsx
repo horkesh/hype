@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(212,160,86,0.15)',
+    backgroundColor: 'rgba(142,45,226,0.15)',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -110,6 +110,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     fontFamily: 'DMSans_500Medium',
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
 });

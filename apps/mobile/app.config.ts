@@ -12,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/images/app-icon-kdx.png',
     resizeMode: 'contain',
-    backgroundColor: '#000000',
+    backgroundColor: '#5B16A8',
   },
   ios: {
     supportsTablet: true,
@@ -25,7 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/app-icon-kdx.png',
-      backgroundColor: '#000000',
+      backgroundColor: '#5B16A8',
     },
     edgeToEdgeEnabled: true,
     package: 'com.placeholder.app',

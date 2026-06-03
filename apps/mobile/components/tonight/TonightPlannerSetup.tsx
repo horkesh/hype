@@ -65,9 +65,9 @@ export function TonightPlannerSetup({
         step={10}
         value={budget}
         onValueChange={onSetBudget}
-        minimumTrackTintColor="#D4A056"
+        minimumTrackTintColor="#8E2DE2"
         maximumTrackTintColor={cardColor}
-        thumbTintColor="#D4A056"
+        thumbTintColor="#8E2DE2"
       />
 
       <TonightPlannerGroupSizePicker
@@ -82,7 +82,7 @@ export function TonightPlannerSetup({
       <TouchableOpacity
         style={[
           styles.generateButton,
-          { backgroundColor: selectedMood ? '#D4A056' : cardColor },
+          { backgroundColor: selectedMood ? '#8E2DE2' : cardColor },
         ]}
         onPress={onGeneratePlan}
         disabled={!selectedMood || generatingPlan}

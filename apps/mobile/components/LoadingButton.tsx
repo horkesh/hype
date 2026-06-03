@@ -67,7 +67,7 @@ export function LoadingButton({
     >
       {loading ? (
         <ActivityIndicator
-          color={loadingColor || (variant === "outline" ? "#D4A056" : "#fff")}
+          color={loadingColor || (variant === "outline" ? "#8E2DE2" : "#fff")}
         />
       ) : (
         <Text
@@ -93,15 +93,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   primary: {
-    backgroundColor: "#D4A056",
+    backgroundColor: "#8E2DE2",
   },
   secondary: {
-    backgroundColor: "#282828",
+    backgroundColor: "#2A1F3A",
   },
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#D4A056",
+    borderColor: "#8E2DE2",
   },
   pressed: {
     opacity: 0.8,
@@ -120,6 +120,6 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   outlineText: {
-    color: "#D4A056",
+    color: "#8E2DE2",
   },
 });

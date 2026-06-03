@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   imageRadius: { borderRadius: 16 },
   placeholder: {
-    backgroundColor: 'rgba(212,160,86,0.15)',
+    backgroundColor: 'rgba(142,45,226,0.15)',
     borderRadius: 16,
   },
   overlay: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   count: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 18,
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   cta: {
     fontFamily: 'DMSans_500Medium',

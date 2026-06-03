@@ -261,7 +261,7 @@ const WellnessCard = React.memo(function WellnessCard({
       {venue.cover_image_url ? (
         <Image source={{ uri: venue.cover_image_url }} style={styles.cardImage} />
       ) : (
-        <View style={[styles.cardImage, { backgroundColor: '#2A2A2A' }]} />
+        <View style={[styles.cardImage, { backgroundColor: '#2E2440' }]} />
       )}
       <View style={styles.cardBody}>
         <Text style={[styles.cardTitle, { color: textColor }]} numberOfLines={2}>
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(212,160,86,0.12)',
+    borderColor: 'rgba(142,45,226,0.12)',
   },
   cardImage: {
     width: 110,
@@ -388,8 +388,8 @@ const styles = StyleSheet.create({
   tagPill: {
     fontFamily: 'DMSans_500Medium',
     fontSize: 10,
-    color: '#D4A056',
-    backgroundColor: 'rgba(212,160,86,0.12)',
+    color: '#8E2DE2',
+    backgroundColor: 'rgba(142,45,226,0.12)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,

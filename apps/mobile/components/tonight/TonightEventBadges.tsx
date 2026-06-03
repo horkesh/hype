@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   priceBadge: {
-    backgroundColor: '#121212',
+    backgroundColor: '#0F0A17',
   },
   badgeText: {
     color: '#FFFFFF',

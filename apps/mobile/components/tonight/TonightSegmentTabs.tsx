@@ -35,7 +35,7 @@ export function TonightSegmentTabs({
             >
               <GlassContainer
                 borderRadius={24}
-                glowColor={isActive ? '#D4A056' : undefined}
+                glowColor={isActive ? '#8E2DE2' : undefined}
                 style={[
                   styles.segmentTab,
                   isActive && styles.segmentTabActive,
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   segmentTabActive: {
-    backgroundColor: 'rgba(212,160,86,0.85)',
+    backgroundColor: 'rgba(142,45,226,0.85)',
   },
   segmentEmoji: {
     fontSize: 18,

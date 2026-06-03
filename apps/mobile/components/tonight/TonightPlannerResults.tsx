@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
-    color: '#D4A056',
+    color: '#8E2DE2',
   },
   planMap: {
     height: 200,

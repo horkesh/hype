@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
   venue: { fontSize: 13, marginBottom: 4, fontFamily: 'DMSans_400Regular' },
   price: { fontSize: 15, fontWeight: '700', marginBottom: 6, fontFamily: 'DMSans_700Bold' },
   desc: { fontSize: 13, lineHeight: 18, fontFamily: 'DMSans_400Regular' },
-  ticketBtn: { backgroundColor: '#D4A056', paddingVertical: 10, borderRadius: 16, alignItems: 'center', marginTop: 10 },
+  ticketBtn: { backgroundColor: '#8E2DE2', paddingVertical: 10, borderRadius: 16, alignItems: 'center', marginTop: 10 },
   ticketText: { color: '#FFF', fontSize: 14, fontWeight: '700', fontFamily: 'DMSans_700Bold' },
 });

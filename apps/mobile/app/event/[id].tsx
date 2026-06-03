@@ -15,6 +15,7 @@ import { HypeHeader } from '@/components/HypeHeader';
 import { EventDetailHero } from '@/components/event/EventDetailHero';
 import { EventPurchaseSection } from '@/components/event/EventPurchaseSection';
 import { EventVenueAndBadges } from '@/components/event/EventVenueAndBadges';
+import { TelemachContextBanner } from '@/components/telemach/TelemachContextBanner';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import {
@@ -175,6 +176,8 @@ export default function EventDetailScreen() {
           formattedDateTime={formattedDateTime}
           colors={colors}
         />
+
+        <TelemachContextBanner context="event" language={language as 'bs' | 'en'} />
 
         <View style={styles.content}>
           <EventVenueAndBadges

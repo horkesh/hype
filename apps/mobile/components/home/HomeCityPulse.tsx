@@ -52,6 +52,6 @@ export function HomeCityPulse({ language, weather }: HomeCityPulseProps) {
 const styles = StyleSheet.create({
   container: { padding: 12, marginBottom: 8 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 6 },
-  aiLabel: { fontSize: 10, fontWeight: '700', color: '#D4A056', fontFamily: 'DMSans_700Bold' },
+  aiLabel: { fontSize: 10, fontWeight: '700', color: '#8E2DE2', fontFamily: 'DMSans_700Bold' },
   pulseText: { fontSize: 14, color: '#F5F5F5', lineHeight: 20, fontFamily: 'DMSans_400Regular' },
 });

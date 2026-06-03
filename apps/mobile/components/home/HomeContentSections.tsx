@@ -14,6 +14,7 @@ import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
 import { HomeFeaturedSection } from '@/components/home/HomeFeaturedSection';
 import { HomeHeritageSection } from '@/components/home/HomeHeritageSection';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
+import { TelemachPackagesSection } from '@/components/telemach/TelemachPackagesSection';
 import { HomeEventItem, HomeEventSeries, loadHomeWeather } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeHeroState';
 import { fetchHeroImage } from '@/utils/ai/heroImage';
@@ -129,6 +130,10 @@ export function HomeContentSections({
         <>
           <View style={styles.section}>
             <HomeFeaturedVenues language={language} selectedMood={selectedMood} />
+          </View>
+
+          <View style={styles.section}>
+            <TelemachPackagesSection language={language} />
           </View>
 
           <View style={styles.section}>
