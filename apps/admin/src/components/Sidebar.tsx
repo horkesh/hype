@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 import { canAdmin, hasAccess, isSuperAdmin, ROLE_LABELS } from '../hooks/useAuth';
 import type { UserRole } from '../hooks/useAuth';
 
-export type Page = 'dashboard' | 'venues' | 'events' | 'series' | 'notes' | 'review' | 'audit' | 'stats' | 'users';
+export type Page = 'dashboard' | 'venues' | 'events' | 'series' | 'watchparty' | 'sources' | 'notes' | 'review' | 'audit' | 'stats' | 'users';
 
 interface NavItem {
   id: Page;
@@ -64,7 +64,9 @@ export function Sidebar({ activePage, onNavigate, role, email, currentUserId, on
     { id: 'dashboard', label: 'Pregled', icon: '▦' },
     { id: 'venues', label: 'Lokacije', icon: '⊙' },
     ...(hasAccess(role) ? [{ id: 'events' as Page, label: 'Događaji', icon: '◈' }] : []),
-    ...(hasAccess(role) ? [{ id: 'series' as Page, label: 'Serije', icon: '◇' }] : []),
+    ...(hasAccess(role) ? [{ id: 'series' as Page, label: 'Festivali', icon: '◇' }] : []),
+    ...(hasAccess(role) ? [{ id: 'watchparty' as Page, label: 'Gdje gledati', icon: '⚽' }] : []),
+    ...(canAdmin(role) ? [{ id: 'sources' as Page, label: 'Izvori', icon: '⟲' }] : []),
     ...(hasAccess(role) ? [{ id: 'notes' as Page, label: 'Bilješke', icon: '✎' }] : []),
     ...(canAdmin(role) ? [{ id: 'review' as Page, label: 'Za reviziju', icon: '⚠', badge: reviewCount }] : []),
     ...(canAdmin(role) ? [{ id: 'audit' as Page, label: 'Promjene', icon: '⌖', badge: revertedCount }] : []),

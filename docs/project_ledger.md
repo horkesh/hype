@@ -2401,3 +2401,19 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 - main: real Look + the two real fixes. Edge-function fixes are LIVE on prod Supabase. The responsive grid ships to web on the next `main` push (which needs the corepack env, now set). Not yet pushed.
 - telemach-demo branch: throwaway pitch reskin, live at look-telemach-demo.vercel.app (own Vercel project).
 - Open: weather key / Open-Meteo switch; push `main` to ship the grid; (older) Supabase→Vercel deploy-hook idea still pending.
+
+---
+
+### 2026-06-04 — Polish pass: festival cover photos + demo re-promote
+
+#### Cover images on Home "Major events" (on `main`, pushed → prod)
+- `HomeMajorEvents.tsx` spotlight + rail cards rendered flat brand gradients. Added a `CardBackground` helper: when a series has `cover_image_url` it renders the photo (expo-image, `contentFit:cover`, disk cache) behind a top→bottom dark scrim (`rgba(0,0,0,0.15)`→`0.65`); falls back to the `[accent, background]` gradient when null. White labels got a soft `textShadow` so they stay legible over bright photos.
+- Data already in place from the festival session: Street Food Market series + venue `cover_image_url` point to the ilijas.net artwork mirrored into the `hero-images` bucket (`festival/street-food-market-2026.webp`). Series-detail + venue-detail pages already render covers, so only Home needed the change.
+- Verified `expo export -p web` succeeds (incl. /series pages). Committed `64d0b9f`, pushed `main` → `hype-alpha.vercel.app` auto-deployed (READY).
+
+#### Jun 12 timing check (no fix needed)
+- "SP: Kanada–BiH" 19:00 UTC = **21:00** Sarajevo; "Čola Night" 21:00 UTC = **23:00** Sarajevo. Match runs first, the Čola tribute lands as an after-party. Coherent — left as-is.
+
+#### Demo re-promote + GOTCHA discovered
+- `look-telemach-demo`'s Vercel **Production Branch is `main`** (git-connected, GitHub auto-deploy). My `main` push therefore auto-published the **non-reskinned** app to the demo URL. Pushing `telemach-demo` only makes a preview.
+- Re-promoted the reskin via prebuilt Build Output API: `expo export` + inject-seo on `telemach-demo`, assembled `.vercel/output/{config.json,static/}` linked to the demo project, `vercel deploy --prebuilt --prod` → `dpl_6x5Bg3…` READY (current prod). `--prebuilt` skips Vercel's build (no corepack/root-dir failure). Details + the durable fix (set Production Branch = `telemach-demo` in the dashboard) captured in the `project_telemach_pitch_followups` memory.

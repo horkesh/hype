@@ -9,6 +9,8 @@ import { AuditLog } from './pages/AuditLog';
 import { ReviewQueue } from './pages/ReviewQueue';
 import { NotesPage } from './pages/NotesPage';
 import { SeriesManagement } from './pages/SeriesManagement';
+import { WatchPartyVenues } from './pages/WatchPartyVenues';
+import { ScrapeSources } from './pages/ScrapeSources';
 import { UserStatistics } from './pages/UserStatistics';
 import { CommandPalette } from './components/CommandPalette';
 import { Login } from './Login';
@@ -115,6 +117,8 @@ export function App() {
           />
         )}
         {activePage === 'series' && <SeriesManagement />}
+        {activePage === 'watchparty' && <WatchPartyVenues />}
+        {activePage === 'sources' && <ScrapeSources />}
         {activePage === 'review' && <ReviewQueue onNavigate={setActivePage} />}
         {activePage === 'audit' && <AuditLog />}
         {activePage === 'notes' && <NotesPage role={role!} currentUserId={currentUserId} />}
