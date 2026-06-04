@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import { ActivityIndicator, FlatList, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 
 import { ExploreVenueCard } from '@/components/explore/ExploreVenueCard';
+import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { ExploreLookupItem, Venue } from '@/utils/exploreScreen';
+
+const MAX_CONTENT_WIDTH = 1680;
 
 interface ExploreVenueListProps {
   accentColor: string;
@@ -37,21 +40,33 @@ export function ExploreVenueList({
   textSecondaryColor,
   venues,
 }: ExploreVenueListProps) {
+  const { columns, gap, contentWidth } = useResponsiveColumns({
+    minCardWidth: 300,
+    maxColumns: 5,
+    maxContentWidth: MAX_CONTENT_WIDTH,
+    gap: 16,
+    horizontalPadding: 32,
+  });
+  const isGrid = columns > 1;
+  const cardWidth = (contentWidth - gap * (columns - 1)) / columns;
+
   const renderItem = useCallback(
     ({ item: venue }: ListRenderItemInfo<Venue>) => (
-      <ExploreVenueCard
-        accentColor={accentColor}
-        backgroundColor={backgroundColor}
-        cardColor={cardColor}
-        getPriceLevelDisplay={getPriceLevelDisplay}
-        isVenueOpenNow={isVenueOpenNow}
-        moods={moods}
-        onPress={onVenuePress}
-        openNowLabel={openNowLabel}
-        textColor={textColor}
-        textSecondaryColor={textSecondaryColor}
-        venue={venue}
-      />
+      <View style={isGrid ? { width: cardWidth } : styles.fullWidth}>
+        <ExploreVenueCard
+          accentColor={accentColor}
+          backgroundColor={backgroundColor}
+          cardColor={cardColor}
+          getPriceLevelDisplay={getPriceLevelDisplay}
+          isVenueOpenNow={isVenueOpenNow}
+          moods={moods}
+          onPress={onVenuePress}
+          openNowLabel={openNowLabel}
+          textColor={textColor}
+          textSecondaryColor={textSecondaryColor}
+          venue={venue}
+        />
+      </View>
     ),
     [
       accentColor,
@@ -64,6 +79,8 @@ export function ExploreVenueList({
       openNowLabel,
       textColor,
       textSecondaryColor,
+      isGrid,
+      cardWidth,
     ],
   );
 
@@ -77,11 +94,14 @@ export function ExploreVenueList({
 
   return (
     <FlatList
+      key={`venues-${columns}`}
       data={venues}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
+      numColumns={columns}
       scrollEnabled={false}
       style={styles.section}
+      columnWrapperStyle={isGrid ? { gap } : undefined}
       ListEmptyComponent={
         <Text style={[styles.noResults, { color: textSecondaryColor }]}>{noResultsLabel}</Text>
       }
@@ -92,6 +112,12 @@ export function ExploreVenueList({
 const styles = StyleSheet.create({
   section: {
     padding: 16,
+    width: '100%',
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: 'center',
+  },
+  fullWidth: {
+    width: '100%',
   },
   loader: {
     marginTop: 40,
