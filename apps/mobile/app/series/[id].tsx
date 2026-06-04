@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { createClient } from '@supabase/supabase-js';
 
 import { HypeHeader } from '@/components/HypeHeader';
 import { SeriesDetailActions } from '@/components/series/SeriesDetailActions';
@@ -32,6 +33,19 @@ import {
   SeriesDetailEvent,
   SeriesDetailSeries,
 } from '@/utils/seriesDetailScreen';
+
+// Emit one HTML file per active series so /series/<id> works on direct load,
+// is shareable, and gets SEO (mirrors venue/[id] + event/[id]). Without this,
+// the static export produces no series pages and Vercel returns 404.
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  const supabase = createClient(url, key, { auth: { persistSession: false } });
+  const { data, error } = await supabase.from('event_series').select('id').eq('is_active', true);
+  if (error) return [];
+  return (data ?? []).map((s) => ({ id: s.id as string }));
+}
 
 export default function SeriesDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
