@@ -203,6 +203,8 @@
    Do instead: when changing what venues/events expose to crawlers (title, description, OG image, JSON-LD), edit `apps/mobile/scripts/inject-seo.mjs`. Expo's static export renders the `[id]` template *once* and copies the same HTML bytes to every URL produced by `generateStaticParams` — so any `<Head>` inside a screen component lands in the template only and disappears into N identical files. The injector reads from Supabase post-build and personalizes each emitted HTML. New dynamic route needing SEO → add a sibling `inject<Thing>s()` function + per-id rewrite loop in the script, mirroring the venue/event ones.
 21. **[2026-05-22] Expo Router 6 + SDK 54: `web.output: 'server'` is misleading**
    Do instead: in SDK 54, `output: 'server'` only produces a runtime server bundle when there are `+api.ts` routes. Without them, it degrades to static prerender with empty React-root bodies — same outcome as `output: 'static'`. Real on-demand SSR with data loaders (`unstable_useServerDataLoaders`, `useLoaderData`) is SDK 55 alpha. Don't promise on-demand SSR on SDK 54; use the static-export + post-build injector pattern instead.
+22. **[2026-06-04] Desktop web: vertical card lists need a responsive column grid, not full-width rows**
+   Do instead: the app is mobile-first, so vertical card `FlatList`s render one full-width card per row — which stretches edge-to-edge on desktop web. Use `apps/mobile/hooks/useResponsiveColumns.ts` (column count scales with `useWindowDimensions().width`, capped + centered at a max content width) and feed it to `numColumns` + a fixed-width item wrapper + `columnWrapperStyle`. Already applied to Explore venues, Tonight events, Saved events. Horizontal carousels (HomeCardRail etc.) and horizontal-row cards are already fine — leave them.
 
 ## Backend Conventions
 1. **[2026-03-09] Backend startup is registration-driven**
@@ -211,6 +213,8 @@
    Do instead: keep database changes aligned across `backend/src/db/schema/schema.ts` and the Drizzle migration workflow instead of making schema-only edits.
 3. **[2026-03-09] Treat the backend as a separate package**
    Do instead: run backend scripts from `backend/` and keep its dependencies, build flow, and docs distinct from the Expo app.
+4. **[2026-06-04] Home AI edge functions are PUBLIC by design — never add a user-login gate to them**
+   Do instead: `generate-pulse`, `generate-hero-image`, `weather-proxy`, `surprise-me` are marked `verify_jwt = false` in `supabase/config.toml` because the home is browsable anonymously. Do NOT call `verifyUserAuth(req)` / return 401 in these — that's what broke them on 2026-04-10 (anonymous visitors got "Authentication required", hero/pulse/weather/surprise silently fell back). They're protected from cost abuse by server-side caching (city_pulse 2h, hero-images 3h), not by a login wall. `verifyUserAuth` is only for genuinely user-scoped functions.
 
 ## Integrations & Data
 1. **[2026-03-10] Expo Router must not contain helper-only files under `app/`**
@@ -251,6 +255,8 @@
    Do instead: once mojibake is gone, continue the consistency sweep by correcting helper-owned Bosnian strings like `sacuvaj`, `dogadaji`, or `otkazi` to their proper diacritic forms in the source tables and update the adjacent Node-side tests in the same slice.
 17. **[2026-05-22] Vercel `framework: "nextjs"` set at the project level fails any non-Next build**
    Do instead: if a Vercel project's dashboard has Framework = Next.js but the build produces a non-Next output (e.g. an Expo `dist/`), the deploy fails at packaging because Vercel looks for `.next/`. Either set `framework: null` in the project dashboard's Build & Output settings, or delete the project if it's redundant. Root `vercel.json` framework field doesn't override the dashboard setting consistently. This is why `look-web` had to be deleted on 2026-05-22 after the build target switched from Next.js to Expo.
+18. **[2026-06-04] OpenWeather: the app uses Current Weather (`/data/2.5/weather`), which is still free**
+   Do instead: don't assume "OpenWeather went paid" — only One Call API 2.5 was closed (3.0 needs a credit card). The `weather-proxy` function uses Current Weather by lat/lon, still on the free tier (60/min, 1M/mo). Weather is currently dark because `OPENWEATHER_API_KEY` was never set as a Supabase secret (the 2026-04-10 refactor moved it client→server and didn't plant it). Fix = set that secret, OR switch `weather-proxy` to Open-Meteo (open-meteo.com — free, no key, no signup).
 
 ## Shell & Environment
 1. **[2026-03-09] This Windows environment may not have working `git`, `rg`, or real `python` on PATH**
@@ -263,6 +269,10 @@
    Do instead: ignore Expo log files and `test-results/` as soon as they appear so sync noise does not turn into fake repo work.
 5. **[2026-03-12] Metro cache deserialization errors are not necessarily a build blocker**
    Do instead: if Expo web logs `Unable to deserialize cloned data` from Metro cache reads, note it, let Metro fall back to the full crawl once, and only treat it as a blocker if the export itself fails.
+6. **[2026-06-04] Do NOT keep the repo (or node_modules) in a OneDrive-synced folder — it breaks Metro**
+   Do instead: work from `C:\dev\Look`, not the OneDrive path. OneDrive Files-On-Demand virtualizes node_modules dirs as cloud-placeholder reparse points (tag `0x9000e01a`); Metro's file-map crawler skips them, so `expo export -p web` fails with cascading "Unable to resolve" / "Failed to get SHA-1" errors even though Node resolves the files. Reinstall/cache-clear does NOT fix it; relocating off OneDrive + fresh `pnpm install` does. CI is unaffected.
+7. **[2026-06-04] Vercel builds need corepack enabled on the Node-24 image**
+   Do instead: `pnpm install` dies on Vercel with `ERR_INVALID_THIS` ("Value of 'this' must be of type URLSearchParams") — a Node-24 undici bug with the bundled pnpm. Set `ENABLE_EXPERIMENTAL_COREPACK=1` (so the pinned pnpm@10 from `packageManager` is used): added to the `hype` project's env; for CLI deploys pass `--build-env ENABLE_EXPERIMENTAL_COREPACK=1`. New projects also need the `EXPO_PUBLIC_SUPABASE_*` + `EXPO_PUBLIC_BACKEND_URL` build-envs since they have no dashboard env vars.
 
 ## User Directives
 1. **[2026-03-09] Keep a living project ledger in `docs/`**

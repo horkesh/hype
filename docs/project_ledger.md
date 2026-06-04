@@ -2363,3 +2363,41 @@ After the pivot settled, deleted ~5000 lines of now-dead code:
 - Mobile UI: unchanged on iOS/Android, now also rendering on web at hype-alpha
 - Vercel: hype + look-admin only
 - Tests: 31/31 matcher + dedupe + 36/36 backend + 194/194 app — last verified 2026-05-21
+
+---
+
+### 2026-06-04 — Telemach pitch demo + home-AI login-wall regression fix + desktop responsive grid
+
+Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaway co-branded demo for the pitch, and along the way found + fixed two real regressions that were also hurting production. Most of this session ran from the relocated local repo (see Environment below).
+
+#### Telemach pitch demo — throwaway, `telemach-demo` branch only (do NOT merge to main)
+- Full violet reskin to Telemach's identity (amber `#D4A056` → Telemach purple `#8E2DE2`, dark surfaces purple-tinted): centralized hex swap across 54 files + new `apps/mobile/styles/telemach.ts` brand tokens.
+- New `apps/mobile/components/telemach/`: recreated "Powered by Telemach" lockup, animated Look×Telemach launch splash, Home "Stay connected tonight" EON Internet + EON Mobile package cards, venue/event "Telemach 5G" context banners, Profile partner card. Bilingual BS/EN.
+- Every Telemach element opens https://telemach.ba/eon-paketi/?nopaper=1 via `openTelemachEon()` (styles/telemach.ts).
+- Deployed PUBLIC at **https://look-telemach-demo.vercel.app** — its own Vercel project (isolated from `hype`), public *production* so there's no login wall and no team-slug in the URL. Never promoted to the real app; `main` stays the real (amber) Look.
+
+#### Real fix #1 — home AI edge functions: login-wall regression (on `main`, deployed to prod Supabase)
+- Symptom: hero image, City Pulse, weather, and "Surprise me" silently failed (gradient fallback / hidden cards) for anonymous web visitors — broken on production since 2026-04-10.
+- Root cause: the 2026-04-10 "harden" pass added a `verifyUserAuth` login-wall (`supabase/functions/_shared/auth.ts`) to functions that `supabase/config.toml` marks `verify_jwt = false` (i.e. intended PUBLIC). Anonymous callers got 401 "Authentication required"; the `user` object was never used downstream.
+- Fix: removed the internal gate from `generate-pulse`, `generate-hero-image`, `weather-proxy`, `surprise-me`; redeployed via `supabase functions deploy`. Results cached server-side (city_pulse 2h, hero-images 3h) so anonymous traffic can't run up AI cost. Verified all return 200 + real content anonymously (GOOGLE_AI_API_KEY + ANTHROPIC_API_KEY confirmed set).
+- Still open: **weather** — `OPENWEATHER_API_KEY` was never planted as a Supabase secret (the 2026-04-10 pass moved the key client→server but left the secret unset and `EXPO_PUBLIC_OPENWEATHER_API_KEY` empty). Current Weather `/data/2.5/weather` is still free (only One Call 2.5 was paywalled). Fix later via Open-Meteo (keyless) or re-plant a key. Hero+pulse work without it.
+
+#### Real fix #2 — responsive desktop card grid (on `main`)
+- Mobile-first single-column card lists stretched full-width on desktop web. Added `apps/mobile/hooks/useResponsiveColumns.ts` (column count scales with viewport, capped + centered at 1680px) and applied it to Explore venues, Tonight events, Saved events. Verified 4 cols @1440, 5 @1920, 1 on phones (mobile unchanged). Carousels + horizontal-row cards untouched.
+
+#### Environment / ops
+- **Repo relocated out of OneDrive → `C:\dev\Look`.** OneDrive Files-On-Demand had virtualized ~1,344 `node_modules` dirs as cloud placeholders (reparse tag `0x9000e01a`) that Metro's file-map crawler skips → local `expo export -p web` failed with cascading "Unable to resolve" / "Failed to get SHA-1" errors. Moving off OneDrive + fresh `pnpm install` fixed local builds. CI was never affected (clean Linux install). The OneDrive copy was left intact at the user's request.
+- **Vercel build fix.** Deploys fail at `pnpm install` on the Node-24 build image (`ERR_INVALID_THIS` undici bug) unless corepack is enabled. Added `ENABLE_EXPERIMENTAL_COREPACK=1` to the `hype` project's Production env; for CLI deploys pass it via `--build-env`. **The next push to `main` needs this to build** (now set on the project).
+
+#### Reusable rules captured to napkin
+- Home AI edge functions are PUBLIC by design (`config.toml` verify_jwt=false) — never bolt a `verifyUserAuth` user-gate onto them; they're cached server-side.
+- Don't keep the repo or `node_modules` in a OneDrive-synced folder — Files-On-Demand placeholders break Metro. Work from `C:\dev\Look`.
+- Vercel Node-24 build image needs `ENABLE_EXPERIMENTAL_COREPACK=1` or `pnpm install` dies on `ERR_INVALID_THIS`.
+- OpenWeather: One Call 2.5 is closed (3.0 needs a card); Current Weather `/data/2.5/weather` is still free.
+
+#### Snapshot for next session
+- Last updated: 2026-06-04
+- **Local dev: work from `C:\dev\Look`, NOT the OneDrive path.**
+- main: real Look + the two real fixes. Edge-function fixes are LIVE on prod Supabase. The responsive grid ships to web on the next `main` push (which needs the corepack env, now set). Not yet pushed.
+- telemach-demo branch: throwaway pitch reskin, live at look-telemach-demo.vercel.app (own Vercel project).
+- Open: weather key / Open-Meteo switch; push `main` to ship the grid; (older) Supabase→Vercel deploy-hook idea still pending.
