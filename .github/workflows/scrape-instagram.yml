@@ -12,12 +12,12 @@ name: Scrape Instagram + promote events
 #   APIFY_API_TOKEN               Apify console → Account → Integrations
 #
 # Optional repo secret:
-#   ADMIN_FUNCTION_SECRET         Required once parse-instagram is redeployed with
-#                                 verifyAdminAuth enforcement (currently the deployed
-#                                 function pre-dates the 2026-04-10 auth hardening so
-#                                 it accepts the service role key alone). Set this on
-#                                 both Supabase Edge Function env and GH Actions for
-#                                 forward-compat.
+#   ADMIN_FUNCTION_SECRET         No longer required. parse-instagram's verifyAdminAuth
+#                                 now also accepts the service-role key as a Bearer token
+#                                 (which this workflow already sends via
+#                                 SUPABASE_SERVICE_ROLE_KEY), so no shared secret needs
+#                                 to be planted on the Edge Function. Set this only if
+#                                 you additionally want the X-Admin-Secret path enabled.
 #
 # Manual run: Actions → Scrape Instagram + promote events → Run workflow
 

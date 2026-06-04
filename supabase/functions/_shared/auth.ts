@@ -22,12 +22,26 @@ export async function verifyUserAuth(req: Request): Promise<{ id: string; email?
 }
 
 /**
- * Verify a service-role secret for admin-only functions.
- * Checks the X-Admin-Secret header against ADMIN_FUNCTION_SECRET env var.
+ * Authorize a caller for admin-only functions. Two accepted credentials:
+ *
+ *  1. The service-role key as a Bearer token. Only server-side callers (the
+ *     ingestion cron / backend scripts) hold it; Supabase auto-injects the same
+ *     value into the edge runtime as SUPABASE_SERVICE_ROLE_KEY, so this needs no
+ *     extra secret to be configured. It is strictly more privileged than a shared
+ *     admin secret, so accepting it is sound.
+ *  2. A shared X-Admin-Secret matching ADMIN_FUNCTION_SECRET, if that env var is
+ *     configured (kept for callers that prefer not to send the service-role key).
+ *
+ * Fails closed when neither matches.
  */
 export function verifyAdminAuth(req: Request): boolean {
-  const secret = req.headers.get('X-Admin-Secret');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const authHeader = req.headers.get('Authorization');
+  if (serviceRoleKey && authHeader === `Bearer ${serviceRoleKey}`) return true;
+
   const expected = Deno.env.get('ADMIN_FUNCTION_SECRET');
-  if (!expected) return false; // fail closed if secret not configured
-  return secret === expected;
+  const secret = req.headers.get('X-Admin-Secret');
+  if (expected && secret === expected) return true;
+
+  return false;
 }
