@@ -146,3 +146,78 @@ export async function loadHomeWeather(): Promise<{ temp: number; weatherConditio
     return null;
   }
 }
+
+// ─── Major events / festivals (prominent, dynamic Home surface) ──────────────
+
+export interface HomeMajorSeries {
+  id: string;
+  name_bs: string;
+  name_en: string;
+  cover_image_url: string | null;
+  start_date: string;
+  end_date: string;
+  category: string;
+  venue_area_bs: string | null;
+  venue_area_en: string | null;
+}
+
+/** Festivals/markets flagged is_major that are active now or starting soon. */
+export async function loadHomeMajorSeries(): Promise<HomeMajorSeries[]> {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Sarajevo' });
+  const soon = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000)
+    .toLocaleDateString('en-CA', { timeZone: 'Europe/Sarajevo' });
+  const { data, error } = await supabase
+    .from('event_series')
+    .select('id, name_bs, name_en, cover_image_url, start_date, end_date, category, venue_area_bs, venue_area_en')
+    .eq('is_active', true)
+    .eq('is_major', true)
+    .gte('end_date', today)
+    .lte('start_date', soon)
+    .order('home_priority', { ascending: true, nullsFirst: false })
+    .order('start_date', { ascending: true })
+    .limit(6);
+  if (error) { console.error('loadHomeMajorSeries error:', error); return []; }
+  return (data ?? []) as HomeMajorSeries[];
+}
+
+export interface HomeMatch {
+  id: string;
+  title_bs: string;
+  title_en: string | null;
+  start_datetime: string;
+  venues?: { name: string } | null;
+}
+
+/** Upcoming Bosnia World Cup matches (tagged bih-match), soonest first. */
+export async function loadBosniaMatches(): Promise<HomeMatch[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, title_bs, title_en, start_datetime, venues(name)')
+    .contains('tags', ['bih-match'])
+    .eq('is_active', true)
+    .gte('start_datetime', new Date().toISOString())
+    .order('start_datetime', { ascending: true })
+    .limit(5);
+  if (error) { console.error('loadBosniaMatches error:', error); return []; }
+  return (data ?? []) as HomeMatch[];
+}
+
+export interface HomeWatchVenue {
+  id: string;
+  name: string;
+  neighborhood: string | null;
+  watch_party_note_bs: string | null;
+  watch_party_note_en: string | null;
+}
+
+/** Venues toggled as World Cup "where to watch" spots. */
+export async function loadWatchPartyVenues(): Promise<HomeWatchVenue[]> {
+  const { data, error } = await supabase
+    .from('venues')
+    .select('id, name, neighborhood, watch_party_note_bs, watch_party_note_en')
+    .eq('is_watch_party_venue', true)
+    .eq('is_active', true)
+    .limit(12);
+  if (error) { console.error('loadWatchPartyVenues error:', error); return []; }
+  return (data ?? []) as HomeWatchVenue[];
+}

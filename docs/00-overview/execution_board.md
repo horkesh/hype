@@ -709,6 +709,14 @@ Status:
 2. add more targeted regression coverage around auth refresh and rebuilt tab flows
 3. keep simplifying large screens and removing ad hoc persistence from UI files
 
+## Open follow-ups (2026-06-04 session)
+
+- `Done` — Home AI edge functions (`generate-pulse`, `generate-hero-image`, `surprise-me`, `weather-proxy`) un-gated for anonymous visitors (2026-04-10 login-wall regression); redeployed to prod Supabase.
+- `Done` — Responsive desktop card grid (`useResponsiveColumns`) on Explore/Tonight/Saved lists. On `main`; ships to web on the next `main` push.
+- `Blocked`/`Deferred` — **Weather**: `OPENWEATHER_API_KEY` was never planted as a Supabase secret. Fix = set the secret OR switch `weather-proxy` to keyless Open-Meteo. Optional (hero+pulse work without it).
+- `Planned` — push `main` to ship the responsive grid to `hype-alpha` (needs `ENABLE_EXPERIMENTAL_COREPACK=1`, now set on the project).
+- Note — Telemach pitch reskin is throwaway on the `telemach-demo` branch (live at look-telemach-demo.vercel.app); not for `main`.
+
 ## Maintenance rule
 
 Update this board when:

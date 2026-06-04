@@ -22,10 +22,20 @@ export async function loadSeriesDetail(seriesId: string): Promise<SeriesDetailSe
 }
 
 export async function loadSeriesEvents(seriesId: string): Promise<SeriesDetailEvent[]> {
+  // A festival aggregates its own events PLUS those of its child "program"
+  // tracks (e.g. SFF → "Parties", Street Food Market → "Gin Weekend"), so the
+  // program page shows the complete schedule. parent_series_id links a track
+  // to its festival.
+  const { data: children } = await supabase
+    .from('event_series')
+    .select('id')
+    .eq('parent_series_id', seriesId);
+  const seriesIds = [seriesId, ...((children ?? []).map((c) => c.id as string))];
+
   const { data, error } = await supabase
     .from('events')
     .select('id, title_bs, title_en, start_datetime, price_bam, ticket_url, moods, venues(name), location_name')
-    .eq('series_id', seriesId)
+    .in('series_id', seriesIds)
     .eq('is_active', true)
     .order('start_datetime', { ascending: true });
 

@@ -11,6 +11,8 @@ import { HomeHiddenGems } from '@/components/home/HomeHiddenGems';
 import { HomeMoodFeed } from '@/components/home/HomeMoodFeed';
 import { HomeMoodSection } from '@/components/home/HomeMoodSection';
 import { HomeSurpriseMe } from '@/components/home/HomeSurpriseMe';
+import { HomeMajorEvents } from '@/components/home/HomeMajorEvents';
+import { HomeWorldCupStrip } from '@/components/home/HomeWorldCupStrip';
 import { HomeFeaturedSection } from '@/components/home/HomeFeaturedSection';
 import { HomeHeritageSection } from '@/components/home/HomeHeritageSection';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
@@ -128,6 +130,14 @@ export function HomeContentSections({
       ) : (
         /* Default editorial magazine sections */
         <>
+          <View style={styles.section}>
+            <HomeMajorEvents language={language} />
+          </View>
+
+          <View style={styles.section}>
+            <HomeWorldCupStrip language={language} />
+          </View>
+
           <View style={styles.section}>
             <HomeFeaturedVenues language={language} selectedMood={selectedMood} />
           </View>
