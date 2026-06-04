@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
@@ -10,6 +11,49 @@ const CATEGORY_EMOJI: Record<string, string> = {
   market: '🍔', festival: '🎪', music: '🎶', film: '🎬', sport: '⚽',
   nightlife: '🎉', culture: '🎭', art: '🖼️', food: '🍽️',
 };
+
+/**
+ * Card background: the festival's cover photo behind a dark scrim so white text
+ * stays legible, falling back to the brand accent gradient when there's no photo.
+ */
+function CardBackground({
+  imageUrl,
+  accent,
+  background,
+}: {
+  imageUrl: string | null;
+  accent: string;
+  background: string;
+}): React.ReactElement {
+  if (imageUrl) {
+    return (
+      <>
+        <Image
+          source={{ uri: imageUrl }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={200}
+          cachePolicy="disk"
+          recyclingKey={imageUrl}
+        />
+        <LinearGradient
+          colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0.65)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </>
+    );
+  }
+  return (
+    <LinearGradient
+      colors={[accent, background]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={StyleSheet.absoluteFill}
+    />
+  );
+}
 
 /** Day-window countdown label from the series' start/end dates (Sarajevo). */
 function countdownLabel(startDate: string, endDate: string, lang: string): string {
@@ -63,11 +107,10 @@ export function HomeMajorEvents({ language }: HomeMajorEventsProps): React.React
         accessibilityRole="button"
         accessibilityLabel={nameOf(spotlight)}
       >
-        <LinearGradient
-          colors={[colors.accent, colors.background]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
+        <CardBackground
+          imageUrl={spotlight.cover_image_url}
+          accent={colors.accent}
+          background={colors.background}
         />
         <View style={styles.spotlightTop}>
           <Text style={styles.emoji}>{CATEGORY_EMOJI[spotlight.category] ?? '✨'}</Text>
@@ -94,11 +137,10 @@ export function HomeMajorEvents({ language }: HomeMajorEventsProps): React.React
               accessibilityRole="button"
               accessibilityLabel={nameOf(s)}
             >
-              <LinearGradient
-                colors={[colors.accent, colors.background]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
+              <CardBackground
+                imageUrl={s.cover_image_url}
+                accent={colors.accent}
+                background={colors.background}
               />
               <Text style={styles.emoji}>{CATEGORY_EMOJI[s.category] ?? '✨'}</Text>
               <Text style={styles.railName} numberOfLines={2}>{nameOf(s)}</Text>
@@ -134,14 +176,35 @@ const styles = StyleSheet.create({
   emoji: { fontSize: 30 },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   badgeText: { color: '#FFF', fontSize: 12, fontFamily: 'DMSans_700Bold', fontWeight: '700' },
+  // Soft shadow keeps white labels legible over any cover photo, bright or dark.
   spotlightName: {
     color: '#FFF',
     fontFamily: 'DMSerifDisplay_400Regular',
     fontSize: 28,
     marginTop: 16,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
-  spotlightArea: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 4, fontFamily: 'DMSans_400Regular' },
-  cta: { color: '#FFF', fontSize: 14, fontFamily: 'DMSans_700Bold', fontWeight: '700', marginTop: 12 },
+  spotlightArea: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
+    marginTop: 4,
+    fontFamily: 'DMSans_400Regular',
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+  cta: {
+    color: '#FFF',
+    fontSize: 14,
+    fontFamily: 'DMSans_700Bold',
+    fontWeight: '700',
+    marginTop: 12,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
   rail: { paddingHorizontal: 16, paddingTop: 12, gap: 12 },
   railCard: {
     width: 160,
@@ -151,6 +214,22 @@ const styles = StyleSheet.create({
     padding: 14,
     justifyContent: 'space-between',
   },
-  railName: { color: '#FFF', fontFamily: 'DMSans_700Bold', fontWeight: '700', fontSize: 15, marginTop: 8 },
-  railCountdown: { color: 'rgba(255,255,255,0.85)', fontSize: 12, fontFamily: 'DMSans_500Medium' },
+  railName: {
+    color: '#FFF',
+    fontFamily: 'DMSans_700Bold',
+    fontWeight: '700',
+    fontSize: 15,
+    marginTop: 8,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
+  railCountdown: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 12,
+    fontFamily: 'DMSans_500Medium',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
+  },
 });
