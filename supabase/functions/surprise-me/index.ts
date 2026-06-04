@@ -2,20 +2,12 @@ import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callClaude } from '../_shared/ai-clients.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
-import { verifyUserAuth } from '../_shared/auth.ts';
 import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
 
-  const user = await verifyUserAuth(req);
-  if (!user) {
-    return new Response(
-      JSON.stringify({ success: false, error: 'Authentication required' }),
-      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    );
-  }
-
+  // Public home endpoint — no per-user login required (matches the pre-2026-04-10 design).
   try {
     const { moods = [], language = 'en' } = await req.json();
 
