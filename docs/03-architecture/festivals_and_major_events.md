@@ -64,6 +64,16 @@ ALTER TABLE venues
 
 - `is_watch_party_venue` is the **backend toggle** the owner asked for: flip it per venue in admin. The World Cup section lists these venues as "Where to watch." Generic on purpose (reusable for Euro, NBA finals, etc.).
 
+### 2.3a Festivals with a physical home are ALSO a venue
+
+A pop-up festival that lives at one place for weeks (Street Food Market at Vilsonovo šetalište, ~Jun 10–Jul 19) is modeled as **both** a `venues` row **and** an `event_series` — no new schema, because `events` already carry both `venue_id` and `series_id`:
+- **Venue** = the browsable *place*: appears in Explore + on the map, is saveable, has directions, and its venue page lists all its events. Category `market`. A seasonal pop-up is controlled by the existing `is_active` (flip off after the run); the season is described in `description_*` / `opening_hours`.
+- **Series** = the curated *program/timeline* + Home prominence (§2.1).
+- **Each daily event** → `type='venue_linked'`, `venue_id` = the Market venue, `series_id` = the Market festival. One tap resolves to the same venue **and** program.
+- If that venue is also a watch zone, set `is_watch_party_venue=true` (the Market = the WC fan zone, so it's the flagship "Where to watch").
+
+This pattern applies to any **standing-location** festival/market. Festivals spread across **many** venues (e.g. SFF — cinemas, squares, clubs) stay series-only, with each child event carrying its own `venue_id`.
+
 ### 2.4 `world_cup_matches` — lightweight fixture schedule
 
 Matches are reference data (kickoff times, opponents), not user events. A tiny table keeps the schedule + countdowns clean and avoids polluting `events`.
