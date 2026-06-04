@@ -1,6 +1,8 @@
 # Festivals & Major Events — Design Spec
 
-Status: **DRAFT for approval** · Created 2026-06-04 · Owner: Look team
+Status: **IMPLEMENTED (P0–P2, §6–§7)** · Created 2026-06-04 · Owner: Look team
+
+> Build state (2026-06-04): P0 schema, P1 Street Food Market + Home surfaces (Spotlight/Major rail with cover photos + World Cup strip), P2 admin (Festivals hub + Program builder + Where-to-watch + Scrape sources, live at look-admin.vercel.app), §6 World Cup series + match attach, and §7 the two festival IG sources are all DONE. **P3 (SFF program fill)** is scaffolded (SFF + Žurke/Projekcije tracks exist, empty until the August scrape+curate). Note: matches are modeled as `events` tagged `bih-match` (NOT the `world_cup_matches` table in §2.4 — that table was never created); the where-to-watch toggle + match list live in the admin "Svjetsko prvenstvo" page.
 
 ## 1. Goal & scope
 

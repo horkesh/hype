@@ -2417,3 +2417,24 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 #### Demo re-promote + GOTCHA discovered
 - `look-telemach-demo`'s Vercel **Production Branch is `main`** (git-connected, GitHub auto-deploy). My `main` push therefore auto-published the **non-reskinned** app to the demo URL. Pushing `telemach-demo` only makes a preview.
 - Re-promoted the reskin via prebuilt Build Output API: `expo export` + inject-seo on `telemach-demo`, assembled `.vercel/output/{config.json,static/}` linked to the demo project, `vercel deploy --prebuilt --prod` → `dpl_6x5Bg3…` READY (current prod). `--prebuilt` skips Vercel's build (no corepack/root-dir failure). Details + the durable fix (set Production Branch = `telemach-demo` in the dashboard) captured in the `project_telemach_pitch_followups` memory.
+
+---
+
+### 2026-06-04 (later) — Festival admin tooling + data seed (P2/P3/§6/§7 of the festivals spec)
+
+#### Full admin screen (apps/admin → look-admin.vercel.app, commit `998efe8`)
+- **`SeriesManagement` upgraded to a Festivals hub.** Editor now exposes the festival columns: `series_kind` (festival/program/collection), `is_major`, `home_priority`, `parent_series_id`, `track_label_bs/en`, `venue_area_bs/en`, `logo_url` (full category enum). List shows kind + major + nested tracks (↳).
+- **Program builder** (festivals only, post-save): lists child tracks with a "+ Novi track" shortcut (prefills kind=program + parent + dates); an "in-window unassigned" **suggestions** column (events inside the festival's date range with `series_id IS NULL`) with one-click attach to the festival or a chosen track; and a "U programu" column with detach. This is the §4.2/§8.2 aggregation tool.
+- **New `WatchPartyVenues` page** ("Svjetsko prvenstvo — gdje gledati"): venue search → toggle `is_watch_party_venue` + BS/EN notes; lists `bih-match` events with an is_active toggle. (§8.4–8.5)
+- **New `ScrapeSources` page** ("Izvori"): list/filter all 95+ sources, toggle active, edit `frequency_hours` inline, and **add Instagram sources** (handle/URL → builds the `scrape_config`) without SQL. RLS allows it (`scrape_sources` = `is_admin_or_curator()`). (§8.6)
+- Deployed prebuilt to look-admin (`dpl_ASApDxRV`, READY). tsc clean; vite build 517 kB.
+
+#### Data seed + a bug fix
+- **§7 ingestion:** added the two missing Tier-1 sources `@streetfoodmarket.sa` + `@summertimemadness.sa` (mirroring the SFF source's `scrape_config`).
+- **§4.3/P3 SFF scaffolding:** created `Sarajevo Film Festival` (festival, is_major, Aug 14–21) + child tracks **SFF — Žurke/Parties** and **SFF — Projekcije/Screenings**. Empty until August scrape+curate; structure is ready.
+- **§6 World Cup:** created `Svjetsko prvenstvo 2026` (collection, is_major, home_priority 2).
+- **Bug found + fixed:** every `worldcup`-tagged event (3 BiH matches + opening + 6 fan-zone rows) had been wrongly attached to the **Street Food Market** series in the prior session — SFM showed 27 events. Reassigned all 10 to the WC series (SFM back to its real 17). Set SFM `home_priority=1`.
+- Net Home "Major events" now: Street Food Market (#1), World Cup (#2) in-window now; SFF (#3) lights up in August. `hype` rebuilt from `998efe8`, so the new `/series/*` pages render on direct load.
+
+#### Still open (festival)
+- **Recurring auto-scrape** needs `ADMIN_FUNCTION_SECRET` restored in `backend/.env` (parse-instagram requires X-Admin-Secret) — ops task, not doable from here without the secret.
