@@ -2,7 +2,6 @@ import { corsHeaders, corsResponse } from '../_shared/cors.ts';
 import { callGemini } from '../_shared/ai-clients.ts';
 import { supabaseAdmin } from '../_shared/supabase-admin.ts';
 import { getActiveHoliday } from '../_shared/holidays.ts';
-import { verifyUserAuth } from '../_shared/auth.ts';
 import { getSarajevoHour } from '../_shared/sarajevoTime.ts';
 
 const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
@@ -58,14 +57,9 @@ async function fetchKlixHeadlines(): Promise<string[]> {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return corsResponse();
 
-  const user = await verifyUserAuth(req);
-  if (!user) {
-    return new Response(
-      JSON.stringify({ success: false, error: 'Authentication required' }),
-      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    );
-  }
-
+  // Public home endpoint — no per-user login required. The gateway (verify_jwt)
+  // still requires the project anon key, so this isn't keyless. Result is cached
+  // server-side (city_pulse, 2h TTL), so anonymous traffic can't run up AI cost.
   try {
     const body = await req.json().catch(() => ({}));
     const weather = body?.weather ?? null;
