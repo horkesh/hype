@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { PoweredByTelemach } from '@/components/telemach/PoweredByTelemach';
-import { telemach } from '@/styles/telemach';
+import { openTelemachEon, telemach } from '@/styles/telemach';
 
 type Lang = 'bs' | 'en';
 
@@ -79,7 +79,14 @@ export function TelemachPackagesSection({
         contentContainerStyle={styles.row}
       >
         {PACKAGES.map((pkg) => (
-          <View key={pkg.id} style={styles.card}>
+          <TouchableOpacity
+            key={pkg.id}
+            style={styles.card}
+            activeOpacity={0.9}
+            onPress={openTelemachEon}
+            accessibilityRole="link"
+            accessibilityLabel={`${pkg.name} — ${cta}`}
+          >
             <LinearGradient
               colors={pkg.gradient}
               start={{ x: 0, y: 0 }}
@@ -110,12 +117,12 @@ export function TelemachPackagesSection({
                 <Text style={styles.price}>{pkg.price}</Text>
                 <Text style={styles.per}>{pkg.per[language]}</Text>
               </View>
-              <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85}>
+              <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85} onPress={openTelemachEon}>
                 <Text style={styles.ctaText}>{cta}</Text>
                 <MaterialIcons name="arrow-forward" size={16} color={telemach.purpleDeep} />
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>

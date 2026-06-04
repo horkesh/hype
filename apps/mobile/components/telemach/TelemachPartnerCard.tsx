@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { PoweredByTelemach } from '@/components/telemach/PoweredByTelemach';
-import { telemach } from '@/styles/telemach';
+import { openTelemachEon, telemach } from '@/styles/telemach';
 
 type Lang = 'bs' | 'en';
 
@@ -34,7 +34,13 @@ export function TelemachPartnerCard({ language }: TelemachPartnerCardProps): Rea
       : 'Your night out, powered by Telemach. Subscribers unlock perks inside Look.';
 
   return (
-    <View style={styles.wrap}>
+    <TouchableOpacity
+      style={styles.wrap}
+      activeOpacity={0.9}
+      onPress={openTelemachEon}
+      accessibilityRole="link"
+      accessibilityLabel={heading}
+    >
       <LinearGradient
         colors={telemach.gradient}
         start={{ x: 0, y: 0 }}
@@ -58,7 +64,7 @@ export function TelemachPartnerCard({ language }: TelemachPartnerCardProps): Rea
           ))}
         </View>
       </LinearGradient>
-    </View>
+    </TouchableOpacity>
   );
 }
 

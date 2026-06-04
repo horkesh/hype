@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/hooks/useTheme';
 import { PoweredByTelemach } from '@/components/telemach/PoweredByTelemach';
+import { openTelemachEon } from '@/styles/telemach';
 
 export function HypeHeader() {
   const { language, setLanguage } = useApp();
@@ -55,7 +56,14 @@ export function HypeHeader() {
       </View>
 
       <View style={styles.headerRight}>
-        <PoweredByTelemach variant="compact" tone="light" />
+        <TouchableOpacity
+          onPress={openTelemachEon}
+          activeOpacity={0.7}
+          accessibilityRole="link"
+          accessibilityLabel="Powered by Telemach — view EON packages"
+        >
+          <PoweredByTelemach variant="compact" tone="light" />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={toggleLanguage}
           style={[styles.languageButton, { backgroundColor: colors.card, borderColor: colors.accent }]}
