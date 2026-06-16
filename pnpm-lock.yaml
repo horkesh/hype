@@ -206,6 +206,9 @@ importers:
       react-router-dom:
         specifier: ^7.1.3
         version: 7.15.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      semver:
+        specifier: 7.7.2
+        version: 7.7.2
       workbox-cli:
         specifier: ^7.3.0
         version: 7.4.1(@types/babel__core@7.20.5)

@@ -5,9 +5,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(dir, '..', '..', '..');
 const aiDir = path.resolve(dir, '..', 'utils', 'ai');
-const fnDir = path.resolve(dir, '..', 'supabase', 'functions');
-const scriptsDir = path.resolve(dir, '..', 'backend', 'src', 'scripts');
+const fnDir = path.resolve(repoRoot, 'supabase', 'functions');
+const scriptsDir = path.resolve(repoRoot, 'backend', 'src', 'scripts');
 
 // --- Edge function file checks ---
 

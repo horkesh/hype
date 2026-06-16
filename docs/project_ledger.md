@@ -2459,3 +2459,15 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 #### Sync state
 - All committed + pushed to `main` (HEAD `3e922cc`). Working tree clean. Edge functions weather-proxy (v4) + parse-instagram (v10) deployed. look-admin / hype-alpha / look-telemach-demo all live & current. Memories updated: `project_festivals_feature`, `project_telemach_pitch_followups`, `reference_look_admin_deploy`.
 - **Truly open:** only SFF program fill (August). Weather + auto-scrape + admin + images all done.
+
+---
+
+### 2026-06-16 - Web Home deployment integration after upstream Major Events work
+
+- Rebased the web Home follow-up onto the newer upstream `main`, which already contains the dedicated `HomeMajorEvents` surface, World Cup strip, responsive desktop grids, series static params, festival cover imagery, admin tooling, weather fix, and auto-scrape fix.
+- Dropped the older web-only Home shell and duplicate `Veliki dogadaji` label workaround during rebase. The canonical fix is now the shared `HomeMajorEvents` section, so mobile and web use the same content model instead of separate web/mobile content flows.
+- Kept the shared hero/weather side effect extraction in `useHomeHeroVisual()` and wired `HomeContentSections` to use it, reducing duplication around hero image + weather loading.
+- Kept stale monorepo test path fixes for `aiHelpers*.test.ts`, resolving Supabase functions from root `supabase/functions` and backend scripts from root `backend/src/scripts`.
+- Kept explicit `semver@7.7.2` in `@look/mobile` because local Expo web export previously failed resolving Reanimated's semver helper through Metro under this workspace install.
+- SEO impact: no change to the production SEO architecture. The app still uses `expo export -p web` followed by `scripts/inject-seo.mjs`.
+- Determinism impact: UI/refactor/test/build-dependency only; no simulation, scenario, serialization, or ordering pipeline impact.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { HomeCategoryFeed } from '@/components/home/HomeCategoryFeed';
@@ -16,9 +16,9 @@ import { HomeWorldCupStrip } from '@/components/home/HomeWorldCupStrip';
 import { HomeFeaturedSection } from '@/components/home/HomeFeaturedSection';
 import { HomeHeritageSection } from '@/components/home/HomeHeritageSection';
 import { HomeTrendingSection } from '@/components/home/HomeTrendingSection';
-import { HomeEventItem, HomeEventSeries, loadHomeWeather } from '@/utils/homeData';
+import { HomeEventItem, HomeEventSeries } from '@/utils/homeData';
 import { HomeLanguage } from '@/utils/homeHeroState';
-import { fetchHeroImage } from '@/utils/ai/heroImage';
+import { useHomeHeroVisual } from '@/hooks/useHomeHeroVisual';
 
 interface HomeContentSectionsProps {
   colors: {
@@ -64,21 +64,7 @@ export function HomeContentSections({
   selectedMood,
   upcomingEvents,
 }: HomeContentSectionsProps) {
-  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
-  const [weather, setWeather] = useState<{ temp: number; condition: string } | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const w = await loadHomeWeather().catch(() => null);
-      // Map weatherCondition → condition for downstream consumers
-      const mapped = w ? { temp: w.temp, condition: w.weatherCondition } : null;
-      if (mounted) setWeather(mapped);
-      const url = await fetchHeroImage({ weather: mapped }).catch(() => null);
-      if (mounted && url) setHeroImageUrl(url);
-    })();
-    return () => { mounted = false; };
-  }, []);
+  const { heroImageUrl, weather } = useHomeHeroVisual();
 
   return (
     <>

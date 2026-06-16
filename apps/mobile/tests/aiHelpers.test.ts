@@ -5,8 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(dir, '..', '..', '..');
 const aiDir = path.resolve(dir, '..', 'utils', 'ai');
-const fnDir = path.resolve(dir, '..', 'supabase', 'functions');
+const fnDir = path.resolve(repoRoot, 'supabase', 'functions');
 
 test('cityPulse client helper exists', () => {
   assert.ok(fs.existsSync(path.join(aiDir, 'cityPulse.ts')));
