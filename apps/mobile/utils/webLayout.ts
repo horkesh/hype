@@ -1,5 +1,3 @@
-export const WEB_APP_MAX_WIDTH = 430;
-
 export interface ResponsiveColumnLayoutOptions {
   viewportWidth: number;
   platform: string;
@@ -17,7 +15,8 @@ export interface ResponsiveColumnLayout {
 }
 
 export function getEffectiveAppWidth(viewportWidth: number, platform: string): number {
-  return platform === 'web' ? Math.min(viewportWidth, WEB_APP_MAX_WIDTH) : viewportWidth;
+  void platform;
+  return viewportWidth;
 }
 
 export function getResponsiveColumnLayout({

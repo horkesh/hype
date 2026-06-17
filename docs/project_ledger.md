@@ -2481,3 +2481,11 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 - SEO impact: unchanged. Production web still uses `expo export -p web` followed by `scripts/inject-seo.mjs`; the latest export rewrote 1000 venue pages, 85 event pages, and 4 top-level pages.
 - Determinism impact: UI state/layout only; no data pipeline, simulation, ordering, or serialization changes.
 - Verification: `node --import tsx --test tests/homeWeather.test.ts`, `node --import tsx --test tests/webLayout.test.ts`, `pnpm.cmd --filter @look/mobile test` (196/196), and `pnpm.cmd --filter @look/mobile build:web`.
+
+### 2026-06-17 - Web full-width correction
+
+- Reverted the root web-shell phone-width cap from the previous follow-up. The web app now uses the full browser viewport again, while retaining the shared Home content model and the weather fix that prevents automatic `Outdoor` selection.
+- Kept responsive card-grid behavior for wide web layouts via `useResponsiveColumns`; the correction is specifically that the whole app shell must not be capped to 430px.
+- Updated `webLayout.test.ts` to assert full browser viewport width on desktop web and desktop columns for wide responsive grids.
+- SEO impact: unchanged. `expo export -p web` and `scripts/inject-seo.mjs` still produced 1110 static routes and rewrote 1000 venue pages, 85 event pages, and 4 top-level pages.
+- Verification: `node --import tsx --test tests/webLayout.test.ts`, `node --import tsx --test tests/homeWeather.test.ts`, `pnpm.cmd --filter @look/mobile test` (196/196), and `pnpm.cmd --filter @look/mobile build:web`.
