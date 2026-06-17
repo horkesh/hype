@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { designTokens } from '@/styles/designTokens';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_MIN_HEIGHT = 320;
 
 function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' | 'night' {
@@ -57,8 +56,8 @@ export function HomeHeroPhoto({ language, heroImageUrl, children }: HomeHeroPhot
 }
 
 const styles = StyleSheet.create({
-  container: { width: SCREEN_WIDTH, minHeight: HERO_MIN_HEIGHT, marginBottom: 16 },
-  backgroundImage: { ...StyleSheet.absoluteFillObject, width: SCREEN_WIDTH, minHeight: HERO_MIN_HEIGHT },
+  container: { width: '100%', minHeight: HERO_MIN_HEIGHT, marginBottom: 16 },
+  backgroundImage: { ...StyleSheet.absoluteFillObject, width: '100%', minHeight: HERO_MIN_HEIGHT },
   overlay: { justifyContent: 'flex-end', padding: 20, paddingBottom: 24, minHeight: HERO_MIN_HEIGHT },
   greeting: { ...designTokens.typography.heroTitle, color: '#FFF', marginBottom: 12 },
 });

@@ -1,4 +1,6 @@
-import { useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
+
+import { getResponsiveColumnLayout } from '@/utils/webLayout';
 
 /**
  * Responsive column count for card grids on the web/desktop build.
@@ -33,17 +35,9 @@ interface Options {
 export function useResponsiveColumns(options: Options = {}): ResponsiveColumns {
   const { width } = useWindowDimensions();
 
-  const minCardWidth = options.minCardWidth ?? 300;
-  const maxColumns = options.maxColumns ?? 4;
-  const maxContentWidth = options.maxContentWidth ?? 1200;
-  const gap = options.gap ?? 16;
-  const horizontalPadding = options.horizontalPadding ?? 32;
-
-  const contentWidth = Math.min(width, maxContentWidth) - horizontalPadding;
-  const columns = Math.max(
-    1,
-    Math.min(maxColumns, Math.floor((contentWidth + gap) / (minCardWidth + gap))),
-  );
-
-  return { columns, gap, contentWidth };
+  return getResponsiveColumnLayout({
+    viewportWidth: width,
+    platform: Platform.OS,
+    ...options,
+  });
 }

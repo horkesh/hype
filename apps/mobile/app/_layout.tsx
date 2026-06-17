@@ -1,7 +1,7 @@
 
 import "react-native-reanimated";
 import React, { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
@@ -24,6 +24,7 @@ import {
   useFonts as useDMSerif,
   DMSerifDisplay_400Regular,
 } from "@expo-google-fonts/dm-serif-display";
+import { WEB_APP_MAX_WIDTH } from "@/utils/webLayout";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -64,28 +65,36 @@ export default function RootLayout() {
     return null;
   }
 
+  const appShell = (
+    <View style={Platform.OS === "web" ? rootStyles.webFrame : rootStyles.flex}>
+      <Stack
+        screenOptions={{
+          animation: "slide_from_right",
+          animationDuration: 300,
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="venue/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="wellness" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <SystemBars style="light" />
+    </View>
+  );
+
   return (
     <>
       <StatusBar style="light" animated />
       <ThemeProvider value={LookDarkTheme}>
         <ErrorBoundary>
           <AppProvider>
-            <GestureHandlerRootView style={rootStyles.flex}>
-              <Stack
-                screenOptions={{
-                  animation: "slide_from_right",
-                  animationDuration: 300,
-                }}
-              >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="venue/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="series/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="heritage/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="wellness" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-              <SystemBars style="light" />
+            <GestureHandlerRootView
+              style={[rootStyles.flex, Platform.OS === "web" && rootStyles.webHost]}
+            >
+              {appShell}
             </GestureHandlerRootView>
           </AppProvider>
         </ErrorBoundary>
@@ -96,4 +105,15 @@ export default function RootLayout() {
 
 const rootStyles = StyleSheet.create({
   flex: { flex: 1 },
+  webHost: {
+    alignItems: "center",
+    backgroundColor: "#121212",
+  },
+  webFrame: {
+    flex: 1,
+    width: "100%",
+    maxWidth: WEB_APP_MAX_WIDTH,
+    alignSelf: "center",
+    backgroundColor: "#121212",
+  },
 });

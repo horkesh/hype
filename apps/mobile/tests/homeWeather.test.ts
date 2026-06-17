@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mergeSuggestedMood } from '../utils/homeWeather';
 
-test('mergeSuggestedMood applies the weather suggestion when no mood is selected', () => {
-  assert.equal(mergeSuggestedMood(null, 'outdoor'), 'outdoor');
+test('mergeSuggestedMood keeps the default Home feed when weather suggests a mood', () => {
+  assert.equal(mergeSuggestedMood(null, 'outdoor'), null);
 });
 
-test('mergeSuggestedMood updates the current mood when the weather suggests a different one', () => {
-  assert.equal(mergeSuggestedMood('party', 'chill'), 'chill');
+test('mergeSuggestedMood does not override a user-selected mood', () => {
+  assert.equal(mergeSuggestedMood('party', 'chill'), 'party');
 });
 
 test('mergeSuggestedMood preserves the current mood when there is no suggestion', () => {

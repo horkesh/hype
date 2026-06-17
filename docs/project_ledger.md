@@ -2471,3 +2471,13 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 - Kept explicit `semver@7.7.2` in `@look/mobile` because local Expo web export previously failed resolving Reanimated's semver helper through Metro under this workspace install.
 - SEO impact: no change to the production SEO architecture. The app still uses `expo export -p web` followed by `scripts/inject-seo.mjs`.
 - Determinism impact: UI/refactor/test/build-dependency only; no simulation, scenario, serialization, or ordering pipeline impact.
+
+### 2026-06-17 - Web Home parity follow-up
+
+- Constrained the production web shell to the same phone-width frame as the mobile app (`WEB_APP_MAX_WIDTH = 430`) so desktop browsers no longer stretch Home, Explore, Tonight, or Saved into a separate desktop composition.
+- Updated responsive card-grid calculations to use the capped web frame width, keeping web Home/feeds visually aligned with mobile instead of switching to desktop columns.
+- Removed `Dimensions.get('window')` from `HomeHeroPhoto`; the hero now fills its parent frame instead of capturing the desktop browser width at module load.
+- Fixed the "Outdoor selected on website" regression. Weather can still influence the hero message, but `mergeSuggestedMood()` no longer mutates `selectedMood` on Home load or overrides a user-selected mood, so default Home sections such as `Veliki dogadaji` remain visible on first render.
+- SEO impact: unchanged. Production web still uses `expo export -p web` followed by `scripts/inject-seo.mjs`; the latest export rewrote 1000 venue pages, 85 event pages, and 4 top-level pages.
+- Determinism impact: UI state/layout only; no data pipeline, simulation, ordering, or serialization changes.
+- Verification: `node --import tsx --test tests/homeWeather.test.ts`, `node --import tsx --test tests/webLayout.test.ts`, `pnpm.cmd --filter @look/mobile test` (196/196), and `pnpm.cmd --filter @look/mobile build:web`.
