@@ -2459,3 +2459,35 @@ Context: partner is pitching Look to **Telemach** (BiH telecom). Built a throwaw
 #### Sync state
 - All committed + pushed to `main` (HEAD `3e922cc`). Working tree clean. Edge functions weather-proxy (v4) + parse-instagram (v10) deployed. look-admin / hype-alpha / look-telemach-demo all live & current. Memories updated: `project_festivals_feature`, `project_telemach_pitch_followups`, `reference_look_admin_deploy`.
 - **Truly open:** only SFF program fill (August). Weather + auto-scrape + admin + images all done.
+
+---
+
+### 2026-08-22 — Look retired (paused, fully preserved)
+
+Retired Look to cut Supabase spend. **Paused, not deleted** — restart is one click. Full runbook: `docs/05-dev-ops/restart_runbook.md`; plan and cost audit: `docs/05-dev-ops/retirement_plan.md`.
+
+#### Why (cost audit)
+- Org bill is ~$55/mo and is **entirely** Pro base ($25) + per-project Micro compute (4 × $10, less the $10 credit). `get_cost` confirms $10/project/month. All four projects are identical Micro instances.
+- Data volume costs nothing: 108 MB of Postgres across all projects vs 8 GB included disk *each*; 2.9 GB storage vs 100 GB included. **Only project slots cost money.** Retiring Look saves exactly $10/mo ($55 → $45).
+- The remaining lever, not taken: Defter + the-codex merge cleanly into `bespoke` (already a prefixed multi-app DB) → 1 project, $25/mo.
+
+#### Archive — `C:\dev\_archive\look-2026-08\` (558 MB)
+- `db/` 33 JSON files, one per public table. `storage/` 1,333 files / 515 MB. `auth/users.json` 4 users (no password hashes — service-role export, not `pg_dump`). `meta/env/` the three gitignored `.env` files. `export.mjs` re-runnable.
+- Verified: every row count and both bucket object counts matched live exactly; sampled images carry valid JPEG magic bytes; `events.slug` and `venues.is_watch_party_venue` present in the exported data.
+
+#### Drift found and closed (the real finding)
+The live project had diverged from git — dashboard changes without matching commits:
+- **2 migrations applied with no file in the repo**, now recovered verbatim from `supabase_migrations.schema_migrations`: `20260522053650_events_slug_column` (adds `events.slug` + unique index + backfill) and `20260604085602_festivals_major_events_columns` (8 cols on `event_series`, 3 on `venues`). A rebuild from git alone would have produced the wrong schema.
+- **2 Edge Functions deployed with no source in the repo**, now recovered from the live project: `parse-events` (v15) and `scrape-kupikartu` (v10). Both syntax-checked with esbuild.
+- `generate-event-cover` exists in the repo but was never deployed.
+- Applied-migration timestamps don't match repo filenames for pre-2026-05-21 entries — the two lists can't be diffed by name.
+
+#### Shutdown state
+- GitHub Actions: both workflows off. `scrape-instagram` disabled manually (280158089); `scrape-and-promote` (277842784) was **already** `disabled_inactivity` — GitHub had auto-disabled it for repo inactivity, so the 6-hourly Apify/Google spend had already stopped on its own.
+- Vercel: `look-telemach-demo`, `look-admin`, `hype-app`, `hype` left deployed. Hobby scope, no cost, and they come back with Supabase. They will fail to load data while the project is paused.
+- **Pause is not possible on Pro.** `pause_project` returns `BadRequestException: Project is not free-tier. Please downgrade it to free-tier first`. Pausing is Free-tier-only and billing is per-organization, so no project inside a Pro org can be paused. This invalidated the original Phase 3.
+- **Resolution: the project was transferred to a new Free organization "Look" and renamed `Hype` → `Look`.** Done via dashboard (neither org creation nor project transfer is exposed via MCP). **The project ref is unchanged — `kyfoqltmkqwtnrdlacqv`** — so the API URL, anon key and service-role key all still work: the three `.env` files, Vercel env vars and GitHub Actions secrets needed no changes.
+- **Verified post-transfer** (`_archive/look-2026-08/verify.mjs`, run against the live project with the service-role key): all 33 tables at exact pre-transfer row counts, 0 mismatches; `events.slug`, `venues.is_watch_party_venue`, `event_series.is_major` all present; `venue-photos` 1,235 objects / 424.5 MB and `hero-images` 98 / 111.2 MB; sample image downloads with valid JPEG magic; 4 auth users; `weather-proxy` returns 200 → Edge runtime and functions survived intact. **ALL CHECKS PASSED.**
+- **Billing:** The Codex org is down to 3 projects — $55/mo → **$45/mo**. Look now costs $0 on Free.
+- **Free-tier consequences to remember:** the project auto-pauses after ~1 week of inactivity (restore is a click, this is the desired behaviour). Storage sits at 511 MB of the 1 GB cap, so re-enabling the scrapers would breach it within weeks — `venue-photos` is what grows. DB is 44 MB of 500 MB.
+- **Not done:** third-party keys not rotated (only needed if this ever becomes a permanent teardown); this ledger + the recovered migrations/functions are uncommitted pending review.
